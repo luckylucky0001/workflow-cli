@@ -1,0 +1,54 @@
+{
+  "$id": "docs/schemas/compute.log.get.v1.json",
+  "title": "compute.log.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "app_id": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "in_progress": {
+      "type": "boolean",
+      "description": "应用仍在运行时日志为符号链接指向的临时文件"
+    },
+    "bytes": {
+      "type": "number"
+    },
+    "total_lines": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "returned_lines": {
+      "type": "number"
+    },
+    "truncated": {
+      "type": "boolean"
+    },
+    "provenance": {
+      "type": "string"
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "app_id",
+    "path",
+    "in_progress",
+    "bytes",
+    "total_lines",
+    "returned_lines",
+    "truncated",
+    "provenance",
+    "lines"
+  ],
+  "additionalProperties": false
+}

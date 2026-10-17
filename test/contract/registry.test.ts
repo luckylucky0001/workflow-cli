@@ -59,9 +59,17 @@ describe('capability registry contract', () => {
     const problems: string[] = [];
     for (const c of available) {
       for (const ex of c.examples ?? []) {
-        const tokens = ex.split(/\s+/).filter((t) => t !== 'workctl' && t !== '--json');
+        const tokens = ex.split(/\s+/).filter((t) => t !== 'workctl');
         const words: string[] = [];
-        for (const t of tokens) {
+        // skip global options (with their values) that may precede the command
+        const globalsWithValue = new Set(['--timeout', '--profile', '--config', '-o', '--output', '--request-id']);
+        for (let k = 0; k < tokens.length; k++) {
+          const t = tokens[k];
+          if (globalsWithValue.has(t)) {
+            k++;
+            continue;
+          }
+          if (['--json', '--debug', '--fail-on-partial'].includes(t)) continue;
           if (t.startsWith('-')) break;
           words.push(t);
         }
@@ -70,7 +78,7 @@ describe('capability registry contract', () => {
           problems.push(`${c.name}: example uses unknown command "${words.join(' ')}"`);
           continue;
         }
-        const flags = [...ex.matchAll(/--([a-z][a-z0-9-]*)/g)].map((m) => m[1]).filter((f) => !['json', 'profile', 'timeout', 'config', 'output', 'no-probe'].includes(f));
+        const flags = [...ex.matchAll(/--([a-z][a-z0-9-]*)/g)].map((m) => m[1]).filter((f) => !['json', 'profile', 'timeout', 'config', 'output', 'request-id', 'debug', 'fail-on-partial'].includes(f));
         for (const f of flags) {
           const key = f.replace(/^no-/, '').replace(/-/g, '_');
           if (!(key in target.inputs)) problems.push(`${c.name}: example flag --${f} unknown for ${target.name}`);

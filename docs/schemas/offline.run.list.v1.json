@@ -1,0 +1,337 @@
+{
+  "$id": "docs/schemas/offline.run.list.v1.json",
+  "title": "offline.run.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "workflow": {
+      "type": "string"
+    },
+    "mapping": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string"
+        },
+        "business_date": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "business_interval": {
+          "type": "object",
+          "properties": {
+            "start_local": {
+              "type": "string"
+            },
+            "end_local": {
+              "type": "string"
+            },
+            "start_utc": {
+              "type": "string"
+            },
+            "end_utc": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "start_local",
+            "end_local",
+            "start_utc",
+            "end_utc"
+          ],
+          "additionalProperties": false
+        },
+        "query": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "rule",
+        "business_date",
+        "timezone",
+        "business_interval",
+        "query"
+      ],
+      "additionalProperties": false
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string"
+          },
+          "state": {
+            "description": "Airflow DAG run 状态: queued/running/success/failed",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "run_type": {
+            "description": "scheduled / manual / backfill / dataset_triggered",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "external_trigger": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "business_date": {
+            "description": "data_interval_start 在业务时区的日期",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "match": {
+            "description": "与查询业务日期区间的关系 exact/contained/covers/overlaps",
+            "type": "string"
+          },
+          "logical_date": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "utc": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "utc",
+                  "local"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "data_interval": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "utc": {
+                        "type": "string"
+                      },
+                      "local": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "utc",
+                      "local"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "end": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "utc": {
+                        "type": "string"
+                      },
+                      "local": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "utc",
+                      "local"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "start",
+              "end"
+            ],
+            "additionalProperties": false
+          },
+          "queued_at": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "utc": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "utc",
+                  "local"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "utc": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "utc",
+                  "local"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "utc": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "utc",
+                  "local"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "duration_seconds": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "last_scheduling_decision": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "utc": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "utc",
+                  "local"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "conf": {
+            "anyOf": [
+              {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "state",
+          "run_type",
+          "external_trigger",
+          "business_date",
+          "logical_date",
+          "data_interval",
+          "queued_at",
+          "start_date",
+          "end_date",
+          "duration_seconds",
+          "last_scheduling_decision",
+          "conf",
+          "note"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "total_matched": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "workflow",
+    "mapping",
+    "runs",
+    "total_matched",
+    "notes"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,119 @@
+{
+  "$id": "docs/schemas/mysql.query.execute.v1.json",
+  "title": "mysql.query.execute data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "database": {
+      "type": "string"
+    },
+    "statement_type": {
+      "type": "string"
+    },
+    "columns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "table": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_column": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "masked": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "table",
+          "source_column",
+          "masked"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {}
+      },
+      "description": "按 columns 顺序排列的值；BIGINT/DECIMAL 以字符串返回以保证精度"
+    },
+    "row_count": {
+      "type": "number"
+    },
+    "max_rows": {
+      "type": "number"
+    },
+    "truncated": {
+      "type": "boolean"
+    },
+    "masked_columns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "guards": {
+      "type": "object",
+      "properties": {
+        "static_check": {
+          "type": "string",
+          "const": "passed"
+        },
+        "read_only_transaction": {
+          "type": "boolean"
+        },
+        "max_execution_time_ms": {
+          "type": "number"
+        },
+        "sql_select_limit": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "static_check",
+        "read_only_transaction",
+        "max_execution_time_ms",
+        "sql_select_limit"
+      ],
+      "additionalProperties": false
+    },
+    "elapsed_ms": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "instance",
+    "database",
+    "statement_type",
+    "columns",
+    "rows",
+    "row_count",
+    "max_rows",
+    "truncated",
+    "masked_columns",
+    "guards",
+    "elapsed_ms"
+  ],
+  "additionalProperties": false
+}

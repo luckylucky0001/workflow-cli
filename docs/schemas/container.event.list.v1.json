@@ -1,0 +1,150 @@
+{
+  "$id": "docs/schemas/container.event.list.v1.json",
+  "title": "container.event.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "service": {
+      "type": "string"
+    },
+    "env": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "selector": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "binding-file",
+            "label-convention"
+          ]
+        },
+        "evidence": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "origin",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "window": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string"
+        },
+        "end": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "additionalProperties": false
+    },
+    "visible_since": {
+      "type": "string",
+      "description": "守护进程事件缓冲实际覆盖的起点；早于此的事件不可见"
+    },
+    "daemon_buffer_full": {
+      "type": "boolean"
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "time": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "container_id": {
+            "type": "string"
+          },
+          "container_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "exit_code": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "signal": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "attributes": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "事件属性（不含容器标签）"
+          }
+        },
+        "required": [
+          "time",
+          "type",
+          "action",
+          "container_id",
+          "container_name",
+          "image",
+          "exit_code",
+          "signal",
+          "attributes"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "counts_by_action": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "number"
+      }
+    }
+  },
+  "required": [
+    "service",
+    "env",
+    "selector",
+    "window",
+    "visible_since",
+    "daemon_buffer_full",
+    "events",
+    "counts_by_action"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,192 @@
+{
+  "$id": "docs/schemas/mysql.table.get.v1.json",
+  "title": "mysql.table.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "database": {
+      "type": "string"
+    },
+    "table": {
+      "type": "string"
+    },
+    "table_type": {
+      "type": "string"
+    },
+    "engine": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "row_format": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rows_estimate": {
+      "description": "TABLE_ROWS：InnoDB 为采样估计值，可能与 COUNT(*) 相差较大",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "avg_row_length": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "data_length_bytes": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "index_length_bytes": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "data_free_bytes": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "auto_increment": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "collation": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "comment": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "create_time": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "update_time": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "columns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "position": {
+            "type": "number"
+          },
+          "column_type": {
+            "type": "string"
+          },
+          "data_type": {
+            "type": "string"
+          },
+          "nullable": {
+            "type": "boolean"
+          },
+          "default": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "key": {
+            "description": "PRI/UNI/MUL（只反映索引首列）",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "extra": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "charset": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "collation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "comment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sensitive": {
+            "type": "boolean",
+            "description": "列名命中端点 sensitive_columns（query execute 会脱敏）"
+          }
+        },
+        "required": [
+          "name",
+          "position",
+          "column_type",
+          "data_type",
+          "nullable",
+          "default",
+          "key",
+          "extra",
+          "charset",
+          "collation",
+          "comment",
+          "sensitive"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "instance",
+    "database",
+    "table",
+    "table_type",
+    "engine",
+    "row_format",
+    "rows_estimate",
+    "avg_row_length",
+    "data_length_bytes",
+    "index_length_bytes",
+    "data_free_bytes",
+    "auto_increment",
+    "collation",
+    "comment",
+    "create_time",
+    "update_time",
+    "columns"
+  ],
+  "additionalProperties": false
+}

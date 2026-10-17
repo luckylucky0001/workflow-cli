@@ -1,0 +1,3356 @@
+{
+  "cli_version": "0.1.0",
+  "capabilities": [
+    {
+      "name": "access.check",
+      "command": "access check",
+      "summary": "检查调用某能力的前置条件：能力状态、执行授权、端点配置、凭据可解析、目标系统身份与权限",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "capability": {
+          "type": "string",
+          "required": true,
+          "description": "能力名，如 mysql.query.execute"
+        },
+        "target": {
+          "type": "string",
+          "required": false,
+          "description": "端点名，如 demo-mysql；缺省使用 profile 默认端点"
+        },
+        "probe": {
+          "type": "bool",
+          "required": false,
+          "default": true,
+          "description": "是否实际连接目标系统"
+        }
+      },
+      "output_schema": "docs/schemas/access.check.v1.json",
+      "adapter": "profile",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/quickstart.md",
+      "notes": [
+        "verdict=allowed 只说明 workctl 侧前置条件满足；最终授权由目标系统在调用时校验"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "analytics.query.get",
+      "command": "analytics query get",
+      "summary": "查看分析数据库查询的状态与资源使用",
+      "domain": "analytics",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "columnar-engine (待接入)",
+      "operation": "read",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/provider-onboarding.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "analytics.table.get",
+      "command": "analytics table get",
+      "summary": "查看分析数据库表结构与分区",
+      "domain": "analytics",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "columnar-engine (待接入)",
+      "operation": "read",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/provider-onboarding.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "auth.status",
+      "command": "auth status",
+      "summary": "查看当前 profile 的身份配置：各端点的认证方式、凭据引用是否可解析；--probe 时实际连接校验身份",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "probe": {
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "description": "实际连接目标系统校验身份与权限"
+        }
+      },
+      "output_schema": "docs/schemas/auth.status.v1.json",
+      "adapter": "profile",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/quickstart.md",
+      "notes": [
+        "只显示凭据引用类型与可解析性，不输出凭据值",
+        "实际授权仍由目标系统校验"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "capability.get",
+      "command": "capability get",
+      "summary": "查看单个能力的定义：参数、输出 Schema、操作类型、认证方式、版本和指南",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "name": {
+          "type": "string",
+          "required": true,
+          "description": "能力名，如 mysql.table.get"
+        }
+      },
+      "output_schema": "docs/schemas/capability.get.v1.json",
+      "adapter": "registry",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/capability-catalog.md",
+      "examples": [
+        "workctl capability get --name mysql.table.get"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "capability.list",
+      "command": "capability list",
+      "summary": "列出能力目录（已支持、需授权、待接入），支持按领域/状态/操作类型过滤",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "domain": {
+          "type": "string",
+          "required": false,
+          "description": "领域，如 mysql、redis、offline、mq"
+        },
+        "status": {
+          "type": "enum",
+          "required": false,
+          "enum": [
+            "available",
+            "requires_auth",
+            "planned"
+          ],
+          "description": "能力状态"
+        },
+        "operation": {
+          "type": "enum",
+          "required": false,
+          "enum": [
+            "read",
+            "diagnose",
+            "plan",
+            "execute"
+          ],
+          "description": "操作类型"
+        },
+        "query": {
+          "type": "string",
+          "required": false,
+          "description": "按名称/命令/摘要关键词搜索"
+        }
+      },
+      "output_schema": "docs/schemas/capability.list.v1.json",
+      "adapter": "registry",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/capability-catalog.md",
+      "examples": [
+        "workctl --json capability list --domain mysql",
+        "workctl capability list --status planned"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "compute.instance.get",
+      "command": "compute instance get",
+      "summary": "查看计算实例（VM / 节点）规格、状态与负载（待接入）",
+      "domain": "compute",
+      "status": "planned",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "实例 ID"
+        }
+      },
+      "output_schema": null,
+      "adapter": "cloud-compute-api",
+      "operation": "read",
+      "auth_provider": "cloud-iam",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/compute.md",
+      "notes": [
+        "需要云厂商/虚拟化平台适配器；演示环境没有 VM"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "compute.job.get",
+      "command": "compute job get",
+      "summary": "查看 Spark 应用：尝试、持续时间、状态、作业与 executor 汇总（Spark history server REST）",
+      "domain": "compute",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "Spark application id（如 local-1792239950565）"
+        }
+      },
+      "output_schema": "docs/schemas/compute.job.get.v1.json",
+      "adapter": "spark-history-rest",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/compute.md",
+      "prerequisites": [
+        "spark 端点配置 history_url",
+        "应用提交时开启事件日志（spark.eventLog.enabled=true），且 history server 读取同一目录"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "history server 不记录 local 模式驱动的退出码：status 由 attempt.completed 与作业状态推导（derived），依据见 status_basis",
+        "未在 history 中找到：事件日志存在但未加载 → DATA_UNAVAILABLE；只有 driver 日志没有事件日志 → COLLECTION_DISABLED；都没有 → NOT_FOUND"
+      ],
+      "examples": [
+        "workctl compute job get --id local-1792239950565"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "compute.log.get",
+      "command": "compute log get",
+      "summary": "读取 Spark 应用 driver 日志尾部（来自 driver 日志目录）",
+      "domain": "compute",
+      "status": "available",
+      "inputs": {
+        "job_id": {
+          "type": "string",
+          "required": true,
+          "description": "Spark application id"
+        },
+        "limit_lines": {
+          "type": "int",
+          "required": false,
+          "default": 200,
+          "description": "返回末尾行数（上限 2000）"
+        }
+      },
+      "output_schema": "docs/schemas/compute.log.get.v1.json",
+      "adapter": "spark-driver-log-dir",
+      "operation": "read",
+      "auth_provider": "filesystem",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/compute.md",
+      "prerequisites": [
+        "spark 端点配置 driver_log_dir；提交脚本把 driver 输出落盘为 <driver_log_dir>/<app_id>.log"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "driver 日志不是 Spark REST 接口提供的：演示环境由 spark-submit 包装脚本（tee）落盘；YARN/K8s 环境应改用对应的日志聚合适配器"
+      ],
+      "examples": [
+        "workctl compute log get --job-id local-1792239950565 --limit-lines 100"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "compute.queue.get",
+      "command": "compute queue get",
+      "summary": "查看计算资源队列/池的容量与占用（当前接入 Airflow pool）",
+      "domain": "compute",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "队列/池 ID，如 demo-batch-pool"
+        }
+      },
+      "output_schema": "docs/schemas/compute.queue.get.v1.json",
+      "adapter": "airflow-pool",
+      "operation": "read",
+      "auth_provider": "airflow-basic",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/compute.md",
+      "prerequisites": [
+        "airflow 端点（pool 读权限）"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "Airflow pool 只限制并发槽，不代表 CPU/内存；reschedule 模式的传感器等待时不占槽",
+        "YARN 队列（容量、已用、挂起应用）为待接入能力 compute.yarn-queue.get"
+      ],
+      "examples": [
+        "workctl compute queue get --id demo-batch-pool"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "compute.stage.list",
+      "command": "compute stage list",
+      "summary": "列出 Spark 应用的阶段：状态、任务数/失败数、耗时、输入输出与 shuffle 字节、失败原因",
+      "domain": "compute",
+      "status": "available",
+      "inputs": {
+        "job_id": {
+          "type": "string",
+          "required": true,
+          "description": "Spark application id"
+        },
+        "status": {
+          "type": "enum",
+          "required": false,
+          "enum": [
+            "active",
+            "complete",
+            "pending",
+            "failed",
+            "skipped"
+          ],
+          "description": "只看某种状态的阶段"
+        },
+        "limit": {
+          "type": "int",
+          "required": false,
+          "default": 100,
+          "description": "最多返回的阶段数"
+        }
+      },
+      "output_schema": "docs/schemas/compute.stage.list.v1.json",
+      "adapter": "spark-history-rest",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/compute.md",
+      "prerequisites": [
+        "spark 端点配置 history_url；应用开启事件日志"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "duration_ms = completionTime - submissionTime（墙钟时间）；executor_run_time_ms 为所有任务执行时间之和"
+      ],
+      "examples": [
+        "workctl compute stage list --job-id local-1792239950565",
+        "workctl compute stage list --job-id local-1792239950565 --status failed"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "compute.yarn-queue.get",
+      "command": "compute yarn-queue get",
+      "summary": "查看 YARN 队列容量、已用资源与挂起应用（待接入）",
+      "domain": "compute",
+      "status": "planned",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "YARN 队列路径，如 root.batch"
+        }
+      },
+      "output_schema": null,
+      "adapter": "yarn-rm-rest",
+      "operation": "read",
+      "auth_provider": "yarn-kerberos-or-simple",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/compute.md",
+      "notes": [
+        "计划通过 ResourceManager REST /ws/v1/cluster/scheduler 接入"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "config.diff",
+      "command": "config diff",
+      "summary": "比较配置项两个版本的差异",
+      "domain": "config",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "config-center (待接入)",
+      "operation": "read",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "config.get",
+      "command": "config get",
+      "summary": "读取配置中心配置项的当前值摘要",
+      "domain": "config",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "config-center (待接入)",
+      "operation": "read",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "container.capacity.summary",
+      "command": "capacity summary",
+      "summary": "汇总环境内容器的资源上限与当前使用（快照），标出未设上限、接近上限、OOM 等",
+      "domain": "container",
+      "status": "available",
+      "inputs": {
+        "env": {
+          "type": "string",
+          "required": false,
+          "description": "环境（容器标签 workctl.env）；默认取 profile 的 env"
+        }
+      },
+      "output_schema": "docs/schemas/container.capacity.summary.v1.json",
+      "adapter": "docker-engine-api",
+      "operation": "read",
+      "auth_provider": "docker-socket",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "prerequisites": [
+        "profile 配置 endpoints.docker.<name>.socket（或 url）",
+        "运行 workctl 的用户可访问 Docker socket"
+      ],
+      "notes": [
+        "快照：上限来自 inspect，使用量来自单次 stats 采样；容量趋势需结合 metric query 的窗口数据",
+        "未设置上限的容器在合计中单独计数（cpu_unlimited / memory_unlimited），不计入上限合计",
+        "只统计带 workctl.env=<env> 标签的容器"
+      ],
+      "examples": [
+        "workctl capacity summary --env sandbox"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "container.event.list",
+      "command": "container event list",
+      "summary": "列出服务容器在时间窗口内的 Docker 事件（启动、退出、OOM、重启、健康状态变化）",
+      "domain": "container",
+      "status": "available",
+      "inputs": {
+        "service": {
+          "type": "string",
+          "required": true,
+          "description": "服务 ID（资源绑定中的 service，按容器标签解析）"
+        },
+        "env": {
+          "type": "string",
+          "required": false,
+          "description": "环境（容器标签 workctl.env）；默认取 profile 的 env"
+        },
+        "window": {
+          "type": "duration",
+          "required": false,
+          "default": "1h",
+          "description": "回看窗口，如 15m、1h、6h"
+        },
+        "include_exec": {
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "description": "是否包含 exec_* 事件（健康检查会产生大量 exec 事件）"
+        }
+      },
+      "output_schema": "docs/schemas/container.event.list.v1.json",
+      "adapter": "docker-engine-api",
+      "operation": "read",
+      "auth_provider": "docker-socket",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "prerequisites": [
+        "profile 配置 endpoints.docker.<name>.socket（或 url）",
+        "运行 workctl 的用户可访问 Docker socket"
+      ],
+      "notes": [
+        "Docker 守护进程只在内存中保留最近有限条事件（守护进程重启后清空），窗口早期的事件可能已不可见",
+        "事件按时间正序返回"
+      ],
+      "examples": [
+        "workctl container event list --service demo-order --window 1h"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "container.kubernetes.workload.get",
+      "command": "kubernetes workload get",
+      "summary": "查看 Kubernetes Deployment/StatefulSet/Pod 状态、事件与资源配额（规划中）",
+      "domain": "container",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "kubernetes-api (待接入)",
+      "operation": "read",
+      "auth_provider": "kubeconfig",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "notes": [
+        "与 container workload get 使用同一对象模型（服务 → 工作负载 → 实例）"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "container.stats.get",
+      "command": "container stats get",
+      "summary": "获取服务容器的资源使用快照：CPU、内存（相对上限）、进程数、网络与块设备 I/O 累计值",
+      "domain": "container",
+      "status": "available",
+      "inputs": {
+        "service": {
+          "type": "string",
+          "required": true,
+          "description": "服务 ID（资源绑定中的 service，按容器标签解析）"
+        },
+        "env": {
+          "type": "string",
+          "required": false,
+          "description": "环境（容器标签 workctl.env）；默认取 profile 的 env"
+        }
+      },
+      "output_schema": "docs/schemas/container.stats.get.v1.json",
+      "adapter": "docker-engine-api",
+      "operation": "read",
+      "auth_provider": "docker-socket",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "prerequisites": [
+        "profile 配置 endpoints.docker.<name>.socket（或 url）",
+        "运行 workctl 的用户可访问 Docker socket"
+      ],
+      "notes": [
+        "这是快照（snapshot），不是时间窗口统计：CPU 为守护进程两次采样（约 1s）间的速率，内存为当前值",
+        "网络与块设备 I/O 是自容器启动以来的累计值，不能当作窗口流量；窗口趋势请用 metric query"
+      ],
+      "examples": [
+        "workctl container stats get --service demo-order"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "container.workload.get",
+      "command": "container workload get",
+      "summary": "查看服务对应容器的运行状态、健康、重启、退出码、OOM、镜像、端口和资源限制",
+      "description": "按容器标签（资源绑定或 workctl.service 约定）解析服务的容器，返回 Docker inspect 的实际状态。",
+      "domain": "container",
+      "status": "available",
+      "inputs": {
+        "service": {
+          "type": "string",
+          "required": true,
+          "description": "服务 ID（资源绑定中的 service，按容器标签解析）"
+        },
+        "env": {
+          "type": "string",
+          "required": false,
+          "description": "环境（容器标签 workctl.env）；默认取 profile 的 env"
+        }
+      },
+      "output_schema": "docs/schemas/container.workload.get.v1.json",
+      "adapter": "docker-engine-api",
+      "operation": "read",
+      "auth_provider": "docker-socket",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "prerequisites": [
+        "profile 配置 endpoints.docker.<name>.socket（或 url）",
+        "运行 workctl 的用户可访问 Docker socket"
+      ],
+      "notes": [
+        "RestartCount 只统计重启策略触发的自动重启；手动 docker restart 不计入，需结合 container event list",
+        "服务与容器的关系只来自标签/资源绑定，不按名称相似度推断",
+        "Kubernetes 工作负载是规划中的 provider（见 container.kubernetes.workload.get）"
+      ],
+      "examples": [
+        "workctl container workload get --service demo-order --env sandbox"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "container.workload.restart_plan",
+      "command": "container workload restart-plan",
+      "summary": "为重启服务容器生成计划：实际目标容器、依赖影响、前置条件与步骤（不执行）",
+      "domain": "container",
+      "status": "available",
+      "inputs": {
+        "service": {
+          "type": "string",
+          "required": true,
+          "description": "服务 ID（资源绑定中的 service，按容器标签解析）"
+        },
+        "env": {
+          "type": "string",
+          "required": false,
+          "description": "环境（容器标签 workctl.env）；默认取 profile 的 env"
+        }
+      },
+      "output_schema": "docs/schemas/container.workload.restart_plan.v1.json",
+      "adapter": "docker-engine-api",
+      "operation": "plan",
+      "auth_provider": "docker-socket",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "idempotent": true,
+      "cancellable": false,
+      "prerequisites": [
+        "profile 配置 endpoints.docker.<name>.socket（或 url）",
+        "运行 workctl 的用户可访问 Docker socket"
+      ],
+      "notes": [
+        "计划预览不是执行成功的证据；执行用 workctl operation execute --id <plan> --confirm <plan>（需要 profile allow_execute）",
+        "等价于 workctl operation plan --action container.restart --param service=<service>",
+        "执行时逐个重启并轮询 inspect 校验已重新运行（及健康检查状态）"
+      ],
+      "examples": [
+        "workctl container workload restart-plan --service demo-order --env sandbox"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "data.lineage.get",
+      "command": "data lineage get",
+      "summary": "查询表的上游或下游血缘：区分目录声明（explicit）与 SQL 推断（inferred），并标出两者一致的边",
+      "description": "explicit 来自目录元数据的 upstream/consumers；inferred 来自产出 SQL 文件的正则解析（INSERT 目标、FROM/JOIN 来源）。未限定库名的表名不按相似名称匹配目录表。",
+      "domain": "data",
+      "status": "available",
+      "inputs": {
+        "catalog": {
+          "type": "string",
+          "required": false,
+          "description": "目录端点名（profile endpoints.catalog），默认取 profile defaults.catalog"
+        },
+        "table": {
+          "type": "string",
+          "required": true,
+          "description": "表名 <database>.<table>，如 analytics.daily_orders"
+        },
+        "direction": {
+          "type": "enum",
+          "required": false,
+          "default": "upstream",
+          "enum": [
+            "upstream",
+            "downstream"
+          ],
+          "description": "方向"
+        },
+        "depth": {
+          "type": "int",
+          "required": false,
+          "default": 2,
+          "description": "遍历深度 1..5"
+        }
+      },
+      "output_schema": "docs/schemas/data.lineage.get.v1.json",
+      "adapter": "file-catalog",
+      "operation": "read",
+      "auth_provider": "filesystem",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/data.md",
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "SQL 推断基于正则，可能遗漏动态 SQL、程序中注册的临时视图和 DataFrame 读写",
+        "没有足够依据时不根据相似名称认定依赖关系"
+      ],
+      "examples": [
+        "workctl data lineage get --catalog demo --table analytics.daily_orders --direction upstream",
+        "workctl data lineage get --catalog demo --table ods.orders --direction downstream --depth 3"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "data.partition.get",
+      "command": "data partition get",
+      "summary": "检查单个分区：是否符合分区定义、目录是否存在、数据文件、完成标记、更新时间、文件是否可读",
+      "description": "分区不存在不是错误：返回 success 且 state=missing，便于链路检查推理；表不存在返回 NOT_FOUND。state 汇总: missing|empty|incomplete(无完成标记)|unreadable|present。",
+      "domain": "data",
+      "status": "available",
+      "inputs": {
+        "catalog": {
+          "type": "string",
+          "required": false,
+          "description": "目录端点名（profile endpoints.catalog），默认取 profile defaults.catalog"
+        },
+        "table": {
+          "type": "string",
+          "required": true,
+          "description": "表名 <database>.<table>，如 analytics.daily_orders"
+        },
+        "partition": {
+          "type": "string",
+          "required": true,
+          "description": "分区，如 'dt=2026-10-16'（dt 为业务日期）"
+        },
+        "sample_records": {
+          "type": "int",
+          "required": false,
+          "default": 20,
+          "description": "每个文件实际解析的前 N 条记录（可读性抽查）"
+        }
+      },
+      "output_schema": "docs/schemas/data.partition.get.v1.json",
+      "adapter": "file-catalog",
+      "operation": "read",
+      "auth_provider": "filesystem",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/data.md",
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "表存在 ≠ 分区存在 ≠ 文件可读 ≠ 质量规则通过；质量规则用 data quality check",
+        "更新时间取完成标记或最新数据文件的 mtime（本地文件系统）"
+      ],
+      "examples": [
+        "workctl data partition get --catalog demo --table analytics.daily_orders --partition 'dt=2026-10-16'"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "data.partition.list",
+      "command": "data partition list",
+      "summary": "列出表的分区目录：文件数、字节数、最后修改时间、是否有完成标记",
+      "description": "只列目录与文件属性，不读取文件内容；可读性用 data partition get 检查。按分区值倒序，--limit 截断时标注 truncated。",
+      "domain": "data",
+      "status": "available",
+      "inputs": {
+        "catalog": {
+          "type": "string",
+          "required": false,
+          "description": "目录端点名（profile endpoints.catalog），默认取 profile defaults.catalog"
+        },
+        "table": {
+          "type": "string",
+          "required": true,
+          "description": "表名 <database>.<table>，如 analytics.daily_orders"
+        },
+        "from": {
+          "type": "string",
+          "required": false,
+          "description": "起始分区值（含），针对第一个分区键，如 2026-10-01"
+        },
+        "to": {
+          "type": "string",
+          "required": false,
+          "description": "结束分区值（含）"
+        },
+        "limit": {
+          "type": "int",
+          "required": false,
+          "default": 100,
+          "description": "最多返回的分区数（最新的优先）"
+        }
+      },
+      "output_schema": "docs/schemas/data.partition.list.v1.json",
+      "adapter": "file-catalog",
+      "operation": "read",
+      "auth_provider": "filesystem",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/data.md",
+      "backend_modes": [
+        "live"
+      ],
+      "examples": [
+        "workctl data partition list --catalog demo --table ods.orders --from 2026-10-10 --to 2026-10-16"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "data.quality.check",
+      "command": "data quality check",
+      "summary": "对单个分区执行质量规则集（行数、非空、唯一、取值、范围、结构、时效、分区存在），返回逐条结果与违规样本",
+      "description": "--dataset 接受 <catalog>.<db>.<table>；或 <catalog>.<table>（目录中表名唯一时解析，如 demo.daily_orders → demo / analytics.daily_orders）；带 --catalog 时按 <db>.<table> 解析。分区不存在时除 partition_exists 外的规则均 skipped，总体 fail。最新结果写入状态目录供其他能力读取。",
+      "domain": "data",
+      "status": "available",
+      "inputs": {
+        "dataset": {
+          "type": "string",
+          "required": true,
+          "description": "数据集: <catalog>.<db>.<table> 或 <catalog>.<table>，如 demo.daily_orders"
+        },
+        "partition": {
+          "type": "string",
+          "required": true,
+          "description": "分区，如 'dt=2026-10-16'"
+        },
+        "ruleset": {
+          "type": "string",
+          "required": false,
+          "description": "规则集名（<rules_dir>/<name>.yaml）；默认取表元数据 quality_ruleset"
+        },
+        "sample_rows": {
+          "type": "int",
+          "required": false,
+          "description": "只读取前 N 行做内容规则（行数规则仍全量计数）；不填则全量扫描"
+        },
+        "catalog": {
+          "type": "string",
+          "required": false,
+          "description": "目录端点名；指定后 --dataset 按 <db>.<table> 解析"
+        }
+      },
+      "output_schema": "docs/schemas/data.quality.check.v1.json",
+      "adapter": "file-catalog",
+      "operation": "diagnose",
+      "auth_provider": "filesystem",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/data.md",
+      "idempotent": true,
+      "side_effects": "把最新结果写入 <state_dir>/quality/<table>/<partition>.json（本地状态，不修改数据）",
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "抽样模式下 pass 不是结论性的（conclusive=false）；fail 总是结论性的",
+        "违规样本最多 5 条，敏感列脱敏",
+        "freshness 以本地文件 mtime 为依据"
+      ],
+      "examples": [
+        "workctl data quality check --dataset demo.daily_orders --partition 'dt=2026-10-16' --ruleset demo-daily-rules"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "data.table.get",
+      "command": "data table get",
+      "summary": "查看表的目录元数据（分区语义、列、产出任务、上下游声明）与物理位置检查",
+      "description": "元数据来自目录（explicit）；物理位置、分区数来自本地文件系统列目录（derived）。表存在不代表某个分区存在或可读。",
+      "domain": "data",
+      "status": "available",
+      "inputs": {
+        "catalog": {
+          "type": "string",
+          "required": false,
+          "description": "目录端点名（profile endpoints.catalog），默认取 profile defaults.catalog"
+        },
+        "table": {
+          "type": "string",
+          "required": true,
+          "description": "表名 <database>.<table>，如 analytics.daily_orders"
+        }
+      },
+      "output_schema": "docs/schemas/data.table.get.v1.json",
+      "adapter": "file-catalog",
+      "operation": "read",
+      "auth_provider": "filesystem",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/data.md",
+      "prerequisites": [
+        "profile 配置 catalog 端点（provider/metadata_dir/warehouse_root/storage）"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "storage 当前只支持 local-filesystem；不代表对象存储或 HDFS 已验证",
+        "Hive Metastore 等 provider 尚未接入，见指南"
+      ],
+      "examples": [
+        "workctl data table get --catalog demo --table analytics.daily_orders"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "data.transfer.get",
+      "command": "data transfer get",
+      "summary": "查看数据同步/传输任务（如 DataX、CDC、跨集群拷贝）的状态、进度与位点",
+      "domain": "data",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "data-transfer (待接入)",
+      "operation": "read",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/data.md",
+      "notes": [
+        "尚未接入；同步任务的成功不等于目标分区可读或质量通过"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "discovery.list",
+      "command": "discovery list",
+      "summary": "从服务注册中心列出服务实例",
+      "domain": "config",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "service-registry (待接入)",
+      "operation": "read",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "doctor.run",
+      "command": "doctor",
+      "summary": "诊断 workctl 自身环境：配置、profile、资源绑定、凭据引用、端点可达性、插件与 Skill",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "skip_network": {
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "description": "跳过端点连通性检查"
+        }
+      },
+      "output_schema": "docs/schemas/doctor.run.v1.json",
+      "adapter": "local",
+      "operation": "diagnose",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/quickstart.md",
+      "notes": [
+        "端点可达只检查网络连通，不代表认证或授权成功；身份校验用 auth status --probe"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "document.collection.get",
+      "command": "document collection get",
+      "summary": "查看文档数据库集合与索引",
+      "domain": "document",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "document-db (待接入)",
+      "operation": "read",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/provider-onboarding.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "kv.query",
+      "command": "kv query",
+      "summary": "对键值服务执行受限查询",
+      "domain": "document",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "kv-service (待接入)",
+      "operation": "read",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/provider-onboarding.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "middleware.operation.plan",
+      "command": "middleware operation plan",
+      "summary": "托管中间件生命周期操作（创建、参数、备份、扩容、迁移）计划",
+      "domain": "middleware",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "managed-middleware-platform (待接入)",
+      "operation": "plan",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/operations.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.deadlock.get",
+      "command": "mysql deadlock get",
+      "summary": "读取最近一次死锁信息（SHOW ENGINE INNODB STATUS 的 LATEST DETECTED DEADLOCK）",
+      "domain": "mysql",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "mysql-driver",
+      "operation": "diagnose",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.index.list",
+      "command": "mysql index list",
+      "summary": "列出表的索引（按索引分组的列顺序、唯一性、基数估计），附自启动以来的索引访问计数",
+      "domain": "mysql",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql）"
+        },
+        "database": {
+          "type": "string",
+          "required": true,
+          "description": "库名（schema）"
+        },
+        "table": {
+          "type": "string",
+          "required": true,
+          "description": "表名"
+        }
+      },
+      "output_schema": "docs/schemas/mysql.index.list.v1.json",
+      "adapter": "mysql-driver",
+      "operation": "read",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.mysql.<name>（host/port/user/password_ref）",
+        "只读诊断账号（如 workctl_ro）：SELECT on 业务库与 performance_schema.*、SELECT on mysql.slow_log、PROCESS"
+      ],
+      "notes": [
+        "cardinality_estimate 是统计估计值（ANALYZE TABLE 后更新），不是精确去重计数",
+        "io_by_index 是累计值（自启动或 performance_schema 重置以来），不能当作窗口值；index=null 行代表不走索引的行读取（全表扫描）"
+      ],
+      "examples": [
+        "workctl mysql index list --instance demo-mysql --database demo --table orders"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.index.plan",
+      "command": "mysql index plan",
+      "summary": "生成新增索引的变更计划（解析目标表、DDL、影响语句、前置条件、回滚），不执行",
+      "domain": "mysql",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql）"
+        },
+        "database": {
+          "type": "string",
+          "required": true,
+          "description": "库名（schema）"
+        },
+        "table": {
+          "type": "string",
+          "required": true,
+          "description": "表名"
+        },
+        "columns": {
+          "type": "list",
+          "required": true,
+          "description": "索引列（按顺序，逗号分隔），如 customer_id,created_at"
+        },
+        "name": {
+          "type": "string",
+          "required": false,
+          "description": "索引名（缺省 idx_<列名>）"
+        }
+      },
+      "output_schema": "docs/schemas/mysql.index.plan.v1.json",
+      "adapter": "mysql-driver",
+      "operation": "plan",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "idempotent": false,
+      "cancellable": false,
+      "prerequisites": [
+        "profile 中配置 endpoints.mysql.<name>（host/port/user/password_ref）",
+        "只读诊断账号（如 workctl_ro）：SELECT on 业务库与 performance_schema.*、SELECT on mysql.slow_log、PROCESS",
+        "生成计划只需只读权限；执行需要单独的变更账号与 DBA 流程"
+      ],
+      "notes": [
+        "计划预览不是执行成功的证据；mysql.index.create 没有执行器（executable=false），执行属于 DBA 变更流程",
+        "索引大小与构建成本是启发式估计；受影响语句来自累计摘要统计的文本匹配（inferred）",
+        "等价于 workctl operation plan --action mysql.index.create --param instance=... --param database=... --param table=... --param columns=..."
+      ],
+      "examples": [
+        "workctl mysql index plan --instance demo-mysql --database demo --table orders --columns customer_id"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.instance.get",
+      "command": "mysql instance get",
+      "summary": "查看 MySQL 实例概况：版本、运行时长、关键参数与状态计数，并附平台绑定元数据",
+      "domain": "mysql",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql）"
+        }
+      },
+      "output_schema": "docs/schemas/mysql.instance.get.v1.json",
+      "adapter": "mysql-driver",
+      "operation": "read",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.mysql.<name>（host/port/user/password_ref）",
+        "只读诊断账号（如 workctl_ro）：SELECT on 业务库与 performance_schema.*、SELECT on mysql.slow_log、PROCESS"
+      ],
+      "notes": [
+        "binding 来自资源绑定文件（平台元数据，relation=explicit），engine/variables/status 来自引擎实时查询，两者分开标注",
+        "Questions、Slow_queries、Aborted_connects 等是自启动以来的累计值，不是窗口值；窗口速率用 mysql statement summary"
+      ],
+      "examples": [
+        "workctl mysql instance get --instance demo-mysql"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.lock.list",
+      "command": "mysql lock list",
+      "summary": "列出 InnoDB 行锁等待（谁在等、被谁阻塞）及元数据锁等待",
+      "domain": "mysql",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql）"
+        }
+      },
+      "output_schema": "docs/schemas/mysql.lock.list.v1.json",
+      "adapter": "mysql-driver",
+      "operation": "read",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.mysql.<name>（host/port/user/password_ref）",
+        "只读诊断账号（如 workctl_ro）：SELECT on 业务库与 performance_schema.*、SELECT on mysql.slow_log、PROCESS",
+        "performance_schema 开启（data_locks / data_lock_waits，MySQL 8.0+）"
+      ],
+      "notes": [
+        "没有锁等待时返回空列表（success），不是错误",
+        "阻塞方 sql_text 是其当前语句，不一定是持锁语句；空闲事务持锁时为空",
+        "瞬时快照；SQL 字面量已替换为 ?"
+      ],
+      "examples": [
+        "workctl mysql lock list --instance demo-mysql"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.query.analyze",
+      "command": "mysql query analyze",
+      "summary": "用 EXPLAIN ANALYZE 实际执行 SELECT 并返回各算子的实际耗时与行数（只读事务 + 执行时间上限）",
+      "domain": "mysql",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql）"
+        },
+        "database": {
+          "type": "string",
+          "required": true,
+          "description": "库名（schema）"
+        },
+        "sql_file": {
+          "type": "file",
+          "required": true,
+          "description": "包含单条 SQL 语句的文件路径（≤256KB）"
+        }
+      },
+      "output_schema": "docs/schemas/mysql.query.analyze.v1.json",
+      "adapter": "mysql-driver",
+      "operation": "diagnose",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.mysql.<name>（host/port/user/password_ref）",
+        "只读诊断账号（如 workctl_ro）：SELECT on 业务库与 performance_schema.*、SELECT on mysql.slow_log、PROCESS"
+      ],
+      "notes": [
+        "EXPLAIN ANALYZE 会实际执行语句（消耗实例资源、读取数据），只允许 SELECT；在只读事务中执行并受 MAX_EXECUTION_TIME 约束",
+        "actual time 单位为毫秒，是每次 loop 的平均值；rows 也是每次 loop 的平均值",
+        "结果集本身不返回，只返回计划与实际统计"
+      ],
+      "examples": [
+        "workctl mysql query analyze --instance demo-mysql --database demo --sql-file ./q.sql"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.query.execute",
+      "command": "mysql query execute",
+      "summary": "受限只读查询：单条 SELECT/WITH/SHOW/DESCRIBE/EXPLAIN，只读事务 + 执行时间上限 + 行数上限 + 敏感列脱敏",
+      "domain": "mysql",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql）"
+        },
+        "database": {
+          "type": "string",
+          "required": true,
+          "description": "库名（schema）"
+        },
+        "sql_file": {
+          "type": "file",
+          "required": true,
+          "description": "包含单条 SQL 语句的文件路径（≤256KB）"
+        },
+        "max_rows": {
+          "type": "int",
+          "required": false,
+          "default": 20,
+          "description": "最多返回行数（上限 1000）；超出时 coverage.truncated=true"
+        }
+      },
+      "output_schema": "docs/schemas/mysql.query.execute.v1.json",
+      "adapter": "mysql-driver",
+      "operation": "read",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.mysql.<name>（host/port/user/password_ref）",
+        "只读诊断账号（如 workctl_ro）：SELECT on 业务库与 performance_schema.*、SELECT on mysql.slow_log、PROCESS",
+        "端点 max_execution_time_ms（默认 5000）与 sensitive_columns 配置"
+      ],
+      "notes": [
+        "实际权限边界是数据库账号（workctl_ro 只有 SELECT）；程序层静态检查、只读事务、MAX_EXECUTION_TIME、行数上限是额外防线",
+        "静态检查：只允许单条 SELECT / WITH...SELECT / SHOW / DESCRIBE / EXPLAIN；拒绝 INTO OUTFILE/DUMPFILE、FOR UPDATE/SHARE、LOCK IN SHARE MODE、变量赋值、可执行注释、EXPLAIN ANALYZE",
+        "MAX_EXECUTION_TIME 只约束 SELECT；SHOW 等语句只受客户端超时约束",
+        "敏感列按列名/原始列名匹配端点 sensitive_columns 脱敏；表达式（如 CONCAT(phone,'')）无法识别，不能替代数据库侧的列权限或脱敏视图"
+      ],
+      "examples": [
+        "workctl mysql query execute --instance demo-mysql --database demo --sql-file ./q.sql --max-rows 20"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.query.explain",
+      "command": "mysql query explain",
+      "summary": "查看语句的执行计划（EXPLAIN FORMAT=JSON，不执行语句），附扁平化摘要",
+      "domain": "mysql",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql）"
+        },
+        "database": {
+          "type": "string",
+          "required": true,
+          "description": "库名（schema）"
+        },
+        "sql_file": {
+          "type": "file",
+          "required": true,
+          "description": "包含单条 SQL 语句的文件路径（≤256KB）"
+        }
+      },
+      "output_schema": "docs/schemas/mysql.query.explain.v1.json",
+      "adapter": "mysql-driver",
+      "operation": "read",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.mysql.<name>（host/port/user/password_ref）",
+        "只读诊断账号（如 workctl_ro）：SELECT on 业务库与 performance_schema.*、SELECT on mysql.slow_log、PROCESS",
+        "EXPLAIN 需要与执行该语句相同的权限（只读账号 EXPLAIN UPDATE/DELETE 会被拒绝）"
+      ],
+      "notes": [
+        "优化器估计，非实际执行：rows_examined_per_scan / filtered / cost 都是估计值；实际耗时用 mysql query analyze（会执行语句）",
+        "只接受单条语句；带 EXPLAIN ANALYZE 前缀的输入会被拒绝"
+      ],
+      "examples": [
+        "workctl mysql query explain --instance demo-mysql --database demo --sql-file ./q.sql"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.replication.get",
+      "command": "mysql replication get",
+      "summary": "查看主从复制状态与延迟（replication_applier_status、SHOW REPLICA STATUS；需 REPLICATION CLIENT）",
+      "domain": "mysql",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "mysql-driver",
+      "operation": "read",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.session.list",
+      "command": "mysql session list",
+      "summary": "列出当前会话与事务（processlist + INNODB_TRX），默认只含活跃会话或持有事务的会话",
+      "domain": "mysql",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql）"
+        },
+        "include_idle": {
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "description": "包含空闲 (Sleep) 且无事务的会话"
+        }
+      },
+      "output_schema": "docs/schemas/mysql.session.list.v1.json",
+      "adapter": "mysql-driver",
+      "operation": "read",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.mysql.<name>（host/port/user/password_ref）",
+        "只读诊断账号（如 workctl_ro）：SELECT on 业务库与 performance_schema.*、SELECT on mysql.slow_log、PROCESS",
+        "没有 PROCESS 权限时只能看到本账号的会话（结果标记为 partial）"
+      ],
+      "notes": [
+        "SQL 文本中的字面量替换为 ?（避免输出敏感值）并截断到 512 字符",
+        "这是瞬时快照：会话状态在毫秒级变化，不代表一段时间内的情况",
+        "已排除 workctl 自身的连接"
+      ],
+      "examples": [
+        "workctl mysql session list --instance demo-mysql",
+        "workctl mysql session list --instance demo-mysql --include-idle"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.slowlog.list",
+      "command": "mysql slowlog list",
+      "summary": "读取慢查询日志（mysql.slow_log 表），区分“未开启/不可读”与“窗口内没有慢查询”",
+      "domain": "mysql",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql）"
+        },
+        "since": {
+          "type": "duration",
+          "required": false,
+          "default": "1h",
+          "description": "时间范围（从现在往前）"
+        },
+        "limit": {
+          "type": "int",
+          "required": false,
+          "default": 20,
+          "description": "最多返回条数（按开始时间倒序）"
+        }
+      },
+      "output_schema": "docs/schemas/mysql.slowlog.list.v1.json",
+      "adapter": "mysql-driver",
+      "operation": "read",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.mysql.<name>（host/port/user/password_ref）",
+        "只读诊断账号（如 workctl_ro）：SELECT on 业务库与 performance_schema.*、SELECT on mysql.slow_log、PROCESS",
+        "slow_query_log=ON 且 log_output 含 TABLE；账号有 SELECT on mysql.slow_log"
+      ],
+      "notes": [
+        "slow_query_log=OFF 或 log_output 不含 TABLE 时返回 COLLECTION_DISABLED（不是“没有慢查询”）",
+        "只记录超过 long_query_time 的语句（及开启 log_queries_not_using_indexes 时未用索引的语句）；query_time 含锁等待时间",
+        "SQL 文本中的字面量替换为 ?，避免输出敏感值"
+      ],
+      "examples": [
+        "workctl mysql slowlog list --instance demo-mysql --since 1h --limit 20"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.statement.summary",
+      "command": "mysql statement summary",
+      "summary": "按语句摘要统计窗口内的执行次数、耗时、扫描行数和未用索引次数（performance_schema 两次快照差分）",
+      "domain": "mysql",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql）"
+        },
+        "sample_window": {
+          "type": "string",
+          "required": false,
+          "default": "10s",
+          "description": "采样窗口，如 5s、30s；0 表示返回累计值（不是窗口值）。窗口须小于 --timeout"
+        },
+        "top": {
+          "type": "int",
+          "required": false,
+          "default": 10,
+          "description": "按总耗时取前 N 个摘要"
+        },
+        "database": {
+          "type": "string",
+          "required": false,
+          "description": "只看该默认库（SCHEMA_NAME）下的语句"
+        }
+      },
+      "output_schema": "docs/schemas/mysql.statement.summary.v1.json",
+      "adapter": "mysql-driver",
+      "operation": "diagnose",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.mysql.<name>（host/port/user/password_ref）",
+        "只读诊断账号（如 workctl_ro）：SELECT on 业务库与 performance_schema.*、SELECT on mysql.slow_log、PROCESS",
+        "performance_schema=ON 且 statements_digest consumer 启用"
+      ],
+      "notes": [
+        "窗口值 = t1 快照 − t0 快照（按 SCHEMA_NAME + DIGEST）；采样期间命令会等待整个窗口，窗口须小于 --timeout（默认 30s）",
+        "--sample-window 0 返回自服务启动/摘要表重置（或该摘要首次出现）以来的累计值，aggregation=cumulative_since，不能当作窗口值",
+        "摘要表满（performance_schema_digests_size）或被 TRUNCATE 时结果标记为 partial；计数回退的摘要只计入重置后的部分",
+        "耗时单位为毫秒（由皮秒换算）；no_index_used_count 是未使用索引（全表扫描）的执行次数"
+      ],
+      "examples": [
+        "workctl mysql statement summary --instance demo-mysql --sample-window 5s --top 10",
+        "workctl --timeout 60s mysql statement summary --instance demo-mysql --sample-window 30s --database demo",
+        "workctl mysql statement summary --instance demo-mysql --sample-window 0"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "mysql.table.get",
+      "command": "mysql table get",
+      "summary": "查看表结构与表级统计（information_schema.TABLES / COLUMNS），行数为估计值",
+      "domain": "mysql",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql）"
+        },
+        "database": {
+          "type": "string",
+          "required": true,
+          "description": "库名（schema）"
+        },
+        "table": {
+          "type": "string",
+          "required": true,
+          "description": "表名"
+        }
+      },
+      "output_schema": "docs/schemas/mysql.table.get.v1.json",
+      "adapter": "mysql-driver",
+      "operation": "read",
+      "auth_provider": "database-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/mysql.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.mysql.<name>（host/port/user/password_ref）",
+        "只读诊断账号（如 workctl_ro）：SELECT on 业务库与 performance_schema.*、SELECT on mysql.slow_log、PROCESS",
+        "对目标表有任一权限（information_schema 只显示有权限的对象）"
+      ],
+      "notes": [
+        "rows_estimate、data_length 等来自 InnoDB 统计信息，是估计值；且受 information_schema_stats_expiry 缓存影响（默认 86400 秒）",
+        "表不可见时会区分“不存在”(NOT_FOUND) 与“无权限”(PERMISSION_DENIED)"
+      ],
+      "examples": [
+        "workctl mysql table get --instance demo-mysql --database demo --table orders"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "network.backend.list",
+      "command": "network backend list",
+      "summary": "列出服务的访问后端（资源绑定 + 容器发布端口）并逐个做健康探测",
+      "domain": "network",
+      "status": "available",
+      "inputs": {
+        "service": {
+          "type": "string",
+          "required": true,
+          "description": "服务 ID"
+        },
+        "env": {
+          "type": "string",
+          "required": false,
+          "description": "环境；默认取 profile 的 env"
+        },
+        "timeout_ms": {
+          "type": "int",
+          "required": false,
+          "default": 2000,
+          "description": "单次探测超时（毫秒）"
+        }
+      },
+      "output_schema": "docs/schemas/network.backend.list.v1.json",
+      "adapter": "docker-engine-api + http-probe",
+      "operation": "diagnose",
+      "auth_provider": "docker-socket",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "prerequisites": [
+        "资源绑定中服务的 http_port / health_path 属性，或带 workctl.service 标签且发布了端口的容器"
+      ],
+      "notes": [
+        "探测结果（probe）是 workctl 所在主机此刻的真实请求结果，不代表其他网络位置的可达性",
+        "绑定只给端口时按本机 127.0.0.1 探测；Docker 发布到 0.0.0.0/:: 的端口同样按 127.0.0.1 探测",
+        "负载均衡器/网关后端（如 Nginx、云 LB）是规划中的 provider"
+      ],
+      "examples": [
+        "workctl network backend list --service demo-order"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "network.connectivity.check",
+      "command": "network connectivity check",
+      "summary": "从 workctl 所在主机对 host:port 做多次 TCP 建连采样（解析耗时、建连延迟、失败原因）",
+      "domain": "network",
+      "status": "available",
+      "inputs": {
+        "target": {
+          "type": "string",
+          "required": true,
+          "description": "host:port，如 127.0.0.1:13306"
+        },
+        "count": {
+          "type": "int",
+          "required": false,
+          "default": 3,
+          "description": "采样次数（1-20）"
+        },
+        "timeout_ms": {
+          "type": "int",
+          "required": false,
+          "default": 2000,
+          "description": "单次建连超时（毫秒）"
+        },
+        "interval_ms": {
+          "type": "int",
+          "required": false,
+          "default": 200,
+          "description": "采样间隔（毫秒）"
+        }
+      },
+      "output_schema": "docs/schemas/network.connectivity.check.v1.json",
+      "adapter": "node-net",
+      "operation": "diagnose",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "notes": [
+        "只验证 TCP 层可建连，不代表应用协议可用或认证通过",
+        "结果是本机视角的采样（sampled）"
+      ],
+      "examples": [
+        "workctl network connectivity check --target 127.0.0.1:13306 --count 3"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "network.dns.get",
+      "command": "network dns get",
+      "summary": "用系统解析器解析域名：getaddrinfo 结果（含 hosts 文件）与 DNS A/AAAA/CNAME 记录",
+      "domain": "network",
+      "status": "available",
+      "inputs": {
+        "name": {
+          "type": "string",
+          "required": true,
+          "description": "要解析的主机名"
+        }
+      },
+      "output_schema": "docs/schemas/network.dns.get.v1.json",
+      "adapter": "node-dns",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "notes": [
+        "lookup 走 getaddrinfo（与应用进程一致，含 /etc/hosts）；records 直接询问系统配置的 nameserver",
+        "结果反映运行 workctl 的主机视角；容器内/其他网络的解析结果可能不同"
+      ],
+      "examples": [
+        "workctl network dns get --name localhost"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "network.loadbalancer.get",
+      "command": "network loadbalancer get",
+      "summary": "查看负载均衡/网关的监听、后端组与健康状态（规划中：Nginx、云 LB、Ingress）",
+      "domain": "network",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "loadbalancer-api (待接入)",
+      "operation": "read",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "observability.log.query",
+      "command": "log query",
+      "summary": "查询服务容器在时间窗口内的日志（解析结构化 JSON，按级别/关键字/trace_id 过滤）",
+      "domain": "observability",
+      "status": "available",
+      "inputs": {
+        "service": {
+          "type": "string",
+          "required": true,
+          "description": "服务 ID（按容器标签解析容器）"
+        },
+        "env": {
+          "type": "string",
+          "required": false,
+          "description": "环境；默认取 profile 的 env"
+        },
+        "window": {
+          "type": "duration",
+          "required": false,
+          "default": "15m",
+          "description": "回看窗口"
+        },
+        "level": {
+          "type": "enum",
+          "required": false,
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal"
+          ],
+          "description": "最低级别（error 返回 error 和 fatal）"
+        },
+        "contains": {
+          "type": "string",
+          "required": false,
+          "description": "原始行包含的子串（区分大小写）"
+        },
+        "trace_id": {
+          "type": "string",
+          "required": false,
+          "description": "只返回该 trace 的日志"
+        },
+        "include_spans": {
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "description": "是否返回 kind=span 的 span 记录（默认省略，用 trace get 查看）"
+        },
+        "order": {
+          "type": "enum",
+          "required": false,
+          "default": "newest",
+          "enum": [
+            "newest",
+            "oldest"
+          ],
+          "description": "newest：返回最新的 N 条并按时间倒序；oldest：返回最早的 N 条并按时间正序"
+        },
+        "limit": {
+          "type": "int",
+          "required": false,
+          "default": 200,
+          "description": "最多返回条数（1-2000）"
+        }
+      },
+      "output_schema": "docs/schemas/observability.log.query.v1.json",
+      "adapter": "docker-engine-api",
+      "operation": "read",
+      "auth_provider": "docker-socket",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/observability.md",
+      "prerequisites": [
+        "容器日志驱动支持读取（json-file / local / journald）",
+        "endpoints.docker 可访问"
+      ],
+      "notes": [
+        "日志来自 Docker /containers/{id}/logs（stdout+stderr 多路复用流已解帧）；保留期取决于日志驱动与轮转配置，容器重建后旧日志不可见",
+        "默认 order=newest：返回窗口内最新的 limit 条，按时间倒序；truncated=true 表示匹配条数超过 limit",
+        "Loki / 集中日志平台是规划中的 provider；当前只读 Docker 主机上的容器日志"
+      ],
+      "examples": [
+        "workctl log query --service demo-order --window 15m --level error",
+        "workctl log query --service demo-order --trace-id <trace_id> --include-spans"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "observability.metric.list",
+      "command": "metric list",
+      "summary": "列出 profile 中配置的指标目录（名称、含义、单位、渲染后的 PromQL）",
+      "domain": "observability",
+      "status": "available",
+      "inputs": {
+        "resource": {
+          "type": "string",
+          "required": false,
+          "description": "资源 ID，用于渲染 $service 模板"
+        },
+        "endpoint": {
+          "type": "string",
+          "required": false,
+          "description": "Prometheus 端点名"
+        }
+      },
+      "output_schema": "docs/schemas/observability.metric.list.v1.json",
+      "adapter": "prometheus-http-api",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/observability.md",
+      "notes": [
+        "目录来自 workctl 配置，不代表 Prometheus 中一定有数据；用 metric query 验证"
+      ],
+      "examples": [
+        "workctl metric list --resource demo-order"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "observability.metric.query",
+      "command": "metric query",
+      "summary": "查询资源的时间序列指标（Prometheus query_range），返回数据点与窗口内 min/max/avg/last",
+      "description": "--metric 通过 profile 中 Prometheus 端点的 metrics 目录解析为 PromQL（$service 替换为资源 ID）；也可用 --promql 直接查询。",
+      "domain": "observability",
+      "status": "available",
+      "inputs": {
+        "resource": {
+          "type": "string",
+          "required": false,
+          "description": "资源 ID（如服务 demo-order），替换指标模板中的 $service"
+        },
+        "metric": {
+          "type": "string",
+          "required": false,
+          "description": "指标目录中的名称，如 request_latency、cache_hit_ratio（见 metric list）"
+        },
+        "promql": {
+          "type": "string",
+          "required": false,
+          "description": "直接给出 PromQL（与 --metric 二选一）"
+        },
+        "window": {
+          "type": "duration",
+          "required": false,
+          "default": "15m",
+          "description": "查询窗口（截至当前）"
+        },
+        "step": {
+          "type": "duration",
+          "required": false,
+          "default": "15s",
+          "description": "采样步长"
+        },
+        "endpoint": {
+          "type": "string",
+          "required": false,
+          "description": "Prometheus 端点名（默认取 profile defaults.prometheus）"
+        }
+      },
+      "output_schema": "docs/schemas/observability.metric.query.v1.json",
+      "adapter": "prometheus-http-api",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/observability.md",
+      "prerequisites": [
+        "profile 配置 endpoints.prometheus.<name>.url",
+        "指标目录 endpoints.prometheus.<name>.metrics（使用 --metric 时）"
+      ],
+      "notes": [
+        "窗口内没有样本时返回 success + 空 series（empty=true），与 Prometheus 不可达（UPSTREAM_UNAVAILABLE）区分",
+        "比率类指标在分母为零（窗口内无请求）时 Prometheus 返回 NaN，输出为 null 并计入 nan_points",
+        "rate() 已处理计数器重置；目录中的查询窗口（如 [1m]）决定平滑程度"
+      ],
+      "examples": [
+        "workctl metric query --resource demo-order --metric request_latency --window 15m",
+        "workctl metric query --resource demo-order --promql 'sum by (route) (rate(http_requests_total{service=\"demo-order\"}[1m]))'"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "observability.quota.get",
+      "command": "quota get",
+      "summary": "查看命名空间/项目的资源配额与使用（规划中：Kubernetes ResourceQuota、云配额）",
+      "domain": "observability",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "quota-provider (待接入)",
+      "operation": "read",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/observability.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "observability.trace.get",
+      "command": "trace get",
+      "summary": "按 trace_id 从结构化日志重建调用链（span 树、总耗时、各 span 自身耗时占比）",
+      "description": "扫描资源绑定中服务的容器日志，收集 kind=span 记录与带 trace_id 的日志行，重建父子关系。这是日志派生视图，不是追踪后端。",
+      "domain": "observability",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "trace_id（32 位十六进制，见响应头 x-trace-id 或日志）"
+        },
+        "window": {
+          "type": "duration",
+          "required": false,
+          "default": "1h",
+          "description": "扫描日志的回看窗口"
+        },
+        "service": {
+          "type": "string",
+          "required": false,
+          "description": "只扫描该服务的容器（默认扫描资源绑定中全部 service）"
+        }
+      },
+      "output_schema": "docs/schemas/observability.trace.get.v1.json",
+      "adapter": "docker-engine-api",
+      "operation": "diagnose",
+      "auth_provider": "docker-socket",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/observability.md",
+      "prerequisites": [
+        "服务输出结构化 span 日志（kind=span, trace_id, span_id, parent_span_id, start, duration_ms）",
+        "容器日志仍在保留期内"
+      ],
+      "notes": [
+        "relation=derived：由日志重建，只包含被记录且仍保留的 span；未打点的耗时体现为父 span 的 self_ms",
+        "找不到时返回 NOT_FOUND；可扩大 --window 或确认 trace_id",
+        "Jaeger / Tempo 等追踪后端是规划中的 provider"
+      ],
+      "examples": [
+        "workctl trace get --id 0d9ae006bb776f65c5bcca19759fce81 --window 1h"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "offline.backfill.get",
+      "command": "offline backfill get",
+      "summary": "查看补数计划及其已触发运行的实时状态",
+      "domain": "offline",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "计划 ID（op-YYYYMMDD-xxxxxx）"
+        }
+      },
+      "output_schema": "docs/schemas/offline.backfill.get.v1.json",
+      "adapter": "airflow-rest-v1",
+      "operation": "read",
+      "auth_provider": "airflow-basic",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/offline.md",
+      "prerequisites": [
+        "profile 配置 airflow 端点（url、username、password_ref）",
+        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "examples": [
+        "workctl offline backfill get --id op-20261017-abc123"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "offline.backfill.plan",
+      "command": "offline backfill plan",
+      "summary": "生成补数计划：逐个业务日期给出现有运行、目标分区状态、动作、写入幂等性、下游影响、代码版本与并发预算（不执行）",
+      "domain": "offline",
+      "status": "available",
+      "inputs": {
+        "workflow": {
+          "type": "string",
+          "required": true,
+          "description": "工作流 ID（dag_id）"
+        },
+        "from": {
+          "type": "string",
+          "required": true,
+          "description": "起始业务日期 YYYY-MM-DD（含）"
+        },
+        "to": {
+          "type": "string",
+          "required": true,
+          "description": "结束业务日期 YYYY-MM-DD（含），最多 31 天"
+        },
+        "timezone": {
+          "type": "string",
+          "required": false,
+          "description": "业务时区（默认 airflow 端点 timezone）"
+        },
+        "rerun_succeeded": {
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "description": "对已成功的业务日期也重跑（清理全部任务实例）"
+        },
+        "max_active_runs": {
+          "type": "int",
+          "required": false,
+          "description": "执行时同时在途的 run 上限（默认 min(DAG max_active_runs, 2)）"
+        },
+        "allow_append_duplicates": {
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "description": "目标表为 append 写入时，明确接受重跑可能产生重复数据"
+        }
+      },
+      "output_schema": "docs/schemas/offline.backfill.plan.v1.json",
+      "adapter": "airflow-rest-v1",
+      "operation": "plan",
+      "auth_provider": "airflow-basic",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/offline.md",
+      "idempotent": false,
+      "cancellable": false,
+      "prerequisites": [
+        "profile 配置 airflow 端点（url、username、password_ref）",
+        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限",
+        "执行需要 profile allow_execute=true，并通过 workctl operation execute --id <plan> 确认"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "计划只做预览，不触发任何运行；计划预览不是执行成功的证据",
+        "动作：skip_succeeded（已成功且未要求重跑）、skip_in_progress（在途）、trigger_new（无 run，POST dagRuns 并显式传 data_interval）、clear_failed（只清理失败任务实例）、rerun（清理全部任务实例）",
+        "overwrite_partition 表重跑为幂等覆盖；append 表重跑有重复风险，未显式允许时前置条件失败",
+        "重跑使用调度器当前解析的 DAG 代码（code_version），不是原始 run 当时的代码"
+      ],
+      "examples": [
+        "workctl offline backfill plan --workflow demo-daily-orders --from 2026-10-14 --to 2026-10-16 --timezone Asia/Shanghai"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "offline.dependency.list",
+      "command": "offline dependency list",
+      "summary": "列出一次运行的上游/下游依赖：DAG 内任务、输入/输出数据分区、跨工作流关系，并标注每条边的来源",
+      "domain": "offline",
+      "status": "available",
+      "inputs": {
+        "run_id": {
+          "type": "string",
+          "required": true,
+          "description": "run_id"
+        },
+        "direction": {
+          "type": "enum",
+          "required": false,
+          "default": "upstream",
+          "enum": [
+            "upstream",
+            "downstream"
+          ],
+          "description": "方向"
+        },
+        "workflow": {
+          "type": "string",
+          "required": false,
+          "description": "工作流 ID；省略时查找"
+        }
+      },
+      "output_schema": "docs/schemas/offline.dependency.list.v1.json",
+      "adapter": "airflow-rest-v1",
+      "operation": "diagnose",
+      "auth_provider": "airflow-basic",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/offline.md",
+      "prerequisites": [
+        "profile 配置 airflow 端点（url、username、password_ref）",
+        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限",
+        "数据依赖需要 catalog 端点（upstream/consumers）；跨工作流关系来自 resources_file 绑定"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "只报告平台显式记录的关系（调度元数据、目录元数据、绑定文件），不根据相似名称推断依赖"
+      ],
+      "examples": [
+        "workctl offline dependency list --workflow demo-daily-orders --run-id demo__2026-10-14__missing_upstream --direction upstream"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "offline.freshness.check",
+      "command": "offline freshness check",
+      "summary": "按目录约定的产出时限检查数据集某业务日期是否准时：on_time / late / missing / not_due",
+      "domain": "offline",
+      "status": "available",
+      "inputs": {
+        "dataset": {
+          "type": "string",
+          "required": true,
+          "description": "数据集（目录表名 db.table），如 analytics.daily_orders"
+        },
+        "data_date": {
+          "type": "string",
+          "required": true,
+          "description": "业务日期 YYYY-MM-DD"
+        },
+        "timezone": {
+          "type": "string",
+          "required": false,
+          "description": "业务时区（默认取目录 freshness.timezone / 分区键时区）"
+        }
+      },
+      "output_schema": "docs/schemas/offline.freshness.check.v1.json",
+      "adapter": "file-catalog+airflow-rest-v1",
+      "operation": "diagnose",
+      "auth_provider": "airflow-basic",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/offline.md",
+      "prerequisites": [
+        "catalog 端点，表元数据含 freshness.expected_by",
+        "data 域的 data.partition.get",
+        "（可选）airflow 端点，用于附带产出工作流的 run 状态"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "expected_by 为业务日期 + day_offset 天在业务时区的 HH:MM；分区更新时间取 data.partition.get 返回的写入证据（成功标记或最新数据文件）",
+        "present 以外的分区状态（empty/incomplete/unreadable）不算准时产出"
+      ],
+      "examples": [
+        "workctl offline freshness check --dataset analytics.daily_orders --data-date 2026-10-16"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "offline.log.get",
+      "command": "offline log get",
+      "summary": "读取任务某次尝试的日志尾部（Airflow 任务日志）",
+      "domain": "offline",
+      "status": "available",
+      "inputs": {
+        "run_id": {
+          "type": "string",
+          "required": true,
+          "description": "run_id"
+        },
+        "task": {
+          "type": "string",
+          "required": true,
+          "description": "任务 ID"
+        },
+        "try": {
+          "type": "int",
+          "required": false,
+          "description": "尝试序号（默认取任务实例当前 try_number）"
+        },
+        "workflow": {
+          "type": "string",
+          "required": false,
+          "description": "工作流 ID；省略时查找"
+        },
+        "limit_lines": {
+          "type": "int",
+          "required": false,
+          "default": 200,
+          "description": "返回末尾行数（上限 2000）"
+        }
+      },
+      "output_schema": "docs/schemas/offline.log.get.v1.json",
+      "adapter": "airflow-rest-v1",
+      "operation": "read",
+      "auth_provider": "airflow-basic",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/offline.md",
+      "prerequisites": [
+        "profile 配置 airflow 端点（url、username、password_ref）",
+        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "日志由 Airflow webserver 从任务日志存储读取；reschedule 模式的传感器每次 poke 都追加到同一 try 的日志",
+        "日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述"
+      ],
+      "examples": [
+        "workctl offline log get --workflow demo-daily-orders --run-id demo__2026-10-16__wrong_partition --task aggregate_orders --limit-lines 50"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "offline.run.get",
+      "command": "offline run get",
+      "summary": "查看一次运行：任务实例状态，并分层汇总调度、计算、数据产出、质量四个检查项",
+      "domain": "offline",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "run_id（如 manual__2026-10-16T00:00:00+08:00）"
+        },
+        "workflow": {
+          "type": "string",
+          "required": false,
+          "description": "工作流 ID；省略时在活跃 DAG 中查找（有上限）"
+        }
+      },
+      "output_schema": "docs/schemas/offline.run.get.v1.json",
+      "adapter": "airflow-rest-v1",
+      "operation": "diagnose",
+      "auth_provider": "airflow-basic",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/offline.md",
+      "prerequisites": [
+        "profile 配置 airflow 端点（url、username、password_ref）",
+        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限",
+        "计算层需要 Spark history server 与事件日志；产出层需要 catalog 端点与 data 域；质量层读取 data quality check 的最近结果"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "四个检查项分别验证：scheduler（Airflow run 状态）、compute（Spark 应用，通过任务记录的 application id 关联）、output（目标分区，经 data.partition.get）、quality（最近一次质量检查结果）",
+        "目标表与分区由目录元数据 produced_by 推导，分区值取 data_interval_start 在分区时区的日期"
+      ],
+      "examples": [
+        "workctl offline run get --workflow demo-daily-orders --id demo__2026-10-16__wrong_partition"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "offline.run.list",
+      "command": "offline run list",
+      "summary": "按业务日期查找工作流的运行（DAG run）：业务日期映射为业务时区的数据区间并按 data_interval 匹配",
+      "domain": "offline",
+      "status": "available",
+      "inputs": {
+        "workflow": {
+          "type": "string",
+          "required": true,
+          "description": "工作流 ID（dag_id）"
+        },
+        "data_date": {
+          "type": "string",
+          "required": true,
+          "description": "业务日期 YYYY-MM-DD（不是启动日期）"
+        },
+        "timezone": {
+          "type": "string",
+          "required": false,
+          "description": "业务时区（默认取 airflow 端点 timezone）"
+        },
+        "limit": {
+          "type": "int",
+          "required": false,
+          "default": 20,
+          "description": "最多返回的 run 数"
+        }
+      },
+      "output_schema": "docs/schemas/offline.run.list.v1.json",
+      "adapter": "airflow-rest-v1",
+      "operation": "read",
+      "auth_provider": "airflow-basic",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/offline.md",
+      "prerequisites": [
+        "profile 配置 airflow 端点（url、username、password_ref）",
+        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "业务日期 D 映射为业务时区内的半开区间 [D 00:00, D+1 00:00)；DAG run 的 data_interval 与该区间相交即纳入：exact=区间完全相同（日调度），contained=run 区间落在当天内（小时级调度），covers=run 区间覆盖当天（周/月调度），overlaps=部分重叠。run 的业务日期取 data_interval_start 在业务时区的日期，而不是 run 的启动时间。",
+        "手动触发且未显式传 data_interval 的 run，Airflow 按时间表推断为“logical_date 之前最近一个完整区间”，其业务日期可能比 logical_date 早一天"
+      ],
+      "examples": [
+        "workctl offline run list --workflow demo-daily-orders --data-date 2026-10-16 --timezone Asia/Shanghai"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "offline.task.get",
+      "command": "offline task get",
+      "summary": "查看工作流中任务的定义：算子、重试、资源池、上下游、触发规则与超时",
+      "domain": "offline",
+      "status": "available",
+      "inputs": {
+        "workflow": {
+          "type": "string",
+          "required": true,
+          "description": "工作流 ID（dag_id）"
+        },
+        "task": {
+          "type": "string",
+          "required": true,
+          "description": "任务 ID（task_id）"
+        }
+      },
+      "output_schema": "docs/schemas/offline.task.get.v1.json",
+      "adapter": "airflow-rest-v1",
+      "operation": "read",
+      "auth_provider": "airflow-basic",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/offline.md",
+      "prerequisites": [
+        "profile 配置 airflow 端点（url、username、password_ref）",
+        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "upstream_task_ids 由同一 DAG 所有任务的 downstream_task_ids 反推（derived）",
+        "SLA、传感器 mode/poke_interval/timeout 不在 REST 任务接口中，见 not_exposed"
+      ],
+      "examples": [
+        "workctl offline task get --workflow demo-daily-orders --task aggregate_orders"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "offline.workflow.get",
+      "command": "offline workflow get",
+      "summary": "查看工作流（Airflow DAG）定义：调度、时区、负责人、暂停状态、代码版本、并发与参数",
+      "domain": "offline",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "工作流 ID（Airflow dag_id），如 demo-daily-orders"
+        }
+      },
+      "output_schema": "docs/schemas/offline.workflow.get.v1.json",
+      "adapter": "airflow-rest-v1",
+      "operation": "read",
+      "auth_provider": "airflow-basic",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/offline.md",
+      "prerequisites": [
+        "profile 配置 airflow 端点（url、username、password_ref）",
+        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "代码版本取 GET /api/v1/dagSources/{file_token} 内容的 sha256 与 last_parsed_time；file_token 只标识文件位置",
+        "outputs 来自目录元数据 produced_by（catalog-metadata），不是调度器事实"
+      ],
+      "examples": [
+        "workctl offline workflow get --id demo-daily-orders"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "operation.cancel",
+      "command": "operation cancel",
+      "summary": "取消尚未执行的计划",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "计划 ID"
+        }
+      },
+      "output_schema": "docs/schemas/operation.cancel.v1.json",
+      "adapter": "plan-store",
+      "operation": "plan",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/operations.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "operation.execute",
+      "command": "operation execute",
+      "summary": "执行已生成的操作计划（需要 allow_execute 和与计划 ID 一致的确认）",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "计划 ID"
+        },
+        "confirm": {
+          "type": "string",
+          "required": true,
+          "description": "再次输入计划 ID 以确认执行"
+        }
+      },
+      "output_schema": "docs/schemas/operation.execute.v1.json",
+      "adapter": "plan-store",
+      "operation": "execute",
+      "auth_provider": "per-plan",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/operations.md",
+      "idempotent": false,
+      "side_effects": "按计划对目标系统做变更",
+      "notes": [
+        "只执行状态为 planned 且未过期的计划",
+        "执行前重新校验 profile 与环境与计划一致",
+        "执行结果以执行器返回与 operation get 状态为准"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "operation.get",
+      "command": "operation get",
+      "summary": "查看操作计划或执行任务的状态、历史和结果",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "计划/任务 ID（op-...）"
+        }
+      },
+      "output_schema": "docs/schemas/operation.get.v1.json",
+      "adapter": "plan-store",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/operations.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "operation.list",
+      "command": "operation list",
+      "summary": "列出当前 profile 下的操作计划与执行任务",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "kind": {
+          "type": "string",
+          "required": false,
+          "description": "操作类型"
+        },
+        "status": {
+          "type": "enum",
+          "required": false,
+          "enum": [
+            "planned",
+            "running",
+            "succeeded",
+            "failed",
+            "cancelled",
+            "expired"
+          ],
+          "description": "状态"
+        }
+      },
+      "output_schema": "docs/schemas/operation.list.v1.json",
+      "adapter": "plan-store",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/operations.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "operation.plan",
+      "command": "operation plan",
+      "summary": "为受控操作生成计划：解析实际目标、影响范围、前置条件和步骤（不执行）",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "action": {
+          "type": "string",
+          "required": true,
+          "description": "操作类型，如 container.restart、mysql.index.create、offline.backfill"
+        },
+        "param": {
+          "type": "list",
+          "required": false,
+          "description": "参数 key=value，可重复或逗号分隔，如 --param service=demo-order --param env=sandbox"
+        }
+      },
+      "output_schema": "docs/schemas/operation.plan.v1.json",
+      "adapter": "plan-store",
+      "operation": "plan",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/operations.md",
+      "notes": [
+        "计划预览不是执行成功的证据；执行需通过 operation execute 并满足授权条件"
+      ],
+      "examples": [
+        "workctl --json operation plan --action container.restart --param service=demo-order --param env=sandbox"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "redis.cluster.get",
+      "command": "redis cluster get",
+      "summary": "查看 Redis Cluster 节点、槽位分布与故障转移状态",
+      "domain": "redis",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "redis-client",
+      "operation": "read",
+      "auth_provider": "redis-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/redis.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "redis.config.get",
+      "command": "redis config get",
+      "summary": "读取 Redis 配置项（CONFIG GET），口令类配置自动隐藏",
+      "domain": "redis",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "Redis 端点名（profile 中 endpoints.redis 的键；缺省取 defaults.redis）"
+        },
+        "pattern": {
+          "type": "string",
+          "required": true,
+          "description": "配置名或通配模式，如 maxmemory*、slowlog-*"
+        }
+      },
+      "output_schema": "docs/schemas/redis.config.get.v1.json",
+      "adapter": "redis-client",
+      "operation": "read",
+      "auth_provider": "redis-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/redis.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.redis.<name>（host/port，可选 username/password_ref/db）",
+        "账号需允许 INFO（ACL +info）",
+        "ACL +config|get；托管 Redis 可能禁用 CONFIG"
+      ],
+      "notes": [
+        "requirepass、masterauth 等口令类配置只显示为 <redacted>",
+        "ACL 拒绝（NOPERM）返回 PERMISSION_DENIED；命令被禁用/重命名返回 UNSUPPORTED"
+      ],
+      "examples": [
+        "workctl redis config get --instance demo-redis --pattern \"maxmemory*\""
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "redis.info.get",
+      "command": "redis info get",
+      "summary": "读取并解析 INFO 指定分区，逐项标注累计值/瞬时值/静态值",
+      "domain": "redis",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "Redis 端点名（profile 中 endpoints.redis 的键；缺省取 defaults.redis）"
+        },
+        "section": {
+          "type": "enum",
+          "required": false,
+          "default": "default",
+          "enum": [
+            "server",
+            "clients",
+            "memory",
+            "persistence",
+            "stats",
+            "replication",
+            "cpu",
+            "modules",
+            "commandstats",
+            "errorstats",
+            "latencystats",
+            "cluster",
+            "keyspace",
+            "all",
+            "default",
+            "everything"
+          ],
+          "description": "INFO 分区；all/everything 返回全部"
+        }
+      },
+      "output_schema": "docs/schemas/redis.info.get.v1.json",
+      "adapter": "redis-client",
+      "operation": "read",
+      "auth_provider": "redis-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/redis.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.redis.<name>（host/port，可选 username/password_ref/db）",
+        "账号需允许 INFO（ACL +info）"
+      ],
+      "notes": [
+        "cumulative_since_start：自启动（或 CONFIG RESETSTAT）以来的累计值，不是窗口值；窗口差分用 redis stats sample",
+        "instantaneous_estimate：服务端对最近约 1.6 秒的抽样估算，不是精确窗口值"
+      ],
+      "examples": [
+        "workctl redis info get --instance demo-redis --section stats"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "redis.instance.get",
+      "command": "redis instance get",
+      "summary": "查看 Redis 实例概况：版本、角色、连接数、内存与淘汰策略、持久化状态，并附平台绑定元数据",
+      "domain": "redis",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "Redis 端点名（profile 中 endpoints.redis 的键；缺省取 defaults.redis）"
+        }
+      },
+      "output_schema": "docs/schemas/redis.instance.get.v1.json",
+      "adapter": "redis-client",
+      "operation": "read",
+      "auth_provider": "redis-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/redis.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.redis.<name>（host/port，可选 username/password_ref/db）",
+        "账号需允许 INFO（ACL +info）"
+      ],
+      "notes": [
+        "binding 来自资源绑定文件（平台元数据），其余来自 INFO 实时查询；connected_clients 等为瞬时值，命中率等窗口指标用 redis stats sample"
+      ],
+      "examples": [
+        "workctl redis instance get --instance demo-redis"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "redis.key.hot",
+      "command": "redis key hot",
+      "summary": "在 LFU 淘汰策略下按 OBJECT FREQ 找访问频度最高的键（对数计数器，不是 QPS）",
+      "domain": "redis",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "Redis 端点名（profile 中 endpoints.redis 的键；缺省取 defaults.redis）"
+        },
+        "pattern": {
+          "type": "string",
+          "required": false,
+          "default": "*",
+          "description": "SCAN MATCH 模式，如 demo:order:*"
+        },
+        "max_keys": {
+          "type": "int",
+          "required": false,
+          "default": 100,
+          "description": "最多采样的不同键数（上限 10000）"
+        },
+        "max_scan_calls": {
+          "type": "int",
+          "required": false,
+          "default": 50,
+          "description": "最多 SCAN 调用次数（预算）"
+        },
+        "scan_count": {
+          "type": "int",
+          "required": false,
+          "default": 100,
+          "description": "SCAN COUNT 提示值（只是提示，不保证每次返回数量）"
+        },
+        "top": {
+          "type": "int",
+          "required": false,
+          "default": 10,
+          "description": "返回前 N 个"
+        }
+      },
+      "output_schema": "docs/schemas/redis.key.hot.v1.json",
+      "adapter": "redis-client",
+      "operation": "diagnose",
+      "auth_provider": "redis-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/redis.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.redis.<name>（host/port，可选 username/password_ref/db）",
+        "账号需允许 INFO（ACL +info）",
+        "maxmemory-policy 为 allkeys-lfu 或 volatile-lfu；ACL +scan +object|freq"
+      ],
+      "notes": [
+        "OBJECT FREQ 是 0–255 的对数概率计数器（受 lfu-log-factor 影响），随时间衰减（lfu-decay-time），不是 QPS，也不能跨实例比较",
+        "非 LFU 策略时返回 COLLECTION_DISABLED（Redis 没有在跟踪访问频度）",
+        "热度与内存大小是不同维度：大键用 redis key sample",
+        "基于 SCAN 采样，可能遗漏热键"
+      ],
+      "examples": [
+        "workctl redis key hot --instance demo-redis --pattern \"demo:*\" --max-keys 500"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "redis.key.inspect",
+      "command": "redis key inspect",
+      "summary": "查看单个键的类型、TTL、编码、近似内存、长度与 LFU 计数；可选读取截断后的值",
+      "domain": "redis",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "Redis 端点名（profile 中 endpoints.redis 的键；缺省取 defaults.redis）"
+        },
+        "key": {
+          "type": "string",
+          "required": true,
+          "description": "键名"
+        },
+        "include_value": {
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "description": "读取值（字符串 ≤1KB，集合前 20 个元素）；会更新该键的 LFU/LRU 访问信息"
+        }
+      },
+      "output_schema": "docs/schemas/redis.key.inspect.v1.json",
+      "adapter": "redis-client",
+      "operation": "read",
+      "auth_provider": "redis-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/redis.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.redis.<name>（host/port，可选 username/password_ref/db）",
+        "账号需允许 INFO（ACL +info）",
+        "ACL +type +pttl +object +memory|usage 与对应长度命令；--include-value 需要读命令权限"
+      ],
+      "notes": [
+        "键不存在返回 NOT_FOUND（PTTL=-2）；PTTL=-1 表示没有过期时间（ttl_ms=null）",
+        "MEMORY USAGE 为近似值（SAMPLES 5）；内存大小不是访问热度",
+        "lfu_counter 仅在 maxmemory-policy 为 *-lfu 时有意义，否则为 null 并说明原因",
+        "--include-value 会读取值（计入 keyspace_hits，并更新 LFU/LRU），值可能含业务数据，按需开启"
+      ],
+      "examples": [
+        "workctl redis key inspect --instance demo-redis --key demo:order:1",
+        "workctl redis key inspect --instance demo-redis --key demo:customer:1:recent --include-value"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "redis.key.sample",
+      "command": "redis key sample",
+      "summary": "按模式有预算地 SCAN 采样键，统计类型与内存占用分布（p50/p90/p99/max）和最大键候选",
+      "domain": "redis",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "Redis 端点名（profile 中 endpoints.redis 的键；缺省取 defaults.redis）"
+        },
+        "pattern": {
+          "type": "string",
+          "required": false,
+          "default": "*",
+          "description": "SCAN MATCH 模式，如 demo:order:*"
+        },
+        "max_keys": {
+          "type": "int",
+          "required": false,
+          "default": 100,
+          "description": "最多采样的不同键数（上限 10000）"
+        },
+        "max_scan_calls": {
+          "type": "int",
+          "required": false,
+          "default": 50,
+          "description": "最多 SCAN 调用次数（预算）"
+        },
+        "scan_count": {
+          "type": "int",
+          "required": false,
+          "default": 100,
+          "description": "SCAN COUNT 提示值（只是提示，不保证每次返回数量）"
+        }
+      },
+      "output_schema": "docs/schemas/redis.key.sample.v1.json",
+      "adapter": "redis-client",
+      "operation": "diagnose",
+      "auth_provider": "redis-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/redis.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.redis.<name>（host/port，可选 username/password_ref/db）",
+        "账号需允许 INFO（ACL +info）",
+        "ACL +scan +type +memory|usage +dbsize，且对匹配的键有读权限"
+      ],
+      "notes": [
+        "这是采样，不是一致性全量快照：SCAN 可能重复返回键（已去重）、COUNT 只是提示，遍历期间增删的键可能遗漏",
+        "MEMORY USAGE 使用 SAMPLES 5 估算集合类型，是近似值；内存大小不是访问热度（热度用 redis key hot）",
+        "coverage.complete=true 仅表示游标在预算内回到 0"
+      ],
+      "examples": [
+        "workctl redis key sample --instance demo-redis --pattern \"demo:*\" --max-keys 200"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "redis.latency.get",
+      "command": "redis latency get",
+      "summary": "读取 LATENCY LATEST / HISTORY 事件延迟（需开启 latency-monitor-threshold）",
+      "domain": "redis",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "redis-client",
+      "operation": "read",
+      "auth_provider": "redis-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/redis.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "redis.slowlog.list",
+      "command": "redis slowlog list",
+      "summary": "读取 Redis 慢日志（SLOWLOG GET），参数脱敏，只保留命令与键名",
+      "domain": "redis",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "Redis 端点名（profile 中 endpoints.redis 的键；缺省取 defaults.redis）"
+        },
+        "limit": {
+          "type": "int",
+          "required": false,
+          "default": 10,
+          "description": "最多返回条数（最新在前）"
+        }
+      },
+      "output_schema": "docs/schemas/redis.slowlog.list.v1.json",
+      "adapter": "redis-client",
+      "operation": "read",
+      "auth_provider": "redis-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/redis.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.redis.<name>（host/port，可选 username/password_ref/db）",
+        "账号需允许 INFO（ACL +info）",
+        "ACL +slowlog；读取阈值需要 +config|get（无权限时阈值显示为 unknown）"
+      ],
+      "notes": [
+        "慢日志只含命令执行时间，不含网络往返、排队等待与 I/O；客户端看到的延迟可能远大于 duration_us",
+        "只保留最近 slowlog-max-len 条，更早的已被覆盖；slowlog-log-slower-than 为负数时表示关闭",
+        "参数中只保留命令（含子命令）与键名，其余值替换为 ?"
+      ],
+      "examples": [
+        "workctl redis slowlog list --instance demo-redis --limit 10"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "redis.stats.sample",
+      "command": "redis stats sample",
+      "summary": "在同一连接上两次采样 INFO，计算窗口内命中率、命令数、淘汰/过期等增量与速率（处理重启与计数器重置）",
+      "domain": "redis",
+      "status": "available",
+      "inputs": {
+        "instance": {
+          "type": "string",
+          "required": false,
+          "description": "Redis 端点名（profile 中 endpoints.redis 的键；缺省取 defaults.redis）"
+        },
+        "duration": {
+          "type": "duration",
+          "required": false,
+          "default": "10s",
+          "description": "采样窗口（须小于 --timeout，默认 30s）"
+        }
+      },
+      "output_schema": "docs/schemas/redis.stats.sample.v1.json",
+      "adapter": "redis-client",
+      "operation": "diagnose",
+      "auth_provider": "redis-profile",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/redis.md",
+      "prerequisites": [
+        "profile 中配置 endpoints.redis.<name>（host/port，可选 username/password_ref/db）",
+        "账号需允许 INFO（ACL +info）"
+      ],
+      "notes": [
+        "窗口值 = 第二次 INFO − 第一次 INFO；命令会等待整个窗口，窗口须小于 --timeout",
+        "run_id 变化或 uptime 回退视为重启：增量为 null 且结果标记 partial；计数器回退（CONFIG RESETSTAT）同样处理，绝不输出负数",
+        "hit_ratio = hits/(hits+misses)；窗口内没有键查找时为 null（不是 0）",
+        "total_commands_processed 包含 workctl 自身的 1 条 INFO 命令"
+      ],
+      "examples": [
+        "workctl redis stats sample --instance demo-redis --duration 10s",
+        "workctl --timeout 60s redis stats sample --instance demo-redis --duration 30s"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "resource.get",
+      "command": "resource get",
+      "summary": "查看单个资源及其上下游关系（含关系来源与依据）",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "资源 ID"
+        }
+      },
+      "output_schema": "docs/schemas/resource.get.v1.json",
+      "adapter": "binding-file",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/resource-model.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "resource.list",
+      "command": "resource list",
+      "summary": "检索已绑定资源；指定 --service 时返回该服务及其依赖资源",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "service": {
+          "type": "string",
+          "required": false,
+          "description": "服务 ID，如 demo-order"
+        },
+        "env": {
+          "type": "string",
+          "required": false,
+          "description": "环境，如 sandbox"
+        },
+        "type": {
+          "type": "string",
+          "required": false,
+          "description": "资源类型前缀，如 mysql、offline.workflow"
+        }
+      },
+      "output_schema": "docs/schemas/resource.list.v1.json",
+      "adapter": "binding-file",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/resource-model.md",
+      "examples": [
+        "workctl --json resource list --service demo-order --env sandbox"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "search.index.get",
+      "command": "search index get",
+      "summary": "查看搜索引擎索引的分片、容量和状态",
+      "domain": "search",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "elasticsearch/opensearch (待接入)",
+      "operation": "read",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/provider-onboarding.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "search.query",
+      "command": "search query",
+      "summary": "对搜索引擎执行受限查询",
+      "domain": "search",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "elasticsearch/opensearch (待接入)",
+      "operation": "read",
+      "auth_provider": "tbd",
+      "capability_version": "1.0.0",
+      "guide": "docs/provider-onboarding.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "service.dependency.list",
+      "command": "service dependency list",
+      "summary": "列出服务的依赖资源（直接与传递）及依赖它的对象，每条关系带来源与依据",
+      "domain": "core",
+      "status": "available",
+      "inputs": {
+        "service": {
+          "type": "string",
+          "required": true,
+          "description": "服务 ID"
+        },
+        "env": {
+          "type": "string",
+          "required": false,
+          "description": "环境"
+        },
+        "depth": {
+          "type": "int",
+          "required": false,
+          "default": 2,
+          "description": "传递依赖深度"
+        }
+      },
+      "output_schema": "docs/schemas/service.dependency.list.v1.json",
+      "adapter": "binding-file",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/resource-model.md",
+      "notes": [
+        "关系只来自绑定文件/服务配置等明确来源；不会根据名称相似性推断依赖"
+      ],
+      "examples": [
+        "workctl --json service dependency list --service demo-order --env sandbox"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "sql.query.cancel",
+      "command": "sql query cancel",
+      "summary": "取消正在运行的查询（终止 spark-submit 进程组）",
+      "domain": "sql",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "查询 ID"
+        }
+      },
+      "output_schema": "docs/schemas/sql.query.cancel.v1.json",
+      "adapter": "spark-submit-local",
+      "operation": "execute",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/compute.md",
+      "idempotent": true,
+      "cancellable": true,
+      "side_effects": "向查询的 spark-submit 进程组发送 SIGTERM（5 秒后 SIGKILL）",
+      "prerequisites": [
+        "profile allow_execute=true"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "已结束的查询返回 CONFLICT；被终止的 Spark 应用在 history server 中显示为未完成（incomplete）"
+      ],
+      "examples": [
+        "workctl sql query cancel --id q-20261017-1a2b3c"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "sql.query.get",
+      "command": "sql query get",
+      "summary": "查看已提交查询的状态、Spark 应用 ID、结果预览（≤ 20 行）与结果位置",
+      "domain": "sql",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "查询 ID（q-YYYYMMDD-xxxxxx）"
+        },
+        "preview_rows": {
+          "type": "int",
+          "required": false,
+          "default": 20,
+          "description": "预览行数（上限 20）"
+        }
+      },
+      "output_schema": "docs/schemas/sql.query.get.v1.json",
+      "adapter": "spark-submit-local",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/compute.md",
+      "prerequisites": [
+        "spark 端点配置 query_state_dir"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "state=lost 表示提交进程已退出但没有写入终态，与 failed（运行器捕获到错误）区分",
+        "结果预览只是前 N 行，完整结果在 result_location（JSON lines）"
+      ],
+      "examples": [
+        "workctl sql query get --id q-20261017-1a2b3c"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "sql.query.submit",
+      "command": "sql query submit",
+      "summary": "异步提交只读 SQL 查询到计算引擎（当前支持 Spark SQL，local 模式），返回查询 ID",
+      "domain": "sql",
+      "status": "available",
+      "inputs": {
+        "engine": {
+          "type": "enum",
+          "required": false,
+          "default": "spark",
+          "enum": [
+            "spark",
+            "trino",
+            "hive"
+          ],
+          "description": "查询引擎（trino / hive 待接入）"
+        },
+        "file": {
+          "type": "file",
+          "required": true,
+          "description": "只含一条 SELECT / WITH 查询的 SQL 文件"
+        },
+        "output": {
+          "type": "string",
+          "required": false,
+          "description": "结果目录（须不存在，且不在 warehouse_root 内；默认 query_state_dir/<id>/result）"
+        },
+        "preview_rows": {
+          "type": "int",
+          "required": false,
+          "default": 20,
+          "description": "状态中保留的预览行数（上限 20）"
+        }
+      },
+      "output_schema": "docs/schemas/sql.query.submit.v1.json",
+      "adapter": "spark-submit-local",
+      "operation": "read",
+      "auth_provider": "none",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/compute.md",
+      "async": true,
+      "cancellable": true,
+      "side_effects": "启动一个 Spark 应用（消耗计算资源）；结果写入 query_state_dir 下的结果目录，不写入数仓表",
+      "prerequisites": [
+        "spark 端点配置 spark_home、python、query_state_dir、warehouse_root、event_log_dir、driver_log_dir"
+      ],
+      "backend_modes": [
+        "live"
+      ],
+      "notes": [
+        "只接受单条 SELECT/WITH；含 INSERT/CREATE/DROP/SET 等关键字的文件在提交前被拒绝（INVALID_ARGUMENT）",
+        "演示环境中 warehouse_root 下每个 <db>/<table> 目录注册为临时视图 <db>_<table>（如 analytics_daily_orders），dt 分区目录成为 dt 列",
+        "提交成功只代表进程已启动；用 sql query get 查看状态，running 表示仍在执行"
+      ],
+      "examples": [
+        "workctl sql query submit --engine spark --file demo/offline-workflows/sql/examples/daily_orders_by_status.sql"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "sql.query.submit-hive",
+      "command": "sql query submit-hive",
+      "summary": "向 HiveServer2 提交只读查询（待接入）",
+      "domain": "sql",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "hiveserver2-thrift",
+      "operation": "read",
+      "auth_provider": "kerberos-or-ldap",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/compute.md",
+      "notes": [
+        "接入后并入 sql query submit --engine hive"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "sql.query.submit-trino",
+      "command": "sql query submit-trino",
+      "summary": "向 Trino 提交只读查询（待接入）",
+      "domain": "sql",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "trino-rest",
+      "operation": "read",
+      "auth_provider": "trino-basic-or-jwt",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/compute.md",
+      "notes": [
+        "接入后并入 sql query submit --engine trino"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "storage.file.stat",
+      "command": "storage file stat",
+      "summary": "查看本机文件或目录的类型、大小、修改时间、权限与可读性（不读取内容）",
+      "domain": "storage",
+      "status": "available",
+      "inputs": {
+        "path": {
+          "type": "string",
+          "required": true,
+          "description": "文件或目录路径（相对路径按当前目录解析）"
+        }
+      },
+      "output_schema": "docs/schemas/storage.file.stat.v1.json",
+      "adapter": "node-fs",
+      "operation": "read",
+      "auth_provider": "local-user",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "notes": [
+        "只读元数据（lstat/stat/access），不读取文件内容",
+        "readable/writable 反映运行 workctl 的用户权限，不代表其他服务账号的权限",
+        "数据产出检查（分区/文件是否存在、可读）与调度成功是不同检查项"
+      ],
+      "examples": [
+        "workctl storage file stat --path demo/environment/workctl.yaml"
+      ],
+      "origin": "builtin"
+    },
+    {
+      "name": "storage.hdfs.stat",
+      "command": "hdfs path stat",
+      "summary": "查看 HDFS 路径的大小、副本数、修改时间与配额（规划中：WebHDFS）",
+      "domain": "storage",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "webhdfs (待接入)",
+      "operation": "read",
+      "auth_provider": "kerberos",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "storage.object.stat",
+      "command": "object stat",
+      "summary": "查看对象存储（S3 兼容）对象的大小、ETag、修改时间与存储类型（规划中）",
+      "domain": "storage",
+      "status": "planned",
+      "inputs": {},
+      "output_schema": null,
+      "adapter": "s3-api (待接入)",
+      "operation": "read",
+      "auth_provider": "access-key-ref",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "origin": "builtin"
+    },
+    {
+      "name": "storage.volume.get",
+      "command": "storage volume get",
+      "summary": "查看 Docker 卷的驱动、挂载点、标签、作用域、占用大小和挂载它的容器",
+      "domain": "storage",
+      "status": "available",
+      "inputs": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "卷名（如 workctl-demo_mysql-data）"
+        }
+      },
+      "output_schema": "docs/schemas/storage.volume.get.v1.json",
+      "adapter": "docker-engine-api",
+      "operation": "read",
+      "auth_provider": "docker-socket",
+      "capability_version": "1.0.0",
+      "guide": "docs/guides/infrastructure.md",
+      "prerequisites": [
+        "endpoints.docker 可访问"
+      ],
+      "notes": [
+        "占用大小来自 /system/df?type=volume（守护进程现场计算，可能较慢）；不可用时 usage.status=unavailable 并说明原因，不推算",
+        "对象存储（S3）与 HDFS 是规划中的 provider"
+      ],
+      "examples": [
+        "workctl storage volume get --id workctl-demo_mysql-data"
+      ],
+      "origin": "builtin"
+    }
+  ],
+  "domains": [
+    {
+      "name": "core",
+      "title": "核心",
+      "summary": "能力发现、资源关系、身份与授权检查、操作计划与状态",
+      "pillar": "core",
+      "guide": "docs/capability-catalog.md",
+      "skill": "skills/enterprise-infra"
+    },
+    {
+      "name": "container",
+      "title": "容器与资源容量",
+      "summary": "容器工作负载状态、事件、资源快照、容量汇总与受控重启（Docker Engine API；Kubernetes 规划中）",
+      "pillar": "infrastructure",
+      "guide": "docs/guides/infrastructure.md",
+      "skill": "skills/infra-operations"
+    },
+    {
+      "name": "network",
+      "title": "网络",
+      "summary": "DNS 解析、服务后端探测与 TCP 连通性采样",
+      "pillar": "infrastructure",
+      "guide": "docs/guides/infrastructure.md",
+      "skill": "skills/infra-operations"
+    },
+    {
+      "name": "storage",
+      "title": "存储",
+      "summary": "Docker 卷与本机文件系统元数据；对象存储与 HDFS 规划中",
+      "pillar": "infrastructure",
+      "guide": "docs/guides/infrastructure.md",
+      "skill": "skills/resource-capacity-review"
+    },
+    {
+      "name": "observability",
+      "title": "可观测性",
+      "summary": "指标（Prometheus）、容器日志与日志派生调用链；Loki / Jaeger / Tempo 规划中",
+      "pillar": "infrastructure",
+      "guide": "docs/guides/observability.md",
+      "skill": "skills/service-latency-investigation"
+    },
+    {
+      "name": "mysql",
+      "title": "MySQL",
+      "summary": "MySQL 实例、表结构、会话与锁、语句摘要、慢日志、执行计划、受限查询与索引变更计划",
+      "pillar": "middleware",
+      "guide": "docs/guides/mysql.md",
+      "skill": "skills/mysql-operations"
+    },
+    {
+      "name": "redis",
+      "title": "Redis",
+      "summary": "Redis 实例概况、INFO、窗口统计采样、慢日志、键采样/大键/热键、单键检查与配置读取",
+      "pillar": "middleware",
+      "guide": "docs/guides/redis.md",
+      "skill": "skills/redis-operations"
+    },
+    {
+      "name": "offline",
+      "title": "离线调度",
+      "summary": "离线工作流（Airflow）：工作流/任务定义、按业务日期查找运行、分层状态、依赖、日志、补数计划与产出时效",
+      "pillar": "offline",
+      "guide": "docs/guides/offline.md",
+      "skill": "skills/offline-operations"
+    },
+    {
+      "name": "compute",
+      "title": "计算作业",
+      "summary": "Spark 应用（history server REST）、阶段、driver 日志与计算资源池",
+      "pillar": "offline",
+      "guide": "docs/guides/compute.md",
+      "skill": "skills/offline-operations"
+    },
+    {
+      "name": "sql",
+      "title": "SQL 提交",
+      "summary": "向计算引擎异步提交只读 SQL 查询并跟踪状态（Spark SQL）",
+      "pillar": "offline",
+      "guide": "docs/guides/compute.md",
+      "skill": "skills/offline-operations"
+    },
+    {
+      "name": "data",
+      "title": "数据目录、分区、血缘与质量",
+      "summary": "表元数据与分区语义、分区产出检查、explicit/inferred 血缘、分区质量规则（file 目录 provider + 本地文件系统仓库）",
+      "pillar": "offline",
+      "guide": "docs/guides/data.md",
+      "skill": "skills/data-validation"
+    },
+    {
+      "name": "planned",
+      "title": "待接入能力",
+      "summary": "能力全景中尚未接入的能力；只出现在目录中，不可调用",
+      "pillar": "core",
+      "guide": "docs/capability-catalog.md",
+      "skill": null
+    },
+    {
+      "name": "config",
+      "title": "配置与服务发现",
+      "summary": "配置中心与服务注册（待接入）",
+      "pillar": "infrastructure",
+      "guide": "docs/guides/infrastructure.md",
+      "skill": null
+    },
+    {
+      "name": "search",
+      "title": "搜索引擎",
+      "summary": "Elasticsearch / OpenSearch（待接入）",
+      "pillar": "middleware",
+      "guide": "docs/provider-onboarding.md",
+      "skill": null
+    },
+    {
+      "name": "document",
+      "title": "文档与键值数据库",
+      "summary": "文档库、KV 服务（待接入）",
+      "pillar": "middleware",
+      "guide": "docs/provider-onboarding.md",
+      "skill": null
+    },
+    {
+      "name": "analytics",
+      "title": "分析数据库",
+      "summary": "列式分析引擎（待接入）",
+      "pillar": "middleware",
+      "guide": "docs/provider-onboarding.md",
+      "skill": null
+    },
+    {
+      "name": "middleware",
+      "title": "中间件生命周期",
+      "summary": "托管平台操作入口（待接入）",
+      "pillar": "middleware",
+      "guide": "docs/guides/operations.md",
+      "skill": null
+    }
+  ]
+}

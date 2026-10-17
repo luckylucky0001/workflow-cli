@@ -1,0 +1,673 @@
+{
+  "$id": "docs/schemas/offline.run.get.v1.json",
+  "title": "offline.run.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "run": {
+      "type": "object",
+      "properties": {
+        "run_id": {
+          "type": "string"
+        },
+        "state": {
+          "description": "Airflow DAG run 状态: queued/running/success/failed",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "run_type": {
+          "description": "scheduled / manual / backfill / dataset_triggered",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "external_trigger": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "business_date": {
+          "description": "data_interval_start 在业务时区的日期",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "match": {
+          "description": "与查询业务日期区间的关系 exact/contained/covers/overlaps",
+          "type": "string"
+        },
+        "logical_date": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "utc": {
+                  "type": "string"
+                },
+                "local": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "utc",
+                "local"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data_interval": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "utc": {
+                      "type": "string"
+                    },
+                    "local": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "utc",
+                    "local"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "end": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "utc": {
+                      "type": "string"
+                    },
+                    "local": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "utc",
+                    "local"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "start",
+            "end"
+          ],
+          "additionalProperties": false
+        },
+        "queued_at": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "utc": {
+                  "type": "string"
+                },
+                "local": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "utc",
+                "local"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "start_date": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "utc": {
+                  "type": "string"
+                },
+                "local": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "utc",
+                "local"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "end_date": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "utc": {
+                  "type": "string"
+                },
+                "local": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "utc",
+                "local"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "duration_seconds": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "last_scheduling_decision": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "utc": {
+                  "type": "string"
+                },
+                "local": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "utc",
+                "local"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "conf": {
+          "anyOf": [
+            {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "run_id",
+        "state",
+        "run_type",
+        "external_trigger",
+        "business_date",
+        "logical_date",
+        "data_interval",
+        "queued_at",
+        "start_date",
+        "end_date",
+        "duration_seconds",
+        "last_scheduling_decision",
+        "conf",
+        "note"
+      ],
+      "additionalProperties": false
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string"
+          },
+          "state": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "try_number": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "max_tries": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "operator": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pool": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hostname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "queued_when": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "utc": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "utc",
+                  "local"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "utc": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "utc",
+                  "local"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "utc": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "utc",
+                  "local"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "duration_seconds": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "map_index": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "task_id",
+          "state",
+          "try_number",
+          "max_tries",
+          "operator",
+          "pool",
+          "hostname",
+          "queued_when",
+          "start_date",
+          "end_date",
+          "duration_seconds",
+          "map_index"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "workflow": {
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "business_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "data_interval": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "utc": {
+                      "type": "string"
+                    },
+                    "local": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "utc",
+                    "local"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "end": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "utc": {
+                      "type": "string"
+                    },
+                    "local": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "utc",
+                    "local"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "start",
+            "end"
+          ],
+          "additionalProperties": false
+        },
+        "target_partition": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "table": {
+                  "type": "string"
+                },
+                "partition": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "write_mode": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "table",
+                "partition",
+                "write_mode"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scheduler_state": {
+          "type": "string"
+        },
+        "compute_state": {
+          "type": "string"
+        },
+        "output_state": {
+          "type": "string"
+        },
+        "quality_state": {
+          "type": "string"
+        },
+        "layers": {
+          "type": "object",
+          "properties": {
+            "scheduler": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "source": {
+                  "anyOf": [
+                    {},
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "source"
+              ],
+              "additionalProperties": {}
+            },
+            "compute": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "source": {
+                  "anyOf": [
+                    {},
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "source"
+              ],
+              "additionalProperties": {}
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "source": {
+                  "anyOf": [
+                    {},
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "source"
+              ],
+              "additionalProperties": {}
+            },
+            "quality": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "source": {
+                  "anyOf": [
+                    {},
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "source"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "required": [
+            "scheduler",
+            "compute",
+            "output",
+            "quality"
+          ],
+          "additionalProperties": false
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "fact",
+                  "inconsistency"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "message"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "workflow",
+        "run_id",
+        "business_date",
+        "data_interval",
+        "target_partition",
+        "scheduler_state",
+        "compute_state",
+        "output_state",
+        "quality_state",
+        "layers",
+        "findings"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "run",
+    "tasks",
+    "summary"
+  ],
+  "additionalProperties": false
+}

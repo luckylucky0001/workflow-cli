@@ -1,0 +1,243 @@
+{
+  "$id": "docs/schemas/observability.log.query.v1.json",
+  "title": "observability.log.query data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "service": {
+      "type": "string"
+    },
+    "env": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "window": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string"
+        },
+        "end": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "additionalProperties": false
+    },
+    "order": {
+      "type": "string",
+      "enum": [
+        "newest",
+        "oldest"
+      ]
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ts": {
+            "type": "string",
+            "description": "Docker 记录的时间戳"
+          },
+          "container": {
+            "type": "string"
+          },
+          "stream": {
+            "type": "string",
+            "enum": [
+              "stdout",
+              "stderr"
+            ]
+          },
+          "level": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "msg": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kind": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "trace_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "span_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fields": {
+            "anyOf": [
+              {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "JSON 日志的其余字段；非 JSON 行为 null"
+          },
+          "raw": {
+            "description": "非 JSON 行的原文",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "ts",
+          "container",
+          "stream",
+          "level",
+          "msg",
+          "kind",
+          "trace_id",
+          "span_id",
+          "fields",
+          "raw"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "stats": {
+      "type": "object",
+      "properties": {
+        "lines_scanned": {
+          "type": "number"
+        },
+        "matched": {
+          "type": "number"
+        },
+        "returned": {
+          "type": "number"
+        },
+        "unparsed_lines": {
+          "type": "number",
+          "description": "非 JSON 行（原文保留在 raw）"
+        },
+        "spans_skipped": {
+          "type": "number"
+        },
+        "unparsed_excluded_by_level": {
+          "type": "number",
+          "description": "因无法确定级别而被 --level 排除的非 JSON 行"
+        },
+        "by_level": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "匹配条目的级别分布"
+        }
+      },
+      "required": [
+        "lines_scanned",
+        "matched",
+        "returned",
+        "unparsed_lines",
+        "spans_skipped",
+        "unparsed_excluded_by_level",
+        "by_level"
+      ],
+      "additionalProperties": false
+    },
+    "containers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "log_driver": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "started_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lines_scanned": {
+            "type": "number"
+          },
+          "matched": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "collection_disabled",
+              "error"
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "id",
+          "log_driver",
+          "created_at",
+          "started_at",
+          "lines_scanned",
+          "matched",
+          "status",
+          "note"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "service",
+    "env",
+    "window",
+    "order",
+    "entries",
+    "stats",
+    "containers"
+  ],
+  "additionalProperties": false
+}

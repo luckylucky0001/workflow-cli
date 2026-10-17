@@ -1,0 +1,180 @@
+{
+  "$id": "docs/schemas/sql.query.get.v1.json",
+  "title": "sql.query.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "query_id": {
+      "type": "string"
+    },
+    "engine": {
+      "type": "string",
+      "const": "spark"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "running",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "lost"
+      ]
+    },
+    "state_basis": {
+      "type": "string"
+    },
+    "submitted_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "started_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "finished_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "duration_ms": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "app_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "spark_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sql_file": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sql_sha256": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "row_count": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "columns": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "preview": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string"
+        },
+        "additionalProperties": {}
+      }
+    },
+    "preview_truncated": {
+      "type": "boolean"
+    },
+    "result_location": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "result_format": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "message"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "views": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "query_id",
+    "engine",
+    "state",
+    "state_basis",
+    "submitted_at",
+    "started_at",
+    "finished_at",
+    "duration_ms",
+    "app_id",
+    "spark_version",
+    "sql_file",
+    "sql_sha256",
+    "row_count",
+    "columns",
+    "preview",
+    "preview_truncated",
+    "result_location",
+    "result_format",
+    "error",
+    "views"
+  ],
+  "additionalProperties": false
+}

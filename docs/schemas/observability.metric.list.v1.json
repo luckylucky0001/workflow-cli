@@ -1,0 +1,63 @@
+{
+  "$id": "docs/schemas/observability.metric.list.v1.json",
+  "title": "observability.metric.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "endpoint": {
+      "type": "string"
+    },
+    "resource": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "query_template": {
+            "type": "string"
+          },
+          "query": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "unit",
+          "query_template",
+          "query"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "endpoint",
+    "resource",
+    "metrics"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,220 @@
+{
+  "$id": "docs/schemas/mysql.statement.summary.v1.json",
+  "title": "mysql.statement.summary data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "aggregation": {
+      "type": "string",
+      "enum": [
+        "window_delta",
+        "cumulative_since"
+      ]
+    },
+    "window": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "string"
+            },
+            "end": {
+              "type": "string"
+            },
+            "duration_ms": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "start",
+            "end",
+            "duration_ms"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cumulative_since": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "server_started_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "earliest_first_seen": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "server_started_at",
+            "earliest_first_seen"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "累计模式下的统计起点：服务启动或摘要表重置；每行另有 first_seen"
+    },
+    "database": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "top": {
+      "type": "number"
+    },
+    "digests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "digest": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "digest_text": {
+            "description": "归一化语句（字面量为 ?），可能被 max_digest_length 截断",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "count": {
+            "type": "number"
+          },
+          "total_latency_ms": {
+            "type": "number"
+          },
+          "avg_latency_ms": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "max_latency_ms": {
+            "description": "仅累计模式：自 first_seen 以来单条最大耗时",
+            "type": "number"
+          },
+          "rows_examined": {
+            "type": "number"
+          },
+          "rows_sent": {
+            "type": "number"
+          },
+          "rows_affected": {
+            "type": "number"
+          },
+          "avg_rows_examined": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "no_index_used_count": {
+            "type": "number"
+          },
+          "no_good_index_used_count": {
+            "type": "number"
+          },
+          "errors": {
+            "type": "number"
+          },
+          "first_seen": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_seen": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reset_detected": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema",
+          "digest",
+          "digest_text",
+          "count",
+          "total_latency_ms",
+          "avg_latency_ms",
+          "rows_examined",
+          "rows_sent",
+          "rows_affected",
+          "avg_rows_examined",
+          "no_index_used_count",
+          "no_good_index_used_count",
+          "errors",
+          "first_seen",
+          "last_seen"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "totals": {
+      "type": "object",
+      "properties": {
+        "digests_with_activity": {
+          "type": "number"
+        },
+        "statements": {
+          "type": "number"
+        },
+        "total_latency_ms": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "digests_with_activity",
+        "statements",
+        "total_latency_ms"
+      ],
+      "additionalProperties": false
+    },
+    "excluded_self_digests": {
+      "type": "number",
+      "description": "已排除的采样语句摘要数（查询 events_statements_summary_by_digest 的语句，含 workctl 自身）"
+    }
+  },
+  "required": [
+    "instance",
+    "aggregation",
+    "window",
+    "cumulative_since",
+    "database",
+    "top",
+    "digests",
+    "totals",
+    "excluded_self_digests"
+  ],
+  "additionalProperties": false
+}

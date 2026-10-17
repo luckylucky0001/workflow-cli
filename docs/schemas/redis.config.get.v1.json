@@ -1,0 +1,36 @@
+{
+  "$id": "docs/schemas/redis.config.get.v1.json",
+  "title": "redis.config.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "pattern": {
+      "type": "string"
+    },
+    "parameters": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "redacted": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "instance",
+    "pattern",
+    "parameters",
+    "redacted"
+  ],
+  "additionalProperties": false
+}

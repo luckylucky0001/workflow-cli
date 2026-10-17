@@ -1,0 +1,122 @@
+{
+  "$id": "docs/schemas/mysql.query.analyze.v1.json",
+  "title": "mysql.query.analyze data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "database": {
+      "type": "string"
+    },
+    "statement_type": {
+      "type": "string"
+    },
+    "executed": {
+      "type": "boolean",
+      "const": true,
+      "description": "EXPLAIN ANALYZE 会实际执行语句"
+    },
+    "tree": {
+      "type": "string",
+      "description": "EXPLAIN ANALYZE 原始 TREE 输出"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "depth": {
+            "type": "number"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "estimated_cost": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "estimated_rows": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "actual_first_row_ms": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "actual_last_row_ms": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "actual_rows": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "loops": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "never_executed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "depth",
+          "operation",
+          "estimated_cost",
+          "estimated_rows",
+          "actual_first_row_ms",
+          "actual_last_row_ms",
+          "actual_rows",
+          "loops",
+          "never_executed"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "elapsed_ms": {
+      "type": "number",
+      "description": "客户端测得的总耗时（含网络）"
+    },
+    "guards": {
+      "type": "object",
+      "properties": {
+        "read_only_transaction": {
+          "type": "boolean"
+        },
+        "max_execution_time_ms": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "read_only_transaction",
+        "max_execution_time_ms"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "instance",
+    "database",
+    "statement_type",
+    "executed",
+    "tree",
+    "nodes",
+    "elapsed_ms",
+    "guards"
+  ],
+  "additionalProperties": false
+}

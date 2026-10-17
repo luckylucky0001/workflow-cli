@@ -1,0 +1,326 @@
+{
+  "$id": "docs/schemas/redis.instance.get.v1.json",
+  "title": "redis.instance.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "binding": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "env": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "owner": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "labels": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "attributes": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "env",
+            "owner",
+            "labels",
+            "attributes"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "平台元数据（资源绑定文件），不是引擎查询结果"
+    },
+    "server": {
+      "type": "object",
+      "properties": {
+        "redis_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "redis_mode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "run_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "uptime_s": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "started_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tcp_port": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "redis_version",
+        "redis_mode",
+        "run_id",
+        "uptime_s",
+        "started_at",
+        "tcp_port"
+      ],
+      "additionalProperties": false
+    },
+    "replication": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "connected_slaves": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "master_host": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "master_link_status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "role",
+        "connected_slaves",
+        "master_host",
+        "master_link_status"
+      ],
+      "additionalProperties": false
+    },
+    "clients": {
+      "type": "object",
+      "properties": {
+        "connected_clients": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "blocked_clients": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "maxclients": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "connected_clients",
+        "blocked_clients",
+        "maxclients"
+      ],
+      "additionalProperties": false
+    },
+    "memory": {
+      "type": "object",
+      "properties": {
+        "used_memory": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "used_memory_human": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "used_memory_peak": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "maxmemory": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "maxmemory_human": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "maxmemory_policy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "usage_ratio": {
+          "description": "used_memory/maxmemory；maxmemory=0（不限）时为 null",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "mem_fragmentation_ratio": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "used_memory",
+        "used_memory_human",
+        "used_memory_peak",
+        "maxmemory",
+        "maxmemory_human",
+        "maxmemory_policy",
+        "usage_ratio",
+        "mem_fragmentation_ratio"
+      ],
+      "additionalProperties": false
+    },
+    "persistence": {
+      "type": "object",
+      "properties": {
+        "loading": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "rdb_last_bgsave_status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rdb_last_save_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rdb_changes_since_last_save": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "aof_enabled": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "aof_last_write_status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "loading",
+        "rdb_last_bgsave_status",
+        "rdb_last_save_at",
+        "rdb_changes_since_last_save",
+        "aof_enabled",
+        "aof_last_write_status"
+      ],
+      "additionalProperties": false
+    },
+    "keyspace": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string"
+        },
+        "additionalProperties": {
+          "type": [
+            "string",
+            "number"
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "instance",
+    "binding",
+    "server",
+    "replication",
+    "clients",
+    "memory",
+    "persistence",
+    "keyspace"
+  ],
+  "additionalProperties": false
+}

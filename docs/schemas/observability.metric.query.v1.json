@@ -1,0 +1,169 @@
+{
+  "$id": "docs/schemas/observability.metric.query.v1.json",
+  "title": "observability.metric.query data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "resource": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "metric": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "promql": {
+      "type": "string"
+    },
+    "unit": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "window": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string"
+        },
+        "end": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "additionalProperties": false
+    },
+    "step_seconds": {
+      "type": "number"
+    },
+    "result_type": {
+      "type": "string"
+    },
+    "series": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "labels": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "description": "[时间, 值]；null 表示 NaN/Inf（如分母为零）"
+          },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "points": {
+                "type": "number"
+              },
+              "nan_points": {
+                "type": "number"
+              },
+              "min": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "max": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "avg": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "last": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "last_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "points",
+              "nan_points",
+              "min",
+              "max",
+              "avg",
+              "last",
+              "last_at"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "labels",
+          "points",
+          "summary"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "empty": {
+      "type": "boolean",
+      "description": "窗口内没有任何样本"
+    }
+  },
+  "required": [
+    "resource",
+    "metric",
+    "promql",
+    "unit",
+    "description",
+    "window",
+    "step_seconds",
+    "result_type",
+    "series",
+    "empty"
+  ],
+  "additionalProperties": false
+}

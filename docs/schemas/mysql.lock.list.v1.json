@@ -1,0 +1,257 @@
+{
+  "$id": "docs/schemas/mysql.lock.list.v1.json",
+  "title": "mysql.lock.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "lock_waits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "waiting": {
+            "type": "object",
+            "properties": {
+              "trx_id": {
+                "type": "string"
+              },
+              "thread_id": {
+                "description": "processlist ID",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "wait_age_s": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "trx_age_s": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "lock_mode": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "sql_text": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "trx_id",
+              "thread_id",
+              "wait_age_s",
+              "trx_age_s",
+              "lock_mode",
+              "sql_text"
+            ],
+            "additionalProperties": false
+          },
+          "blocking": {
+            "type": "object",
+            "properties": {
+              "trx_id": {
+                "type": "string"
+              },
+              "thread_id": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "trx_state": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "trx_age_s": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "rows_locked": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "lock_mode": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "sql_text": {
+                "description": "阻塞事务当前正在执行的语句；为空表示事务空闲（持锁语句已执行完）",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "trx_id",
+              "thread_id",
+              "trx_state",
+              "trx_age_s",
+              "rows_locked",
+              "lock_mode",
+              "sql_text"
+            ],
+            "additionalProperties": false
+          },
+          "object": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "table": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "index": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "lock_type": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "schema",
+              "table",
+              "index",
+              "lock_type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "waiting",
+          "blocking",
+          "object"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "metadata_lock_waits": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "thread_id": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "object_type": {
+                "type": "string"
+              },
+              "schema": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "lock_type": {
+                "type": "string"
+              },
+              "wait_s": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "sql_text": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "thread_id",
+              "object_type",
+              "schema",
+              "name",
+              "lock_type",
+              "wait_s",
+              "sql_text"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "performance_schema.metadata_locks 中 PENDING 的等待；null 表示未能读取"
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "waiting_trx": {
+          "type": "number"
+        },
+        "blocking_trx": {
+          "type": "number"
+        },
+        "root_blockers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "自身不在等待中的阻塞事务 ID"
+        }
+      },
+      "required": [
+        "waiting_trx",
+        "blocking_trx",
+        "root_blockers"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "instance",
+    "lock_waits",
+    "metadata_lock_waits",
+    "summary"
+  ],
+  "additionalProperties": false
+}

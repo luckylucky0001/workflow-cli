@@ -1,0 +1,53 @@
+{
+  "$id": "docs/schemas/sql.query.submit.v1.json",
+  "title": "sql.query.submit data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "query_id": {
+      "type": "string"
+    },
+    "engine": {
+      "type": "string",
+      "const": "spark"
+    },
+    "state": {
+      "type": "string",
+      "const": "submitted"
+    },
+    "submitted_at": {
+      "type": "string"
+    },
+    "pid": {
+      "type": "number"
+    },
+    "sql_sha256": {
+      "type": "string"
+    },
+    "result_location": {
+      "type": "string"
+    },
+    "state_file": {
+      "type": "string"
+    },
+    "tables": {
+      "type": "string"
+    },
+    "next": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "query_id",
+    "engine",
+    "state",
+    "submitted_at",
+    "pid",
+    "sql_sha256",
+    "result_location",
+    "state_file",
+    "tables",
+    "next"
+  ],
+  "additionalProperties": false
+}

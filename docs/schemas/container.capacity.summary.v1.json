@@ -1,0 +1,229 @@
+{
+  "$id": "docs/schemas/container.capacity.summary.v1.json",
+  "title": "container.capacity.summary data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "snapshot"
+    },
+    "observed_at": {
+      "type": "string"
+    },
+    "env": {
+      "type": "string"
+    },
+    "host": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ncpu": {
+          "type": "number"
+        },
+        "mem_total_bytes": {
+          "type": "number"
+        },
+        "docker_version": {
+          "type": "string"
+        },
+        "cgroup_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "ncpu",
+        "mem_total_bytes",
+        "docker_version",
+        "cgroup_version"
+      ],
+      "additionalProperties": false
+    },
+    "totals": {
+      "type": "object",
+      "properties": {
+        "containers": {
+          "type": "number"
+        },
+        "running": {
+          "type": "number"
+        },
+        "cpu_limit_sum": {
+          "type": "number"
+        },
+        "cpu_unlimited": {
+          "type": "number"
+        },
+        "memory_limit_sum_bytes": {
+          "type": "number"
+        },
+        "memory_unlimited": {
+          "type": "number"
+        },
+        "cpu_used_cores": {
+          "type": "number"
+        },
+        "memory_working_set_bytes": {
+          "type": "number"
+        },
+        "cpu_limit_to_host_ratio": {
+          "type": "number"
+        },
+        "memory_limit_to_host_ratio": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "containers",
+        "running",
+        "cpu_limit_sum",
+        "cpu_unlimited",
+        "memory_limit_sum_bytes",
+        "memory_unlimited",
+        "cpu_used_cores",
+        "memory_working_set_bytes",
+        "cpu_limit_to_host_ratio",
+        "memory_limit_to_host_ratio"
+      ],
+      "additionalProperties": false
+    },
+    "containers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "owner_label": {
+            "description": "workctl.service 或 workctl.resource 标签",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "type": "string"
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "cpus": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "memory_bytes": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "cpus",
+              "memory_bytes"
+            ],
+            "additionalProperties": false
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "cpu_cores": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "cpu_percent_of_limit": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "memory_working_set_bytes": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "memory_percent_of_limit": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "pids": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "cpu_cores",
+                  "cpu_percent_of_limit",
+                  "memory_working_set_bytes",
+                  "memory_percent_of_limit",
+                  "pids"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "oom_killed": {
+            "type": "boolean"
+          },
+          "restart_count": {
+            "type": "number"
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "id",
+          "owner_label",
+          "state",
+          "limits",
+          "usage",
+          "oom_killed",
+          "restart_count",
+          "flags"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "kind",
+    "observed_at",
+    "env",
+    "host",
+    "totals",
+    "containers"
+  ],
+  "additionalProperties": false
+}

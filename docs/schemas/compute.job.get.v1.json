@@ -1,0 +1,249 @@
+{
+  "$id": "docs/schemas/compute.job.get.v1.json",
+  "title": "compute.job.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "app_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "running",
+        "succeeded",
+        "failed",
+        "incomplete"
+      ]
+    },
+    "status_basis": {
+      "type": "string"
+    },
+    "spark_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "user": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "attempt_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "start_time": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "end_time": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_updated": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "duration_ms": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "attempt_id",
+          "start_time",
+          "end_time",
+          "last_updated",
+          "duration_ms",
+          "completed"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "start_time": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "end_time": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "duration_ms": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "jobs": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "number"
+        },
+        "succeeded": {
+          "type": "number"
+        },
+        "failed": {
+          "type": "number"
+        },
+        "running": {
+          "type": "number"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "job_id": {
+                "type": "number"
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "status": {
+                "type": "string"
+              },
+              "stage_ids": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "num_tasks": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "num_failed_tasks": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "submission_time": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "completion_time": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "job_id",
+              "name",
+              "status",
+              "stage_ids",
+              "num_tasks",
+              "num_failed_tasks",
+              "submission_time",
+              "completion_time"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "total",
+        "succeeded",
+        "failed",
+        "running",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "executors": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "number"
+        },
+        "total_cores": {
+          "type": "number"
+        },
+        "failed_tasks": {
+          "type": "number"
+        },
+        "completed_tasks": {
+          "type": "number"
+        },
+        "max_memory_bytes": {
+          "type": "number"
+        },
+        "total_gc_time_ms": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "count",
+        "total_cores",
+        "failed_tasks",
+        "completed_tasks",
+        "max_memory_bytes",
+        "total_gc_time_ms"
+      ],
+      "additionalProperties": false
+    },
+    "driver_log": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "app_id",
+    "name",
+    "status",
+    "status_basis",
+    "spark_version",
+    "user",
+    "attempts",
+    "start_time",
+    "end_time",
+    "duration_ms",
+    "jobs",
+    "executors",
+    "driver_log"
+  ],
+  "additionalProperties": false
+}

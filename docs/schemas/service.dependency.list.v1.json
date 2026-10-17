@@ -1,0 +1,170 @@
+{
+  "$id": "docs/schemas/service.dependency.list.v1.json",
+  "title": "service.dependency.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "service": {
+      "type": "string"
+    },
+    "env": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "resource_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "relation": {
+            "type": "string"
+          },
+          "via": {
+            "type": "string"
+          },
+          "depth": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "registered": {
+            "type": "boolean"
+          },
+          "endpoint": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "resource_id",
+          "type",
+          "relation",
+          "via",
+          "depth",
+          "source",
+          "evidence",
+          "registered",
+          "endpoint"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "dependents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "resource_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "relation": {
+            "type": "string"
+          },
+          "via": {
+            "type": "string"
+          },
+          "depth": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "registered": {
+            "type": "boolean"
+          },
+          "endpoint": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "resource_id",
+          "type",
+          "relation",
+          "via",
+          "depth",
+          "source",
+          "evidence",
+          "registered",
+          "endpoint"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "service",
+    "env",
+    "dependencies",
+    "dependents"
+  ],
+  "additionalProperties": false
+}

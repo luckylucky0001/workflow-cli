@@ -1,0 +1,125 @@
+{
+  "$id": "docs/schemas/compute.stage.list.v1.json",
+  "title": "compute.stage.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "app_id": {
+      "type": "string"
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage_id": {
+            "type": "number"
+          },
+          "attempt_id": {
+            "type": "number"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "num_tasks": {
+            "type": "number"
+          },
+          "num_complete_tasks": {
+            "type": "number"
+          },
+          "num_failed_tasks": {
+            "type": "number"
+          },
+          "num_killed_tasks": {
+            "type": "number"
+          },
+          "submission_time": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "completion_time": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "duration_ms": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "executor_run_time_ms": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "input_bytes": {
+            "type": "number"
+          },
+          "input_records": {
+            "type": "number"
+          },
+          "output_bytes": {
+            "type": "number"
+          },
+          "output_records": {
+            "type": "number"
+          },
+          "shuffle_read_bytes": {
+            "type": "number"
+          },
+          "shuffle_write_bytes": {
+            "type": "number"
+          },
+          "failure_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "stage_id",
+          "attempt_id",
+          "name",
+          "status",
+          "num_tasks",
+          "num_complete_tasks",
+          "num_failed_tasks",
+          "num_killed_tasks",
+          "submission_time",
+          "completion_time",
+          "duration_ms",
+          "executor_run_time_ms",
+          "input_bytes",
+          "input_records",
+          "output_bytes",
+          "output_records",
+          "shuffle_read_bytes",
+          "shuffle_write_bytes",
+          "failure_reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "total": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "app_id",
+    "stages",
+    "total"
+  ],
+  "additionalProperties": false
+}

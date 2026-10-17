@@ -1,0 +1,388 @@
+{
+  "$id": "docs/schemas/data.partition.get.v1.json",
+  "title": "data.partition.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "table": {
+      "type": "string"
+    },
+    "partition": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "storage": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "warehouse_root": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "warehouse_root",
+        "note"
+      ],
+      "additionalProperties": false
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "missing",
+        "empty",
+        "incomplete",
+        "unreadable",
+        "present"
+      ]
+    },
+    "explanation": {
+      "type": "string"
+    },
+    "nearby_partitions": {
+      "description": "分区缺失时列出相邻的已存在分区（各最多 3 个），帮助发现写错日期",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "defined": {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "keys": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "timezone": {
+                    "type": "string"
+                  },
+                  "semantics": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "value",
+                  "type",
+                  "semantics"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "business_date": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string"
+                },
+                "timezone": {
+                  "type": "string"
+                },
+                "today": {
+                  "type": "string",
+                  "description": "检查时刻在业务时区的日期"
+                },
+                "day_ended": {
+                  "type": "boolean",
+                  "description": "业务日期是否已结束；未结束时分区不存在通常是正常的"
+                },
+                "expected_ready_by": {
+                  "description": "表元数据 freshness 推出的产出期限（业务时区）",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "deadline_passed": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "value",
+                "timezone",
+                "today",
+                "day_ended",
+                "expected_ready_by",
+                "deadline_passed"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "ok",
+            "keys"
+          ],
+          "additionalProperties": false
+        },
+        "exists": {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "ok",
+            "path"
+          ],
+          "additionalProperties": false
+        },
+        "files": {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "count": {
+              "type": "number"
+            },
+            "total_bytes": {
+              "type": "number"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "bytes": {
+                    "type": "number"
+                  },
+                  "modified_at": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "bytes",
+                  "modified_at"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "ignored": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "in_progress_markers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "ok",
+            "count",
+            "total_bytes",
+            "files",
+            "ignored",
+            "in_progress_markers"
+          ],
+          "additionalProperties": false
+        },
+        "success_marker": {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "present": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "modified_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "ok",
+            "name",
+            "present",
+            "modified_at"
+          ],
+          "additionalProperties": false
+        },
+        "updated_at": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "local": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "basis": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "value",
+            "local",
+            "basis"
+          ],
+          "additionalProperties": false
+        },
+        "readable": {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "sample_records_per_file": {
+              "type": "number"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string"
+                  },
+                  "ok": {
+                    "type": "boolean"
+                  },
+                  "records_parsed": {
+                    "type": "number"
+                  },
+                  "parse_error_count": {
+                    "type": "number"
+                  },
+                  "parse_errors": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "line": {
+                          "type": "number"
+                        },
+                        "error": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "line",
+                        "error"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "open_error": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file",
+                  "ok",
+                  "records_parsed",
+                  "parse_error_count",
+                  "parse_errors"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "observed_columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "undeclared_columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "ok",
+            "sample_records_per_file",
+            "files",
+            "observed_columns",
+            "undeclared_columns"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "defined",
+        "exists",
+        "files",
+        "success_marker",
+        "updated_at",
+        "readable"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "table",
+    "partition",
+    "path",
+    "storage",
+    "state",
+    "explanation",
+    "checks"
+  ],
+  "additionalProperties": false
+}

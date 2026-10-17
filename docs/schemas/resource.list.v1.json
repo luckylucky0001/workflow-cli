@@ -1,0 +1,124 @@
+{
+  "$id": "docs/schemas/resource.list.v1.json",
+  "title": "resource.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "description": "如 service、container.workload、mysql.instance、redis.instance、offline.workflow、data.table"
+          },
+          "env": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "endpoint": {
+            "description": "对应 profile 中的端点",
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "labels": {
+            "default": {},
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "attributes": {
+            "default": {},
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "labels",
+          "attributes"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "depends_on",
+              "reads_from",
+              "writes_to",
+              "runs_on",
+              "exposed_by",
+              "produces",
+              "consumes",
+              "scheduled_by",
+              "stores_in"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "关系来源，如 binding-file、service-config、scheduler-metadata"
+          },
+          "evidence": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "type",
+          "source"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "resources",
+    "relations"
+  ],
+  "additionalProperties": false
+}

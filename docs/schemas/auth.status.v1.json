@@ -1,0 +1,122 @@
+{
+  "$id": "docs/schemas/auth.status.v1.json",
+  "title": "auth.status data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "profile": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "env": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "config_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "allow_execute": {
+      "type": "boolean"
+    },
+    "endpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "auth_provider": {
+            "type": "string"
+          },
+          "credential_refs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "ref_type": {
+                  "type": "string"
+                },
+                "resolvable": {
+                  "type": "boolean"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "key",
+                "ref_type",
+                "resolvable"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "probe": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ok": {
+                    "type": "boolean"
+                  },
+                  "identity": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "privileges": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "ok"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "name",
+          "auth_provider",
+          "credential_refs",
+          "probe"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "profile",
+    "env",
+    "config_path",
+    "allow_execute",
+    "endpoints"
+  ],
+  "additionalProperties": false
+}

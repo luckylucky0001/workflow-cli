@@ -179,19 +179,31 @@ const backendList = defineCapability({
       }
       sources.push(source('workctl', 'resource-bindings', { endpoint: store?.path ?? undefined, method: `resources[${i.service}].attributes`, relation: 'explicit' }));
     } else notes.push(`资源绑定中没有 ${i.service}，只使用容器发布端口`);
-    const docker = dockerClient(ctx);
-    const sc = await listServiceContainers(ctx, docker, i.service, env);
-    notes.push(...selectionNotes(sc));
-    for (const c of sc.containers) {
-      for (const p of c.Ports ?? []) {
-        if (!p.PublicPort || p.Type !== 'tcp') continue;
-        const host = !p.IP || p.IP === '0.0.0.0' || p.IP === '::' ? '127.0.0.1' : p.IP;
-        add(host, p.PublicPort, { origin: 'docker-published-port', evidence: `${containerName(c)} ${p.IP ?? ''}:${p.PublicPort}->${p.PrivatePort}/tcp` }, containerName(c));
+    // Docker is one of two backend sources: if it is unreachable, keep the binding
+    // backends and report a partial result instead of failing the whole listing.
+    let dockerFailure: string | null = null;
+    if (ctx.hasEndpoint('docker')) {
+      try {
+        const docker = dockerClient(ctx);
+        const sc = await listServiceContainers(ctx, docker, i.service, env);
+        notes.push(...selectionNotes(sc));
+        for (const c of sc.containers) {
+          for (const p of c.Ports ?? []) {
+            if (!p.PublicPort || p.Type !== 'tcp') continue;
+            const host = !p.IP || p.IP === '0.0.0.0' || p.IP === '::' ? '127.0.0.1' : p.IP;
+            add(host, p.PublicPort, { origin: 'docker-published-port', evidence: `${containerName(c)} ${p.IP ?? ''}:${p.PublicPort}->${p.PrivatePort}/tcp` }, containerName(c));
+          }
+          if (c.State !== 'running') notes.push(`${containerName(c)} 状态为 ${c.State}，其端口未发布`);
+        }
+        sources.push(await docker.source(`GET /containers/json?filters={label:${sc.selector.label}}`));
+      } catch (e) {
+        if (!(e instanceof WorkError) || !['UPSTREAM_UNAVAILABLE', 'PERMISSION_DENIED', 'TIMEOUT'].includes(e.code)) throw e;
+        dockerFailure = `${e.code}: ${e.message}`;
+        notes.push(`Docker 不可用，未包含容器发布端口（${dockerFailure}）`);
       }
-      if (c.State !== 'running') notes.push(`${containerName(c)} 状态为 ${c.State}，其端口未发布`);
-    }
-    sources.push(await docker.source('GET /containers/json?filters={label}'));
+    } else notes.push('profile 未配置 docker 端点，未包含容器发布端口');
     if (!backends.size) {
+      if (dockerFailure) throw new WorkError('UPSTREAM_UNAVAILABLE', `无法列出后端: ${dockerFailure}`, { hint: '资源绑定中也没有 http_port' });
       return {
         data: { service: i.service, env, health_path: healthPath, backends: [], summary: { total: 0, healthy: 0, unhealthy: 0 } },
         sources,
@@ -214,9 +226,10 @@ const backendList = defineCapability({
     sources.push(source(healthPath ? 'http-probe' : 'tcp-probe', 'workctl-probe', { method: healthPath ? `GET {backend}${healthPath}` : 'TCP connect', relation: 'sampled' }));
     const healthy = out.filter((b) => b.probe.ok).length;
     return {
+      status: dockerFailure ? 'partial' : 'success',
       data: { service: i.service, env, health_path: healthPath, backends: out, summary: { total: out.length, healthy, unhealthy: out.length - healthy } },
       sources,
-      coverage: { complete: true, scope: `探测（probe）于 ${new Date().toISOString()} 从 workctl 所在主机发起`, notes },
+      coverage: { complete: !dockerFailure, scope: `探测（probe）于 ${new Date().toISOString()} 从 workctl 所在主机发起`, notes },
     };
   },
 });

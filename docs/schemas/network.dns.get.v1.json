@@ -1,0 +1,248 @@
+{
+  "$id": "docs/schemas/network.dns.get.v1.json",
+  "title": "network.dns.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "resolver": {
+      "type": "string",
+      "const": "system"
+    },
+    "nameservers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "lookup": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "nxdomain",
+            "error"
+          ]
+        },
+        "addresses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "address": {
+                "type": "string"
+              },
+              "family": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "address",
+              "family"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "error_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "duration_ms": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "status",
+        "addresses",
+        "error_code",
+        "duration_ms"
+      ],
+      "additionalProperties": false
+    },
+    "records": {
+      "type": "object",
+      "properties": {
+        "A": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "ok",
+                "nodata",
+                "nxdomain",
+                "error"
+              ]
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  },
+                  "ttl": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "value",
+                  "ttl"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "error_code": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "duration_ms": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "status",
+            "records",
+            "error_code",
+            "duration_ms"
+          ],
+          "additionalProperties": false
+        },
+        "AAAA": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "ok",
+                "nodata",
+                "nxdomain",
+                "error"
+              ]
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  },
+                  "ttl": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "value",
+                  "ttl"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "error_code": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "duration_ms": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "status",
+            "records",
+            "error_code",
+            "duration_ms"
+          ],
+          "additionalProperties": false
+        },
+        "CNAME": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "ok",
+                "nodata",
+                "nxdomain",
+                "error"
+              ]
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  },
+                  "ttl": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "value",
+                  "ttl"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "error_code": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "duration_ms": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "status",
+            "records",
+            "error_code",
+            "duration_ms"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "A",
+        "AAAA",
+        "CNAME"
+      ],
+      "additionalProperties": false
+    },
+    "resolved": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "name",
+    "resolver",
+    "nameservers",
+    "lookup",
+    "records",
+    "resolved"
+  ],
+  "additionalProperties": false
+}

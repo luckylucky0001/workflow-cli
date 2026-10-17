@@ -1,0 +1,278 @@
+{
+  "$id": "docs/schemas/observability.trace.get.v1.json",
+  "title": "observability.trace.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "trace_id": {
+      "type": "string"
+    },
+    "start": {
+      "type": "string"
+    },
+    "end": {
+      "type": "string"
+    },
+    "duration_ms": {
+      "type": "number"
+    },
+    "span_count": {
+      "type": "number"
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "error_spans": {
+      "type": "number"
+    },
+    "roots": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "external_parent": {
+      "description": "根 span 的父 span 不在日志中（来自外部调用方）",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "spans": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "span_id": {
+            "type": "string"
+          },
+          "parent_span_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "service": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "container": {
+            "type": "string"
+          },
+          "depth": {
+            "type": "number"
+          },
+          "start": {
+            "type": "string"
+          },
+          "offset_ms": {
+            "type": "number"
+          },
+          "duration_ms": {
+            "type": "number"
+          },
+          "self_ms": {
+            "type": "number",
+            "description": "扣除子 span 覆盖时间后的自身耗时"
+          },
+          "pct_of_trace": {
+            "type": "number"
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "attributes": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "logs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "ts": {
+                  "type": "string"
+                },
+                "level": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "msg": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "fields": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                }
+              },
+              "required": [
+                "ts",
+                "level",
+                "msg",
+                "fields"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "orphan": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "span_id",
+          "parent_span_id",
+          "name",
+          "service",
+          "container",
+          "depth",
+          "start",
+          "offset_ms",
+          "duration_ms",
+          "self_ms",
+          "pct_of_trace",
+          "status",
+          "attributes",
+          "children",
+          "logs",
+          "orphan"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "breakdown": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          },
+          "total_ms": {
+            "type": "number"
+          },
+          "self_ms": {
+            "type": "number"
+          },
+          "pct_of_trace": {
+            "type": "number",
+            "description": "自身耗时占整条 trace 的百分比"
+          }
+        },
+        "required": [
+          "name",
+          "count",
+          "total_ms",
+          "self_ms",
+          "pct_of_trace"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "unattached_logs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ts": {
+            "type": "string"
+          },
+          "level": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "msg": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "container": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ts",
+          "level",
+          "msg",
+          "container"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "scanned": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "type": "string"
+          },
+          "containers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lines_scanned": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "service",
+          "containers",
+          "lines_scanned"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "trace_id",
+    "start",
+    "end",
+    "duration_ms",
+    "span_count",
+    "services",
+    "error_spans",
+    "roots",
+    "external_parent",
+    "spans",
+    "breakdown",
+    "unattached_logs",
+    "scanned"
+  ],
+  "additionalProperties": false
+}

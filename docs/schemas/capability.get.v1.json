@@ -1,0 +1,48 @@
+{
+  "$id": "docs/schemas/capability.get.v1.json",
+  "title": "capability.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "definition": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "output_json_schema": {
+      "anyOf": [
+        {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "domain_guide": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "skill": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "definition",
+    "output_json_schema",
+    "domain_guide",
+    "skill"
+  ],
+  "additionalProperties": false
+}

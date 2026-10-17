@@ -1,0 +1,192 @@
+{
+  "$id": "docs/schemas/mysql.query.explain.v1.json",
+  "title": "mysql.query.explain data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "database": {
+      "type": "string"
+    },
+    "statement_type": {
+      "type": "string"
+    },
+    "estimate_only": {
+      "type": "boolean",
+      "const": true,
+      "description": "优化器估计，非实际执行"
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "query_cost": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "full_scans": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "access_type=ALL 的表（全表扫描）"
+        },
+        "full_index_scans": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "access_type=index 的表（遍历整个索引）"
+        },
+        "using_filesort": {
+          "type": "boolean"
+        },
+        "using_temporary_table": {
+          "type": "boolean"
+        },
+        "tables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "table": {
+                "type": "string"
+              },
+              "select_id": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "access_type": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "possible_keys": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "key": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "used_key_parts": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "key_length": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "rows_examined_per_scan": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "rows_produced_per_join": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "filtered": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "using_index": {
+                "type": "boolean"
+              },
+              "using_filesort": {
+                "type": "boolean"
+              },
+              "using_temporary_table": {
+                "type": "boolean"
+              },
+              "attached_condition": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "prefix_cost": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "table",
+              "select_id",
+              "access_type",
+              "possible_keys",
+              "key",
+              "used_key_parts",
+              "key_length",
+              "rows_examined_per_scan",
+              "rows_produced_per_join",
+              "filtered",
+              "using_index",
+              "using_filesort",
+              "using_temporary_table",
+              "attached_condition",
+              "prefix_cost"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "query_cost",
+        "full_scans",
+        "full_index_scans",
+        "using_filesort",
+        "using_temporary_table",
+        "tables"
+      ],
+      "additionalProperties": false
+    },
+    "plan": {
+      "description": "EXPLAIN FORMAT=JSON 原文（解析后的 JSON）"
+    }
+  },
+  "required": [
+    "instance",
+    "database",
+    "statement_type",
+    "estimate_only",
+    "summary",
+    "plan"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,278 @@
+{
+  "$id": "docs/schemas/container.stats.get.v1.json",
+  "title": "container.stats.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "snapshot"
+    },
+    "observed_at": {
+      "type": "string"
+    },
+    "service": {
+      "type": "string"
+    },
+    "env": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "containers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "cpus": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "memory_bytes": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "cpus",
+              "memory_bytes"
+            ],
+            "additionalProperties": false
+          },
+          "stats": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "read_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "preread_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "sample_interval_ms": {
+                    "description": "CPU 使用率所依据的两次守护进程采样间隔",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "cpu": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "cores_used": {
+                            "type": "number"
+                          },
+                          "percent": {
+                            "type": "number",
+                            "description": "100 = 1 核（与 docker stats 一致）"
+                          },
+                          "online_cpus": {
+                            "type": "number"
+                          },
+                          "percent_of_limit": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "cores_used",
+                          "percent",
+                          "online_cpus",
+                          "percent_of_limit"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "memory": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "usage_bytes": {
+                            "type": "number"
+                          },
+                          "working_set_bytes": {
+                            "type": "number",
+                            "description": "usage 减去 inactive_file（与 docker stats 一致）"
+                          },
+                          "limit_bytes": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "limit_source": {
+                            "type": "string",
+                            "enum": [
+                              "container",
+                              "host"
+                            ]
+                          },
+                          "percent_of_limit": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "usage_bytes",
+                          "working_set_bytes",
+                          "limit_bytes",
+                          "limit_source",
+                          "percent_of_limit"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "pids": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "network": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "rx_bytes": {
+                            "type": "number"
+                          },
+                          "tx_bytes": {
+                            "type": "number"
+                          },
+                          "rx_errors": {
+                            "type": "number"
+                          },
+                          "tx_errors": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "rx_bytes",
+                          "tx_bytes",
+                          "rx_errors",
+                          "tx_errors"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "自容器启动以来累计值"
+                  },
+                  "block_io": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "read_bytes": {
+                            "type": "number"
+                          },
+                          "write_bytes": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "read_bytes",
+                          "write_bytes"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "自容器启动以来累计值"
+                  },
+                  "notes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "read_at",
+                  "preread_at",
+                  "sample_interval_ms",
+                  "cpu",
+                  "memory",
+                  "pids",
+                  "network",
+                  "block_io",
+                  "notes"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "state",
+          "limits",
+          "stats",
+          "note"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "kind",
+    "observed_at",
+    "service",
+    "env",
+    "containers"
+  ],
+  "additionalProperties": false
+}

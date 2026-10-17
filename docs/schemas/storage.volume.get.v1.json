@@ -1,0 +1,130 @@
+{
+  "$id": "docs/schemas/storage.volume.get.v1.json",
+  "title": "storage.volume.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "driver": {
+      "type": "string"
+    },
+    "mountpoint": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "labels": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "options": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "usage": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        },
+        "size_bytes": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "ref_count": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "size_bytes",
+        "ref_count",
+        "note"
+      ],
+      "additionalProperties": false
+    },
+    "used_by": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "destination": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rw": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "id",
+          "state",
+          "destination",
+          "rw"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "name",
+    "driver",
+    "mountpoint",
+    "scope",
+    "created_at",
+    "labels",
+    "options",
+    "usage",
+    "used_by"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,75 @@
+{
+  "$id": "docs/schemas/compute.queue.get.v1.json",
+  "title": "compute.queue.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string",
+      "const": "airflow-pool"
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "slots": {
+      "type": "number"
+    },
+    "occupied_slots": {
+      "type": "number"
+    },
+    "running_slots": {
+      "type": "number"
+    },
+    "queued_slots": {
+      "type": "number"
+    },
+    "scheduled_slots": {
+      "type": "number"
+    },
+    "deferred_slots": {
+      "type": "number"
+    },
+    "open_slots": {
+      "type": "number"
+    },
+    "include_deferred": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "utilization": {
+      "description": "occupied / slots",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "waiting_slots": {
+      "type": "number",
+      "description": "queued + scheduled：已就绪但等待执行槽"
+    }
+  },
+  "required": [
+    "id",
+    "provider",
+    "description",
+    "slots",
+    "occupied_slots",
+    "running_slots",
+    "queued_slots",
+    "scheduled_slots",
+    "deferred_slots",
+    "open_slots",
+    "include_deferred",
+    "utilization",
+    "waiting_slots"
+  ],
+  "additionalProperties": false
+}

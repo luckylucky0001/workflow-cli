@@ -276,6 +276,7 @@ async function dbQuery<T>(parent: Span, queryName: string, sql: string, params: 
   }
   const span = parent.child('mysql.query', { 'db.system': 'mysql', 'db.name': 'demo', query: queryName, statement: sql });
   const t0 = process.hrtime.bigint();
+  let broken = false;
   try {
     const [rows] = await conn.query({ sql, timeout: DB_TIMEOUT_MS }, params);
     const seconds = Number(process.hrtime.bigint() - t0) / 1e9;
@@ -299,9 +300,12 @@ async function dbQuery<T>(parent: Span, queryName: string, sql: string, params: 
       err_code: err.code,
       timeout_ms: DB_TIMEOUT_MS,
     });
+    if (timeout || err.code === 'PROTOCOL_CONNECTION_LOST') broken = true;
     throw new HttpError(timeout ? 504 : 503, timeout ? 'database timeout' : 'database error', err.code);
   } finally {
-    conn.release();
+    // a timed-out connection may still be busy server-side: drop it instead of reusing it
+    if (broken) conn.destroy();
+    else conn.release();
   }
 }
 
@@ -415,7 +419,8 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     if (!(e instanceof HttpError)) log('error', 'unhandled error', { ...span.ctx, err: (e as Error).stack });
   }
   const seconds = Number(process.hrtime.bigint() - t0) / 1e9;
-  if (route !== 'unmatched') {
+  // the Prometheus self-scrape is not service traffic; probes (/healthz) are counted
+  if (route !== 'unmatched' && route !== '/metrics') {
     httpRequests.inc({ route, code: String(status) });
     httpDuration.observe({ route }, seconds);
   }

@@ -100,6 +100,8 @@ export class Registry {
 
   addDomain(d: DomainDef): void {
     if (this.domains.has(d.name)) throw new Error(`duplicate domain ${d.name}`);
+    // Skills are referenced by directory; accept a path to SKILL.md as well.
+    if (d.skill?.endsWith('/SKILL.md')) d = { ...d, skill: d.skill.slice(0, -'/SKILL.md'.length) };
     this.domains.set(d.name, d);
     for (const c of d.capabilities) this.addCapability({ ...c, domain: c.domain ?? d.name });
     for (const [k, p] of Object.entries(d.probes ?? {})) this.probes.set(k, p);

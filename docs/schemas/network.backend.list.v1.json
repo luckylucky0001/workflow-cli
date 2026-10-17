@@ -1,0 +1,162 @@
+{
+  "$id": "docs/schemas/network.backend.list.v1.json",
+  "title": "network.backend.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "service": {
+      "type": "string"
+    },
+    "env": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "health_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "backends": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "host": {
+            "type": "string"
+          },
+          "port": {
+            "type": "number"
+          },
+          "origins": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "origin": {
+                  "type": "string",
+                  "enum": [
+                    "binding-file",
+                    "docker-published-port"
+                  ]
+                },
+                "evidence": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "origin",
+                "evidence"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "container": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "probe": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "http",
+                  "tcp"
+                ]
+              },
+              "target": {
+                "type": "string"
+              },
+              "ok": {
+                "type": "boolean"
+              },
+              "status_code": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "latency_ms": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "body_excerpt": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "error_code": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "at": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "target",
+              "ok",
+              "status_code",
+              "latency_ms",
+              "body_excerpt",
+              "error_code",
+              "at"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "address",
+          "host",
+          "port",
+          "origins",
+          "container",
+          "probe"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "number"
+        },
+        "healthy": {
+          "type": "number"
+        },
+        "unhealthy": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "total",
+        "healthy",
+        "unhealthy"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "service",
+    "env",
+    "health_path",
+    "backends",
+    "summary"
+  ],
+  "additionalProperties": false
+}

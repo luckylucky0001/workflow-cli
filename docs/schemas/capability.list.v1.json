@@ -1,0 +1,115 @@
+{
+  "$id": "docs/schemas/capability.list.v1.json",
+  "title": "capability.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "command": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "requires_auth",
+              "planned"
+            ]
+          },
+          "operation": {
+            "type": "string"
+          },
+          "adapter": {
+            "type": "string"
+          },
+          "capability_version": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "command",
+          "summary",
+          "domain",
+          "status",
+          "operation",
+          "adapter",
+          "capability_version",
+          "origin"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "pillar": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "guide": {
+            "type": "string"
+          },
+          "skill": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "available": {
+            "type": "number"
+          },
+          "planned": {
+            "type": "number"
+          },
+          "origin": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "title",
+          "pillar",
+          "summary",
+          "guide",
+          "skill",
+          "available",
+          "planned",
+          "origin"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "capabilities",
+    "domains"
+  ],
+  "additionalProperties": false
+}

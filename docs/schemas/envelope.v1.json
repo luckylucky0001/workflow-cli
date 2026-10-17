@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "partial",
+        "error"
+      ]
+    },
+    "capability": {
+      "type": "string"
+    },
+    "data": {},
+    "error": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "hint": {
+              "type": "string"
+            },
+            "retryable": {
+              "type": "boolean"
+            },
+            "details": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "system": {
+                "type": "string",
+                "description": "来源系统，如 mysql、redis、airflow、docker"
+              },
+              "adapter": {
+                "type": "string"
+              },
+              "endpoint": {
+                "description": "不含凭据的端点标识",
+                "type": "string"
+              },
+              "method": {
+                "description": "具体调用，如 SQL 视图、REST 路径、命令",
+                "type": "string"
+              },
+              "observed_at": {
+                "type": "string"
+              },
+              "version": {
+                "description": "目标系统实际版本",
+                "type": "string"
+              },
+              "relation": {
+                "type": "string",
+                "enum": [
+                  "explicit",
+                  "inferred",
+                  "derived",
+                  "sampled"
+                ]
+              }
+            },
+            "required": [
+              "system",
+              "adapter",
+              "observed_at"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "coverage": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "complete": {
+                  "type": "boolean"
+                },
+                "scope": {
+                  "type": "string"
+                },
+                "sampled": {
+                  "type": "boolean"
+                },
+                "truncated": {
+                  "type": "boolean"
+                },
+                "limit": {
+                  "type": "number"
+                },
+                "window": {
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "type": "string"
+                    },
+                    "end": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "start",
+                    "end"
+                  ],
+                  "additionalProperties": false
+                },
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "complete"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "sources",
+        "coverage",
+        "warnings"
+      ],
+      "additionalProperties": false
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "env": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "data_mode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "capability_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "adapter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "operation": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cli_version": {
+          "type": "string"
+        },
+        "started_at": {
+          "type": "string"
+        },
+        "duration_ms": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "request_id",
+        "profile",
+        "env",
+        "data_mode",
+        "capability_version",
+        "adapter",
+        "operation",
+        "cli_version",
+        "started_at",
+        "duration_ms"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "status",
+    "capability",
+    "data",
+    "error",
+    "meta",
+    "context"
+  ],
+  "additionalProperties": false
+}

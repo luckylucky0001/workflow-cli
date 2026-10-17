@@ -1,0 +1,376 @@
+{
+  "$id": "docs/schemas/data.table.get.v1.json",
+  "title": "data.table.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "catalog": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "metadata_file": {
+      "type": "string"
+    },
+    "table": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_]*$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "json",
+            "csv"
+          ]
+        },
+        "location": {
+          "type": "string",
+          "description": "相对 warehouse_root 的目录"
+        },
+        "partition_keys": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "date",
+                  "string"
+                ]
+              },
+              "format": {
+                "description": "date 类型固定为 YYYY-MM-DD",
+                "type": "string"
+              },
+              "timezone": {
+                "type": "string"
+              },
+              "semantics": {
+                "type": "string",
+                "description": "分区值的业务含义，如“业务日期，Asia/Shanghai 自然日”"
+              }
+            },
+            "required": [
+              "name",
+              "type",
+              "semantics"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "columns": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+              },
+              "type": {
+                "type": "string"
+              },
+              "nullable": {
+                "default": true,
+                "type": "boolean"
+              },
+              "description": {
+                "type": "string"
+              },
+              "sensitive": {
+                "default": false,
+                "description": "敏感列：输出样本中脱敏",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "name",
+              "type",
+              "nullable",
+              "sensitive"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "write_mode": {
+          "type": "string",
+          "enum": [
+            "overwrite_partition",
+            "append"
+          ]
+        },
+        "success_marker": {
+          "default": "_SUCCESS",
+          "description": "写入完成标记；null 表示该表不写标记",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "produced_by": {
+          "type": "object",
+          "properties": {
+            "scheduler": {
+              "type": "string"
+            },
+            "workflow": {
+              "type": "string"
+            },
+            "task": {
+              "type": "string"
+            },
+            "sql_file": {
+              "description": "产出 SQL；相对路径按 metadata_dir 及其上级目录依次解析",
+              "type": "string"
+            },
+            "input_views": {
+              "description": "调度任务注册给 SQL 的视图名 → 目录表（如 ods_orders: ods.orders）；推断血缘只按此声明解析视图名",
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "status": {
+              "default": "active",
+              "description": "planned 表示该产出流程尚未在调度系统中接入",
+              "type": "string",
+              "enum": [
+                "active",
+                "planned"
+              ]
+            }
+          },
+          "required": [
+            "scheduler",
+            "workflow",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "upstream": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "table": {
+                "type": "string",
+                "description": "db.table（目录内表）或外部来源 URI，如 mysql://demo-mysql/demo.orders"
+              },
+              "relation": {
+                "default": "explicit",
+                "type": "string",
+                "const": "explicit"
+              },
+              "columns": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "note": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "table",
+              "relation"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "consumers": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "workflow",
+                  "report",
+                  "service"
+                ]
+              },
+              "id": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "quality_ruleset": {
+          "type": "string"
+        },
+        "freshness": {
+          "type": "object",
+          "properties": {
+            "expected_by": {
+              "type": "string",
+              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "day_offset": {
+              "default": 1,
+              "description": "相对业务日期的天数，默认次日",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "timezone": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "expected_by",
+            "day_offset"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "owner",
+        "format",
+        "location",
+        "partition_keys",
+        "columns",
+        "write_mode",
+        "success_marker",
+        "upstream",
+        "consumers"
+      ],
+      "additionalProperties": false
+    },
+    "physical": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "exists": {
+          "type": "boolean"
+        },
+        "storage": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "warehouse_root": {
+              "type": "string"
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "warehouse_root",
+            "note"
+          ],
+          "additionalProperties": false
+        },
+        "partition_count": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "earliest_partition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "latest_partition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nonconforming_entries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "path",
+        "exists",
+        "storage",
+        "partition_count",
+        "earliest_partition",
+        "latest_partition",
+        "nonconforming_entries"
+      ],
+      "additionalProperties": false
+    },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "type",
+          "source"
+        ],
+        "additionalProperties": false
+      },
+      "description": "资源绑定文件中涉及该表的关系"
+    }
+  },
+  "required": [
+    "catalog",
+    "provider",
+    "metadata_file",
+    "table",
+    "physical",
+    "bindings"
+  ],
+  "additionalProperties": false
+}

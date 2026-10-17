@@ -1,0 +1,365 @@
+{
+  "$id": "docs/schemas/offline.workflow.get.v1.json",
+  "title": "offline.workflow.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "workflow_id": {
+      "type": "string"
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "schedule": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "value",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "timezone": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "start_date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "catchup": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "is_paused": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "is_active": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "has_import_errors": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "owners": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "max_active_runs": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "max_active_tasks": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "dagrun_timeout_seconds": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "params": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "default": {},
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "schema": {}
+        },
+        "required": [
+          "default",
+          "description",
+          "schema"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "code_version": {
+      "type": "object",
+      "properties": {
+        "source_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "file_token": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fileloc": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last_parsed_time": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "basis": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_sha256",
+        "file_token",
+        "fileloc",
+        "last_parsed_time",
+        "basis"
+      ],
+      "additionalProperties": false
+    },
+    "next_run": {
+      "type": "object",
+      "properties": {
+        "logical_date": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "utc": {
+                  "type": "string"
+                },
+                "local": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "utc",
+                "local"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data_interval_start": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "utc": {
+                  "type": "string"
+                },
+                "local": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "utc",
+                "local"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data_interval_end": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "utc": {
+                  "type": "string"
+                },
+                "local": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "utc",
+                "local"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "create_after": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "utc": {
+                  "type": "string"
+                },
+                "local": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "utc",
+                "local"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "logical_date",
+        "data_interval_start",
+        "data_interval_end",
+        "create_after"
+      ],
+      "additionalProperties": false
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string"
+          },
+          "operator": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pool": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "downstream_task_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "task_id",
+          "operator",
+          "pool",
+          "downstream_task_ids"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "table": {
+            "type": "string"
+          },
+          "write_mode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "table",
+          "write_mode",
+          "source"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "workflow_id",
+    "description",
+    "schedule",
+    "timezone",
+    "start_date",
+    "catchup",
+    "is_paused",
+    "is_active",
+    "has_import_errors",
+    "owners",
+    "tags",
+    "max_active_runs",
+    "max_active_tasks",
+    "dagrun_timeout_seconds",
+    "params",
+    "code_version",
+    "next_run",
+    "tasks",
+    "outputs"
+  ],
+  "additionalProperties": false
+}

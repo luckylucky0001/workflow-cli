@@ -1,0 +1,119 @@
+{
+  "$id": "docs/schemas/data.partition.list.v1.json",
+  "title": "data.partition.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "table": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "location_exists": {
+      "type": "boolean"
+    },
+    "storage": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "warehouse_root": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "warehouse_root",
+        "note"
+      ],
+      "additionalProperties": false
+    },
+    "partition_keys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "partitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "partition": {
+            "type": "string"
+          },
+          "values": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "path": {
+            "type": "string"
+          },
+          "file_count": {
+            "type": "number"
+          },
+          "total_bytes": {
+            "type": "number"
+          },
+          "last_modified": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "success_marker": {
+            "description": "null 表示该表不使用完成标记",
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "partition",
+          "values",
+          "path",
+          "file_count",
+          "total_bytes",
+          "last_modified",
+          "success_marker"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "matched": {
+      "type": "number"
+    },
+    "returned": {
+      "type": "number"
+    },
+    "nonconforming_entries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "table",
+    "location",
+    "location_exists",
+    "storage",
+    "partition_keys",
+    "partitions",
+    "matched",
+    "returned",
+    "nonconforming_entries"
+  ],
+  "additionalProperties": false
+}

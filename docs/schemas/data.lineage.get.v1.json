@@ -1,0 +1,237 @@
+{
+  "$id": "docs/schemas/data.lineage.get.v1.json",
+  "title": "data.lineage.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "table": {
+      "type": "string"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "upstream",
+        "downstream"
+      ]
+    },
+    "depth": {
+      "type": "number"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "table",
+              "external",
+              "workflow",
+              "report",
+              "service",
+              "unresolved"
+            ]
+          },
+          "in_catalog": {
+            "type": "boolean"
+          },
+          "depth": {
+            "type": "number"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "in_catalog",
+          "depth"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "relations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "explicit",
+                "inferred"
+              ]
+            }
+          },
+          "confirmed_by_both": {
+            "type": "boolean"
+          },
+          "via": {
+            "type": "object",
+            "properties": {
+              "workflow": {
+                "type": "string"
+              },
+              "task": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "workflow"
+            ],
+            "additionalProperties": false
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "relation": {
+                  "type": "string",
+                  "enum": [
+                    "explicit",
+                    "inferred"
+                  ]
+                },
+                "source": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "relation",
+                "source"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "relations",
+          "confirmed_by_both",
+          "evidence"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "sql_scans": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "table": {
+            "type": "string"
+          },
+          "sql_file": {
+            "type": "string"
+          },
+          "resolved_path": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "parsed",
+              "missing",
+              "error"
+            ]
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "path_sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "table",
+          "sql_file",
+          "resolved_path",
+          "status",
+          "targets",
+          "sources",
+          "path_sources"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "scanned": {
+      "type": "object",
+      "properties": {
+        "metadata_files": {
+          "type": "number"
+        },
+        "metadata_invalid": {
+          "type": "number"
+        },
+        "sql_files_parsed": {
+          "type": "number"
+        },
+        "sql_files_missing": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "metadata_files",
+        "metadata_invalid",
+        "sql_files_parsed",
+        "sql_files_missing"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "table",
+    "direction",
+    "depth",
+    "nodes",
+    "edges",
+    "sql_scans",
+    "scanned"
+  ],
+  "additionalProperties": false
+}

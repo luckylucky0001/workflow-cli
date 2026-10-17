@@ -1,0 +1,133 @@
+{
+  "$id": "docs/schemas/redis.stats.sample.v1.json",
+  "title": "redis.stats.sample data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "window": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string"
+        },
+        "end": {
+          "type": "string"
+        },
+        "duration_ms": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "duration_ms"
+      ],
+      "additionalProperties": false
+    },
+    "restart_detected": {
+      "type": "boolean"
+    },
+    "reset_counters": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "deltas": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": [
+          "number",
+          "null"
+        ]
+      }
+    },
+    "rates_per_sec": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": [
+          "number",
+          "null"
+        ]
+      }
+    },
+    "hit_ratio": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "hit_ratio_note": {
+      "type": "string"
+    },
+    "gauges_at_end": {
+      "type": "object",
+      "properties": {
+        "used_memory": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "maxmemory": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "connected_clients": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "mem_fragmentation_ratio": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "instantaneous_ops_per_sec": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "used_memory",
+        "maxmemory",
+        "connected_clients",
+        "mem_fragmentation_ratio",
+        "instantaneous_ops_per_sec"
+      ],
+      "additionalProperties": false
+    },
+    "self_commands_in_window": {
+      "type": "number",
+      "description": "窗口内 workctl 自身发出的命令数（已计入 total_commands_processed）"
+    }
+  },
+  "required": [
+    "instance",
+    "window",
+    "restart_detected",
+    "reset_counters",
+    "deltas",
+    "rates_per_sec",
+    "hit_ratio",
+    "hit_ratio_note",
+    "gauges_at_end",
+    "self_commands_in_window"
+  ],
+  "additionalProperties": false
+}

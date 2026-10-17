@@ -1,0 +1,145 @@
+{
+  "$id": "docs/schemas/offline.task.get.v1.json",
+  "title": "offline.task.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "workflow_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "operator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operator_module": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "owner": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "retries": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "retry_delay_seconds": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "retry_exponential_backoff": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "pool": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "pool_slots": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "queue": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "priority_weight": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "trigger_rule": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "depends_on_past": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "execution_timeout_seconds": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "upstream_task_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "downstream_task_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "template_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "is_mapped": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "not_exposed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "workflow_id",
+    "task_id",
+    "operator",
+    "operator_module",
+    "owner",
+    "retries",
+    "retry_delay_seconds",
+    "retry_exponential_backoff",
+    "pool",
+    "pool_slots",
+    "queue",
+    "priority_weight",
+    "trigger_rule",
+    "depends_on_past",
+    "execution_timeout_seconds",
+    "upstream_task_ids",
+    "downstream_task_ids",
+    "template_fields",
+    "is_mapped",
+    "not_exposed"
+  ],
+  "additionalProperties": false
+}

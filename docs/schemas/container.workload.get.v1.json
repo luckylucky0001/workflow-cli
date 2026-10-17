@@ -1,0 +1,369 @@
+{
+  "$id": "docs/schemas/container.workload.get.v1.json",
+  "title": "container.workload.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "service": {
+      "type": "string"
+    },
+    "env": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "selector": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "binding-file",
+            "label-convention"
+          ]
+        },
+        "evidence": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "origin",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "provider": {
+      "type": "string",
+      "const": "docker"
+    },
+    "containers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "service": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "env": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "image": {
+            "type": "string"
+          },
+          "image_id": {
+            "type": "string"
+          },
+          "created": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "description": "Docker State.Status：running/exited/restarting/paused/created/dead"
+          },
+          "health": {
+            "type": "string",
+            "description": "healthy/unhealthy/starting；未配置健康检查为 none"
+          },
+          "health_failing_streak": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "last_health_check": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "at": {
+                    "type": "string"
+                  },
+                  "exit_code": {
+                    "type": "number"
+                  },
+                  "output": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "at",
+                  "exit_code",
+                  "output"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "restart_count": {
+            "type": "number",
+            "description": "Docker RestartCount：仅统计重启策略触发的重启，不含手动 restart"
+          },
+          "restart_policy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "started_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "finished_at": {
+            "description": "最近一次退出时间；从未退出为 null",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "exit_code": {
+            "type": "number"
+          },
+          "oom_killed": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ports": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "container_port": {
+                  "type": "number"
+                },
+                "protocol": {
+                  "type": "string"
+                },
+                "host_ip": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "host_port": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "container_port",
+                "protocol",
+                "host_ip",
+                "host_port"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "cpus": {
+                "description": "CPU 上限（核）；null 表示未限制",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "memory_bytes": {
+                "description": "内存上限；null 表示未限制",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "memory_reservation_bytes": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "pids_limit": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "cpus",
+              "memory_bytes",
+              "memory_reservation_bytes",
+              "pids_limit"
+            ],
+            "additionalProperties": false
+          },
+          "log_driver": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "networks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "ip": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "aliases": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "ip",
+                "aliases"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "mounts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "source": {
+                  "type": "string"
+                },
+                "destination": {
+                  "type": "string"
+                },
+                "rw": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "type",
+                "name",
+                "source",
+                "destination",
+                "rw"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "labels": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "service",
+          "env",
+          "image",
+          "image_id",
+          "created",
+          "state",
+          "health",
+          "health_failing_streak",
+          "last_health_check",
+          "restart_count",
+          "restart_policy",
+          "started_at",
+          "finished_at",
+          "exit_code",
+          "oom_killed",
+          "error",
+          "ports",
+          "limits",
+          "log_driver",
+          "networks",
+          "mounts",
+          "labels"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "number"
+        },
+        "running": {
+          "type": "number"
+        },
+        "unhealthy": {
+          "type": "number"
+        },
+        "oom_killed": {
+          "type": "number"
+        },
+        "restarted": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "total",
+        "running",
+        "unhealthy",
+        "oom_killed",
+        "restarted"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "service",
+    "env",
+    "selector",
+    "provider",
+    "containers",
+    "summary"
+  ],
+  "additionalProperties": false
+}

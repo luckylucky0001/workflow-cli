@@ -1,0 +1,123 @@
+{
+  "$id": "docs/schemas/mysql.slowlog.list.v1.json",
+  "title": "mysql.slowlog.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "slow_query_log": {
+          "type": "boolean"
+        },
+        "log_output": {
+          "type": "string"
+        },
+        "long_query_time_s": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "log_queries_not_using_indexes": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "slow_query_log",
+        "log_output",
+        "long_query_time_s",
+        "log_queries_not_using_indexes"
+      ],
+      "additionalProperties": false
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "start_time": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "query_time_ms": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "lock_time_ms": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "rows_sent": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "rows_examined": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "db": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "user_host": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thread_id": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "sql_text": {
+            "description": "字面量已替换为 ?，截断至 512 字符",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sql_truncated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "start_time",
+          "query_time_ms",
+          "lock_time_ms",
+          "rows_sent",
+          "rows_examined",
+          "db",
+          "user_host",
+          "thread_id",
+          "sql_text",
+          "sql_truncated"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "instance",
+    "config",
+    "entries"
+  ],
+  "additionalProperties": false
+}

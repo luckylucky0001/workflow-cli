@@ -1,0 +1,144 @@
+{
+  "$id": "docs/schemas/network.connectivity.check.v1.json",
+  "title": "network.connectivity.check data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "target": {
+      "type": "string"
+    },
+    "host": {
+      "type": "string"
+    },
+    "port": {
+      "type": "number"
+    },
+    "resolution": {
+      "type": "object",
+      "properties": {
+        "addresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "duration_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "error_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "addresses",
+        "duration_ms",
+        "error_code"
+      ],
+      "additionalProperties": false
+    },
+    "samples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "seq": {
+            "type": "number"
+          },
+          "ok": {
+            "type": "boolean"
+          },
+          "connect_ms": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "remote_address": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "seq",
+          "ok",
+          "connect_ms",
+          "remote_address",
+          "error_code"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "sent": {
+          "type": "number"
+        },
+        "succeeded": {
+          "type": "number"
+        },
+        "failed": {
+          "type": "number"
+        },
+        "loss_pct": {
+          "type": "number"
+        },
+        "min_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "avg_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "max_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "sent",
+        "succeeded",
+        "failed",
+        "loss_pct",
+        "min_ms",
+        "avg_ms",
+        "max_ms"
+      ],
+      "additionalProperties": false
+    },
+    "reachable": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "target",
+    "host",
+    "port",
+    "resolution",
+    "samples",
+    "summary",
+    "reachable"
+  ],
+  "additionalProperties": false
+}

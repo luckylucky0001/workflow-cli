@@ -1,0 +1,186 @@
+{
+  "$id": "docs/schemas/mysql.instance.get.v1.json",
+  "title": "mysql.instance.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "binding": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "env": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "owner": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "labels": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "attributes": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "env",
+            "owner",
+            "labels",
+            "attributes"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "平台元数据（资源绑定文件），不是引擎查询结果"
+    },
+    "engine": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "version_comment": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "current_user": {
+          "type": "string"
+        },
+        "uptime_s": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "started_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "read_only": {
+          "type": "boolean"
+        },
+        "super_read_only": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "version",
+        "version_comment",
+        "current_user",
+        "uptime_s",
+        "started_at",
+        "read_only",
+        "super_read_only"
+      ],
+      "additionalProperties": false
+    },
+    "variables": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "GLOBAL 变量原值"
+    },
+    "status": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "description": "GLOBAL STATUS 数值"
+    },
+    "status_semantics": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "gauge",
+          "cumulative_since_start"
+        ]
+      }
+    },
+    "observability": {
+      "type": "object",
+      "properties": {
+        "performance_schema": {
+          "type": "boolean"
+        },
+        "slow_log": {
+          "type": "string",
+          "enum": [
+            "table",
+            "file_only",
+            "off"
+          ]
+        },
+        "long_query_time_s": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "performance_schema",
+        "slow_log",
+        "long_query_time_s"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "instance",
+    "binding",
+    "engine",
+    "variables",
+    "status",
+    "status_semantics",
+    "observability"
+  ],
+  "additionalProperties": false
+}

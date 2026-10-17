@@ -1,0 +1,97 @@
+{
+  "$id": "docs/schemas/storage.file.stat.v1.json",
+  "title": "storage.file.stat data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string"
+    },
+    "absolute_path": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "size_bytes": {
+      "type": "number"
+    },
+    "mode": {
+      "type": "string",
+      "description": "八进制权限，如 0644"
+    },
+    "uid": {
+      "type": "number"
+    },
+    "gid": {
+      "type": "number"
+    },
+    "mtime": {
+      "type": "string"
+    },
+    "ctime": {
+      "type": "string"
+    },
+    "readable": {
+      "type": "boolean",
+      "description": "当前进程身份是否可读"
+    },
+    "writable": {
+      "type": "boolean"
+    },
+    "symlink_target": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "target_type": {
+      "description": "符号链接指向对象的类型",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "directory": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "entries": {
+              "type": "number"
+            },
+            "truncated": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "entries",
+            "truncated"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "目录的直接子项数量（不递归）"
+    }
+  },
+  "required": [
+    "path",
+    "absolute_path",
+    "type",
+    "size_bytes",
+    "mode",
+    "uid",
+    "gid",
+    "mtime",
+    "ctime",
+    "readable",
+    "writable",
+    "symlink_target",
+    "target_type",
+    "directory"
+  ],
+  "additionalProperties": false
+}

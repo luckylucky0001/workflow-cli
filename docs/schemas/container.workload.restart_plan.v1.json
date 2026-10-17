@@ -1,0 +1,195 @@
+{
+  "$id": "docs/schemas/container.workload.restart_plan.v1.json",
+  "title": "container.workload.restart_plan data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "description": "如 container.restart、mysql.index.create、offline.backfill"
+    },
+    "title": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "running",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "expired"
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": "string"
+    },
+    "profile": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "env": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "params": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string"
+        },
+        "additionalProperties": {}
+      },
+      "description": "计划生成时实际解析出的目标对象"
+    },
+    "impact": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {},
+      "description": "影响范围预览"
+    },
+    "preconditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "check": {
+            "type": "string"
+          },
+          "ok": {
+            "type": "boolean"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "check",
+          "ok"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "detail"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "rollback": {
+      "type": "string"
+    },
+    "idempotent": {
+      "type": "boolean"
+    },
+    "cancellable": {
+      "type": "boolean"
+    },
+    "executable": {
+      "type": "boolean",
+      "description": "是否已有对应执行器；为 false 时只能作为方案参考"
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "planned",
+              "running",
+              "succeeded",
+              "failed",
+              "cancelled",
+              "expired"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "at",
+          "status",
+          "note"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "result": {},
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "id",
+    "kind",
+    "title",
+    "status",
+    "created_at",
+    "expires_at",
+    "profile",
+    "env",
+    "params",
+    "targets",
+    "impact",
+    "preconditions",
+    "steps",
+    "idempotent",
+    "cancellable",
+    "executable",
+    "history"
+  ],
+  "additionalProperties": false
+}

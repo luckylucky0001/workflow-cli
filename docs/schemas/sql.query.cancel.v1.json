@@ -1,0 +1,37 @@
+{
+  "$id": "docs/schemas/sql.query.cancel.v1.json",
+  "title": "sql.query.cancel data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "query_id": {
+      "type": "string"
+    },
+    "previous_state": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "signal": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "app_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "query_id",
+    "previous_state",
+    "state",
+    "signal",
+    "app_id"
+  ],
+  "additionalProperties": false
+}

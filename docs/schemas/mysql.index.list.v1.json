@@ -1,0 +1,149 @@
+{
+  "$id": "docs/schemas/mysql.index.list.v1.json",
+  "title": "mysql.index.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "database": {
+      "type": "string"
+    },
+    "table": {
+      "type": "string"
+    },
+    "indexes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "unique": {
+            "type": "boolean"
+          },
+          "primary": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string"
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "seq": {
+                  "type": "number"
+                },
+                "column": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "expression": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "sub_part": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "cardinality_estimate": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "nullable": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "seq",
+                "column",
+                "expression",
+                "sub_part",
+                "cardinality_estimate",
+                "nullable"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "comment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "unique",
+          "primary",
+          "type",
+          "visible",
+          "columns",
+          "comment"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "io_by_index": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "index": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "count_star": {
+                "type": "number"
+              },
+              "count_read": {
+                "type": "number"
+              },
+              "count_fetch": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "index",
+              "count_star",
+              "count_read",
+              "count_fetch"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "performance_schema.table_io_waits_summary_by_index_usage，自启动/重置以来累计；index=null 表示未使用索引的行访问"
+    }
+  },
+  "required": [
+    "instance",
+    "database",
+    "table",
+    "indexes",
+    "io_by_index"
+  ],
+  "additionalProperties": false
+}

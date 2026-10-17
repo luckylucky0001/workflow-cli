@@ -214,11 +214,23 @@ export const statsSample = defineCapability({
       const t0 = Date.now();
       const a = parseInfo(String(await s.cmd('INFO', 'server', 'stats', 'memory', 'clients')));
       await sleep(ms, ctx.signal);
-      const t1 = Date.now();
-      const b = parseInfo(String(await s.cmd('INFO', 'server', 'stats', 'memory', 'clients')));
+      let t1 = Date.now();
+      let reconnected = false;
+      let b: InfoSections;
+      try {
+        b = parseInfo(String(await s.cmd('INFO', 'server', 'stats', 'memory', 'clients')));
+      } catch (e) {
+        // The connection may have been dropped by a restart/failover inside the window: take the
+        // second sample on a fresh connection; run_id/uptime then tell whether it restarted.
+        if (!(e instanceof WorkError && e.code === 'UPSTREAM_UNAVAILABLE')) throw e;
+        reconnected = true;
+        b = await withRedis(ctx, i.instance, async (s2) => parseInfo(String(await s2.cmd('INFO', 'server', 'stats', 'memory', 'clients'))));
+        t1 = Date.now();
+      }
       const d = windowDelta(snapshotFromInfo(a, t0), snapshotFromInfo(b, t1));
-      const partial = d.restart_detected || d.reset_counters.length > 0;
+      const partial = d.restart_detected || d.reset_counters.length > 0 || reconnected;
       const notes: string[] = [];
+      if (reconnected) notes.push('窗口内连接中断，第二次采样使用了新连接（可能发生重启或故障切换）');
       if (d.restart_detected) notes.push('窗口内检测到重启（run_id 变化或 uptime 回退），计数器增量不可用（null）');
       if (d.reset_counters.length) notes.push(`计数器回退（可能执行了 CONFIG RESETSTAT）: ${d.reset_counters.join(', ')}，对应增量为 null`);
       notes.push(d.hit_ratio_note, 'total_commands_processed 增量包含 workctl 自身的 1 条 INFO 命令');

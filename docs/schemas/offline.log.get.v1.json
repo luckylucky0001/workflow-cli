@@ -1,0 +1,60 @@
+{
+  "$id": "docs/schemas/offline.log.get.v1.json",
+  "title": "offline.log.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "workflow": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "try_number": {
+      "type": "number"
+    },
+    "task_state": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "total_lines": {
+      "type": "number"
+    },
+    "returned_lines": {
+      "type": "number"
+    },
+    "truncated": {
+      "type": "boolean"
+    },
+    "spark_app_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "workflow",
+    "run_id",
+    "task_id",
+    "try_number",
+    "task_state",
+    "total_lines",
+    "returned_lines",
+    "truncated",
+    "spark_app_ids",
+    "lines"
+  ],
+  "additionalProperties": false
+}

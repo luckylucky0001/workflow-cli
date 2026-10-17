@@ -1,0 +1,189 @@
+{
+  "$id": "docs/schemas/mysql.session.list.v1.json",
+  "title": "mysql.session.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "user": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "host": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "db": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "command": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "time_s": {
+            "description": "当前状态持续秒数",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "state": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sql_text": {
+            "description": "当前语句，字面量已替换为 ?，截断至 512 字符",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sql_truncated": {
+            "type": "boolean"
+          },
+          "trx": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "started_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "age_s": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "isolation_level": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "rows_locked": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "rows_modified": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "wait_started_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "state",
+                  "started_at",
+                  "age_s",
+                  "isolation_level",
+                  "rows_locked",
+                  "rows_modified",
+                  "wait_started_at"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "user",
+          "host",
+          "db",
+          "command",
+          "time_s",
+          "state",
+          "sql_text",
+          "sql_truncated",
+          "trx"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_visible": {
+          "type": "number"
+        },
+        "returned": {
+          "type": "number"
+        },
+        "active": {
+          "type": "number"
+        },
+        "with_open_trx": {
+          "type": "number"
+        },
+        "idle_in_trx": {
+          "type": "number",
+          "description": "Sleep 但持有未提交事务的会话（常见锁源）"
+        },
+        "oldest_trx_age_s": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "total_visible",
+        "returned",
+        "active",
+        "with_open_trx",
+        "idle_in_trx",
+        "oldest_trx_age_s"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "instance",
+    "sessions",
+    "summary"
+  ],
+  "additionalProperties": false
+}

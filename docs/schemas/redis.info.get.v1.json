@@ -1,0 +1,56 @@
+{
+  "$id": "docs/schemas/redis.info.get.v1.json",
+  "title": "redis.info.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "section": {
+      "type": "string"
+    },
+    "sections": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string"
+        },
+        "additionalProperties": {}
+      }
+    },
+    "semantics": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string"
+        },
+        "additionalProperties": {
+          "type": "string",
+          "enum": [
+            "cumulative_since_start",
+            "gauge",
+            "instantaneous_estimate",
+            "static",
+            "timestamp"
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "instance",
+    "section",
+    "sections",
+    "semantics"
+  ],
+  "additionalProperties": false
+}

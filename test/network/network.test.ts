@@ -1,4 +1,7 @@
+import { mkdtempSync } from 'node:fs';
 import { createServer as createHttpServer, type Server } from 'node:http';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { createServer as createTcpServer, type AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { invoke } from '../../src/core/engine';
@@ -89,6 +92,15 @@ describe('network capabilities', () => {
     expect(byPort[httpPort].origins[0].origin).toBe('docker-published-port');
     expect(byPort[18081].origins[0].origin).toBe('binding-file');
     expect(env.meta.sources.some((s) => s.relation === 'sampled')).toBe(true);
+  });
+
+  it('backend list degrades to partial (binding backends only) when Docker is unreachable', async () => {
+    const p = writeTestConfig(mkdtempSync(join(tmpdir(), 'workctl-net-nodocker-')), { socketPath: '/nonexistent/docker.sock' });
+    const env = await invoke(r, 'network.backend.list', { service: 'demo-order', timeout_ms: 300 }, { configPath: p });
+    expect(env.status).toBe('partial');
+    const d = env.data as any;
+    expect(d.backends.map((b: any) => b.origins[0].origin)).toEqual(['binding-file']);
+    expect(env.meta.coverage?.notes?.join()).toContain('Docker 不可用');
   });
 
   it('connectivity check reports samples and reachability', async () => {

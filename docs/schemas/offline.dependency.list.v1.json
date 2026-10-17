@@ -1,0 +1,221 @@
+{
+  "$id": "docs/schemas/offline.dependency.list.v1.json",
+  "title": "offline.dependency.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "workflow": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "upstream",
+        "downstream"
+      ]
+    },
+    "business_date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "task_edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "from_state": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "to_state": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "edge_source": {
+            "type": "string",
+            "enum": [
+              "scheduler-metadata",
+              "catalog-metadata",
+              "binding-file"
+            ]
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "from_state",
+          "to_state",
+          "edge_source"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "data_dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "table": {
+            "type": "string"
+          },
+          "partition": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "input",
+              "output",
+              "downstream_table"
+            ]
+          },
+          "state": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "edge_source": {
+            "type": "string",
+            "enum": [
+              "scheduler-metadata",
+              "catalog-metadata",
+              "binding-file"
+            ]
+          }
+        },
+        "required": [
+          "table",
+          "partition",
+          "role",
+          "state",
+          "edge_source"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "workflow_dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "workflow": {
+            "type": "string"
+          },
+          "relation": {
+            "type": "string"
+          },
+          "via": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "edge_source": {
+            "type": "string",
+            "enum": [
+              "scheduler-metadata",
+              "catalog-metadata",
+              "binding-file"
+            ]
+          },
+          "corroborated_by": {
+            "description": "同一关系也出现在其他元数据来源中",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "scheduler-metadata",
+                "catalog-metadata",
+                "binding-file"
+              ]
+            }
+          },
+          "evidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "run": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "run_id": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "match": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "run_id",
+                  "state"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_lookup": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "workflow",
+          "relation",
+          "via",
+          "edge_source",
+          "evidence",
+          "run",
+          "run_lookup"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "workflow",
+    "run_id",
+    "direction",
+    "business_date",
+    "task_edges",
+    "data_dependencies",
+    "workflow_dependencies",
+    "notes"
+  ],
+  "additionalProperties": false
+}

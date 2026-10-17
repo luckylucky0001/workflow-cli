@@ -1,0 +1,102 @@
+{
+  "$id": "docs/schemas/offline.backfill.get.v1.json",
+  "title": "offline.backfill.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "plan": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string"
+        },
+        "additionalProperties": {}
+      }
+    },
+    "execution": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "skipped": {
+              "type": "array",
+              "items": {}
+            },
+            "not_submitted": {
+              "type": "array",
+              "items": {}
+            }
+          },
+          "required": [
+            "skipped",
+            "not_submitted"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "business_date": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          },
+          "live_state": {
+            "type": "string"
+          },
+          "start_date": {},
+          "end_date": {}
+        },
+        "required": [
+          "business_date",
+          "action",
+          "run_id",
+          "live_state",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "progress": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "plan",
+    "targets",
+    "execution",
+    "runs",
+    "progress",
+    "note"
+  ],
+  "additionalProperties": false
+}

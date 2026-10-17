@@ -1,0 +1,111 @@
+{
+  "$id": "docs/schemas/redis.slowlog.list.v1.json",
+  "title": "redis.slowlog.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "slower_than_us": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "max_len": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "config_readable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "slower_than_us",
+        "max_len",
+        "config_readable"
+      ],
+      "additionalProperties": false
+    },
+    "retained_entries": {
+      "description": "SLOWLOG LEN：当前保留的条数",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "duration_us": {
+            "type": "number"
+          },
+          "command": {
+            "type": "string"
+          },
+          "key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "除键名外的参数替换为 ?"
+          },
+          "arg_count": {
+            "type": "number"
+          },
+          "client_addr": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "client_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "timestamp",
+          "duration_us",
+          "command",
+          "key",
+          "args",
+          "arg_count",
+          "client_addr",
+          "client_name"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "instance",
+    "config",
+    "retained_entries",
+    "entries"
+  ],
+  "additionalProperties": false
+}

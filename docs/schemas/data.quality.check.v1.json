@@ -1,0 +1,281 @@
+{
+  "$id": "docs/schemas/data.quality.check.v1.json",
+  "title": "data.quality.check data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "dataset": {
+      "type": "object",
+      "properties": {
+        "input": {
+          "type": "string"
+        },
+        "catalog": {
+          "type": "string"
+        },
+        "table": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "input",
+        "catalog",
+        "table",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "partition": {
+      "type": "string"
+    },
+    "ruleset": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "rules": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "file",
+        "rules"
+      ],
+      "additionalProperties": false
+    },
+    "quality_state": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail",
+        "error"
+      ]
+    },
+    "conclusive": {
+      "type": "boolean"
+    },
+    "precondition": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "partition_state": {
+          "type": "string",
+          "enum": [
+            "missing",
+            "empty",
+            "incomplete",
+            "unreadable",
+            "present"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ok",
+        "partition_state",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "number"
+        },
+        "pass": {
+          "type": "number"
+        },
+        "fail": {
+          "type": "number"
+        },
+        "error": {
+          "type": "number"
+        },
+        "skipped": {
+          "type": "number"
+        },
+        "warn_failures": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "total",
+        "pass",
+        "fail",
+        "error",
+        "skipped",
+        "warn_failures"
+      ],
+      "additionalProperties": false
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warn"
+            ]
+          },
+          "implicit": {
+            "type": "boolean",
+            "description": "规则集未声明、由检查器自动加入的检查"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "fail",
+              "error",
+              "skipped"
+            ]
+          },
+          "evaluated_on": {
+            "type": "string",
+            "enum": [
+              "full",
+              "sample",
+              "filesystem",
+              "none"
+            ],
+            "description": "full=全量记录；sample=抽样记录；filesystem=目录/文件属性"
+          },
+          "conclusive": {
+            "type": "boolean",
+            "description": "抽样模式下的 pass 不是结论性的；fail 总是结论性的"
+          },
+          "message": {
+            "type": "string"
+          },
+          "expected": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "observed": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "samples": {
+            "description": "最多 5 条违规样本，敏感列已脱敏",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "severity",
+          "implicit",
+          "status",
+          "evaluated_on",
+          "conclusive",
+          "message"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "scan": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "full",
+            "sampled",
+            "none"
+          ]
+        },
+        "sample_rows": {
+          "type": "number"
+        },
+        "rows_read": {
+          "type": "number"
+        },
+        "rows_total": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "files_read": {
+          "type": "number"
+        },
+        "files_total": {
+          "type": "number"
+        },
+        "parse_errors": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "mode",
+        "rows_read",
+        "rows_total",
+        "files_read",
+        "files_total",
+        "parse_errors"
+      ],
+      "additionalProperties": false
+    },
+    "checked_at": {
+      "type": "string"
+    },
+    "persisted_to": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "dataset",
+    "partition",
+    "ruleset",
+    "quality_state",
+    "conclusive",
+    "precondition",
+    "summary",
+    "results",
+    "scan",
+    "checked_at",
+    "persisted_to"
+  ],
+  "additionalProperties": false
+}

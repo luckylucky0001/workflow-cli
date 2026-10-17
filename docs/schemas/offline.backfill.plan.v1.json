@@ -1,0 +1,234 @@
+{
+  "$id": "docs/schemas/offline.backfill.plan.v1.json",
+  "title": "offline.backfill.plan data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "plan_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": "string"
+    },
+    "executable": {
+      "type": "boolean"
+    },
+    "workflow": {
+      "type": "string"
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "business_date": {
+            "type": "string"
+          },
+          "data_interval": {
+            "type": "object",
+            "properties": {
+              "start_local": {
+                "type": "string"
+              },
+              "end_local": {
+                "type": "string"
+              },
+              "start_utc": {
+                "type": "string"
+              },
+              "end_utc": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "start_local",
+              "end_local",
+              "start_utc",
+              "end_utc"
+            ],
+            "additionalProperties": false
+          },
+          "existing_runs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "run_id": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "run_type": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "match": {
+                  "type": "string"
+                },
+                "conf": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                }
+              },
+              "required": [
+                "run_id",
+                "state",
+                "run_type",
+                "match",
+                "conf"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "skip_succeeded",
+              "skip_in_progress",
+              "trigger_new",
+              "clear_failed",
+              "rerun"
+            ]
+          },
+          "run_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "target_partition": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "partition_state": {
+            "type": "string"
+          },
+          "upstream_inputs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "table": {
+                  "type": "string"
+                },
+                "partition": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "state": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "table",
+                "partition",
+                "state"
+              ],
+              "additionalProperties": false
+            },
+            "description": "目录 upstream 中同业务日期的输入分区（外部来源标为 external，不检查）"
+          },
+          "not_due": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "business_date",
+          "data_interval",
+          "existing_runs",
+          "action",
+          "run_id",
+          "reason",
+          "target_partition",
+          "partition_state",
+          "upstream_inputs",
+          "not_due"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "impact": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "preconditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "check": {
+            "type": "string"
+          },
+          "ok": {
+            "type": "boolean"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "check",
+          "ok"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "detail"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "next": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "plan_id",
+    "status",
+    "expires_at",
+    "executable",
+    "workflow",
+    "targets",
+    "impact",
+    "preconditions",
+    "steps",
+    "next"
+  ],
+  "additionalProperties": false
+}

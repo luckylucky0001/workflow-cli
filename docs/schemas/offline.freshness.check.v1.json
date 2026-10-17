@@ -1,0 +1,209 @@
+{
+  "$id": "docs/schemas/offline.freshness.check.v1.json",
+  "title": "offline.freshness.check data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "dataset": {
+      "type": "string"
+    },
+    "business_date": {
+      "type": "string"
+    },
+    "partition": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "on_time",
+        "late",
+        "missing",
+        "not_due",
+        "unknown"
+      ]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "expected_by": {
+      "type": "object",
+      "properties": {
+        "local": {
+          "type": "string"
+        },
+        "utc": {
+          "type": "string"
+        },
+        "rule": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "local",
+        "utc",
+        "rule"
+      ],
+      "additionalProperties": false
+    },
+    "checked_at": {
+      "type": "object",
+      "properties": {
+        "local": {
+          "type": "string"
+        },
+        "utc": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "local",
+        "utc"
+      ],
+      "additionalProperties": false
+    },
+    "partition_state": {
+      "type": "string"
+    },
+    "partition_updated_at": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "utc": {
+              "type": "string"
+            },
+            "local": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "utc",
+            "local"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "lateness_minutes": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "producer": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "workflow": {
+              "type": "string"
+            },
+            "runs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "run_id": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "start_date": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "utc": {
+                            "type": "string"
+                          },
+                          "local": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "utc",
+                          "local"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "end_date": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "utc": {
+                            "type": "string"
+                          },
+                          "local": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "utc",
+                          "local"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "run_id",
+                  "state",
+                  "start_date",
+                  "end_date"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "lookup": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "workflow",
+            "runs",
+            "lookup"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "dataset",
+    "business_date",
+    "partition",
+    "verdict",
+    "reason",
+    "expected_by",
+    "checked_at",
+    "partition_state",
+    "partition_updated_at",
+    "lateness_minutes",
+    "producer"
+  ],
+  "additionalProperties": false
+}

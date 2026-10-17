@@ -1,0 +1,43 @@
+{
+  "$id": "docs/schemas/doctor.run.v1.json",
+  "title": "doctor.run data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "healthy": {
+      "type": "boolean"
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "area": {
+            "type": "string"
+          },
+          "item": {
+            "type": "string"
+          },
+          "ok": {
+            "type": "boolean"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "area",
+          "item",
+          "ok",
+          "detail"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "healthy",
+    "checks"
+  ],
+  "additionalProperties": false
+}

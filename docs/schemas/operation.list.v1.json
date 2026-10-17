@@ -1,0 +1,61 @@
+{
+  "$id": "docs/schemas/operation.list.v1.json",
+  "title": "operation.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "description": "如 container.restart、mysql.index.create、offline.backfill"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "planned",
+              "running",
+              "succeeded",
+              "failed",
+              "cancelled",
+              "expired"
+            ]
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string"
+          },
+          "executable": {
+            "type": "boolean",
+            "description": "是否已有对应执行器；为 false 时只能作为方案参考"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "status",
+          "created_at",
+          "expires_at",
+          "executable"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "operations"
+  ],
+  "additionalProperties": false
+}

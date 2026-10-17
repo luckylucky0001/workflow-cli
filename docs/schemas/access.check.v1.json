@@ -1,0 +1,55 @@
+{
+  "$id": "docs/schemas/access.check.v1.json",
+  "title": "access.check data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "capability": {
+      "type": "string"
+    },
+    "operation": {
+      "type": "string"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "allowed",
+        "denied",
+        "unknown"
+      ]
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "check": {
+            "type": "string"
+          },
+          "ok": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "check",
+          "ok",
+          "detail"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "capability",
+    "operation",
+    "verdict",
+    "checks"
+  ],
+  "additionalProperties": false
+}
