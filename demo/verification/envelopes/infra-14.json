@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "container.workload.restart_plan",
   "data": {
-    "id": "op-20261017-067747",
+    "id": "op-20261017-02f5a0",
     "kind": "container.restart",
     "title": "重启服务 demo-order（sandbox）的 1 个容器",
     "params": {
@@ -17,7 +17,7 @@
         "image": "workctl-demo/demo-order:local",
         "state": "running",
         "health": "none",
-        "started_at": "2026-10-17T13:14:16.564878716Z",
+        "started_at": "2026-10-17T13:15:55.057322963Z",
         "restart_policy": "no",
         "selector": "workctl.service=demo-order",
         "selector_kind": "label",
@@ -93,14 +93,14 @@
     "idempotent": true,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-17T13:15:17.032Z",
-    "expires_at": "2026-10-17T13:45:17.032Z",
+    "created_at": "2026-10-17T13:18:04.077Z",
+    "expires_at": "2026-10-17T13:48:04.077Z",
     "profile": "demo",
     "env": "sandbox",
     "executable": true,
     "history": [
       {
-        "at": "2026-10-17T13:15:17.032Z",
+        "at": "2026-10-17T13:18:04.077Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
@@ -112,7 +112,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T13:15:17.042Z",
+        "observed_at": "2026-10-17T13:18:04.091Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/json + /containers/{id}/json",
         "relation": "explicit",
@@ -121,7 +121,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T13:15:17.042Z",
+        "observed_at": "2026-10-17T13:18:04.091Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/state/operations",
         "relation": "derived"
       }
@@ -130,13 +130,13 @@
       "complete": true,
       "scope": "计划生成时解析出的目标",
       "notes": [
-        "执行: workctl operation execute --id op-20261017-067747 --confirm op-20261017-067747"
+        "执行: workctl operation execute --id op-20261017-02f5a0 --confirm op-20261017-02f5a0"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf5pb6-d3d8aa",
+    "request_id": "req-mvcf9a70-fb6c75",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -144,7 +144,7 @@
     "adapter": "docker-engine-api",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:15:16.962Z",
-    "duration_ms": 80
+    "started_at": "2026-10-17T13:18:03.996Z",
+    "duration_ms": 95
   }
 }

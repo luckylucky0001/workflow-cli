@@ -5,10 +5,46 @@
   "data": {
     "operations": [
       {
-        "id": "op-20261017-4071f2",
+        "id": "op-20261017-b41ade",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
         "status": "planned",
+        "created_at": "2026-10-17T13:18:40.776Z",
+        "expires_at": "2026-10-17T13:48:40.776Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-ac179a",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T13:18:34.079Z",
+        "expires_at": "2026-10-17T15:18:34.079Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-87e78a",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id_created_at(customer_id, created_at)",
+        "status": "planned",
+        "created_at": "2026-10-17T13:18:17.612Z",
+        "expires_at": "2026-10-17T14:18:17.612Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-02f5a0",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T13:18:04.077Z",
+        "expires_at": "2026-10-17T13:48:04.077Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-4071f2",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "succeeded",
         "created_at": "2026-10-17T13:15:53.569Z",
         "expires_at": "2026-10-17T13:45:53.569Z",
         "executable": true
@@ -363,7 +399,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T13:15:54.516Z",
+        "observed_at": "2026-10-17T13:18:41.806Z",
         "relation": "explicit"
       }
     ],
@@ -374,7 +410,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf6i98-c0f866",
+    "request_id": "req-mvcfa3c4-66b560",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -382,7 +418,7 @@
     "adapter": "plan-store",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:15:54.476Z",
-    "duration_ms": 40
+    "started_at": "2026-10-17T13:18:41.764Z",
+    "duration_ms": 42
   }
 }

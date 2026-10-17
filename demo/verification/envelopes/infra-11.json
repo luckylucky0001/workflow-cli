@@ -9,8 +9,8 @@
     "unit": "req/s",
     "description": "每秒请求数",
     "window": {
-      "start": "2026-10-17T13:00:15.000Z",
-      "end": "2026-10-17T13:15:15.000Z"
+      "start": "2026-10-17T13:03:00.000Z",
+      "end": "2026-10-17T13:18:00.000Z"
     },
     "step_seconds": 15,
     "result_type": "matrix",
@@ -29,17 +29,57 @@
           [
             "2026-10-17T13:15:15.000Z",
             5.693237
+          ],
+          [
+            "2026-10-17T13:15:30.000Z",
+            5.254928
+          ],
+          [
+            "2026-10-17T13:15:45.000Z",
+            3.072951
+          ],
+          [
+            "2026-10-17T13:16:00.000Z",
+            0.861159
+          ],
+          [
+            "2026-10-17T13:16:15.000Z",
+            0
+          ],
+          [
+            "2026-10-17T13:16:30.000Z",
+            0
+          ],
+          [
+            "2026-10-17T13:16:45.000Z",
+            0
+          ],
+          [
+            "2026-10-17T13:17:15.000Z",
+            0
+          ],
+          [
+            "2026-10-17T13:17:30.000Z",
+            0
+          ],
+          [
+            "2026-10-17T13:17:45.000Z",
+            2.853994
+          ],
+          [
+            "2026-10-17T13:18:00.000Z",
+            4.602745
           ]
         ],
         "summary": {
-          "points": 3,
+          "points": 13,
           "nan_points": 0,
           "inf_points": 0,
-          "min": 2.30353,
+          "min": 0,
           "max": 5.693237,
-          "avg": 4.100245,
-          "last": 5.693237,
-          "last_at": "2026-10-17T13:15:15.000Z"
+          "avg": 2.226655,
+          "last": 4.602745,
+          "last_at": "2026-10-17T13:18:00.000Z"
         }
       }
     ],
@@ -51,7 +91,7 @@
       {
         "system": "prometheus",
         "adapter": "prometheus-http-api",
-        "observed_at": "2026-10-17T13:15:15.941Z",
+        "observed_at": "2026-10-17T13:18:02.819Z",
         "endpoint": "prometheus/demo-prometheus (http://127.0.0.1:19090/)",
         "method": "GET /api/v1/query_range query=sum(rate(http_requests_total{service=\"demo-order\"}[1m]))",
         "relation": "explicit",
@@ -60,7 +100,7 @@
       {
         "system": "workctl",
         "adapter": "metric-catalog",
-        "observed_at": "2026-10-17T13:15:15.941Z",
+        "observed_at": "2026-10-17T13:18:02.819Z",
         "endpoint": "prometheus/demo-prometheus",
         "method": "metrics.request_rate",
         "relation": "explicit"
@@ -69,18 +109,18 @@
     "coverage": {
       "complete": true,
       "window": {
-        "start": "2026-10-17T13:00:15.000Z",
-        "end": "2026-10-17T13:15:15.000Z"
+        "start": "2026-10-17T13:03:00.000Z",
+        "end": "2026-10-17T13:18:00.000Z"
       },
       "notes": [
         "窗口 15m，步长 15s，每条序列最多 61 个点",
-        "序列 {} 只有 3/61 个点（抓取缺失或序列中途出现/消失）"
+        "序列 {} 只有 13/61 个点（抓取缺失或序列中途出现/消失）"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf5oho-823a85",
+    "request_id": "req-mvcf998y-83a2a5",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -88,7 +128,7 @@
     "adapter": "prometheus-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:15:15.900Z",
-    "duration_ms": 41
+    "started_at": "2026-10-17T13:18:02.770Z",
+    "duration_ms": 49
   }
 }

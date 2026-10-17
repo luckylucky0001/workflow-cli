@@ -15,7 +15,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf6eke-f8099d",
+    "request_id": "req-mvcf9zhi-aaa4f4",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -23,7 +23,7 @@
     "adapter": "spark-submit-local",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:15:49.694Z",
-    "duration_ms": 21
+    "started_at": "2026-10-17T13:18:36.774Z",
+    "duration_ms": 17
   }
 }

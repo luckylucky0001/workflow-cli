@@ -1,27 +1,126 @@
 {
   "schema_version": "1.0",
-  "status": "error",
+  "status": "success",
   "capability": "mq.consumer.lag",
-  "data": null,
-  "error": {
-    "code": "NOT_FOUND",
-    "message": "消费组不存在: demo-consumer",
-    "hint": "Kafka 对不存在的组返回 Dead 状态且无已提交位点；检查组名或在 details.known_groups 中选择",
-    "retryable": false,
-    "details": {
-      "cluster": "demo-mq",
-      "group": "demo-consumer",
-      "group_state": "Dead",
-      "known_groups": []
-    }
+  "data": {
+    "cluster": "demo-mq",
+    "cluster_id": "5L6g3nShT-eMCtK--X86sw",
+    "group": "demo-consumer",
+    "group_state": "Empty",
+    "protocol_type": "consumer",
+    "assignment_strategy": null,
+    "member_count": 0,
+    "members": [],
+    "topic_filter": null,
+    "topics": [
+      {
+        "topic": "demo.order.events",
+        "partitions": [
+          {
+            "partition": 0,
+            "committed_offset": 38,
+            "end_offset": 95,
+            "log_start_offset": 0,
+            "assigned_member": null,
+            "lag": 57,
+            "state": "ok"
+          },
+          {
+            "partition": 1,
+            "committed_offset": 43,
+            "end_offset": 109,
+            "log_start_offset": 0,
+            "assigned_member": null,
+            "lag": 66,
+            "state": "ok"
+          },
+          {
+            "partition": 2,
+            "committed_offset": 38,
+            "end_offset": 96,
+            "log_start_offset": 0,
+            "assigned_member": null,
+            "lag": 58,
+            "state": "ok"
+          }
+        ],
+        "total_lag": 181,
+        "partitions_with_commit": 3,
+        "partitions_without_commit": 0
+      }
+    ],
+    "totals": {
+      "topics": 1,
+      "partitions": 3,
+      "partitions_with_commit": 3,
+      "partitions_without_commit": 0,
+      "partitions_lag_unknown": 0,
+      "total_lag": 181,
+      "max_partition_lag": {
+        "topic": "demo.order.events",
+        "partition": 1,
+        "lag": 66
+      }
+    },
+    "lag_unit": "offsets",
+    "lag_basis": "offset_difference",
+    "end_offset_isolation": "read_committed",
+    "observed_at": "2026-10-17T13:18:25.623Z"
   },
+  "error": null,
   "meta": {
-    "sources": [],
-    "coverage": null,
+    "sources": [
+      {
+        "system": "kafka",
+        "adapter": "kafka-admin",
+        "endpoint": "kafka/demo-mq",
+        "method": "DescribeGroups(demo-consumer)",
+        "observed_at": "2026-10-17T13:18:25.606Z",
+        "version": "inter.broker.protocol.version=3.9-IV0",
+        "relation": "explicit"
+      },
+      {
+        "system": "kafka",
+        "adapter": "kafka-admin",
+        "endpoint": "kafka/demo-mq",
+        "method": "OffsetFetch(group=demo-consumer)",
+        "observed_at": "2026-10-17T13:18:25.616Z",
+        "version": "inter.broker.protocol.version=3.9-IV0",
+        "relation": "explicit"
+      },
+      {
+        "system": "kafka",
+        "adapter": "kafka-admin",
+        "endpoint": "kafka/demo-mq",
+        "method": "ListOffsets(latest+earliest, read_committed)",
+        "observed_at": "2026-10-17T13:18:25.623Z",
+        "version": "inter.broker.protocol.version=3.9-IV0",
+        "relation": "explicit"
+      },
+      {
+        "system": "kafka",
+        "adapter": "kafka-admin",
+        "endpoint": "kafka/demo-mq",
+        "method": "lag = end_offset - committed_offset",
+        "observed_at": "2026-10-17T13:18:25.623Z",
+        "version": "inter.broker.protocol.version=3.9-IV0",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "消费组 demo-consumer 有已提交位点或当前被分配的全部 topic 分区",
+      "notes": [
+        "lag 是位点差（end_offset - committed_offset），不是时间延迟；同样的 lag 在不同生产速率下意味着不同的追赶时间",
+        "已提交位点与结束位点分两次请求读取，不是原子快照；lag 是 observed_at 时刻的近似值",
+        "结束位点按 read_committed 读取（LSO），无未完成事务时等于高水位",
+        "Kafka 消费组 lag 与 RabbitMQ 队列深度（ready/unacked）语义不同，不要相互换算或归一化"
+      ]
+    },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf65w9-728336",
+    "request_id": "req-mvcf9qr3-e6a80e",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -29,7 +128,7 @@
     "adapter": "kafka-admin",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:15:38.457Z",
-    "duration_ms": 205
+    "started_at": "2026-10-17T13:18:25.455Z",
+    "duration_ms": 177
   }
 }

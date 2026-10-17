@@ -40,7 +40,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T13:15:40.900Z",
+        "observed_at": "2026-10-17T13:18:27.892Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/tasks/aggregate_orders",
         "version": "2.10.5",
@@ -49,7 +49,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T13:15:40.900Z",
+        "observed_at": "2026-10-17T13:18:27.892Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/tasks",
         "version": "2.10.5",
@@ -63,7 +63,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf67li-bc0414",
+    "request_id": "req-mvcf9sgo-9db2ec",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -71,7 +71,7 @@
     "adapter": "airflow-rest-v1",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:15:40.662Z",
-    "duration_ms": 238
+    "started_at": "2026-10-17T13:18:27.672Z",
+    "duration_ms": 221
   }
 }

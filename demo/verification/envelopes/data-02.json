@@ -70,7 +70,7 @@
       {
         "system": "file-catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T13:15:50.494Z",
+        "observed_at": "2026-10-17T13:18:37.621Z",
         "endpoint": "catalog/demo",
         "method": "read tables/analytics.daily_orders.yaml",
         "relation": "explicit"
@@ -78,7 +78,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T13:15:50.494Z",
+        "observed_at": "2026-10-17T13:18:37.621Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "readdir+stat analytics/daily_orders",
         "relation": "derived"
@@ -96,7 +96,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf6f5h-faf4c4",
+    "request_id": "req-mvcfa03j-e52cbb",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -104,7 +104,7 @@
     "adapter": "file-catalog",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:15:50.453Z",
-    "duration_ms": 41
+    "started_at": "2026-10-17T13:18:37.567Z",
+    "duration_ms": 54
   }
 }

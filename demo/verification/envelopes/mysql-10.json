@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "mysql.index.plan",
   "data": {
-    "id": "op-20261017-d23058",
+    "id": "op-20261017-87e78a",
     "kind": "mysql.index.create",
     "title": "为 demo.orders 新增索引 idx_customer_id_created_at(customer_id, created_at)",
     "params": {
@@ -33,7 +33,7 @@
           "idx_created_at(created_at)",
           "PRIMARY(id)"
         ],
-        "observed_at": "2026-10-17T13:15:30.303Z"
+        "observed_at": "2026-10-17T13:18:17.611Z"
       }
     ],
     "impact": {
@@ -52,8 +52,8 @@
           "schema": "demo",
           "statement": "SELECT",
           "digest_text": "SELECT `id` , STATUS , `amount` , `created_at` FROM `orders` WHERE `customer_id` = ? ORDER BY `created_at` DESC LIMIT ?",
-          "count": 11,
-          "total_latency_ms": 3546,
+          "count": 22,
+          "total_latency_ms": 7247,
           "avg_rows_examined": 274385,
           "no_index_used_count": 0,
           "references_leading_column": true,
@@ -100,6 +100,19 @@
           "first_seen": "2026-10-17T13:14:22.442152Z"
         },
         {
+          "digest": "cbc540a780559b66bb51cba4ea074f47f37122292720d013baeff3ed0bf077e7",
+          "schema": "demo",
+          "statement": "SELECT",
+          "digest_text": "SELECT * FROM `orders` WHERE `id` = ?",
+          "count": 35,
+          "total_latency_ms": 14,
+          "avg_rows_examined": 1,
+          "no_index_used_count": 0,
+          "references_leading_column": false,
+          "effect": "不直接相关",
+          "first_seen": "2026-10-17T13:14:27.430593Z"
+        },
+        {
           "digest": "47eb0701773acdc8464faff9a7cc4708e616ff1c62961b839a1e6f6acd3ce6de",
           "schema": "demo",
           "statement": "SELECT",
@@ -111,19 +124,6 @@
           "references_leading_column": true,
           "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
           "first_seen": "2026-10-17T13:14:22.867553Z"
-        },
-        {
-          "digest": "cbc540a780559b66bb51cba4ea074f47f37122292720d013baeff3ed0bf077e7",
-          "schema": "demo",
-          "statement": "SELECT",
-          "digest_text": "SELECT * FROM `orders` WHERE `id` = ?",
-          "count": 17,
-          "total_latency_ms": 7,
-          "avg_rows_examined": 1,
-          "no_index_used_count": 0,
-          "references_leading_column": false,
-          "effect": "不直接相关",
-          "first_seen": "2026-10-17T13:14:27.430593Z"
         }
       ],
       "affected_statements_note": "受影响语句来自 events_statements_summary_by_digest 的累计值（自启动/重置以来），按 DIGEST_TEXT 文本匹配表名（推断，relation=inferred）",
@@ -192,14 +192,14 @@
     "idempotent": false,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-17T13:15:30.305Z",
-    "expires_at": "2026-10-17T14:15:30.305Z",
+    "created_at": "2026-10-17T13:18:17.612Z",
+    "expires_at": "2026-10-17T14:18:17.612Z",
     "profile": "demo",
     "env": "sandbox",
     "executable": false,
     "history": [
       {
-        "at": "2026-10-17T13:15:30.305Z",
+        "at": "2026-10-17T13:18:17.612Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
@@ -211,7 +211,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T13:15:30.305Z",
+        "observed_at": "2026-10-17T13:18:17.613Z",
         "endpoint": "mysql/demo-mysql",
         "version": "8.4.11",
         "method": "information_schema.TABLES/COLUMNS/STATISTICS + INNODB_TRX",
@@ -220,7 +220,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T13:15:30.305Z",
+        "observed_at": "2026-10-17T13:18:17.613Z",
         "endpoint": "mysql/demo-mysql",
         "version": "8.4.11",
         "method": "performance_schema.events_statements_summary_by_digest (cumulative, text match)",
@@ -229,7 +229,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T13:15:30.305Z",
+        "observed_at": "2026-10-17T13:18:17.613Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/state/operations",
         "relation": "derived"
       }
@@ -244,7 +244,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf5zkd-43f7ad",
+    "request_id": "req-mvcf9kns-c127d8",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -252,7 +252,7 @@
     "adapter": "mysql-driver",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:15:30.253Z",
-    "duration_ms": 52
+    "started_at": "2026-10-17T13:18:17.560Z",
+    "duration_ms": 53
   }
 }

@@ -48,7 +48,7 @@ workctl --json operation get --id op-20261017-abc123
 - MCP 服务默认不暴露 execute 类工具，只有以 `workctl mcp serve --allow-execute` 启动时才暴露；
 - 执行由授权人员在终端完成，或接入客户既有的变更审批流程（计划 ID 可作为审批单附件）。
 
-同一计划的执行与取消持有独占锁（`operations/<id>.lock`）：两个终端或 CLI 与 MCP 同时执行同一计划时，后到者得到 `CONFLICT`；过期计划返回 `PRECONDITION_FAILED`。
+同一计划的执行与取消持有独占锁（`operations/<id>.json.lock`）：两个终端或 CLI 与 MCP 同时执行同一计划时，后到者得到 `CONFLICT`；过期计划返回 `PRECONDITION_FAILED`。
 
 ## 已注册的计划器与执行器
 

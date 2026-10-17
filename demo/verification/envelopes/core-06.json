@@ -124,7 +124,7 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-17T13:15:08.754Z",
+        "observed_at": "2026-10-17T13:17:55.464Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/workctl.yaml",
         "relation": "explicit"
       }
@@ -136,7 +136,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf5ish-5ab59d",
+    "request_id": "req-mvcf93gw-c69d7e",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -144,7 +144,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:15:08.513Z",
-    "duration_ms": 241
+    "started_at": "2026-10-17T13:17:55.280Z",
+    "duration_ms": 184
   }
 }

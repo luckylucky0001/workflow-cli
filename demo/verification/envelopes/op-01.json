@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "operation.plan",
   "data": {
-    "id": "op-20261017-4071f2",
+    "id": "op-20261017-b41ade",
     "kind": "container.restart",
     "title": "重启服务 demo-order（sandbox）的 1 个容器",
     "params": {
@@ -17,7 +17,7 @@
         "image": "workctl-demo/demo-order:local",
         "state": "running",
         "health": "none",
-        "started_at": "2026-10-17T13:14:16.564878716Z",
+        "started_at": "2026-10-17T13:15:55.057322963Z",
         "restart_policy": "no",
         "selector": "workctl.service=demo-order",
         "selector_kind": "label",
@@ -93,14 +93,14 @@
     "idempotent": true,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-17T13:15:53.569Z",
-    "expires_at": "2026-10-17T13:45:53.569Z",
+    "created_at": "2026-10-17T13:18:40.776Z",
+    "expires_at": "2026-10-17T13:48:40.776Z",
     "profile": "demo",
     "env": "sandbox",
     "executable": true,
     "history": [
       {
-        "at": "2026-10-17T13:15:53.569Z",
+        "at": "2026-10-17T13:18:40.776Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
@@ -112,7 +112,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T13:15:53.570Z",
+        "observed_at": "2026-10-17T13:18:40.776Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/state/operations",
         "relation": "derived"
       }
@@ -121,7 +121,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf6hi6-5c58e7",
+    "request_id": "req-mvcfa2iy-bea8ae",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -129,7 +129,7 @@
     "adapter": "plan-store",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:15:53.502Z",
-    "duration_ms": 68
+    "started_at": "2026-10-17T13:18:40.714Z",
+    "duration_ms": 63
   }
 }

@@ -55,13 +55,13 @@ export async function airflowToken(ctx: Ctx, url: string, user: string, password
     if (r.status === 404 || r.status === 405) {
       throw new WorkError('UNAUTHENTICATED', `Airflow 端点 ${url} 没有 POST /auth/token`, {
         hint: 'Airflow 3 的 SimpleAuthManager / FAB auth manager 提供 /auth/token；其他 auth manager 请在端点配置 token_ref',
-        details: { status: r.status },
+        details: { status: r.status, stage: 'auth/token' },
       });
     }
     if (r.status >= 400 || !r.body?.access_token) {
       throw new WorkError('UNAUTHENTICATED', `Airflow 令牌获取失败（POST /auth/token 返回 HTTP ${r.status}）`, {
         hint: '检查 username / password_ref 与 Airflow auth manager 中的用户',
-        details: { status: r.status },
+        details: { status: r.status, stage: 'auth/token' },
       });
     }
     return { token: r.body.access_token, exp: jwtExpiry(r.body.access_token) };

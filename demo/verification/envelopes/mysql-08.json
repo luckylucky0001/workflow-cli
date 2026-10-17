@@ -82,7 +82,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T13:15:29.666Z",
+        "observed_at": "2026-10-17T13:18:16.922Z",
         "endpoint": "mysql/demo-mysql",
         "method": "EXPLAIN FORMAT=JSON",
         "version": "8.4.11",
@@ -98,7 +98,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf5z2z-ca5e25",
+    "request_id": "req-mvcf9k4w-48749e",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -106,7 +106,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:15:29.627Z",
-    "duration_ms": 40
+    "started_at": "2026-10-17T13:18:16.880Z",
+    "duration_ms": 42
   }
 }

@@ -12,7 +12,9 @@
       "cluster": "demo-mq",
       "group": "no-such-group",
       "group_state": "Dead",
-      "known_groups": []
+      "known_groups": [
+        "demo-consumer"
+      ]
     }
   },
   "meta": {
@@ -21,7 +23,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf66ov-cf9fe2",
+    "request_id": "req-mvcf9rhl-0a3576",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -29,7 +31,7 @@
     "adapter": "kafka-admin",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:15:39.487Z",
-    "duration_ms": 184
+    "started_at": "2026-10-17T13:18:26.409Z",
+    "duration_ms": 167
   }
 }
