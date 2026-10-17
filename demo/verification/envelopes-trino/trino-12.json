@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "sql.query.get",
+  "data": {
+    "query_id": "q-20261017-a0ab4b",
+    "engine": "trino",
+    "state": "running",
+    "state_basis": "Trino 状态 RUNNING；结果页尚未取完（已接收 0 行），最近一次拉取 2026-10-17T14:42:19.352Z",
+    "submitted_at": "2026-10-17T14:42:13.679Z",
+    "started_at": null,
+    "finished_at": null,
+    "duration_ms": null,
+    "app_id": null,
+    "spark_version": null,
+    "sql_file": "/home/user/workflow-cli/test/sql/fixtures/trino/long_cross_join.sql",
+    "sql_sha256": "63d5a4dd1798943eb693b7e3f681f3ec732ede38d717b9804cf0be25c10efd2f",
+    "row_count": null,
+    "columns": [
+      "n"
+    ],
+    "preview": [],
+    "preview_truncated": false,
+    "result_location": null,
+    "result_format": "json-lines",
+    "error": null,
+    "views": null,
+    "engine_query_id": "20261017_144213_00024_bmsfx",
+    "engine_state": "RUNNING",
+    "engine_version": "476",
+    "column_types": [
+      "bigint"
+    ],
+    "catalog": "tpch",
+    "schema": "tiny",
+    "stats": {
+      "elapsed_ms": 5624,
+      "queued_ms": 1,
+      "cpu_ms": 8420,
+      "wall_ms": 9630,
+      "processed_rows": 7000000,
+      "processed_bytes": 68,
+      "physical_input_bytes": 0,
+      "peak_memory_bytes": 8040,
+      "spilled_bytes": 0,
+      "completed_splits": 8,
+      "total_splits": 18,
+      "nodes": 1,
+      "progress_pct": 44.44444444444444,
+      "source": "statement"
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl-state",
+        "adapter": "trino-http",
+        "observed_at": "2026-10-17T14:42:19.352Z",
+        "endpoint": "trino/demo-trino:query_state_dir",
+        "method": "q-20261017-a0ab4b.json",
+        "version": "476",
+        "relation": "explicit"
+      },
+      {
+        "system": "trino",
+        "adapter": "trino-http",
+        "observed_at": "2026-10-17T14:42:19.361Z",
+        "endpoint": "trino/demo-trino",
+        "method": "GET nextUri (/v1/statement/{queued|executing}/{queryId}/{slug}/{token})",
+        "version": "476",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "q-20261017-a0ab4b",
+      "notes": [
+        "本次拉取预算 5000ms 内查询未结束；Trino 需要客户端持续拉取，超过 query.client.timeout（默认 5 分钟）无人拉取会以 ABANDONED_QUERY 失败"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvci9ize-fab87e",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "spark-submit-local|trino-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T14:42:14.234Z",
+    "duration_ms": 5130
+  }
+}

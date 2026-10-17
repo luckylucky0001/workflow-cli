@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "sql.query.submit",
+  "data": null,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Trino 拒绝查询: TABLE_NOT_FOUND: line 1:15: Table 'tpch.tiny.no_such_table' does not exist",
+    "hint": "状态已记录，可用 workctl sql query get --id q-20261017-159fa6 查看",
+    "retryable": false,
+    "details": {
+      "query_id": "q-20261017-159fa6",
+      "engine_query_id": "20261017_144212_00023_bmsfx",
+      "error_name": "TABLE_NOT_FOUND",
+      "error_type": "USER_ERROR",
+      "line": 1,
+      "column": 15
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvci9hy9-7f699f",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "spark-submit-local|trino-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T14:42:12.897Z",
+    "duration_ms": 64
+  }
+}

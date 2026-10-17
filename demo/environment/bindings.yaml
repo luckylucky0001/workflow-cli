@@ -42,6 +42,11 @@ resources:
     type: compute.engine
     env: sandbox
     endpoint: { kind: spark, name: demo-spark }
+  - id: demo-trino
+    type: compute.engine
+    env: sandbox
+    endpoint: { kind: trino, name: demo-trino }
+    attributes: { engine: trino, container: demo-trino, catalogs: [tpch, tpcds, memory, jmx, system] }
   - id: demo-batch-pool
     type: compute.pool
     env: sandbox

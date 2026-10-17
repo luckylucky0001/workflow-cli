@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "sql.query.cancel",
+  "data": null,
+  "error": {
+    "code": "CONFLICT",
+    "message": "查询 q-20261017-a0ab4b 已处于 cancelled，无需取消",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvci9nw6-863ace",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "spark-submit-local|trino-http",
+    "operation": "execute",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T14:42:20.598Z",
+    "duration_ms": 17
+  }
+}

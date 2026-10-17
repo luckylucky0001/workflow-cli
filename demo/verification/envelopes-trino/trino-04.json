@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "sql.query.submit",
+  "data": {
+    "query_id": "q-20261017-000af7",
+    "engine": "trino",
+    "state": "submitted",
+    "submitted_at": "2026-10-17T14:42:10.990Z",
+    "pid": null,
+    "sql_sha256": "dc2ff23284f0860964abee5a0a78fbd26edf56c1ef0738ae24ec4610b7e2605c",
+    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/state/sql/trino/demo-trino/q-20261017-000af7/result",
+    "state_file": "/home/user/workflow-cli/demo/environment/.runtime/state/sql/trino/demo-trino/q-20261017-000af7.json",
+    "tables": "Trino 表名 <catalog>.<schema>.<table>；默认 catalog=tpch，schema=tiny",
+    "next": "workctl sql query get --id q-20261017-000af7",
+    "engine_query_id": "20261017_144211_00020_bmsfx",
+    "engine_state": "RUNNING"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "trino",
+        "adapter": "trino-http",
+        "observed_at": "2026-10-17T14:42:11.150Z",
+        "endpoint": "trino/demo-trino",
+        "method": "POST /v1/statement → GET nextUri (/v1/statement/{queued|executing}/{queryId}/{slug}/{token})",
+        "version": "476",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "q-20261017-000af7",
+      "notes": [
+        "提交返回时 Trino 状态 RUNNING；结果页由 sql query get 继续拉取"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvci9ggp-4cd7ac",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "spark-submit-local|trino-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T14:42:10.969Z",
+    "duration_ms": 182
+  }
+}

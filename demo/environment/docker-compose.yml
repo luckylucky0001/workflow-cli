@@ -132,5 +132,43 @@ services:
     ports:
       - "19090:9090"
 
+  # Loki provider for `workctl log query` / `trace get` (profile workctl.loki.yaml).
+  # Storage is the container filesystem (no volume): recreating the container drops the logs.
+  loki:
+    image: grafana/loki:3.5.5
+    container_name: demo-loki
+    labels:
+      workctl.resource: demo-loki
+      workctl.env: sandbox
+    command:
+      - -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+    ports:
+      - "13100:3100"
+
+  # Ships the logs of containers labelled workctl.env to Loki via the Docker API (docker_sd_configs).
+  promtail:
+    image: grafana/promtail:3.5.5
+    container_name: demo-promtail
+    command:
+      - -config.file=/etc/promtail/promtail-config.yaml
+    volumes:
+      - ./loki/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+  # Trino coordinator (single node) for `sql query submit --engine trino`: built-in tpch / tpcds /
+  # memory / jmx catalogs, no credentials (X-Trino-User declares the user; access control allow-all).
+  trino:
+    image: trinodb/trino:476
+    container_name: demo-trino
+    labels:
+      workctl.resource: demo-trino
+      workctl.env: sandbox
+    ports:
+      - "18085:8080"
+
 volumes:
   mysql-data:

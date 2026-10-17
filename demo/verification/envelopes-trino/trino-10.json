@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "sql.query.submit",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "拒绝提交: 不允许调用表函数 system.query()（连接器透传查询等表函数可能在目标数据库执行任意语句），允许: sequence, exclude_columns",
+    "hint": "sql query submit 只执行只读查询；写入/DDL 走对应的计划-执行流程",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvci9i8s-4f24b0",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "spark-submit-local|trino-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T14:42:13.276Z",
+    "duration_ms": 20
+  }
+}

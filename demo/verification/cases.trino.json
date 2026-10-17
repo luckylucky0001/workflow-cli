@@ -1,0 +1,196 @@
+[
+ {
+  "id": "trino-01",
+  "args": [
+   "auth",
+   "status",
+   "--probe"
+  ],
+  "note": "trino 端点探测：GET /v1/info（nodeVersion）"
+ },
+ {
+  "id": "trino-02",
+  "args": [
+   "sql",
+   "query",
+   "submit",
+   "--engine",
+   "trino",
+   "--file",
+   "test/sql/fixtures/trino/orders_by_status.sql"
+  ],
+  "capture": {
+   "q1": "data.query_id"
+  },
+  "note": "POST /v1/statement，短窗口内跟随 nextUri，返回 submitted + engine_state"
+ },
+ {
+  "id": "trino-03",
+  "args": [
+   "sql",
+   "query",
+   "get",
+   "--id",
+   "${q1}"
+  ],
+  "note": "继续拉取结果页至 FINISHED：state=succeeded、3 行预览、stats"
+ },
+ {
+  "id": "trino-04",
+  "args": [
+   "sql",
+   "query",
+   "submit",
+   "--engine",
+   "trino",
+   "--file",
+   "test/sql/fixtures/trino/top_customers.sql",
+   "--preview-rows",
+   "5"
+  ],
+  "capture": {
+   "q2": "data.query_id"
+  },
+  "note": "多表 join，25 行结果"
+ },
+ {
+  "id": "trino-05",
+  "args": [
+   "sql",
+   "query",
+   "get",
+   "--id",
+   "${q2}"
+  ],
+  "note": "preview 5 行，preview_truncated=true，coverage.truncated"
+ },
+ {
+  "id": "trino-06",
+  "args": [
+   "sql",
+   "query",
+   "submit",
+   "--engine",
+   "trino",
+   "--file",
+   "test/sql/fixtures/trino/runtime_nodes.sql"
+  ],
+  "capture": {
+   "q3": "data.query_id"
+  },
+  "note": "system catalog"
+ },
+ {
+  "id": "trino-07",
+  "args": [
+   "sql",
+   "query",
+   "get",
+   "--id",
+   "${q3}"
+  ]
+ },
+ {
+  "id": "trino-08",
+  "args": [
+   "sql",
+   "query",
+   "submit",
+   "--engine",
+   "trino",
+   "--file",
+   "test/sql/fixtures/trino/syntax_error.sql"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "Trino SYNTAX_ERROR（USER_ERROR）→ INVALID_ARGUMENT，带行列号"
+ },
+ {
+  "id": "trino-09",
+  "args": [
+   "sql",
+   "query",
+   "submit",
+   "--engine",
+   "trino",
+   "--file",
+   "test/sql/fixtures/trino/missing_table.sql"
+  ],
+  "expect": "NOT_FOUND",
+  "note": "TABLE_NOT_FOUND → NOT_FOUND"
+ },
+ {
+  "id": "trino-10",
+  "args": [
+   "sql",
+   "query",
+   "submit",
+   "--engine",
+   "trino",
+   "--file",
+   "test/sql/fixtures/trino/table_function_passthrough.sql"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "workctl 只读守卫在提交前拒绝透传表函数（未发往 Trino）"
+ },
+ {
+  "id": "trino-11",
+  "args": [
+   "sql",
+   "query",
+   "submit",
+   "--engine",
+   "trino",
+   "--file",
+   "test/sql/fixtures/trino/long_cross_join.sql"
+  ],
+  "capture": {
+   "q4": "data.query_id"
+  },
+  "note": "长查询"
+ },
+ {
+  "id": "trino-12",
+  "args": [
+   "sql",
+   "query",
+   "get",
+   "--id",
+   "${q4}"
+  ],
+  "note": "5 秒拉取预算内未结束：state=running，stats 显示进度"
+ },
+ {
+  "id": "trino-13",
+  "args": [
+   "sql",
+   "query",
+   "cancel",
+   "--id",
+   "${q4}"
+  ],
+  "note": "DELETE nextUri → GET /v1/query/{id} 确认 USER_CANCELED"
+ },
+ {
+  "id": "trino-14",
+  "args": [
+   "sql",
+   "query",
+   "get",
+   "--id",
+   "${q4}"
+  ],
+  "note": "state=cancelled，error.type=USER_CANCELED"
+ },
+ {
+  "id": "trino-15",
+  "args": [
+   "sql",
+   "query",
+   "cancel",
+   "--id",
+   "${q4}"
+  ],
+  "expect": "CONFLICT",
+  "note": "已结束的查询不能再取消"
+ }
+]

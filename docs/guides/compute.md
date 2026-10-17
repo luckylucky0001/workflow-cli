@@ -1,7 +1,7 @@
 # 计算作业与 SQL 提交（compute / sql 领域）
 
 `compute` 领域回答“计算引擎上发生了什么”：Spark 应用的状态、作业与阶段、driver 日志、资源池占用；
-`sql` 领域把只读 SQL 异步提交到计算引擎并跟踪状态。调度状态见 [offline.md](offline.md)，数据分区见 [data.md](data.md)。
+`sql` 领域把只读 SQL 异步提交到计算引擎（Spark SQL / Trino）并跟踪状态。调度状态见 [offline.md](offline.md)，数据分区见 [data.md](data.md)。
 
 | 能力 | 命令示例 | 适配器 | 操作 |
 |---|---|---|---|
@@ -11,10 +11,10 @@
 | `compute.queue.get` | `compute queue get --id demo-batch-pool` | airflow-pool | read |
 | `compute.yarn-queue.get` | — | yarn-rm-rest | **planned** |
 | `compute.instance.get` | — | cloud-compute-api | **planned** |
-| `sql.query.submit` | `sql query submit --engine spark --file q.sql` | spark-submit-local | read（async） |
-| `sql.query.get` | `sql query get --id q-20261017-xxxxxx` | spark-submit-local | read |
-| `sql.query.cancel` | `sql query cancel --id q-20261017-xxxxxx` | spark-submit-local | execute |
-| `sql.query.submit-trino` / `-hive` | — | — | **planned**（`--engine trino|hive` 返回 `UNSUPPORTED`） |
+| `sql.query.submit` | `sql query submit --engine spark\|trino --file q.sql` | spark-submit-local \| trino-http | read（async） |
+| `sql.query.get` | `sql query get --id q-20261017-xxxxxx` | spark-submit-local \| trino-http | read |
+| `sql.query.cancel` | `sql query cancel --id q-20261017-xxxxxx` | spark-submit-local \| trino-http | execute |
+| `sql.query.submit-hive` | — | — | **planned**（`--engine hive` 返回 `UNSUPPORTED`） |
 
 ```yaml
 endpoints:
@@ -28,6 +28,18 @@ endpoints:
       query_state_dir: ./.runtime/spark/queries
       warehouse_root: ./.runtime/warehouse
       # submit_script: ../offline-workflows/spark/spark-submit.sh   # 缺省按此相对配置文件目录解析
+  trino:
+    demo-trino:
+      url: http://127.0.0.1:18085      # 协调节点
+      user: workctl                    # X-Trino-User
+      # password_ref: env:TRINO_PASSWORD   # 可选，basic 认证（Trino 要求 HTTPS 才接受密码）
+      catalog: tpch                    # 可选，X-Trino-Catalog（--catalog 覆盖）
+      schema: tiny                     # 可选，X-Trino-Schema（--schema 覆盖）
+      source: workctl                  # 可选，X-Trino-Source，便于在 Trino UI / 审计中识别
+      # query_state_dir: ./.runtime/trino/queries   # 缺省 <state_dir>/sql/trino/<端点名>
+      # max_result_rows: 100000        # 结果行数上限，超过即取消查询并记 failed（RESULT_LIMIT_EXCEEDED）
+      # submit_wait_ms: 3000           # submit 跟随 nextUri 的窗口（让语法/语义错误在提交时暴露）
+      # poll_budget_ms: 5000           # 每次 get 拉取结果页的预算
 ```
 
 ## 1. Spark 监控 REST 语义
@@ -78,7 +90,53 @@ reschedule 模式的传感器等待时不占槽。值为观测时刻的瞬时值
 示例查询在 `demo/offline-workflows/sql/examples/`：`daily_orders_by_date.sql`（按 dt 汇总，可直接看到 `dt` 与 `order_date` 不一致的分区）、
 `slow_cross_join.sql`（用于演示取消）。
 
-## 5. 与 offline 的关系
+## 5. Trino（`sql query submit --engine trino`）
+
+实现 Trino [client protocol](https://trino.io/docs/current/develop/client-protocol.html)（HTTP，不依赖驱动），已在 Trino 476（单节点 `trinodb/trino:476`，
+内置 `tpch` / `system` catalog）上验证，记录见 [demo/verification/report.trino.md](../../demo/verification/report.trino.md)。输出与 Spark 相同的契约，
+Trino 特有信息放在可选字段：`engine_query_id`（Trino query id）、`engine_state`（Trino 原始状态）、`stats`、`column_types`、`catalog`/`schema`、`engine_version`；
+`pid`、`app_id`、`spark_version`、`views` 为 `null`。
+
+**查询生命周期与状态映射**
+
+| Trino 状态 | workctl `state` | 说明 |
+|---|---|---|
+| `QUEUED` / `WAITING_FOR_RESOURCES` / `DISPATCHING` / `PLANNING` | `submitted` | 已被协调节点接受，尚未开始执行 |
+| `STARTING` / `RUNNING` / `FINISHING`，或 `FINISHED` 但仍有 `nextUri` | `running` | 结果页未取完 |
+| `FINISHED` 且 `nextUri` 链结束 | `succeeded` | **Trino 报告完成且 workctl 已取回全部结果页** |
+| `FAILED`（`USER_CANCELED`） | `cancelled` | 由 `sql query cancel` 或其他客户端/管理员取消（`state_basis` 区分） |
+| `FAILED`（其他） | `failed` | `error` 含 `type`=errorName、`error_type`、`error_code`、`sql_state`、行列号、`code`（对应 workctl 错误码） |
+| `nextUri` 失效且 `GET /v1/query/{id}` 404 | `lost` | 协调节点已清理该查询（`query.min-expire-age`）或重启 |
+
+- **提交**：`POST /v1/statement`（头 `X-Trino-User`、`X-Trino-Source`、`X-Trino-Catalog`/`X-Trino-Schema`），随后在 `submit_wait_ms`（默认 3 秒）内跟随 `nextUri`，
+  直到查询离开 QUEUED/PLANNING。解析/分析阶段的失败在提交时直接返回错误（状态文件同样记录为 `failed`）：
+  `USER_ERROR`（如 `SYNTAX_ERROR`、`COLUMN_NOT_FOUND`、`TYPE_MISMATCH`）→ `INVALID_ARGUMENT`；`CATALOG/SCHEMA/TABLE_NOT_FOUND` → `NOT_FOUND`；
+  `PERMISSION_DENIED`（访问控制拒绝）→ `PERMISSION_DENIED`；`INSUFFICIENT_RESOURCES` / `INTERNAL_ERROR` / `EXTERNAL` → `UPSTREAM_UNAVAILABLE`；
+  `EXCEEDED_TIME_LIMIT` / `ABANDONED_QUERY` → `TIMEOUT`。执行中途失败则是业务状态：`get` 返回 `success` + `state=failed` + `error.code`。
+  `submit` 的 `state` 恒为 `submitted`（已被引擎接受），返回时 Trino 的实际状态见 `engine_state`。
+- **与 Spark 的异步差异**：Spark 由独立进程跑到结束；Trino 的结果是**由客户端拉取驱动**的——结果缓冲区满时查询暂停，等待客户端取页。
+  workctl 没有后台进程，`sql query get` 每次在 `poll_budget_ms`（默认 5 秒）内继续跟随状态文件中保存的 `nextUri`（页令牌只能前进，每页落盘后才请求下一页；
+  并发的 `get` 用锁文件互斥）。**超过 Trino `query.client.timeout`（默认 5 分钟）没有任何 `get`，Trino 会以 `ABANDONED_QUERY` 结束查询**，
+  长查询需要周期性 `get`。
+- **结果**：所有行按列名写成 JSON lines（`result_location/part-00000.json`，与 Spark 的结果目录格式一致），前 `preview_rows`（≤ 20）行进入预览，
+  `row_count` 只在 `succeeded` 时给出（运行中的已接收行数见 `state_basis`）。重名列（如 `SELECT a.x, b.x`）在记录中为 `x`、`x#2`。
+  超过 `max_result_rows`（默认 100000）时 workctl 取消查询并记 `failed`（`RESULT_LIMIT_EXCEEDED`），结果目录只保留前 N 行。
+  Trino 以 JSON 数值返回 `bigint`，超过 2^53 的值在 JavaScript 中会丢失精度；`decimal`、日期时间以字符串返回。
+- **统计**（`stats`）：来自结果页 `stats`（`source=statement`）——`elapsed_ms`、`queued_ms`、`cpu_ms`、`wall_ms`、`processed_rows/bytes`、`physical_input_bytes`、
+  `peak_memory_bytes`、`spilled_bytes`、splits、`progress_pct`；取消/失效后改从 `GET /v1/query/{id}` 的 `queryStats` 解析（`source=query-info`，没有的字段为 `null`）。
+  终态时用 `queryStats.executionStartTime/endTime` 填 `started_at/finished_at`；`duration_ms` = Trino `elapsedTime`。tpch 等生成数据的连接器 `processed_bytes` 可能为 0，是 Trino 的实际值。
+- **取消**（`execute`）：`DELETE nextUri`（无 `nextUri` 或已失效时 `DELETE /v1/query/{id}`），随后轮询 `GET /v1/query/{id}` 确认 `FAILED/USER_CANCELED`：
+  确认后 `state=cancelled`、`confirmed=true`；未在约 3 秒内确认则 `state=cancel_requested`，用 `get` 复核；查询已先结束则如实报告终态。
+- **只读守卫**：与 Spark 共用“单条 SELECT/WITH + 禁止写入/DDL/会话关键字”的检查，Trino 另外拒绝 `EXECUTE`/`PREPARE`/`DEALLOCATE`/`COMMIT`/`ROLLBACK`、
+  `WITH FUNCTION` 内联函数、除 `sequence` / `exclude_columns` 外的表函数（如 JDBC 连接器的 `system.query` 会把任意 SQL 透传到后端数据库）；
+  `CALL`（含 `system.runtime.kill_query` 等过程）、`SET/RESET SESSION`、`USE`、`EXPLAIN ANALYZE`、`START TRANSACTION`、`CREATE TABLE AS`、`INSERT` 均因首关键字被拒绝。
+  Spark 的“直接查询文件”规则不适用于 Trino（`hive.`、`iceberg.`、`delta.` 是常见 catalog 名）；紧跟 `(` 的词按函数调用处理（如 `replace(...)`）。
+  守卫只是第一道防线，生产环境仍应给 workctl 用户配置只读的 Trino 访问控制规则。
+- **安全**：`nextUri` 只在配置的 `url` 上跟随（按路径重新拼接到配置的协调节点），凭据不会发往 Trino 返回的其他主机；`nextUri` 中的 slug 只保存在本地状态文件，不进入输出。
+- **身份探测**：`auth status --probe` 对 trino 端点调用 `GET /v1/info`（版本 `nodeVersion`、`starting`）。`/v1/info` 不校验身份，无密码时 `X-Trino-User` 只是声明，
+  实际授权由查询时的访问控制决定。
+
+## 6. 与 offline 的关系
 
 `offline run get` 通过任务 XCom / 日志中的 `WORKCTL_SPARK_APP_ID=<id>` 找到 application id，再调用 `compute.job.get` 得到计算层状态。
 调度成功、Spark 成功、分区存在、质量通过是四个不同的检查项。

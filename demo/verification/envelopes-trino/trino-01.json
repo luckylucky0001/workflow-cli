@@ -1,0 +1,173 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "auth.status",
+  "data": {
+    "profile": "demo",
+    "env": "sandbox",
+    "config_path": "/home/user/workflow-cli/demo/environment/workctl.yaml",
+    "allow_execute": true,
+    "endpoints": [
+      {
+        "kind": "docker",
+        "name": "local",
+        "auth_provider": "docker-socket",
+        "credential_refs": [],
+        "probe": {
+          "ok": true,
+          "version": "29.8.2 (API 1.56)",
+          "detail": "linux/amd64"
+        }
+      },
+      {
+        "kind": "mysql",
+        "name": "demo-mysql",
+        "auth_provider": "database-profile",
+        "credential_refs": [
+          {
+            "key": "password_ref",
+            "ref_type": "file",
+            "resolvable": true
+          }
+        ],
+        "probe": {
+          "ok": true,
+          "identity": "workctl_ro@%",
+          "version": "8.4.11",
+          "privileges": [
+            "GRANT PROCESS ON *.* TO `workctl_ro`@`%`",
+            "GRANT SELECT ON `demo`.* TO `workctl_ro`@`%`",
+            "GRANT SELECT ON `performance_schema`.* TO `workctl_ro`@`%`",
+            "GRANT SELECT ON `mysql`.`slow_log` TO `workctl_ro`@`%`"
+          ]
+        }
+      },
+      {
+        "kind": "redis",
+        "name": "demo-redis",
+        "auth_provider": "redis-profile",
+        "credential_refs": [],
+        "probe": {
+          "ok": true,
+          "identity": "default",
+          "version": "7.4.11",
+          "detail": "PING → PONG",
+          "privileges": [
+            "commands: +@all",
+            "keys: ~*"
+          ]
+        }
+      },
+      {
+        "kind": "prometheus",
+        "name": "demo-prometheus",
+        "auth_provider": "none",
+        "credential_refs": [],
+        "probe": {
+          "ok": true,
+          "version": "3.5.0"
+        }
+      },
+      {
+        "kind": "loki",
+        "name": "demo-loki",
+        "auth_provider": "plugin-defined",
+        "credential_refs": [],
+        "probe": {
+          "ok": true,
+          "version": "3.5.5",
+          "detail": "/ready: ready"
+        }
+      },
+      {
+        "kind": "airflow",
+        "name": "demo-airflow",
+        "auth_provider": "airflow-basic",
+        "credential_refs": [
+          {
+            "key": "password_ref",
+            "ref_type": "file",
+            "resolvable": true
+          }
+        ],
+        "probe": {
+          "ok": true,
+          "identity": "admin",
+          "version": "2.10.5",
+          "detail": "basic auth 通过，可读取 DAG 列表（2 个 DAG）；触发/清理等写权限只在执行时由 Airflow 校验"
+        }
+      },
+      {
+        "kind": "spark",
+        "name": "demo-spark",
+        "auth_provider": "none (local history server)",
+        "credential_refs": [],
+        "probe": {
+          "ok": true,
+          "identity": "anonymous (history server 无认证)",
+          "version": "3.5.5",
+          "detail": "history server 可达；event_log_dir=存在，driver_log_dir=存在，query_state_dir=存在"
+        }
+      },
+      {
+        "kind": "trino",
+        "name": "demo-trino",
+        "auth_provider": "plugin-defined",
+        "credential_refs": [],
+        "probe": {
+          "ok": true,
+          "identity": "workctl（无密码，X-Trino-User 声明身份；/v1/info 不校验身份，授权由查询时的访问控制决定）",
+          "version": "476",
+          "detail": "http://127.0.0.1:18085/ GET /v1/info：environment=docker，coordinator=true，starting=false，uptime=10.94m；默认 catalog=tpch，schema=tiny"
+        }
+      },
+      {
+        "kind": "catalog",
+        "name": "demo",
+        "auth_provider": "filesystem",
+        "credential_refs": [],
+        "probe": {
+          "ok": true,
+          "identity": "provider=file storage=local-filesystem",
+          "detail": "3 个元数据文件（3 个有效）；warehouse_root 存在: /home/user/workflow-cli/demo/environment/.runtime/warehouse"
+        }
+      },
+      {
+        "kind": "kafka",
+        "name": "demo-mq",
+        "auth_provider": "kafka-profile",
+        "credential_refs": [],
+        "probe": null
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "profile",
+        "observed_at": "2026-10-17T14:42:09.437Z",
+        "endpoint": "/home/user/workflow-cli/demo/environment/workctl.yaml",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "notes": []
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvci9f3l-f359cd",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "profile",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T14:42:09.201Z",
+    "duration_ms": 239
+  }
+}

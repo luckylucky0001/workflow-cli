@@ -1,10 +1,12 @@
 import { z } from 'zod';
-import { source, WorkError, type Result } from '../../core/output';
+import { source, WorkError, type Result, type Source } from '../../core/output';
 import { defineCapability, defineDomain } from '../../core/registry';
 import { formatDuration, windowFromNow, type Ctx } from '../../core/runtime';
 import { dockerClient, type ContainerInspect } from '../container/docker';
 import { listServiceContainers, resolveEnv, selectionNotes, type ServiceContainers } from '../container/workload';
 import { BoundedCollector, matches, parseLogLine, scanContainerLogs, type ContainerScan, type FilterStats, type LogEntry } from './logs';
+import { lokiClient, resolveLogProvider } from './loki';
+import { lokiLogQuery, lokiTraceScan } from './loki-query';
 import { catalog, promClient, renderQuery, summarize, type MatrixSeries } from './prometheus';
 import { buildTrace, spanFromFields, type SpanLog, type SpanRecord } from './trace';
 
@@ -281,7 +283,7 @@ const logQuery = defineCapability({
   notes: [
     '日志来自 Docker /containers/{id}/logs（stdout+stderr 多路复用流已解帧）；保留期取决于日志驱动与轮转配置，容器重建后旧日志不可见',
     '默认 order=newest：返回窗口内最新的 limit 条，按时间倒序；truncated=true 表示匹配条数超过 limit',
-    'Loki / 集中日志平台是规划中的 provider；当前只读 Docker 主机上的容器日志',
+    'provider 由资源绑定 attributes.log_provider 或 profile defaults.logs 决定（docker 默认 | loki）；Loki 经 LogQL query_range 查询，输出契约相同，差异（入库延迟、保留期、limit 口径）见指南',
   ],
   examples: [
     'workctl log query --service demo-order --window 15m --level error',
@@ -290,6 +292,8 @@ const logQuery = defineCapability({
   handler: async (ctx, i): Promise<Result> => {
     const limit = Number(i.limit);
     if (limit < 1 || limit > 2000) throw new WorkError('INVALID_ARGUMENT', '--limit 取值 1-2000');
+    const provider = resolveLogProvider(ctx, i.service);
+    if (provider.kind === 'loki') return lokiLogQuery(ctx, i, provider);
     const docker = dockerClient(ctx);
     const env = resolveEnv(ctx, i.env);
     const sc = await listServiceContainers(ctx, docker, i.service, env);
@@ -320,7 +324,7 @@ const logQuery = defineCapability({
     const disabled = scans.filter((s) => s.status === 'collection_disabled');
     if (disabled.length === scans.length) {
       throw new WorkError('COLLECTION_DISABLED', `服务 ${i.service} 的容器日志不可通过 Docker API 读取`, {
-        hint: '日志驱动需为 json-file/local/journald，或接入集中日志平台（Loki 规划中）',
+        hint: '日志驱动需为 json-file/local/journald，或改用 Loki provider（profile defaults.logs: loki）',
         details: { containers: scans.map((s) => ({ name: s.name, driver: s.log_driver, note: s.note })) },
       });
     }
@@ -426,13 +430,13 @@ const traceGet = defineCapability({
   notes: [
     'relation=derived：由日志重建，只包含被记录且仍保留的 span；未打点的耗时体现为父 span 的 self_ms',
     '找不到时返回 NOT_FOUND；可扩大 --window 或确认 trace_id',
+    '日志来源按服务的日志 provider（docker 默认 | loki）；Loki 下以 |= "<trace_id>" 拉取后用同一逻辑重建',
     'Jaeger / Tempo 等追踪后端是规划中的 provider',
   ],
   examples: ['workctl trace get --id 0d9ae006bb776f65c5bcca19759fce81 --window 1h'],
   handler: async (ctx, i): Promise<Result> => {
     const id = String(i.id).toLowerCase();
     if (!/^[0-9a-f]{16,32}$/.test(id)) throw new WorkError('INVALID_ARGUMENT', `trace_id 格式不正确: ${i.id}`, { hint: '16-32 位十六进制' });
-    const docker = dockerClient(ctx);
     let services: string[];
     if (i.service) services = [i.service];
     else {
@@ -445,7 +449,21 @@ const traceGet = defineCapability({
     const logs: SpanLog[] = [];
     const scanned: { service: string; containers: string[]; lines_scanned: number }[] = [];
     const notes: string[] = [];
+    const lokiSources: Source[] = [];
+    let dockerUsed = false;
     for (const svc of services) {
+      const provider = resolveLogProvider(ctx, svc);
+      if (provider.kind === 'loki') {
+        const ls = await lokiTraceScan(ctx, svc, id, win, provider);
+        spans.push(...ls.spans);
+        logs.push(...ls.logs);
+        notes.push(...ls.notes);
+        scanned.push({ service: svc, containers: ls.containers, lines_scanned: ls.lines_scanned });
+        if (!lokiSources.some((x) => x.endpoint === ls.source.endpoint)) lokiSources.push(ls.source);
+        continue;
+      }
+      dockerUsed = true;
+      const docker = dockerClient(ctx);
       const sc = await listServiceContainers(ctx, docker, svc, resolveEnv(ctx, undefined));
       const inspects = await inspectAll(ctx, sc);
       let lines = 0;
@@ -484,11 +502,11 @@ const traceGet = defineCapability({
     if (view.cyclic_parents.length) notes.push(`span 父子关系成环（${view.cyclic_parents.join(', ')}），日志中的 parent_span_id 不可信，相关层级仅供参考`);
     return {
       data: { ...view, scanned },
-      sources: [await docker.source('GET /containers/{id}/logs（kind=span 记录重建）', 'derived')],
+      sources: [...(dockerUsed ? [await dockerClient(ctx).source('GET /containers/{id}/logs（kind=span 记录重建）', 'derived')] : []), ...lokiSources],
       coverage: {
         complete: view.roots.length === 1 && view.cyclic_parents.length === 0,
         window: win,
-        scope: `服务: ${services.join(', ')} 的容器日志`,
+        scope: `服务: ${services.join(', ')} 的${dockerUsed && lokiSources.length ? '容器日志 / Loki 日志' : lokiSources.length ? ' Loki 日志' : '容器日志'}`,
         notes: [...notes, '日志派生的调用链：只包含已记录且仍保留的 span'],
       },
     };
@@ -513,7 +531,7 @@ const quotaGet = defineCapability({
 export default defineDomain({
   name: 'observability',
   title: '可观测性',
-  summary: '指标（Prometheus）、容器日志与日志派生调用链；Loki / Jaeger / Tempo 规划中',
+  summary: '指标（Prometheus）、日志（Docker 容器日志 / Loki）与日志派生调用链；Jaeger / Tempo 规划中',
   pillar: 'infrastructure',
   guide: GUIDE,
   skill: 'skills/service-latency-investigation/SKILL.md',
@@ -524,6 +542,12 @@ export default defineDomain({
       const v = await prom.version();
       if (!v) return { ok: false, detail: 'buildinfo 不可用' };
       return { ok: true, version: v };
+    },
+    loki: async (ctx, name) => {
+      const loki = lokiClient(ctx, name);
+      const [v, ready] = await Promise.all([loki.version(), loki.ready()]);
+      if (!v) return { ok: false, detail: `buildinfo 不可用；/ready: ${ready.detail}` };
+      return { ok: ready.ok, version: v, detail: `/ready: ${ready.detail}`, ...(loki.ep.str('tenant') ? { identity: `tenant ${loki.ep.str('tenant')}` } : {}) };
     },
   },
 });

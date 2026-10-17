@@ -1,0 +1,42 @@
+# Promtail ships the logs of the demo containers to Loki through the Docker API
+# (docker_sd_configs). Stream labels mirror the workctl container labels:
+#   workctl.service → service, workctl.resource → resource, workctl.env → env,
+#   container name → container, container id → container_id, stdout/stderr → stream.
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+  log_level: warn
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+    # push interval: logs become queryable in Loki roughly batchwait after they are written
+    batchwait: 1s
+    batchsize: 1048576
+
+scrape_configs:
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+        filters:
+          - name: label
+            values: ["workctl.env"]
+    relabel_configs:
+      - source_labels: [__meta_docker_container_label_workctl_service]
+        target_label: service
+      - source_labels: [__meta_docker_container_label_workctl_resource]
+        target_label: resource
+      - source_labels: [__meta_docker_container_label_workctl_env]
+        target_label: env
+      - source_labels: [__meta_docker_container_name]
+        regex: "/?(.*)"
+        target_label: container
+      - source_labels: [__meta_docker_container_id]
+        target_label: container_id
+      - source_labels: [__meta_docker_container_log_stream]
+        target_label: stream
+    # level / trace_id stay in the log line (no high-cardinality labels); workctl filters
+    # them with `| json` in LogQL at query time, so no pipeline stage is needed here.

@@ -35,7 +35,10 @@ describe('sql query capabilities (no Spark needed)', () => {
   it('refuses unsupported engines and write statements before launching anything', async () => {
     const f = join(dir, 'q.sql');
     writeFileSync(f, 'SELECT 1');
-    expect((await call('sql.query.submit', { engine: 'trino', file: f })).error?.code).toBe('UNSUPPORTED');
+    expect((await call('sql.query.submit', { engine: 'hive', file: f })).error?.code).toBe('UNSUPPORTED');
+    // trino is implemented (test/sql/trino.test.ts); this profile has no trino endpoint
+    expect((await call('sql.query.submit', { engine: 'trino', file: f })).error?.code).toBe('NOT_CONFIGURED');
+    expect((await call('sql.query.submit', { engine: 'spark', file: f, catalog: 'tpch' })).error?.code).toBe('INVALID_ARGUMENT');
     const w = join(dir, 'w.sql');
     writeFileSync(w, 'DROP TABLE analytics_daily_orders');
     expect((await call('sql.query.submit', { engine: 'spark', file: w })).error?.code).toBe('INVALID_ARGUMENT');
