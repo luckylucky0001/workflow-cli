@@ -22,10 +22,11 @@
             "label",
             "name"
           ],
-          "description": "label=按 Docker 标签；name=按资源绑定中声明的精确容器名"
+          "description": "label=按 Docker 标签 / Kubernetes 标签选择器；name=按资源绑定中声明的精确容器名"
         },
         "label": {
-          "type": "string"
+          "type": "string",
+          "description": "Docker: key=value；Kubernetes: labelSelector 字符串（如 app=demo-order,tier=web）"
         },
         "origin": {
           "type": "string",
@@ -39,7 +40,7 @@
         },
         "matched_by": {
           "type": "string",
-          "description": "实际匹配到容器的选择器，如 label workctl.resource=demo-mysql 或 binding attribute container=demo-mysql"
+          "description": "实际匹配到容器的选择器，如 label workctl.resource=demo-mysql、binding attribute container=demo-mysql，或 Kubernetes label selector app=demo-order（Deployment demo/demo-order 的 spec.selector）"
         }
       },
       "required": [
@@ -69,10 +70,11 @@
     },
     "visible_since": {
       "type": "string",
-      "description": "守护进程事件缓冲实际覆盖的起点；早于此的事件不可见"
+      "description": "事件历史实际覆盖的起点（Docker 守护进程缓冲 / Kubernetes event-ttl）；早于此的事件不可见"
     },
     "daemon_buffer_full": {
-      "type": "boolean"
+      "type": "boolean",
+      "description": "Docker 守护进程事件缓冲是否已满；Kubernetes 恒为 false（保留由 event-ttl 决定，见 retention）"
     },
     "events": {
       "type": "array",
@@ -148,6 +150,36 @@
       "additionalProperties": {
         "type": "number"
       }
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "docker",
+        "kubernetes"
+      ]
+    },
+    "retention": {
+      "description": "仅 Kubernetes provider：事件保留口径",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "kubernetes-event-ttl"
+        },
+        "ttl": {
+          "type": "string"
+        },
+        "configured": {
+          "type": "boolean",
+          "description": "false 表示按默认 1h 计算（未在端点 event_ttl 中声明）"
+        }
+      },
+      "required": [
+        "kind",
+        "ttl",
+        "configured"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [

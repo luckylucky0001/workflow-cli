@@ -13,7 +13,8 @@ CLI、适配器、Skill、文档与目标系统版本的对应关系。**“已�
 
 | 领域 | 适配器 | 接入路径 | 已验证版本 | 说明 |
 | --- | --- | --- | --- | --- |
-| container / network / storage | `docker-engine-api`、`http-probe`、`node-net`、`node-dns`、`node-fs` | Docker Engine API（unix socket） | Docker 29.8.2，API 1.56 | Kubernetes 为待接入 provider |
+| container / network / storage | `docker-engine-api`、`http-probe`、`node-net`、`node-dns`、`node-fs` | Docker Engine API（unix socket） | Docker 29.8.2，API 1.56 | Kubernetes provider 见下一行（未经真实集群验证） |
+| container (kubernetes-api) | `kubernetes-api` | Kubernetes REST API（core/v1、apps/v1、metrics.k8s.io/v1beta1；Bearer token 或 kubeconfig） | — | 已实现，未经真实集群验证（仅模拟 API 单元测试） |
 | observability：指标 | `prometheus-http-api` | Prometheus HTTP API `query_range` | Prometheus 3.5.0 | |
 | observability：日志 / 调用链 | `docker-engine-api`（容器日志） | Docker 容器日志（json-file 驱动） | Docker 29.8.2 | 调用链由结构化日志重建（`relation: derived`），不是追踪后端；Loki、Jaeger/Tempo 为待接入 |
 | mysql | `mysql-driver`（mysql2） | 原生协议 + performance_schema / information_schema / mysql.slow_log | MySQL 8.4.11 | 需要 `performance_schema=ON`；慢日志 SQL 读取需要 `log_output` 含 TABLE；`EXPLAIN ANALYZE` 需 8.0.18+ |

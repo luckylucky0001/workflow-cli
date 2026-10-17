@@ -43,7 +43,8 @@ export function candidateSelectors(ctx: Ctx, service: string): { explicit: Selec
     for (const rel of store.relationsOf(service, 'downstream')) {
       if (rel.type !== 'runs_on') continue;
       const w = store.get(rel.to);
-      if (w?.type === 'container.workload') {
+      // labels of a Kubernetes-bound workload are pod labels, not Docker container labels
+      if (w?.type === 'container.workload' && w.endpoint?.kind !== 'kubernetes') {
         const [k, v] = Object.entries(w.labels ?? {})[0] ?? [];
         if (k && v) explicit.push({ kind: 'label', label: `${k}=${v}`, origin: 'binding-file', evidence: `bindings: ${service} runs_on ${w.id} (labels ${k}=${v})`, matched_by: `label ${k}=${v}（runs_on ${w.id}）` });
       }

@@ -260,23 +260,25 @@ workctl --json service dependency list --service demo-order --env sandbox
 
 汇总环境内容器的资源上限与当前使用（快照），标出未设上限、接近上限、OOM 等
 
-- 能力：`container.capacity.summary` v1.0.0；操作类型：**read**；适配器：docker-engine-api；认证：docker-socket
+- 能力：`container.capacity.summary` v1.0.0；操作类型：**read**；适配器：docker-engine-api | kubernetes-api；认证：docker-socket | kubernetes-bearer
 - 输出 Schema：[docs/schemas/container.capacity.summary.v1.json](../docs/schemas/container.capacity.summary.v1.json)；指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
 | --- | --- | --- | --- | --- |
 | `--env` | string | 否 |  | 环境（容器标签 workctl.env）；默认取 profile 的 env |
+| `--provider` | enum (auto/docker/kubernetes) | 否 | `"auto"` | auto：环境有 Kubernetes 资源绑定且 profile 没有 docker 端点时用 Kubernetes，否则 Docker |
 
 前置条件：
 
-- profile 配置 endpoints.docker.<name>.socket（或 url）
-- 运行 workctl 的用户可访问 Docker socket
+- Docker（默认）：profile 配置 endpoints.docker.<name>.socket（或 url），运行 workctl 的用户可访问 Docker socket
+- Kubernetes：资源绑定中服务 runs_on 的 container.workload 声明 endpoint {kind: kubernetes}；profile 配置 endpoints.kubernetes.<name>（server + token_ref 或 kubeconfig）
 
 口径说明：
 
 - 快照：上限来自 inspect，使用量来自单次 stats 采样；容量趋势需结合 metric query 的窗口数据
 - 未设置上限的容器在合计中单独计数（cpu_unlimited / memory_unlimited），不计入上限合计
-- 只统计带 workctl.env=<env> 标签的容器
+- Docker：只统计带 workctl.env=<env> 标签的容器
+- Kubernetes：范围是该环境 Kubernetes 资源绑定涉及的 namespace 的全部 Pod；上限/requests 来自 Pod spec，使用量来自 metrics-server（缺失时 status=partial、usage=null），host 为节点 allocatable 合计（需 list nodes 权限）
 
 ```bash
 workctl capacity summary --env sandbox
@@ -284,26 +286,28 @@ workctl capacity summary --env sandbox
 
 ### `workctl container event list`
 
-列出服务容器在时间窗口内的 Docker 事件（启动、退出、OOM、重启、健康状态变化）
+列出服务容器在时间窗口内的事件（Docker：启动、退出、OOM、重启、健康状态变化；Kubernetes：Pod/工作负载事件）
 
-- 能力：`container.event.list` v1.0.0；操作类型：**read**；适配器：docker-engine-api；认证：docker-socket
+- 能力：`container.event.list` v1.0.0；操作类型：**read**；适配器：docker-engine-api | kubernetes-api；认证：docker-socket | kubernetes-bearer
 - 输出 Schema：[docs/schemas/container.event.list.v1.json](../docs/schemas/container.event.list.v1.json)；指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
 | --- | --- | --- | --- | --- |
-| `--service` | string | 是 |  | 服务 ID（资源绑定中的 service，按容器标签解析） |
+| `--service` | string | 是 |  | 服务 ID（资源绑定中的 service；Docker 按容器标签、Kubernetes 按绑定的 Pod 标签选择器解析） |
 | `--env` | string | 否 |  | 环境（容器标签 workctl.env）；默认取 profile 的 env |
 | `--window` | duration | 否 | `"1h"` | 回看窗口，如 15m、1h、6h |
 | `--include-exec` | bool | 否 | `false` | 是否包含 exec_* 事件（健康检查会产生大量 exec 事件） |
 
 前置条件：
 
-- profile 配置 endpoints.docker.<name>.socket（或 url）
-- 运行 workctl 的用户可访问 Docker socket
+- Docker（默认）：profile 配置 endpoints.docker.<name>.socket（或 url），运行 workctl 的用户可访问 Docker socket
+- Kubernetes：资源绑定中服务 runs_on 的 container.workload 声明 endpoint {kind: kubernetes}；profile 配置 endpoints.kubernetes.<name>（server + token_ref 或 kubeconfig）
 
 口径说明：
 
+- provider 由资源绑定决定：服务（或其 runs_on 的 container.workload）绑定 kubernetes 端点时走 Kubernetes API，否则走 Docker（默认）
 - Docker 守护进程只在内存中保留最近有限条事件（守护进程重启后清空），窗口早期的事件可能已不可见
+- Kubernetes 事件由 API server 按 event-ttl 保留（默认 1h），窗口超过 TTL 时 coverage.complete=false；action 为事件 reason（如 BackOff、Killing、OOMKilling），type 为对象类型（pod/deployment/replicaset）
 - 事件按时间正序返回
 
 ```bash
@@ -312,25 +316,27 @@ workctl container event list --service demo-order --window 1h
 
 ### `workctl container stats get`
 
-获取服务容器的资源使用快照：CPU、内存（相对上限）、进程数、网络与块设备 I/O 累计值
+获取服务容器的资源使用快照：CPU、内存（相对上限）、进程数、网络与块设备 I/O 累计值（Kubernetes 来自 metrics-server）
 
-- 能力：`container.stats.get` v1.0.0；操作类型：**read**；适配器：docker-engine-api；认证：docker-socket
+- 能力：`container.stats.get` v1.0.0；操作类型：**read**；适配器：docker-engine-api | kubernetes-api；认证：docker-socket | kubernetes-bearer
 - 输出 Schema：[docs/schemas/container.stats.get.v1.json](../docs/schemas/container.stats.get.v1.json)；指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
 | --- | --- | --- | --- | --- |
-| `--service` | string | 是 |  | 服务 ID（资源绑定中的 service，按容器标签解析） |
+| `--service` | string | 是 |  | 服务 ID（资源绑定中的 service；Docker 按容器标签、Kubernetes 按绑定的 Pod 标签选择器解析） |
 | `--env` | string | 否 |  | 环境（容器标签 workctl.env）；默认取 profile 的 env |
 
 前置条件：
 
-- profile 配置 endpoints.docker.<name>.socket（或 url）
-- 运行 workctl 的用户可访问 Docker socket
+- Docker（默认）：profile 配置 endpoints.docker.<name>.socket（或 url），运行 workctl 的用户可访问 Docker socket
+- Kubernetes：资源绑定中服务 runs_on 的 container.workload 声明 endpoint {kind: kubernetes}；profile 配置 endpoints.kubernetes.<name>（server + token_ref 或 kubeconfig）
 
 口径说明：
 
+- provider 由资源绑定决定：服务（或其 runs_on 的 container.workload）绑定 kubernetes 端点时走 Kubernetes API，否则走 Docker（默认）
 - 这是快照（snapshot），不是时间窗口统计：CPU 为守护进程两次采样（约 1s）间的速率，内存为当前值
 - 网络与块设备 I/O 是自容器启动以来的累计值，不能当作窗口流量；窗口趋势请用 metric query
+- Kubernetes：依赖 metrics.k8s.io（metrics-server），API 不存在返回 COLLECTION_DISABLED；CPU 为 metrics window 内平均速率，内存为工作集，pids/网络/块 I/O 为 null；online_cpus 取节点容量（无 get nodes 权限时为 0，表示未知）
 
 ```bash
 workctl container stats get --service demo-order
@@ -340,26 +346,27 @@ workctl container stats get --service demo-order
 
 查看服务对应容器的运行状态、健康、重启、退出码、OOM、镜像、端口和资源限制
 
-按容器标签（资源绑定或 workctl.service 约定）解析服务的容器，返回 Docker inspect 的实际状态。
+按容器标签（资源绑定或 workctl.service 约定）解析服务的容器，返回 Docker inspect 的实际状态；服务绑定到 Kubernetes 时按标签选择器解析 Deployment/StatefulSet 的 Pod，每个容器一条。
 
-- 能力：`container.workload.get` v1.0.0；操作类型：**read**；适配器：docker-engine-api；认证：docker-socket
+- 能力：`container.workload.get` v1.0.0；操作类型：**read**；适配器：docker-engine-api | kubernetes-api；认证：docker-socket | kubernetes-bearer
 - 输出 Schema：[docs/schemas/container.workload.get.v1.json](../docs/schemas/container.workload.get.v1.json)；指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
 | --- | --- | --- | --- | --- |
-| `--service` | string | 是 |  | 服务 ID（资源绑定中的 service，按容器标签解析） |
+| `--service` | string | 是 |  | 服务 ID（资源绑定中的 service；Docker 按容器标签、Kubernetes 按绑定的 Pod 标签选择器解析） |
 | `--env` | string | 否 |  | 环境（容器标签 workctl.env）；默认取 profile 的 env |
 
 前置条件：
 
-- profile 配置 endpoints.docker.<name>.socket（或 url）
-- 运行 workctl 的用户可访问 Docker socket
+- Docker（默认）：profile 配置 endpoints.docker.<name>.socket（或 url），运行 workctl 的用户可访问 Docker socket
+- Kubernetes：资源绑定中服务 runs_on 的 container.workload 声明 endpoint {kind: kubernetes}；profile 配置 endpoints.kubernetes.<name>（server + token_ref 或 kubeconfig）
 
 口径说明：
 
-- RestartCount 只统计重启策略触发的自动重启；手动 docker restart 不计入，需结合 container event list
+- provider 由资源绑定决定：服务（或其 runs_on 的 container.workload）绑定 kubernetes 端点时走 Kubernetes API，否则走 Docker（默认）
+- Docker：RestartCount 只统计重启策略触发的自动重启；手动 docker restart 不计入，需结合 container event list
+- Kubernetes：restart_count 为 kubelet 统计的容器重启（含存活探针失败、OOM），Pod 被替换后归零；oom_killed 来自 state/lastState.terminated.reason=OOMKilled；容器名为 <pod>/<container>
 - 服务与容器的关系只来自标签/资源绑定，不按名称相似度推断
-- Kubernetes 工作负载是规划中的 provider（见 container.kubernetes.workload.get）
 
 ```bash
 workctl container workload get --service demo-order --env sandbox
@@ -367,27 +374,29 @@ workctl container workload get --service demo-order --env sandbox
 
 ### `workctl container workload restart-plan`
 
-为重启服务容器生成计划：实际目标容器、依赖影响、前置条件与步骤（不执行）
+为重启服务容器生成计划：实际目标容器（Kubernetes 为工作负载）、依赖影响、前置条件与步骤（不执行）
 
-- 能力：`container.workload.restart_plan` v1.0.0；操作类型：**plan**；适配器：docker-engine-api；认证：docker-socket
+- 能力：`container.workload.restart_plan` v1.0.0；操作类型：**plan**；适配器：docker-engine-api | kubernetes-api；认证：docker-socket | kubernetes-bearer
 - 输出 Schema：[docs/schemas/container.workload.restart_plan.v1.json](../docs/schemas/container.workload.restart_plan.v1.json)；指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)
 - 幂等：是；可取消：否
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
 | --- | --- | --- | --- | --- |
-| `--service` | string | 是 |  | 服务 ID（资源绑定中的 service，按容器标签解析） |
+| `--service` | string | 是 |  | 服务 ID（资源绑定中的 service；Docker 按容器标签、Kubernetes 按绑定的 Pod 标签选择器解析） |
 | `--env` | string | 否 |  | 环境（容器标签 workctl.env）；默认取 profile 的 env |
 
 前置条件：
 
-- profile 配置 endpoints.docker.<name>.socket（或 url）
-- 运行 workctl 的用户可访问 Docker socket
+- Docker（默认）：profile 配置 endpoints.docker.<name>.socket（或 url），运行 workctl 的用户可访问 Docker socket
+- Kubernetes：资源绑定中服务 runs_on 的 container.workload 声明 endpoint {kind: kubernetes}；profile 配置 endpoints.kubernetes.<name>（server + token_ref 或 kubeconfig）
 
 口径说明：
 
 - 计划预览不是执行成功的证据；执行用 workctl operation execute --id <plan> --confirm <plan>（需要 profile allow_execute）
 - 等价于 workctl operation plan --action container.restart --param service=<service>
-- 执行时逐个重启并轮询 inspect 校验已重新运行（及健康检查状态）
+- Docker：执行时逐个重启并轮询 inspect 校验已重新运行（及健康检查状态）；计划 idempotent=true
+- Kubernetes：等价于 kubectl rollout restart（PATCH Pod 模板注解 kubectl.kubernetes.io/restartedAt），轮询 observedGeneration/updatedReplicas/availableReplicas 直到 rollout 完成或超时；计划 idempotent=false（每次执行都会触发新的滚动更新），需要 patch deployments 权限
+- provider 由资源绑定决定：服务（或其 runs_on 的 container.workload）绑定 kubernetes 端点时走 Kubernetes API，否则走 Docker（默认）
 
 ```bash
 workctl container workload restart-plan --service demo-order --env sandbox

@@ -28,8 +28,8 @@
         "last_health_check": null,
         "restart_count": 0,
         "restart_policy": "no",
-        "started_at": "2026-10-17T13:15:55.057322963Z",
-        "finished_at": "2026-10-17T13:15:54.884007378Z",
+        "started_at": "2026-10-17T13:18:42.379608446Z",
+        "finished_at": "2026-10-17T13:18:42.215129405Z",
         "exit_code": 0,
         "oom_killed": false,
         "error": null,
@@ -97,7 +97,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T13:17:56.413Z",
+        "observed_at": "2026-10-17T13:51:32.078Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/json?all=1&filters={label:workctl.service=demo-order}",
         "relation": "explicit",
@@ -106,7 +106,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T13:17:56.414Z",
+        "observed_at": "2026-10-17T13:51:32.078Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/json",
         "relation": "explicit",
@@ -115,7 +115,7 @@
       {
         "system": "workctl",
         "adapter": "resource-bindings",
-        "observed_at": "2026-10-17T13:17:56.414Z",
+        "observed_at": "2026-10-17T13:51:32.078Z",
         "method": "bindings: demo-order.attributes.container_label=workctl.service=demo-order",
         "relation": "explicit"
       }
@@ -131,15 +131,15 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf94ab-5c4882",
+    "request_id": "req-mvcggbkw-db411b",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
     "capability_version": "1.0.0",
-    "adapter": "docker-engine-api",
+    "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:17:56.339Z",
-    "duration_ms": 75
+    "started_at": "2026-10-17T13:51:32.000Z",
+    "duration_ms": 78
   }
 }

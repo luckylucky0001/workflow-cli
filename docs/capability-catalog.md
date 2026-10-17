@@ -7,7 +7,7 @@
 | 板块 | 已支持 | 待接入 |
 | --- | --- | --- |
 | 核心（发现、资源、身份、操作） | 13 | 0 |
-| 基础设施 | 14 | 8 |
+| 基础设施 | 14 | 7 |
 | 中间件 | 19 | 11 |
 | 离线链路 | 21 | 5 |
 
@@ -37,16 +37,15 @@
 
 ### 容器与资源容量（`container`）
 
-容器工作负载状态、事件、资源快照、容量汇总与受控重启（Docker Engine API；Kubernetes 规划中）。指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)；Skill：`skills/infra-operations`
+容器工作负载状态、事件、资源快照、容量汇总与受控重启（Docker Engine API；按资源绑定可走 Kubernetes API）。指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)；Skill：`skills/infra-operations`
 
 | 能力 | 命令 | 操作 | 状态 | 适配器 | 版本 |
 | --- | --- | --- | --- | --- | --- |
-| `container.capacity.summary` | `workctl capacity summary` | read | 已支持 | docker-engine-api | 1.0.0 |
-| `container.event.list` | `workctl container event list` | read | 已支持 | docker-engine-api | 1.0.0 |
-| `container.kubernetes.workload.get` | `workctl kubernetes workload get` | read | 待接入 | kubernetes-api (待接入) | 1.0.0 |
-| `container.stats.get` | `workctl container stats get` | read | 已支持 | docker-engine-api | 1.0.0 |
-| `container.workload.get` | `workctl container workload get` | read | 已支持 | docker-engine-api | 1.0.0 |
-| `container.workload.restart_plan` | `workctl container workload restart-plan` | plan | 已支持 | docker-engine-api | 1.0.0 |
+| `container.capacity.summary` | `workctl capacity summary` | read | 已支持 | docker-engine-api \| kubernetes-api | 1.0.0 |
+| `container.event.list` | `workctl container event list` | read | 已支持 | docker-engine-api \| kubernetes-api | 1.0.0 |
+| `container.stats.get` | `workctl container stats get` | read | 已支持 | docker-engine-api \| kubernetes-api | 1.0.0 |
+| `container.workload.get` | `workctl container workload get` | read | 已支持 | docker-engine-api \| kubernetes-api | 1.0.0 |
+| `container.workload.restart_plan` | `workctl container workload restart-plan` | plan | 已支持 | docker-engine-api \| kubernetes-api | 1.0.0 |
 
 ### 网络（`network`）
 

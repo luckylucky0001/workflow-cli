@@ -22,10 +22,11 @@
             "label",
             "name"
           ],
-          "description": "label=按 Docker 标签；name=按资源绑定中声明的精确容器名"
+          "description": "label=按 Docker 标签 / Kubernetes 标签选择器；name=按资源绑定中声明的精确容器名"
         },
         "label": {
-          "type": "string"
+          "type": "string",
+          "description": "Docker: key=value；Kubernetes: labelSelector 字符串（如 app=demo-order,tier=web）"
         },
         "origin": {
           "type": "string",
@@ -39,7 +40,7 @@
         },
         "matched_by": {
           "type": "string",
-          "description": "实际匹配到容器的选择器，如 label workctl.resource=demo-mysql 或 binding attribute container=demo-mysql"
+          "description": "实际匹配到容器的选择器，如 label workctl.resource=demo-mysql、binding attribute container=demo-mysql，或 Kubernetes label selector app=demo-order（Deployment demo/demo-order 的 spec.selector）"
         }
       },
       "required": [
@@ -53,7 +54,10 @@
     },
     "provider": {
       "type": "string",
-      "const": "docker"
+      "enum": [
+        "docker",
+        "kubernetes"
+      ]
     },
     "containers": {
       "type": "array",
@@ -311,6 +315,175 @@
             "additionalProperties": {
               "type": "string"
             }
+          },
+          "kubernetes": {
+            "description": "仅 Kubernetes provider：Pod 与容器的原生状态（name 为 <pod>/<container>）",
+            "type": "object",
+            "properties": {
+              "namespace": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "pod": {
+                "type": "string"
+              },
+              "container": {
+                "type": "string"
+              },
+              "pod_uid": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "node": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "phase": {
+                "description": "Pod phase：Pending/Running/Succeeded/Failed/Unknown",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "pod_ready": {
+                "description": "Pod 条件 Ready",
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "container_ready": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "qos_class": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "owner": {
+                "description": "控制者 ownerReference，如 ReplicaSet/demo-order-7c9d8f6b5",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "state_reason": {
+                "description": "waiting/terminated 原因，如 CrashLoopBackOff、ImagePullBackOff、OOMKilled",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "last_termination": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "reason": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "exit_code": {
+                        "type": "number"
+                      },
+                      "finished_at": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "reason",
+                      "exit_code",
+                      "finished_at"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "lastState.terminated"
+              },
+              "requests": {
+                "type": "object",
+                "properties": {
+                  "cpus": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "memory_bytes": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "cpus",
+                  "memory_bytes"
+                ],
+                "additionalProperties": false
+              },
+              "conditions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "status",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "namespace",
+              "pod",
+              "container",
+              "pod_uid",
+              "node",
+              "phase",
+              "pod_ready",
+              "container_ready",
+              "qos_class",
+              "owner",
+              "state_reason",
+              "last_termination",
+              "requests",
+              "conditions"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [
@@ -367,6 +540,189 @@
         "unhealthy",
         "oom_killed",
         "restarted"
+      ],
+      "additionalProperties": false
+    },
+    "kubernetes": {
+      "description": "仅 Kubernetes provider：工作负载 rollout 状态与 Pod 列表",
+      "type": "object",
+      "properties": {
+        "endpoint": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "server_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "label_selector": {
+          "type": "string"
+        },
+        "workloads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "namespace": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "uid": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "generation": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "observed_generation": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "replicas": {
+                "type": "number"
+              },
+              "ready_replicas": {
+                "type": "number"
+              },
+              "updated_replicas": {
+                "type": "number"
+              },
+              "available_replicas": {
+                "type": "number"
+              },
+              "selector": {
+                "type": "string"
+              },
+              "progressing": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string"
+                      },
+                      "reason": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "reason"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "restarted_at": {
+                "description": "Pod 模板注解 kubectl.kubernetes.io/restartedAt",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "name",
+              "namespace",
+              "uid",
+              "generation",
+              "observed_generation",
+              "replicas",
+              "ready_replicas",
+              "updated_replicas",
+              "available_replicas",
+              "selector",
+              "progressing",
+              "restarted_at"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "pods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "phase": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "ready": {
+                "type": "boolean"
+              },
+              "node": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "pod_ip": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "start_time": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "restarts": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "name",
+              "phase",
+              "ready",
+              "node",
+              "pod_ip",
+              "start_time",
+              "restarts"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "endpoint",
+        "namespace",
+        "server_version",
+        "label_selector",
+        "workloads",
+        "pods"
       ],
       "additionalProperties": false
     }

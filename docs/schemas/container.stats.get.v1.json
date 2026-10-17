@@ -269,6 +269,13 @@
         ],
         "additionalProperties": false
       }
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "docker",
+        "kubernetes"
+      ]
     }
   },
   "required": [

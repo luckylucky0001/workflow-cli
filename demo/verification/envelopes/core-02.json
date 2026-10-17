@@ -71,17 +71,6 @@
         "origin": "builtin"
       },
       {
-        "name": "container.kubernetes.workload.get",
-        "command": "kubernetes workload get",
-        "summary": "查看 Kubernetes Deployment/StatefulSet/Pod 状态、事件与资源配额（规划中）",
-        "domain": "container",
-        "status": "planned",
-        "operation": "read",
-        "adapter": "kubernetes-api (待接入)",
-        "capability_version": "1.0.0",
-        "origin": "builtin"
-      },
-      {
         "name": "data.transfer.get",
         "command": "data transfer get",
         "summary": "查看数据同步/传输任务（如 DataX、CDC、跨集群拷贝）的状态、进度与位点",
@@ -296,11 +285,11 @@
         "name": "container",
         "title": "容器与资源容量",
         "pillar": "infrastructure",
-        "summary": "容器工作负载状态、事件、资源快照、容量汇总与受控重启（Docker Engine API；Kubernetes 规划中）",
+        "summary": "容器工作负载状态、事件、资源快照、容量汇总与受控重启（Docker Engine API；按资源绑定可走 Kubernetes API）",
         "guide": "docs/guides/infrastructure.md",
         "skill": "skills/infra-operations",
         "available": 5,
-        "planned": 1,
+        "planned": 0,
         "origin": "builtin"
       },
       {
@@ -476,7 +465,7 @@
       {
         "system": "workctl",
         "adapter": "registry",
-        "observed_at": "2026-10-17T13:17:54.154Z",
+        "observed_at": "2026-10-17T13:51:29.630Z",
         "method": "builtin + installed plugins",
         "relation": "explicit"
       }
@@ -488,7 +477,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf92l7-4c46a7",
+    "request_id": "req-mvcgg9qk-975746",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -496,7 +485,7 @@
     "adapter": "registry",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:17:54.139Z",
-    "duration_ms": 15
+    "started_at": "2026-10-17T13:51:29.612Z",
+    "duration_ms": 18
   }
 }

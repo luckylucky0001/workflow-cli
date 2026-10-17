@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.execute",
   "data": {
-    "id": "op-20261017-b41ade",
+    "id": "op-20261017-77eb53",
     "kind": "container.restart",
     "title": "重启服务 demo-order（sandbox）的 1 个容器",
     "status": "succeeded",
-    "created_at": "2026-10-17T13:18:40.776Z",
-    "expires_at": "2026-10-17T13:48:40.776Z",
+    "created_at": "2026-10-17T13:52:17.267Z",
+    "expires_at": "2026-10-17T14:22:17.267Z",
     "profile": "demo",
     "env": "sandbox",
     "params": {
@@ -22,7 +22,7 @@
         "image": "workctl-demo/demo-order:local",
         "state": "running",
         "health": "none",
-        "started_at": "2026-10-17T13:15:55.057322963Z",
+        "started_at": "2026-10-17T13:18:42.379608446Z",
         "restart_policy": "no",
         "selector": "workctl.service=demo-order",
         "selector_kind": "label",
@@ -100,27 +100,27 @@
     "executable": true,
     "history": [
       {
-        "at": "2026-10-17T13:18:40.776Z",
+        "at": "2026-10-17T13:52:17.267Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       },
       {
-        "at": "2026-10-17T13:18:42.154Z",
+        "at": "2026-10-17T13:52:18.605Z",
         "status": "running",
-        "note": "由 req-mvcfa3m5-93909d 开始执行"
+        "note": "由 req-mvcghbix-ff5fd7 开始执行"
       },
       {
-        "at": "2026-10-17T13:18:42.178Z",
+        "at": "2026-10-17T13:52:18.629Z",
         "status": "running",
         "note": "restart demo-order (3132b175b5dc)"
       },
       {
-        "at": "2026-10-17T13:18:45.607Z",
+        "at": "2026-10-17T13:52:22.055Z",
         "status": "running",
         "note": "demo-order: 已重新运行并稳定 3s（未配置健康检查，仅校验进程持续运行）"
       },
       {
-        "at": "2026-10-17T13:18:45.626Z",
+        "at": "2026-10-17T13:52:22.074Z",
         "status": "succeeded",
         "note": "执行器返回成功"
       }
@@ -133,15 +133,15 @@
           "name": "demo-order",
           "before": {
             "state": "running",
-            "started_at": "2026-10-17T13:15:55.057322963Z"
+            "started_at": "2026-10-17T13:18:42.379608446Z"
           },
           "after": {
             "state": "running",
-            "started_at": "2026-10-17T13:18:42.379608446Z",
+            "started_at": "2026-10-17T13:52:18.849055945Z",
             "health": "none"
           },
           "verified": true,
-          "duration_ms": 3429,
+          "duration_ms": 3425,
           "detail": "已重新运行并稳定 3s（未配置健康检查，仅校验进程持续运行）"
         }
       ],
@@ -156,7 +156,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T13:18:45.627Z",
+        "observed_at": "2026-10-17T13:52:22.075Z",
         "relation": "explicit"
       }
     ],
@@ -164,7 +164,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcfa3m5-93909d",
+    "request_id": "req-mvcghbix-ff5fd7",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -172,7 +172,7 @@
     "adapter": "plan-store",
     "operation": "execute",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:18:42.125Z",
-    "duration_ms": 3502
+    "started_at": "2026-10-17T13:52:18.585Z",
+    "duration_ms": 3490
   }
 }

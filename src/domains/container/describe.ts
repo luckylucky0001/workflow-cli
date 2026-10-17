@@ -39,6 +39,25 @@ export const ContainerInfoSchema = z.object({
   networks: z.array(z.object({ name: z.string(), ip: z.string().nullable(), aliases: z.array(z.string()) })),
   mounts: z.array(z.object({ type: z.string(), name: z.string().nullable(), source: z.string(), destination: z.string(), rw: z.boolean() })),
   labels: z.record(z.string(), z.string()),
+  kubernetes: z
+    .object({
+      namespace: z.string().nullable(),
+      pod: z.string(),
+      container: z.string(),
+      pod_uid: z.string().nullable(),
+      node: z.string().nullable(),
+      phase: z.string().nullable().describe('Pod phase：Pending/Running/Succeeded/Failed/Unknown'),
+      pod_ready: z.boolean().nullable().describe('Pod 条件 Ready'),
+      container_ready: z.boolean().nullable(),
+      qos_class: z.string().nullable(),
+      owner: z.string().nullable().describe('控制者 ownerReference，如 ReplicaSet/demo-order-7c9d8f6b5'),
+      state_reason: z.string().nullable().describe('waiting/terminated 原因，如 CrashLoopBackOff、ImagePullBackOff、OOMKilled'),
+      last_termination: z.object({ reason: z.string().nullable(), exit_code: z.number(), finished_at: z.string().nullable() }).nullable().describe('lastState.terminated'),
+      requests: z.object({ cpus: z.number().nullable(), memory_bytes: z.number().nullable() }),
+      conditions: z.array(z.object({ type: z.string(), status: z.string(), reason: z.string().nullable() })),
+    })
+    .optional()
+    .describe('仅 Kubernetes provider：Pod 与容器的原生状态（name 为 <pod>/<container>）'),
 });
 export type ContainerInfo = z.infer<typeof ContainerInfoSchema>;
 

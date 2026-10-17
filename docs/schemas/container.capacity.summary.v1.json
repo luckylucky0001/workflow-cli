@@ -24,19 +24,62 @@
           ]
         },
         "ncpu": {
-          "type": "number"
+          "type": "number",
+          "description": "Docker 主机 CPU 数；Kubernetes 为节点 allocatable 合计（无 list nodes 权限时为 0，见 kubernetes.capacity_known）"
         },
         "mem_total_bytes": {
           "type": "number"
         },
         "docker_version": {
-          "type": "string"
+          "type": "string",
+          "description": "Docker 版本；Kubernetes 为节点容器运行时版本（containerRuntimeVersion）"
         },
         "cgroup_version": {
           "type": [
             "string",
             "null"
           ]
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "docker",
+            "kubernetes"
+          ]
+        },
+        "kubernetes": {
+          "description": "仅 Kubernetes provider",
+          "type": "object",
+          "properties": {
+            "server_version": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "nodes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "namespaces": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "capacity_known": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "server_version",
+            "nodes",
+            "namespaces",
+            "capacity_known"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -80,6 +123,14 @@
         },
         "memory_limit_to_host_ratio": {
           "type": "number"
+        },
+        "cpu_request_sum": {
+          "description": "仅 Kubernetes：requests.cpu 合计",
+          "type": "number"
+        },
+        "memory_request_sum_bytes": {
+          "description": "仅 Kubernetes：requests.memory 合计",
+          "type": "number"
         }
       },
       "required": [
@@ -102,7 +153,8 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Docker 容器名；Kubernetes 为 <pod>/<container>"
           },
           "id": {
             "type": "string"
@@ -199,7 +251,52 @@
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "no_cpu_limit、no_memory_limit、cpu/memory_above_80pct_of_limit、oom_killed_last_exit、auto_restarted；Kubernetes 另有 no_cpu_request、no_memory_request"
+          },
+          "namespace": {
+            "description": "仅 Kubernetes",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "node": {
+            "description": "仅 Kubernetes",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "owner": {
+            "description": "仅 Kubernetes：控制者 ownerReference",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "requests": {
+            "description": "仅 Kubernetes：resources.requests",
+            "type": "object",
+            "properties": {
+              "cpus": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "memory_bytes": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "cpus",
+              "memory_bytes"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [

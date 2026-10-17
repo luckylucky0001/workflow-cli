@@ -1,0 +1,28 @@
+# workctl profile for the k3s demo (demo/environment/k8s/k3s-up.sh).
+# Credentials are referenced, never inlined. Generated files live in demo/environment/.runtime/k8s (git-ignored).
+schema_version: "1.0"
+current_profile: k8s-demo
+profiles:
+  k8s-demo:
+    description: k3s 演示集群（Kubernetes provider；隔离环境，可删除重建）
+    env: sandbox
+    data_mode: live
+    allow_execute: true
+    resources_file: ./bindings.k8s.yaml
+    state_dir: ../.runtime/k8s/state
+    defaults:
+      kubernetes: k3s
+    endpoints:
+      kubernetes:
+        # least-privilege ServiceAccount token (Role workctl-container in demo-order.yaml)
+        k3s:
+          server: https://127.0.0.1:16443
+          token_ref: file:../.runtime/k8s/workctl-token
+          ca_file: ../.runtime/k8s/ca.crt
+          namespace: workctl-demo
+          # event_ttl: 1h        # kube-apiserver --event-ttl if changed from the default
+        # alternative: admin kubeconfig written by k3s-up.sh (token / client cert of the chosen context)
+        k3s-admin:
+          kubeconfig: ../.runtime/k8s/kubeconfig.yaml
+          context: default
+          namespace: workctl-demo

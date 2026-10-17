@@ -1,0 +1,119 @@
+# Demo workload for the workctl Kubernetes provider (k3s v1.31).
+# Applied by k3s-up.sh. Mirrors the docker demo-order service: nginx with labels,
+# CPU/memory limits and a readiness probe, plus a least-privilege ServiceAccount for workctl.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workctl-demo
+  labels: { workctl.env: sandbox }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-order-html
+  namespace: workctl-demo
+data:
+  index.html: "demo-order (k8s)\n"
+  healthz: "ok\n"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-order
+  namespace: workctl-demo
+  labels: { app: demo-order, workctl.service: demo-order }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: demo-order }
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  progressDeadlineSeconds: 120
+  template:
+    metadata:
+      labels: { app: demo-order, workctl.service: demo-order, workctl.env: sandbox }
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - { name: http, containerPort: 80, protocol: TCP }
+          resources:
+            requests: { cpu: 100m, memory: 32Mi }
+            limits: { cpu: 500m, memory: 128Mi }
+          readinessProbe:
+            httpGet: { path: /healthz, port: 80 }
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /healthz, port: 80 }
+            periodSeconds: 10
+          volumeMounts:
+            - { name: html, mountPath: /usr/share/nginx/html, readOnly: true }
+      volumes:
+        - name: html
+          configMap: { name: demo-order-html }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-order
+  namespace: workctl-demo
+  labels: { app: demo-order }
+spec:
+  selector: { app: demo-order }
+  ports:
+    - { name: http, port: 80, targetPort: http }
+---
+# workctl identity: read pods/events/workloads/metrics, patch deployments (rollout restart only).
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: workctl
+  namespace: workctl-demo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: workctl-container
+  namespace: workctl-demo
+rules:
+  - apiGroups: [""]
+    resources: [pods, events]
+    verbs: [get, list]
+  - apiGroups: [apps]
+    resources: [deployments, statefulsets]
+    verbs: [get, list]
+  - apiGroups: [apps]
+    resources: [deployments, statefulsets]
+    verbs: [patch]            # rollout restart (container.restart executor); drop for read-only use
+  - apiGroups: [metrics.k8s.io]
+    resources: [pods]
+    verbs: [get, list]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: workctl-container
+  namespace: workctl-demo
+subjects:
+  - { kind: ServiceAccount, name: workctl, namespace: workctl-demo }
+roleRef: { apiGroup: rbac.authorization.k8s.io, kind: Role, name: workctl-container }
+---
+# Optional, cluster scoped: node capacity for capacity summary / stats online_cpus.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: workctl-node-reader
+rules:
+  - apiGroups: [""]
+    resources: [nodes]
+    verbs: [get, list]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: workctl-node-reader
+subjects:
+  - { kind: ServiceAccount, name: workctl, namespace: workctl-demo }
+roleRef: { apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: workctl-node-reader }

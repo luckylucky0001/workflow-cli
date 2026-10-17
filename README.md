@@ -33,7 +33,7 @@ workctl capability get --name mysql.statement.summary
 
 | 板块 | 领域（命令前缀） | 首版重点 |
 | --- | --- | --- |
-| 基础设施 | `container` `capacity` `network` `storage` `metric` `log` `trace` `resource` `service` `operation` `auth` `access` | Docker 工作负载状态/事件/资源、资源绑定与依赖、Prometheus 指标、容器日志、日志派生调用链、重启操作计划与执行 |
+| 基础设施 | `container` `capacity` `network` `storage` `metric` `log` `trace` `resource` `service` `operation` `auth` `access` | Docker 工作负载状态/事件/资源（Kubernetes provider 已实现、仅经模拟 API 测试）、资源绑定与依赖、Prometheus 指标、容器日志、日志派生调用链、重启操作计划与执行 |
 | 中间件 | `mysql` `redis` `mq`（插件） | MySQL 库表/索引/会话/锁/语句采样差分/慢日志/执行计划/受限查询/索引计划；Redis 运行信息/窗口采样/慢日志/Key 元数据/SCAN 采样/LFU 热度 |
 | 离线链路 | `offline` `compute` `sql` `data` | Airflow 工作流/实例/依赖/日志/补数计划与执行、Spark 作业/Stage/日志、Airflow 资源池、Spark SQL 提交、数据目录/分区/血缘/质量规则/时效 |
 | 待接入 | `config` `discovery` `search` `document` `kv` `analytics` `middleware` `object` … | 只出现在目录中（`status: planned`），不生成可调用命令 |

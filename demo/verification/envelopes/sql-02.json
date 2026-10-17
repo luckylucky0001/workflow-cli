@@ -3,11 +3,11 @@
   "status": "success",
   "capability": "sql.query.get",
   "data": {
-    "query_id": "q-20261017-50d5a2",
+    "query_id": "q-20261017-87dd37",
     "engine": "spark",
     "state": "submitted",
     "state_basis": "状态文件由 Spark 运行器写入",
-    "submitted_at": "2026-10-17T13:18:36.137Z",
+    "submitted_at": "2026-10-17T13:52:12.343Z",
     "started_at": null,
     "finished_at": null,
     "duration_ms": null,
@@ -30,20 +30,20 @@
       {
         "system": "workctl-state",
         "adapter": "spark-submit-local",
-        "observed_at": "2026-10-17T13:18:36.144Z",
+        "observed_at": "2026-10-17T13:52:12.349Z",
         "endpoint": "spark/demo-spark:query_state_dir",
-        "method": "q-20261017-50d5a2.json",
+        "method": "q-20261017-87dd37.json",
         "relation": "explicit"
       }
     ],
     "coverage": {
       "complete": true,
-      "scope": "q-20261017-50d5a2"
+      "scope": "q-20261017-87dd37"
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf9z8n-0b335c",
+    "request_id": "req-mvcgh6xo-ac4690",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -51,7 +51,7 @@
     "adapter": "spark-submit-local",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:18:36.455Z",
-    "duration_ms": 20
+    "started_at": "2026-10-17T13:52:12.636Z",
+    "duration_ms": 17
   }
 }

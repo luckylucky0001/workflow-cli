@@ -20,8 +20,8 @@
       "redis_version": "7.4.11",
       "redis_mode": "standalone",
       "run_id": "53906ae14d4d7cb2a669967b750f4fc5ca780db2",
-      "uptime_s": 256,
-      "started_at": "2026-10-17T13:14:01.930Z",
+      "uptime_s": 2273,
+      "started_at": "2026-10-17T13:14:01.048Z",
       "tcp_port": 6379
     },
     "replication": {
@@ -36,28 +36,28 @@
       "maxclients": 10000
     },
     "memory": {
-      "used_memory": 6033280,
-      "used_memory_human": "5.75M",
+      "used_memory": 4941024,
+      "used_memory_human": "4.71M",
       "used_memory_peak": 6174912,
       "maxmemory": 67108864,
       "maxmemory_human": "64.00M",
       "maxmemory_policy": "allkeys-lfu",
-      "usage_ratio": 0.0899,
-      "mem_fragmentation_ratio": 2.76
+      "usage_ratio": 0.0736,
+      "mem_fragmentation_ratio": 3.31
     },
     "persistence": {
       "loading": false,
       "rdb_last_bgsave_status": "ok",
       "rdb_last_save_at": "2026-10-17T13:15:02.000Z",
-      "rdb_changes_since_last_save": 30,
+      "rdb_changes_since_last_save": 72,
       "aof_enabled": false,
       "aof_last_write_status": "ok"
     },
     "keyspace": {
       "db0": {
-        "keys": 3857,
-        "expires": 3036,
-        "avg_ttl": 1819573,
+        "keys": 1496,
+        "expires": 675,
+        "avg_ttl": 85640,
         "subexpiry": 0
       }
     }
@@ -68,7 +68,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-17T13:18:17.929Z",
+        "observed_at": "2026-10-17T13:51:54.048Z",
         "endpoint": "redis/demo-redis",
         "method": "INFO server replication persistence clients memory keyspace",
         "version": "7.4.11",
@@ -77,7 +77,7 @@
       {
         "system": "workctl",
         "adapter": "binding-file",
-        "observed_at": "2026-10-17T13:18:17.928Z",
+        "observed_at": "2026-10-17T13:51:54.046Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "method": "resources.forEndpoint(redis, demo-redis)",
         "relation": "explicit"
@@ -90,7 +90,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcf9kwx-ad6301",
+    "request_id": "req-mvcggskb-b4241d",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -98,7 +98,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:18:17.889Z",
-    "duration_ms": 42
+    "started_at": "2026-10-17T13:51:54.011Z",
+    "duration_ms": 38
   }
 }

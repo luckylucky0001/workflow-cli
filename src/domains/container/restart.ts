@@ -4,6 +4,8 @@ import type { Executor, Planner } from '../../core/registry';
 import { sleep, type Ctx } from '../../core/runtime';
 import { containerName, dockerClient, dockerTime, shortId, type ContainerInspect } from './docker';
 import { listServiceContainers, resolveEnv, selectorMatches } from './workload';
+import { kubeBindingFor } from './k8s-workload';
+import { k8sRestartExecutor, planK8sRestart } from './k8s-restart';
 
 export const RESTART_KIND = 'container.restart';
 const STOP_TIMEOUT_S = 10;
@@ -22,6 +24,9 @@ export async function planRestart(ctx: Ctx, params: Record<string, string>): Pro
   if (params.env && ctx.env && params.env !== ctx.env) {
     throw new WorkError('PRECONDITION_FAILED', `参数 env=${params.env} 与当前 profile 环境 ${ctx.env} 不一致`);
   }
+  // provider chosen by the resource bindings: Kubernetes only when the service is bound to a kubernetes endpoint
+  const kb = kubeBindingFor(ctx, service, env);
+  if (kb) return planK8sRestart(ctx, kb, service, env);
   const docker = dockerClient(ctx);
   const sc = await listServiceContainers(ctx, docker, service, env);
   const targets: Record<string, unknown>[] = [];
@@ -99,7 +104,7 @@ export async function planRestart(ctx: Ctx, params: Record<string, string>): Pro
 
 export const restartPlanner: Planner = {
   kind: RESTART_KIND,
-  summary: '重启服务的全部容器（Docker restart，逐个执行并校验恢复运行）',
+  summary: '重启服务的全部容器（Docker restart，逐个执行并校验恢复运行；Kubernetes 绑定时为 rollout restart 并校验 rollout 完成）',
   plan: planRestart,
 };
 
@@ -114,6 +119,7 @@ interface RestartOutcome {
 }
 
 export const restartExecutor: Executor = async (ctx: Ctx, plan: Plan, report) => {
+  if (plan.params.provider === 'kubernetes') return k8sRestartExecutor(ctx, plan, report);
   const docker = dockerClient(ctx);
   const service = String(plan.params.service ?? '');
   const outcomes: RestartOutcome[] = [];

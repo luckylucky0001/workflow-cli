@@ -104,4 +104,4 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 | 真实引擎、模拟回包、合成数据和分析判断分开标识 | ✅ | `context.data_mode`、`sources[].relation`（explicit/inferred/derived/sampled）、插件 `backend_mode`；Agent 输出区分事实与假设 |
 | 演示可复位，结果可追溯且材料中没有凭据或真实业务标识 | ✅（Docker 部分实测；完整复位见下） | `reset.sh`/`up.sh`；结果信封含 request_id 与来源；git 历史中检索不到任何实际密钥值 |
 
-未覆盖或未测量：人工对照组；客户环境；Kubernetes、Loki/Jaeger、Hive Metastore、对象存储、YARN、Trino 等 provider（目录中为“待接入”）。
+未覆盖或未测量：人工对照组；客户环境；Kubernetes provider 已实现但未经真实集群验证（本环境不允许特权容器）；Loki/Jaeger、Hive Metastore、对象存储、YARN、Trino 等 provider（目录中为“待接入”）。

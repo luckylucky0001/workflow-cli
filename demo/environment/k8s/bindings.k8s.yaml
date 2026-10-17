@@ -1,0 +1,23 @@
+# Resource bindings for the k3s demo. A service uses the Kubernetes provider because the
+# container.workload it runs_on is bound to a kubernetes endpoint; Docker stays the default otherwise.
+schema_version: "1.0"
+resources:
+  - id: demo-order
+    type: service
+    env: sandbox
+    owner: team-demo
+  # pods selected by label selector (the Deployment is found via its pod template labels)
+  - id: demo-order-k8s
+    type: container.workload
+    env: sandbox
+    endpoint: { kind: kubernetes, name: k3s }
+    labels: { app: demo-order }
+    attributes: { namespace: workctl-demo }
+  # alternative: name the Deployment; pods are then selected by its spec.selector
+  # - id: demo-order-k8s
+  #   type: container.workload
+  #   env: sandbox
+  #   endpoint: { kind: kubernetes, name: k3s }
+  #   attributes: { namespace: workctl-demo, deployment: demo-order }
+relations:
+  - { from: demo-order, to: demo-order-k8s, type: runs_on, source: binding-file, evidence: "Deployment workctl-demo/demo-order (labels app=demo-order)" }
