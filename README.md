@@ -13,7 +13,7 @@
 
 | 项目 | 结果 | 证据 |
 | --- | --- | --- |
-| 单元 + 契约测试 | 364 通过（`npm test`），全部通过（契约测试检查：设计稿命令全覆盖、输出 Schema、指南/Skill 存在、示例命令有效、生成文档与定义一致、MCP 工具与能力一致） | `npm test` |
+| 单元 + 契约测试 | 364 个全部通过（`npm test`；契约测试检查：设计稿命令全覆盖、输出 Schema、指南/Skill 存在、示例命令有效、生成文档与定义一致、MCP 工具与能力一致） | `npm test` |
 | 真实环境集成测试 | `WORKCTL_IT=1 npm test`：405 通过（Airflow 3 与 k3s 用例另需 `WORKCTL_AF3=1` / `WORKCTL_K8S=1`，已分别单独通过） | MySQL 8.4.11、Redis 7.4.11、Kafka 3.9.1、Airflow 2.10.5 / 3.3.2、Spark 3.5.5、Docker 29.8.2、Prometheus 3.5.0、k3s v1.31.4 |
 | 逐能力真实调用 | 74/74 用例通过（含插件、补数计划、隔离环境中真实执行重启并记录状态迁移、预期错误码） | [demo/verification/report.md](demo/verification/report.md) |
 | 交叉审查 | 各领域由非作者复审，修复 46 个缺陷并补回归测试（如优化器提示绕过执行时限、Spark SQL `reflect`/文件查询绕过只读防护、重启后 unhealthy 仍判成功、组合调用绕过执行授权） | git 历史 “Cross-review fixes” |
