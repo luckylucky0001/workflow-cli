@@ -8,7 +8,8 @@
     "workctl": "dist/workctl.js"
   },
   "files": [
-    "dist",
+    "dist/workctl.js",
+    "dist/index.js",
     "skills",
     "docs",
     "README.md"
@@ -23,19 +24,17 @@
     "docs": "node dist/workctl.js docs generate --out docs",
     "check": "npm run typecheck && npm run build && npm test"
   },
-  "dependencies": {
+  "devDependencies": {
+    "@types/node": "^22.20.5",
     "commander": "^14.0.3",
+    "esbuild": "^0.25.12",
     "ioredis": "^5.11.1",
     "kafkajs": "^2.2.4",
     "mysql2": "^3.24.6",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7",
     "yaml": "^2.9.1",
     "zod": "^4.6.7"
-  },
-  "devDependencies": {
-    "@types/node": "^22.20.5",
-    "esbuild": "^0.25.12",
-    "typescript": "^5.9.3",
-    "vitest": "^3.2.7"
   },
   "main": "dist/index.js",
   "exports": {
