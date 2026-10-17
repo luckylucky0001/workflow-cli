@@ -79,11 +79,11 @@ const workloadGet = defineCapability({
         },
       },
       sources: [
-        await docker.source(`GET /containers/json?all=1&filters={label:${sc.selector.label}}`),
+        await docker.source(`GET /containers/json?all=1&filters={${sc.selector.kind === 'name' ? `name:${sc.selector.label.slice(5)}（精确名）` : `label:${sc.selector.label}`}}`),
         await docker.source('GET /containers/{id}/json'),
         ...(sc.selector.origin === 'binding-file' ? [source('workctl', 'resource-bindings', { method: sc.selector.evidence, relation: 'explicit' })] : []),
       ],
-      coverage: { complete: true, scope: `Docker 主机 ${docker.endpointId} 上带标签 ${sc.selector.label} 的容器（含已停止）`, notes: selectionNotes(sc) },
+      coverage: { complete: true, scope: `Docker 主机 ${docker.endpointId} 上匹配 ${sc.selector.matched_by} 的容器（含已停止）`, notes: selectionNotes(sc) },
       warnings,
     };
   },
@@ -290,6 +290,7 @@ const statsGet = defineCapability({
     kind: z.literal('snapshot'),
     observed_at: z.string(),
     service: z.string(),
+    matched_by: z.string().describe('匹配容器所用的选择器'),
     env: z.string().nullable(),
     containers: z.array(
       z.object({

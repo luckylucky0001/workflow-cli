@@ -113,8 +113,43 @@ export async function partitionLayer(ctx: Ctx, catalogName: string | undefined, 
   };
 }
 
+/** Context used to judge whether a stored quality result still describes the partition. */
+export interface QualityFreshnessInput {
+  /** Partition write evidence (data.partition.get updated_at). */
+  partitionUpdatedAt?: string | null;
+  partitionState?: string | null;
+  /** End of the scheduler run that should have produced the partition. */
+  runEndDate?: string | null;
+}
+
+/**
+ * stale=true when the stored check predates the partition's last write, or the partition is
+ * missing and the check predates the end of the run (the check describes an earlier state).
+ * null when there is no basis for comparison.
+ */
+export function qualityStaleness(checkedAt: string | null | undefined, f: QualityFreshnessInput): { stale: boolean | null; stale_reason?: string } {
+  const c = checkedAt ? Date.parse(checkedAt) : NaN;
+  if (!Number.isFinite(c)) return { stale: null, stale_reason: '检查时间未知，无法判断是否过期' };
+  const upd = f.partitionUpdatedAt ? Date.parse(f.partitionUpdatedAt) : NaN;
+  if (f.partitionState === 'missing') {
+    const end = f.runEndDate ? Date.parse(f.runEndDate) : NaN;
+    if (Number.isFinite(end)) {
+      return c < end
+        ? { stale: true, stale_reason: `分区缺失，且检查时间 ${checkedAt} 早于 run 结束时间 ${f.runEndDate}：结果描述的是 run 之前的状态` }
+        : { stale: false };
+    }
+    return { stale: null, stale_reason: '分区缺失且 run 未结束，无法判断检查结果是否过期' };
+  }
+  if (Number.isFinite(upd)) {
+    return c < upd ? { stale: true, stale_reason: `检查时间 ${checkedAt} 早于分区最近写入 ${f.partitionUpdatedAt}：分区已被重写，结果可能已失效` } : { stale: false };
+  }
+  return { stale: null, stale_reason: '没有分区更新时间证据，无法判断检查结果是否过期' };
+}
+
+const MAX_FAILED_RULES = 5;
+
 /** Latest stored data quality result (written by `data quality check`). Never throws. */
-export async function qualityLayer(ctx: Ctx, table: string, partition: string): Promise<LayerState> {
+export async function qualityLayer(ctx: Ctx, table: string, partition: string, freshness: QualityFreshnessInput = {}): Promise<LayerState> {
   let reader: ((stateDir: string, table: string, partition: string) => any) | undefined;
   try {
     const mod: Record<string, unknown> = await import('../data/quality');
@@ -132,17 +167,41 @@ export async function qualityLayer(ctx: Ctx, table: string, partition: string): 
   if (!r) {
     return {
       state: 'not_run',
+      table,
+      partition,
       detail: `没有 ${table}/${partition} 的质量检查记录（用 workctl data quality check 运行）`,
       source: source('workctl-state', 'data-quality-store', { method: 'readLatestQualityResult', relation: 'derived' }),
     };
   }
+  const results: any[] = Array.isArray(r.results) ? r.results : [];
+  const clip = (v: unknown) => {
+    const t = String(v ?? '');
+    return t.length > 300 ? `${t.slice(0, 300)}…` : t;
+  };
+  const bad = results.filter((x) => x?.status === 'fail' || x?.status === 'error');
+  const failedRules = bad.slice(0, MAX_FAILED_RULES).map((x) => ({ rule: String(x.id ?? x.type ?? 'unknown'), type: String(x.type ?? 'unknown'), status: String(x.status), severity: x.severity ?? null, message: clip(x.message) }));
+  const skipped = results.filter((x) => x?.status === 'skipped');
+  const skippedReason = skipped.length
+    ? r.precondition && r.precondition.ok === false
+      ? `${skipped.length} 条规则被跳过：前置条件不满足（分区 ${r.precondition.partition_state ?? 'unknown'}${r.precondition.reason ? `：${r.precondition.reason}` : ''}）`
+      : `${skipped.length} 条规则被跳过：${clip(skipped[0].message)}`
+    : null;
+  const st = qualityStaleness(r.checked_at, freshness);
   return {
     state: String(r.quality_state ?? 'unknown'),
+    table: r.dataset?.table ?? table,
+    partition: r.partition ?? partition,
     checked_at: r.checked_at ?? null,
     conclusive: r.conclusive ?? null,
     ruleset: r.ruleset?.name ?? null,
     ...(r.summary ? { summary: r.summary } : {}),
-    detail: `最近一次检查 ${r.checked_at ?? '(时间未知)'}；结果不会随分区重写自动失效，注意与分区更新时间比较`,
+    failed_rules: failedRules,
+    ...(bad.length > failedRules.length ? { failed_rules_truncated: bad.length - failedRules.length } : {}),
+    skipped_reason: skippedReason,
+    ...(r.precondition?.partition_state ? { partition_state_at_check: r.precondition.partition_state } : {}),
+    stale: st.stale,
+    ...(st.stale_reason ? { stale_reason: st.stale_reason } : {}),
+    detail: `最近一次检查 ${r.checked_at ?? '(时间未知)'}${st.stale === true ? '；结果已过期（见 stale_reason）' : st.stale === null ? '；无法判断是否过期，注意与分区更新时间比较' : ''}`,
     source: source('workctl-state', 'data-quality-store', { method: 'readLatestQualityResult', observed_at: r.checked_at ?? new Date().toISOString(), relation: 'derived' }),
   };
 }

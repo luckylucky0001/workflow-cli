@@ -3,7 +3,7 @@ import type { Plan, PlanDraft } from '../../core/operations';
 import type { Executor, Planner } from '../../core/registry';
 import { sleep, type Ctx } from '../../core/runtime';
 import { containerName, dockerClient, dockerTime, shortId, type ContainerInspect } from './docker';
-import { listServiceContainers, resolveEnv } from './workload';
+import { listServiceContainers, resolveEnv, selectorMatches } from './workload';
 
 export const RESTART_KIND = 'container.restart';
 const STOP_TIMEOUT_S = 10;
@@ -13,7 +13,7 @@ const VERIFY_BUDGET_MS = 60_000;
  * for this long; otherwise a process that crashes right after start would be reported as
  * recovered. Mutable only for tests.
  */
-export const restartTiming = { stableMs: 3_000, pollMs: 500 };
+export const restartTiming = { stableMs: 3_000, pollMs: 500, verifyMs: VERIFY_BUDGET_MS };
 
 export async function planRestart(ctx: Ctx, params: Record<string, string>): Promise<PlanDraft> {
   const service = params.service;
@@ -39,6 +39,8 @@ export async function planRestart(ctx: Ctx, params: Record<string, string>): Pro
       started_at: dockerTime(i.State.StartedAt),
       restart_policy: i.HostConfig.RestartPolicy?.Name || null,
       selector: sc.selector.label,
+      selector_kind: sc.selector.kind,
+      matched_by: sc.selector.matched_by,
     });
   }
   let dependents: Record<string, unknown>[] = [];
@@ -120,14 +122,14 @@ export const restartExecutor: Executor = async (ctx: Ctx, plan: Plan, report) =>
     const before = await docker.getJson<ContainerInspect>(`/containers/${id}/json`);
     const label = before.Config?.Labels?.['workctl.service'];
     const selector = String(t.selector ?? '');
-    const [k, v] = selector.split('=');
-    if (k && before.Config?.Labels?.[k] !== v) {
+    const kind = t.selector_kind === 'name' ? 'name' : 'label';
+    if (selector.includes('=') && !selectorMatches({ kind, label: selector }, { labels: before.Config?.Labels, name: containerName(before) })) {
       throw new WorkError('PRECONDITION_FAILED', `容器 ${containerName(before)} 已不再匹配选择器 ${selector}，拒绝执行`, { details: { label } });
     }
     const t0 = Date.now();
     report(`restart ${containerName(before)} (${shortId(id)})`);
     await docker.post(`/containers/${id}/restart?t=${STOP_TIMEOUT_S}`, { timeoutMs: (STOP_TIMEOUT_S + 30) * 1000 });
-    const deadline = Date.now() + VERIFY_BUDGET_MS;
+    const deadline = Date.now() + restartTiming.verifyMs;
     let after = await docker.getJson<ContainerInspect>(`/containers/${id}/json`);
     const beforeStart = Date.parse(before.State.StartedAt) || 0;
     const hasHc = !!after.Config?.Healthcheck?.Test?.length && after.Config.Healthcheck.Test[0] !== 'NONE';
@@ -158,7 +160,7 @@ export const restartExecutor: Executor = async (ctx: Ctx, plan: Plan, report) =>
       duration_ms: Date.now() - t0,
       detail: verified
         ? `已重新运行并稳定 ${restartTiming.stableMs / 1000}s${hasHc ? `，健康状态 ${after.State.Health?.Status}` : '（未配置健康检查，仅校验进程持续运行）'}`
-        : `在 ${VERIFY_BUDGET_MS / 1000}s 内未确认恢复：state=${after.State.Status} exit=${after.State.ExitCode}${hasHc ? ` health=${after.State.Health?.Status ?? 'none'}` : ''} restart_count=${after.RestartCount}`,
+        : `在 ${restartTiming.verifyMs / 1000}s 内未确认恢复：state=${after.State.Status} exit=${after.State.ExitCode}${hasHc ? ` health=${after.State.Health?.Status ?? 'none'}` : ''} restart_count=${after.RestartCount}`,
     };
     outcomes.push(outcome);
     report(`${outcome.name}: ${outcome.detail}`);

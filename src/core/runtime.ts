@@ -77,6 +77,8 @@ export interface CtxOptions {
   capability?: CapabilityDef;
   signal?: AbortSignal;
   debug?: boolean;
+  /** Execute guard of the entry point (MCP passes false); inherited by ctx.call(). */
+  allowExecute?: boolean;
 }
 
 export class Ctx {
@@ -92,6 +94,7 @@ export class Ctx {
   private resourceStore?: ResourceStore;
   private planStore?: PlanStore;
   private readonly debugOn: boolean;
+  readonly allowExecute?: boolean;
 
   constructor(o: CtxOptions) {
     this.registry = o.registry;
@@ -102,6 +105,7 @@ export class Ctx {
     this.capability = o.capability;
     this.signal = o.signal ?? AbortSignal.timeout(o.timeoutMs);
     this.debugOn = o.debug ?? false;
+    this.allowExecute = o.allowExecute;
   }
 
   get profile(): Profile | null {
@@ -192,6 +196,8 @@ export class Ctx {
       timeoutMs: this.remainingMs(),
       requestId: this.requestId,
       debug: this.debugOn,
+      // a capability reached through composition must not escape the caller's execute guard
+      allowExecute: this.allowExecute,
     });
   }
 

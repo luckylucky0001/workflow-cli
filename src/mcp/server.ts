@@ -78,8 +78,13 @@ export async function handleMcpMessage(registry: Registry, o: McpOptions, msg: a
   const id = msg?.id;
   const reply = (result: unknown) => ({ jsonrpc: '2.0', id, result });
   const fail = (code: number, message: string) => ({ jsonrpc: '2.0', id, error: { code, message } });
-  if (!msg || msg.jsonrpc !== '2.0' || typeof msg.method !== 'string') return id === undefined ? null : fail(-32600, 'Invalid Request');
-  const isNotification = id === undefined || id === null;
+  if (!msg || typeof msg !== 'object' || Array.isArray(msg) || msg.jsonrpc !== '2.0' || typeof msg.method !== 'string') {
+    return { jsonrpc: '2.0', id: typeof id === 'string' || typeof id === 'number' ? id : null, error: { code: -32600, message: 'Invalid Request' } };
+  }
+  // JSON-RPC: a request without an id is a notification. It is never answered and,
+  // for tools/call, never executed (a capability must not run without a reply channel).
+  if (!('id' in msg)) return null;
+  if (id !== null && typeof id !== 'string' && typeof id !== 'number') return fail(-32600, 'Invalid Request: id must be a string or number');
   switch (msg.method) {
     case 'initialize': {
       const requested = msg.params?.protocolVersion;
@@ -100,7 +105,9 @@ export async function handleMcpMessage(registry: Registry, o: McpOptions, msg: a
       const name = msg.params?.name;
       const tool = toolsFor(registry, o).find((t) => t.name === name);
       if (!tool) return fail(-32602, `Unknown tool: ${name}`);
-      const env = await invoke(registry, tool._capability, msg.params?.arguments ?? {}, {
+      const args = msg.params?.arguments ?? {};
+      if (typeof args !== 'object' || args === null || Array.isArray(args)) return fail(-32602, 'Invalid params: arguments must be an object');
+      const env = await invoke(registry, tool._capability, args, {
         configPath: o.configPath,
         profile: o.profile,
         timeoutMs: o.timeoutMs,
@@ -113,7 +120,6 @@ export async function handleMcpMessage(registry: Registry, o: McpOptions, msg: a
       });
     }
     default:
-      if (isNotification) return null;
       return fail(-32601, `Method not found: ${msg.method}`);
   }
 }

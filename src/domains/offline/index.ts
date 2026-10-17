@@ -342,7 +342,7 @@ const SummarySchema = z.object({
   findings: z.array(z.object({ kind: z.enum(['fact', 'inconsistency']), message: z.string() })),
 });
 
-function findings(s: { scheduler: string; compute: string; output: string; quality: string }, tasks: { task_id: string; state: string | null }[]): { kind: 'fact' | 'inconsistency'; message: string }[] {
+function findings(s: { scheduler: string; compute: string; output: string; quality: string; quality_stale?: string | null }, tasks: { task_id: string; state: string | null }[]): { kind: 'fact' | 'inconsistency'; message: string }[] {
   const out: { kind: 'fact' | 'inconsistency'; message: string }[] = [];
   if (s.scheduler === 'success' && ['missing', 'empty', 'incomplete', 'unreadable'].includes(s.output)) {
     out.push({ kind: 'inconsistency', message: `调度状态 success，但目标分区状态为 ${s.output}：调度成功不代表数据产出` });
@@ -356,6 +356,7 @@ function findings(s: { scheduler: string; compute: string; output: string; quali
   const failed = tasks.filter((t) => t.state === 'failed' || t.state === 'upstream_failed');
   for (const t of failed) out.push({ kind: 'fact', message: `任务 ${t.task_id} 状态 ${t.state}` });
   if (s.output === 'present' && s.quality === 'not_run') out.push({ kind: 'fact', message: '目标分区存在，但没有质量检查记录：分区存在不代表数据正确' });
+  if (s.quality_stale) out.push({ kind: 'inconsistency', message: `质量检查结果早于分区当前状态（stale），不能代表当前数据：${s.quality_stale}` });
   return out;
 }
 
@@ -390,7 +391,11 @@ export async function buildRunDetail(ctx: Ctx, af: AirflowClient, runId: string,
     target = { table: tp.table, partition: tp.partition, write_mode: tp.write_mode };
     if (tp.partition) {
       output = await partitionLayer(ctx, targets.catalog.name, tp.table, tp.partition);
-      quality = await qualityLayer(ctx, tp.table, tp.partition);
+      quality = await qualityLayer(ctx, tp.table, tp.partition, {
+        partitionUpdatedAt: typeof output.updated_at === 'string' ? output.updated_at : null,
+        partitionState: output.state,
+        runEndDate: run.end_date ?? null,
+      });
       if (output.source) sources.push(output.source);
       if (quality.source) sources.push(quality.source);
     } else {
@@ -409,7 +414,10 @@ export async function buildRunDetail(ctx: Ctx, af: AirflowClient, runId: string,
     output_state: output.state,
     quality_state: quality.state,
     layers: { scheduler: schedulerLayer, compute, output, quality },
-    findings: findings({ scheduler: schedulerLayer.state, compute: compute.state, output: output.state, quality: quality.state }, tiViews),
+    findings: findings(
+      { scheduler: schedulerLayer.state, compute: compute.state, output: output.state, quality: quality.state, quality_stale: quality.stale === true ? String(quality.stale_reason ?? '') : null },
+      tiViews,
+    ),
   };
   return { dagId: found.dagId, tz, run: normRun(run, tz), tasks: tiViews, summary, sources, warnings, scanned: found.scanned, spark_apps: apps };
 }

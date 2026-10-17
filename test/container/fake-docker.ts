@@ -35,6 +35,8 @@ export interface FakeDockerState {
   volumes?: { Name: string; Driver: string; Mountpoint: string; Labels?: Record<string, string>; Scope?: string; Size?: number; RefCount?: number }[];
   /** When set, POST /restart leaves the container in this state (simulate a failed restart). */
   restartResultState?: string;
+  /** Called after POST /restart has updated the container (e.g. schedule a crash shortly after start). */
+  onRestart?: (c: FakeContainer) => void;
 }
 
 export function frame(stream: 'stdout' | 'stderr', text: string): Buffer {
@@ -125,6 +127,7 @@ export async function startFakeDocker(state: FakeDockerState): Promise<{ socketP
       if (!c) return json(404, { message: 'No such container' });
       c.State = state.restartResultState ?? 'running';
       c.StartedAt = new Date().toISOString();
+      state.onRestart?.(c);
       res.writeHead(204);
       return res.end();
     }

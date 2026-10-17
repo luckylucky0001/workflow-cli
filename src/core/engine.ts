@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { z } from 'zod';
 import { loadConfig, resolveProfileName, type LoadedConfig } from './config';
 import { ERROR_CODES, SCHEMA_VERSION, WorkError, type Envelope, type Result } from './output';
@@ -27,10 +27,11 @@ function inputZod(name: string, spec: InputSpec): z.ZodType {
   let s: z.ZodType;
   switch (spec.type) {
     case 'int':
-      s = z.coerce.number().int();
+      // strict: numbers or numeric strings only (no booleans, blank strings or arrays coerced to numbers)
+      s = z.union([z.number(), z.string().trim().regex(/^[+-]?\d+$/, { message: '须为整数' }).transform(Number)]).pipe(z.number().int().refine(Number.isSafeInteger, { message: '超出整数范围' }));
       break;
     case 'number':
-      s = z.coerce.number();
+      s = z.union([z.number(), z.string().trim().regex(/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/, { message: '须为数值' }).transform(Number)]).pipe(z.number().finite());
       break;
     case 'bool':
       s = z.union([z.boolean(), z.enum(['true', 'false']).transform((v) => v === 'true')]);
@@ -49,10 +50,15 @@ function inputZod(name: string, spec: InputSpec): z.ZodType {
       s = z.enum(spec.enum as [string, ...string[]]);
       break;
     case 'list':
-      s = z.union([z.array(z.string()), z.string().transform((v) => v.split(',').map((x) => x.trim()).filter(Boolean))]);
+      // repeated flags (array from the CLI / MCP) and comma-separated values are equivalent
+      s = z.union([z.array(z.string()), z.string()]).transform((v) => (Array.isArray(v) ? v : [v]).flatMap((x) => x.split(',')).map((x) => x.trim()).filter(Boolean));
       break;
     case 'file':
-      s = z.string().min(1).refine((p) => existsSync(p), { message: `文件不存在 (${name})` });
+      s = z
+        .string()
+        .min(1)
+        .refine((p) => existsSync(p), { message: `文件不存在 (${name})` })
+        .refine((p) => !existsSync(p) || statSync(p).isFile(), { message: `不是普通文件 (${name})` });
       break;
     default:
       s = z.string().min(1);
@@ -144,6 +150,7 @@ export async function invoke(registry: Registry, capName: string, rawInputs: Rec
       timeoutMs: opts.timeoutMs ?? 30_000,
       capability: cap,
       debug: opts.debug,
+      allowExecute: opts.allowExecute,
     });
     const inputs = validateInputs(cap, rawInputs);
     if (cap.operation === 'execute') {
@@ -156,13 +163,29 @@ export async function invoke(registry: Registry, capName: string, rawInputs: Rec
         });
       }
     }
-    const result: Result = await Promise.race([
-      cap.handler(ctx, inputs),
-      new Promise<never>((_, rej) => {
-        const t = setTimeout(() => rej(new WorkError('TIMEOUT', `调用超过 ${ctx!.timeoutMs}ms 时间预算`, { hint: '增大 --timeout 或缩小查询范围' })), ctx!.timeoutMs);
-        t.unref?.();
-      }),
-    ]);
+    let timer: NodeJS.Timeout | undefined;
+    const handlerRun = cap.handler(ctx, inputs);
+    // if the budget wins the race the handler keeps running; observe its outcome so a
+    // late rejection never surfaces as an unhandled rejection
+    handlerRun.catch(() => undefined);
+    let result: Result;
+    try {
+      result = await Promise.race([
+        handlerRun,
+        new Promise<never>((_, rej) => {
+          timer = setTimeout(() => {
+            const hint =
+              cap.operation === 'execute'
+                ? '执行可能仍在进行或已部分完成；用 workctl operation get 查看实际状态，不要直接重试'
+                : '增大 --timeout 或缩小查询范围';
+            rej(new WorkError('TIMEOUT', `调用超过 ${ctx!.timeoutMs}ms 时间预算`, { hint }));
+          }, ctx!.timeoutMs);
+          timer.unref?.();
+        }),
+      ]);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
     const warnings = [...ctx.warnings, ...(result.warnings ?? [])];
     if (process.env.WORKCTL_VALIDATE_OUTPUT === '1' && cap.output) {
       const check = cap.output.safeParse(result.data);

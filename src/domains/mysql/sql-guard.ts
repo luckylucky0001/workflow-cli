@@ -24,7 +24,17 @@ export interface Lexed {
 
 const WORD = /[A-Za-z0-9_$\u0080-￿]/;
 
-export function lex(input: string): Lexed {
+/** MySQL treats only ASCII space/control characters as whitespace (and after `--`); U+0080+ are identifier characters. */
+function isSqlSpace(c: string | undefined): boolean {
+  return c !== undefined && c.charCodeAt(0) <= 0x20;
+}
+
+/**
+ * @param opts.backslashEscapes false = lex as the server does under NO_BACKSLASH_ESCAPES
+ *   (backslash is an ordinary character inside quotes). guardSql checks both interpretations.
+ */
+export function lex(input: string, opts: { backslashEscapes?: boolean } = {}): Lexed {
+  const backslashEscapes = opts.backslashEscapes ?? true;
   const tokens: Token[] = [];
   let out = '';
   let depth = 0;
@@ -43,7 +53,7 @@ export function lex(input: string): Lexed {
     const c = input[i];
     const next = input[i + 1];
     // comments
-    if (c === '#' || (c === '-' && next === '-' && (i + 2 >= n || /\s/.test(input[i + 2])))) {
+    if (c === '#' || (c === '-' && next === '-' && (i + 2 >= n || isSqlSpace(input[i + 2])))) {
       while (i < n && input[i] !== '\n') i++;
       out += ' ';
       continue;
@@ -69,7 +79,7 @@ export function lex(input: string): Lexed {
     if (c === "'" || c === '"' || c === '`') {
       let j = i + 1;
       while (j < n) {
-        if (input[j] === '\\' && c !== '`') {
+        if (backslashEscapes && input[j] === '\\' && c !== '`') {
           j += 2;
           continue;
         }
@@ -96,7 +106,7 @@ export function lex(input: string): Lexed {
       i++;
       continue;
     }
-    if (/\s/.test(c)) {
+    if (isSqlSpace(c)) {
       out += c;
       i++;
       continue;
@@ -146,6 +156,8 @@ export type GuardMode = 'execute' | 'explain' | 'analyze';
 
 export interface GuardResult {
   sql: string;
+  /** Lexed tokens (comments removed) — used for sensitive-column analysis. */
+  tokens: Token[];
   /** First keyword of the statement as written (SELECT, WITH, SHOW, ...). */
   leading: string;
   /** Main statement keyword (for WITH ... SELECT/UPDATE this is the keyword after the CTE list). */
@@ -185,7 +197,35 @@ function reject(msg: string, hint?: string): never {
  * - analyze: SELECT / WITH(SELECT) / TABLE only — EXPLAIN ANALYZE really executes the statement
  */
 export function guardSql(input: string, mode: GuardMode): GuardResult {
-  const lexed = lex(input);
+  const result = guardOnce(input, mode, true);
+  // The server may run with NO_BACKSLASH_ESCAPES (or ANSI_QUOTES): then a backslash does not
+  // escape a quote and the statement boundaries/keywords differ from what we lexed. Require the
+  // statement to pass under that interpretation too, so quoting tricks cannot hide keywords.
+  if (input.includes('\\')) {
+    try {
+      guardOnce(input, mode, false);
+    } catch (e) {
+      const why = e instanceof WorkError ? e.message : String(e);
+      reject(`SQL 中的反斜杠转义在 NO_BACKSLASH_ESCAPES 模式下含义不同，按该模式解析未通过检查: ${why}`, "字符串中的引号用两个引号转义（如 'it''s'），不要用反斜杠");
+    }
+  }
+  return result;
+}
+
+/** Optimizer hints that would override the guards (execution time limit, session variables, resource group). */
+const DENY_HINTS = /\b(MAX_EXECUTION_TIME|SET_VAR|RESOURCE_GROUP)\b/i;
+
+function unquoteName(t: Token): string | null {
+  if (t.kind === 'word') return t.upper;
+  if (t.kind === 'ident' || (t.kind === 'string' && t.text.startsWith('"'))) {
+    const q = t.text[0];
+    return t.text.slice(1, -1).split(q + q).join(q).toUpperCase();
+  }
+  return null;
+}
+
+function guardOnce(input: string, mode: GuardMode, backslashEscapes: boolean): GuardResult {
+  const lexed = lex(input, { backslashEscapes });
   if (!lexed.sql || lexed.statements === 0) reject('SQL 文件为空（去掉注释后没有语句）');
   if (lexed.statements > 1) reject(`只允许单条语句，检测到 ${lexed.statements} 条`, '拆分为多个文件分别执行');
   const words = lexed.tokens.filter((t) => t.kind === 'word');
@@ -236,10 +276,109 @@ export function guardSql(input: string, mode: GuardMode): GuardResult {
       if (w.kind === 'word' && w.upper === 'LOCK' && t[k + 1]?.upper === 'IN' && t[k + 2]?.upper === 'SHARE') reject('不允许 LOCK IN SHARE MODE（加锁读）');
       if (w.kind === 'punct' && w.text === ':=') reject('不允许变量赋值 (:=)');
       if (w.kind === 'variable' && t[k + 1]?.kind === 'punct' && t[k + 1].text === '=' && k > 0 && t[k - 1].kind === 'word' && t[k - 1].upper === 'SET') reject('不允许 SET 变量');
-      if (w.kind === 'word' && DENY_FUNCTIONS.has(w.upper) && t[k + 1]?.text === '(') reject(`不允许调用 ${w.upper}()`);
+      // quoted names (`GET_LOCK`(...), or "GET_LOCK"(...) under ANSI_QUOTES) still call the built-in
+      const fname = unquoteName(w);
+      if (fname && DENY_FUNCTIONS.has(fname) && t[k + 1]?.text === '(') reject(`不允许调用 ${fname}()`);
+      if (w.kind === 'hint' && DENY_HINTS.test(w.text)) {
+        reject(`不允许优化器提示 ${DENY_HINTS.exec(w.text)![1].toUpperCase()}（会覆盖执行时间上限或会话变量）`, '去掉该提示；执行时间上限由端点 max_execution_time_ms 决定');
+      }
     }
   }
-  return { sql: lexed.sql, leading, statement_type: statementType };
+  return { sql: lexed.sql, leading, statement_type: statementType, tokens: lexed.tokens };
+}
+
+// ---------------------------------------------------------------- sensitive output analysis
+
+export interface SensitiveOutputPlan {
+  /** Mask every result column (sensitive data may flow through derived tables / CTEs / ambiguous positions). */
+  all: boolean;
+  /** 0-based result column positions computed from a sensitive column (expressions, aliases, UNION branches). */
+  positions: Set<number>;
+  reasons: string[];
+}
+
+const ITEM_END = new Set(['FROM', 'INTO', 'WHERE', 'GROUP', 'HAVING', 'ORDER', 'LIMIT', 'UNION', 'EXCEPT', 'INTERSECT', 'WINDOW', 'FOR', 'LOCK']);
+const SELECT_MODIFIERS = new Set(['DISTINCT', 'ALL', 'DISTINCTROW', 'HIGH_PRIORITY', 'STRAIGHT_JOIN', 'SQL_SMALL_RESULT', 'SQL_BIG_RESULT', 'SQL_BUFFER_RESULT', 'SQL_NO_CACHE', 'SQL_CALC_FOUND_ROWS']);
+const FROM_END = new Set(['WHERE', 'GROUP', 'HAVING', 'ORDER', 'LIMIT', 'UNION', 'EXCEPT', 'INTERSECT', 'WINDOW', 'FOR', 'LOCK', 'INTO']);
+
+function tokenName(t: Token): string | null {
+  if (t.kind === 'word') return t.text.toLowerCase();
+  if (t.kind === 'ident') return t.text.slice(1, -1).split('``').join('`').toLowerCase();
+  return null;
+}
+
+/**
+ * Which result columns of a guarded SELECT can carry values of sensitive columns although the
+ * driver metadata does not name them (CONCAT(phone,'') AS x, UNION branches, derived tables).
+ * Conservative: references only in WHERE/ON/GROUP BY/ORDER BY do not taint; references inside
+ * derived tables or CTEs taint every column; ambiguous positions (SELECT * next to a tainted
+ * expression) taint every column.
+ */
+export function sensitiveOutputPlan(tokens: Token[], sensitive: Set<string>): SensitiveOutputPlan {
+  const plan: SensitiveOutputPlan = { all: false, positions: new Set(), reasons: [] };
+  if (!sensitive.size) return plan;
+  const isSens = (t: Token) => {
+    const nm = tokenName(t);
+    return nm !== null && sensitive.has(nm);
+  };
+  if (!tokens.some(isSens)) return plan;
+  const selects = tokens.map((t, idx) => ({ t, idx })).filter((x) => x.t.kind === 'word' && x.t.upper === 'SELECT');
+  if (!selects.length) return plan;
+  // main statement starts after the CTE list for WITH
+  const firstWord = tokens.find((t) => t.kind === 'word');
+  let mainFrom = 0;
+  if (firstWord?.upper === 'WITH') {
+    const base = firstWord.depth;
+    const main = tokens.findIndex((t, idx) => idx > tokens.indexOf(firstWord) && t.kind === 'word' && t.depth === base && t.upper === 'SELECT');
+    mainFrom = main < 0 ? tokens.length : main;
+    if (tokens.slice(0, mainFrom).some(isSens)) {
+      plan.all = true;
+      plan.reasons.push('CTE 中引用了敏感列，结果列可能携带其值');
+      return plan;
+    }
+  }
+  const mainSelects = selects.filter((x) => x.idx >= mainFrom);
+  if (!mainSelects.length) return plan;
+  const branchDepth = Math.min(...mainSelects.map((x) => x.t.depth));
+  const branches = mainSelects.filter((x) => x.t.depth === branchDepth).map((x) => x.idx);
+  for (const start of branches) {
+    // select list
+    const items: Token[][] = [[]];
+    let k = start + 1;
+    for (; k < tokens.length; k++) {
+      const t = tokens[k];
+      if (t.depth < branchDepth || (t.kind === 'punct' && t.text === ')' && t.depth === branchDepth && items[0].length === 0 && false)) break;
+      if (t.depth === branchDepth && t.kind === 'word' && ITEM_END.has(t.upper)) break;
+      if (t.depth === branchDepth && t.kind === 'punct' && t.text === ')') break;
+      if (t.depth === branchDepth && t.kind === 'punct' && t.text === ',') {
+        items.push([]);
+        continue;
+      }
+      if (t.kind === 'hint') continue;
+      if (items[items.length - 1].length === 0 && t.kind === 'word' && SELECT_MODIFIERS.has(t.upper)) continue;
+      items[items.length - 1].push(t);
+    }
+    const star = items.some((it) => it.length > 0 && it[it.length - 1].kind === 'punct' && it[it.length - 1].text === '*' && (it.length === 1 || it[it.length - 2]?.text === '.'));
+    const tainted = items.map((it, pos) => (it.some(isSens) ? pos : -1)).filter((p) => p >= 0);
+    if (tainted.length && star) {
+      plan.all = true;
+      plan.reasons.push('选择列表同时含 * 与引用敏感列的表达式，无法按位置对应，全部列脱敏');
+    } else for (const p of tainted) plan.positions.add(p);
+    // FROM clause: sensitive references inside derived tables (deeper parentheses)
+    if (k < tokens.length && tokens[k].kind === 'word' && tokens[k].upper === 'FROM') {
+      for (let j = k + 1; j < tokens.length; j++) {
+        const t = tokens[j];
+        if (t.depth < branchDepth || (t.depth === branchDepth && ((t.kind === 'word' && FROM_END.has(t.upper)) || (t.kind === 'punct' && t.text === ')')))) break;
+        if (t.depth > branchDepth && isSens(t)) {
+          plan.all = true;
+          plan.reasons.push('派生表/子查询（FROM 中）引用了敏感列，结果列可能携带其值');
+          break;
+        }
+      }
+    }
+  }
+  if (plan.positions.size) plan.reasons.push('选择列表中的表达式/别名引用了敏感列');
+  return plan;
 }
 
 /**

@@ -37,14 +37,19 @@ export function decideAction(inp: BackfillTargetInput): { action: BackfillAction
 
 /** Write-mode safety for actions that rewrite an existing partition (unit-tested). */
 export function writeModeCheck(writeMode: string | null, actions: { action: BackfillAction; partition_state: string }[], allowAppend: boolean): { ok: boolean; detail: string } {
-  const rewriting = actions.filter((a) => ['rerun', 'clear_failed', 'trigger_new'].includes(a.action) && ['present', 'incomplete', 'empty'].includes(a.partition_state));
+  // Only a partition positively known to be missing is safe to append to; unknown/unreadable
+  // partitions may already hold rows (the check failed, not the data).
+  const writes = actions.filter((a) => ['rerun', 'clear_failed', 'trigger_new'].includes(a.action));
+  const rewriting = writes.filter((a) => a.partition_state !== 'missing');
+  const unknown = rewriting.filter((a) => !['present', 'incomplete', 'empty', 'unreadable'].includes(a.partition_state));
   if (!writeMode) return { ok: true, detail: '目录未声明 write_mode，无法判断重跑幂等性（按非幂等对待并人工确认）' };
   if (writeMode === 'overwrite_partition') return { ok: true, detail: 'overwrite_partition：重跑覆盖目标分区，幂等' };
   if (writeMode === 'append') {
-    if (!rewriting.length) return { ok: true, detail: 'append：本次动作涉及的分区当前不存在数据，不会重复写入' };
+    if (!rewriting.length) return { ok: true, detail: 'append：本次动作涉及的分区当前均不存在（missing），不会重复写入' };
+    const what = `${rewriting.length} 个分区${unknown.length ? `（其中 ${unknown.length} 个状态未能确认）` : ''}可能已有数据，重跑会追加写入`;
     return allowAppend
-      ? { ok: true, detail: `append：${rewriting.length} 个已有数据的分区会被追加写入，已通过 --allow-append-duplicates 明确接受重复风险` }
-      : { ok: false, detail: `append：${rewriting.length} 个已有数据的分区重跑会追加重复数据；先清理分区或加 --allow-append-duplicates 明确接受` };
+      ? { ok: true, detail: `append：${what}，已通过 --allow-append-duplicates 明确接受重复风险` }
+      : { ok: false, detail: `append：${what}，可能产生重复数据；先确认/清理分区或加 --allow-append-duplicates 明确接受` };
   }
   return { ok: true, detail: `write_mode=${writeMode}` };
 }
@@ -275,6 +280,14 @@ function runIdFor(planId: string, date: string): string {
   return `workctl_backfill__${date}__${planId}`;
 }
 
+/** Running + queued DAG runs right now (all run types, not only the ones this plan submitted). */
+async function liveActiveRuns(af: AirflowClient, dagId: string): Promise<number> {
+  const counts = await Promise.all(
+    ['running', 'queued'].map((s) => af.get<{ total_entries: number }>(`/dags/${encodeURIComponent(dagId)}/dagRuns`, { state: s, limit: 1 }).then((x) => Number(x.total_entries ?? 0))),
+  );
+  return counts.reduce((a, b) => a + b, 0);
+}
+
 export const backfillExecutor: Executor = async (ctx, plan, report) => {
   const failed = plan.preconditions.filter((p) => !p.ok && p.check !== 'has_actions');
   if (failed.length) {
@@ -283,74 +296,101 @@ export const backfillExecutor: Executor = async (ctx, plan, report) => {
   const af = new AirflowClient(ctx, plan.params.airflow_endpoint as string | undefined);
   const dagId = String(plan.params.workflow);
   const tz = String(plan.params.timezone);
+  const rerunSucceeded = plan.params.rerun_succeeded === true || plan.params.rerun_succeeded === 'true';
   const maxInFlight = Math.max(1, Number(plan.params.max_active_runs ?? 1));
   const targets = (plan.targets as z.infer<typeof BackfillTargetSchema>[]).filter((t) => ['trigger_new', 'clear_failed', 'rerun'].includes(t.action));
   const submitted: Record<string, unknown>[] = [];
   const skipped: Record<string, unknown>[] = [];
   const notSubmitted: Record<string, unknown>[] = [];
   const inFlight = new Set<string>();
+  const result = () => ({ workflow: dagId, max_in_flight: maxInFlight, submitted, skipped, not_submitted: notSubmitted, note: '提交成功只代表调度系统已接受请求；用 workctl offline backfill get --id 查看 run 的实时状态' });
 
+  // The in-flight budget covers every running/queued run of the DAG (scheduled, manual, other
+  // backfills), not only the runs this plan submitted.
+  let liveActive = 0;
   const refreshInFlight = async () => {
     for (const id of [...inFlight]) {
       const r = await af.dagRun(dagId, id);
       if (!r || TERMINAL.has(r.state)) inFlight.delete(id);
     }
+    liveActive = await liveActiveRuns(af, dagId);
   };
+  const occupied = () => Math.max(inFlight.size, liveActive);
 
   for (let i = 0; i < targets.length; i++) {
     const t = targets[i];
-    await refreshInFlight();
-    while (inFlight.size >= maxInFlight) {
-      if (ctx.remainingMs() < 15_000) break;
-      report(`在途 run ${inFlight.size} 个，达到并发上限 ${maxInFlight}，等待中`);
-      await sleep(5000, ctx.signal);
+    try {
       await refreshInFlight();
-    }
-    if (inFlight.size >= maxInFlight) {
-      for (const rest of targets.slice(i)) notSubmitted.push({ business_date: rest.business_date, action: rest.action, reason: '时间预算内并发槽未释放，未提交；可用 offline backfill plan 重新生成剩余部分' });
-      break;
-    }
-    // re-validate against live state: the plan may be stale
-    const iv = businessInterval(t.business_date, tz);
-    const live = await runsForBusinessDate(af, dagId, iv);
-    const exact = live.matched.filter((m) => m.match === 'exact').map((m) => m.run);
-    if (t.action === 'trigger_new') {
-      if (exact.length) {
-        skipped.push({ business_date: t.business_date, action: t.action, reason: `计划生成后已出现 run ${exact[0].dag_run_id}（${exact[0].state}），未重复触发` });
+      while (occupied() >= maxInFlight) {
+        if (ctx.remainingMs() < 15_000) break;
+        report(`在途 run ${occupied()} 个（本计划提交 ${inFlight.size} 个），达到并发上限 ${maxInFlight}，等待中`);
+        await sleep(5000, ctx.signal);
+        await refreshInFlight();
+      }
+      if (occupied() >= maxInFlight) {
+        for (const rest of targets.slice(i)) notSubmitted.push({ business_date: rest.business_date, action: rest.action, reason: '时间预算内并发槽未释放，未提交；可用 offline backfill plan 重新生成剩余部分' });
+        break;
+      }
+      // re-validate against live state: the plan may be stale (another run may have been
+      // triggered, succeeded or started for this business date since planning)
+      const iv = businessInterval(t.business_date, tz);
+      const live = await runsForBusinessDate(af, dagId, iv);
+      const liveExisting = live.matched.map((m) => ({ run_id: String(m.run.dag_run_id), state: m.run.state ?? null, run_type: m.run.run_type ?? null, match: m.match }));
+      const now = decideAction({ existing: liveExisting, rerunSucceeded });
+      if (now.action !== t.action || (t.action !== 'trigger_new' && now.run_id !== t.run_id)) {
+        skipped.push({ business_date: t.business_date, action: t.action, reason: `计划生成后状态已变化：当前应为 ${now.action}${now.run_id ? `（run ${now.run_id}）` : ''}，与计划不一致，未执行；需要时重新生成计划` });
         continue;
       }
-      const runId = runIdFor(plan.id, t.business_date);
-      const r = await af.request('POST', `/dags/${encodeURIComponent(dagId)}/dagRuns`, {
-        body: { dag_run_id: runId, logical_date: iv.start_utc, data_interval_start: iv.start_utc, data_interval_end: iv.end_utc, conf: {}, note: `workctl backfill plan ${plan.id}` },
-      });
-      const body = r.body as any;
-      inFlight.add(String(body.dag_run_id ?? runId));
-      submitted.push({ business_date: t.business_date, action: t.action, run_id: body.dag_run_id ?? runId, state_at_submit: body.state ?? null, logical_date: timePair(body.logical_date ?? iv.start_utc, tz) });
-      report(`已触发 ${t.business_date} → ${body.dag_run_id ?? runId}`);
-    } else {
-      const cur = exact.find((r) => r.dag_run_id === t.run_id) ?? (t.run_id ? await af.dagRun(dagId, t.run_id) : null);
-      if (!cur) {
-        skipped.push({ business_date: t.business_date, action: t.action, reason: `run ${t.run_id} 已不存在` });
-        continue;
+      if (t.action === 'trigger_new') {
+        const runId = runIdFor(plan.id, t.business_date);
+        let r;
+        try {
+          r = await af.request('POST', `/dags/${encodeURIComponent(dagId)}/dagRuns`, {
+            body: { dag_run_id: runId, logical_date: iv.start_utc, data_interval_start: iv.start_utc, data_interval_end: iv.end_utc, conf: {}, note: `workctl backfill plan ${plan.id}` },
+          });
+        } catch (e) {
+          if (e instanceof WorkError && e.code === 'CONFLICT') {
+            skipped.push({ business_date: t.business_date, action: t.action, reason: `Airflow 拒绝重复的 run（logical_date ${iv.start_utc} 或 run_id ${runId} 已存在），未重复触发` });
+            continue;
+          }
+          throw e;
+        }
+        const body = r.body as any;
+        inFlight.add(String(body.dag_run_id ?? runId));
+        submitted.push({ business_date: t.business_date, action: t.action, run_id: body.dag_run_id ?? runId, state_at_submit: body.state ?? null, logical_date: timePair(body.logical_date ?? iv.start_utc, tz) });
+        report(`已触发 ${t.business_date} → ${body.dag_run_id ?? runId}`);
+      } else {
+        const r = await af.request('POST', `/dags/${encodeURIComponent(dagId)}/clearTaskInstances`, {
+          body: { dry_run: false, dag_run_id: t.run_id, only_failed: t.action === 'clear_failed', reset_dag_runs: true, include_downstream: true, include_upstream: false, include_future: false, include_past: false },
+        });
+        const cleared = ((r.body as any)?.task_instances ?? []).map((x: any) => x.task_id);
+        if (!cleared.length) {
+          // e.g. a run marked failed by dagrun_timeout / manually with no failed task instance:
+          // nothing was reset, so nothing will rerun — do not report it as submitted
+          skipped.push({ business_date: t.business_date, action: t.action, run_id: t.run_id, reason: `run ${t.run_id} 没有可清理的${t.action === 'clear_failed' ? '失败' : ''}任务实例，调度器不会重跑；需人工确认原因（如 dagrun_timeout / 手动标记失败）` });
+          continue;
+        }
+        inFlight.add(String(t.run_id));
+        submitted.push({ business_date: t.business_date, action: t.action, run_id: t.run_id, cleared_tasks: cleared });
+        report(`已清理 ${t.business_date} run ${t.run_id} 的任务实例: ${cleared.join(', ')}`);
       }
-      if (ACTIVE.has(cur.state)) {
-        skipped.push({ business_date: t.business_date, action: t.action, reason: `run ${t.run_id} 当前为 ${cur.state}，未清理` });
-        continue;
+    } catch (e) {
+      // keep what was already submitted on the plan before failing, so `backfill get` can
+      // still track those runs
+      for (const rest of targets.slice(i + 1)) notSubmitted.push({ business_date: rest.business_date, action: rest.action, reason: '执行中途出错，未提交' });
+      notSubmitted.unshift({ business_date: t.business_date, action: t.action, reason: `提交失败: ${e instanceof WorkError ? `${e.code} ${e.message}` : e instanceof Error ? e.message : String(e)}` });
+      try {
+        const store = ctx.plans();
+        const p = store.get(plan.id);
+        p.result = { ...result(), partial: true };
+        store.save(p);
+      } catch {
+        /* best effort */
       }
-      if (t.action === 'clear_failed' && cur.state === 'success') {
-        skipped.push({ business_date: t.business_date, action: t.action, reason: `run ${t.run_id} 已变为 success，未清理` });
-        continue;
-      }
-      const r = await af.request('POST', `/dags/${encodeURIComponent(dagId)}/clearTaskInstances`, {
-        body: { dry_run: false, dag_run_id: t.run_id, only_failed: t.action === 'clear_failed', reset_dag_runs: true, include_downstream: true, include_upstream: false, include_future: false, include_past: false },
-      });
-      const cleared = ((r.body as any)?.task_instances ?? []).map((x: any) => x.task_id);
-      inFlight.add(String(t.run_id));
-      submitted.push({ business_date: t.business_date, action: t.action, run_id: t.run_id, cleared_tasks: cleared });
-      report(`已清理 ${t.business_date} run ${t.run_id} 的任务实例: ${cleared.join(', ') || '(无)'}`);
+      throw e;
     }
   }
-  return { workflow: dagId, max_in_flight: maxInFlight, submitted, skipped, not_submitted: notSubmitted, note: '提交成功只代表调度系统已接受请求；用 workctl offline backfill get --id 查看 run 的实时状态' };
+  return result();
 };
 
 // ---------------------------------------------------------------------------

@@ -72,6 +72,9 @@ AIRFLOW__DAG_PROCESSOR__DAG_FILE_PROCESSOR_TIMEOUT=120
 AIRFLOW__LOGGING__BASE_LOG_FOLDER=$AF3_HOME/logs
 AIRFLOW__LOGGING__WORKER_LOG_SERVER_PORT=18793
 AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK=False
+# Airflow 3 defaults cron schedules to CronTriggerTimetable (zero-length data interval, logical_date = run time).
+# Keep the Airflow 2 semantics the DAGs are written for: @daily run of business date D has interval [D, D+1).
+AIRFLOW__SCHEDULER__CREATE_CRON_DATA_INTERVALS=True
 WORKCTL_DEMO_ROOT=$REPO_ROOT
 WORKCTL_WAREHOUSE_ROOT=$RUNTIME/warehouse-af3
 WORKCTL_SPARK_HOME=$SPARK_HOME

@@ -37,7 +37,23 @@ export interface LoadedConfig {
   config: Config;
 }
 
-const INLINE_SECRET_KEY = /^(password|passwd|secret|token|api_key|apikey|access_key|secret_key|dsn)$/i;
+// exact names and suffixed forms such as client_secret, auth_token, secret_access_key, private_key
+const INLINE_SECRET_KEY = /(^|_)(password|passwd|pwd|secret|token|api_key|apikey|access_key|secret_key|private_key|dsn|credentials?)$/i;
+/** scheme://user:password@host — credentials embedded in a URL value. */
+const URL_WITH_PASSWORD = /^[a-z][a-z0-9+.-]*:\/\/[^/@\s:]*:[^/@\s]+@/i;
+
+/** Paths of inline credentials in an endpoint config (nested objects and URL values included). */
+export function findInlineSecrets(value: unknown, path: string): string[] {
+  if (typeof value === 'string') return URL_WITH_PASSWORD.test(value) ? [path] : [];
+  if (Array.isArray(value)) return value.flatMap((v, i) => findInlineSecrets(v, `${path}[${i}]`));
+  if (value && typeof value === 'object') {
+    return Object.entries(value as Record<string, unknown>).flatMap(([k, v]) => [
+      ...(INLINE_SECRET_KEY.test(k) && v !== null && v !== undefined && v !== '' ? [`${path}.${k}`] : []),
+      ...findInlineSecrets(v, `${path}.${k}`),
+    ]);
+  }
+  return [];
+}
 
 export function defaultConfigCandidates(cwd = process.cwd()): string[] {
   const out: string[] = [];
@@ -71,12 +87,13 @@ export function loadConfig(explicitPath?: string): LoadedConfig {
   for (const [pname, prof] of Object.entries(parsed.data.profiles)) {
     for (const [kind, named] of Object.entries(prof.endpoints)) {
       for (const [name, ep] of Object.entries(named)) {
-        for (const key of Object.keys(ep)) {
-          if (INLINE_SECRET_KEY.test(key)) {
-            throw new WorkError('INVALID_ARGUMENT', `profiles.${pname}.endpoints.${kind}.${name}.${key} 不允许直接写入凭据`, {
-              hint: `改用 ${key}_ref: env:VAR_NAME 或 ${key}_ref: file:/path/to/secret`,
-            });
-          }
+        const found = findInlineSecrets(ep, `profiles.${pname}.endpoints.${kind}.${name}`);
+        if (found.length) {
+          const key = found[0].split('.').pop()!.replace(/\[\d+\]$/, '');
+          throw new WorkError('INVALID_ARGUMENT', `${found[0]} 不允许直接写入凭据`, {
+            hint: `改用 ${key}_ref: env:VAR_NAME 或 ${key}_ref: file:/path/to/secret；URL 中不要包含密码`,
+            details: { paths: found },
+          });
         }
       }
     }

@@ -258,6 +258,7 @@ const logQuery = defineCapability({
   output: z.object({
     service: z.string(),
     env: z.string().nullable(),
+    matched_by: z.string().describe('匹配容器所用的选择器（标签或资源绑定中的精确容器名）'),
     window: WindowSchema,
     order: z.enum(['newest', 'oldest']),
     entries: z.array(LogEntrySchema),
@@ -293,7 +294,7 @@ const logQuery = defineCapability({
     const env = resolveEnv(ctx, i.env);
     const sc = await listServiceContainers(ctx, docker, i.service, env);
     if (!sc.containers.length) {
-      throw new WorkError('NOT_FOUND', `没有容器匹配 ${sc.selector.label}${env ? `（env=${env}）` : ''}`, { hint: `workctl container workload get --service ${i.service}` });
+      throw new WorkError('NOT_FOUND', `没有容器匹配 ${sc.tried.map((t) => t.matched_by).join(' / ')}${env ? `（env=${env}）` : ''}`, { hint: `workctl container workload get --service ${i.service}` });
     }
     const inspects = await inspectAll(ctx, sc);
     const win = windowFromNow(i.window as number);
@@ -340,6 +341,7 @@ const logQuery = defineCapability({
       data: {
         service: i.service,
         env,
+        matched_by: sc.selector.matched_by,
         window: win,
         order,
         entries: entries.map((e) => ({ ...e })),
