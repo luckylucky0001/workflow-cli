@@ -17,6 +17,7 @@
 | 平台接入指南 | 管理 API / 原生协议 / 观测接口的适配方法、插件协议、契约检查清单 | [provider-onboarding.md](provider-onboarding.md) |
 | 兼容说明 | CLI、适配器、引擎版本、Skill 的对应关系与已验证版本 | [compatibility.md](compatibility.md) |
 | 设计约束 | 实现必须满足的契约与诚实性约束 | [design-principles.md](design-principles.md) |
+| 发布说明 | 交付内容、已验证 provider 与版本、已知限制 | [release-notes.md](release-notes.md) |
 | 演示与评估 | 演示步骤、复位方式、验收与测量、复用矩阵 | [../demo/walkthrough.md](../demo/walkthrough.md)、[../demo/evaluation.md](../demo/evaluation.md)、[reuse-matrix.md](reuse-matrix.md) |
 
 ## Skill
