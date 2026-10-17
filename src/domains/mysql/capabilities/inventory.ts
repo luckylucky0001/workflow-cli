@@ -319,16 +319,21 @@ export const indexList = defineCapability({
       }
       const sources: Source[] = [s.src('information_schema.STATISTICS')];
       let io: { index: string | null; count_star: number; count_read: number; count_fetch: number }[] | null = null;
-      try {
-        const ioRows = await s.query(
-          `SELECT INDEX_NAME, COUNT_STAR, COUNT_READ, COUNT_FETCH FROM performance_schema.table_io_waits_summary_by_index_usage
-            WHERE OBJECT_SCHEMA = ? AND OBJECT_NAME = ? ORDER BY COUNT_STAR DESC`,
-          [i.database, i.table],
-        );
-        io = ioRows.map((r) => ({ index: r.INDEX_NAME ?? null, count_star: Number(r.COUNT_STAR), count_read: Number(r.COUNT_READ), count_fetch: Number(r.COUNT_FETCH) }));
-        sources.push(s.src('performance_schema.table_io_waits_summary_by_index_usage'));
-      } catch (e) {
-        ctx.warn(`索引访问计数不可用: ${e instanceof Error ? e.message : String(e)}`);
+      const [psRow] = await s.query('SELECT @@global.performance_schema AS ps');
+      const psOn = String(psRow?.ps) === '1';
+      if (!psOn) ctx.warn('performance_schema=OFF，索引访问计数不可用（io_by_index=null）');
+      else {
+        try {
+          const ioRows = await s.query(
+            `SELECT INDEX_NAME, COUNT_STAR, COUNT_READ, COUNT_FETCH FROM performance_schema.table_io_waits_summary_by_index_usage
+              WHERE OBJECT_SCHEMA = ? AND OBJECT_NAME = ? ORDER BY COUNT_STAR DESC`,
+            [i.database, i.table],
+          );
+          io = ioRows.map((r) => ({ index: r.INDEX_NAME ?? null, count_star: Number(r.COUNT_STAR), count_read: Number(r.COUNT_READ), count_fetch: Number(r.COUNT_FETCH) }));
+          sources.push(s.src('performance_schema.table_io_waits_summary_by_index_usage'));
+        } catch (e) {
+          ctx.warn(`索引访问计数不可用: ${e instanceof Error ? e.message : String(e)}`);
+        }
       }
       const indexes = [...byName.values()];
       return {

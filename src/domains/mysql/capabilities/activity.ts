@@ -11,6 +11,12 @@ function sqlText(v: unknown): { text: string | null; truncated: boolean } {
   return truncate(maskLiterals(Buffer.isBuffer(v) ? v.toString('utf8') : String(v)), SQL_TEXT_MAX);
 }
 
+/** performance_schema tables exist but stay empty when the feature is OFF — check explicitly. */
+export async function performanceSchemaOn(s: MysqlSession): Promise<boolean> {
+  const [r] = await s.query('SELECT @@global.performance_schema AS ps');
+  return String(r?.ps) === '1' || String(r?.ps).toUpperCase() === 'ON';
+}
+
 async function hasPrivilege(s: MysqlSession, priv: string): Promise<boolean> {
   const rows = await s.query(`SELECT COUNT(*) AS n FROM information_schema.USER_PRIVILEGES WHERE PRIVILEGE_TYPE IN (?, 'SUPER')`, [priv]);
   return Number(rows[0]?.n ?? 0) > 0;
@@ -74,11 +80,15 @@ export const sessionList = defineCapability({
   examples: ['workctl mysql session list --instance demo-mysql', 'workctl mysql session list --instance demo-mysql --include-idle'],
   handler: async (ctx, i) =>
     withMysql(ctx, i.instance, async (s) => {
+      // performance_schema.processlist is preferred (8.0.22+); information_schema.PROCESSLIST
+      // (deprecated) is the fallback when performance_schema is OFF.
+      const ps = await performanceSchemaOn(s);
+      const plTable = ps ? 'performance_schema.processlist' : 'information_schema.PROCESSLIST';
       const rows = await s.query(
         `SELECT p.ID, p.USER, p.HOST, p.DB, p.COMMAND, p.TIME, p.STATE, p.INFO,
                 t.trx_id, t.trx_state, t.trx_started, TIMESTAMPDIFF(SECOND, t.trx_started, NOW()) AS trx_age_s,
                 t.trx_isolation_level, t.trx_rows_locked, t.trx_rows_modified, t.trx_wait_started
-           FROM performance_schema.processlist p
+           FROM ${plTable} p
            LEFT JOIN information_schema.INNODB_TRX t ON t.trx_mysql_thread_id = p.ID
           WHERE p.ID <> CONNECTION_ID()
           ORDER BY t.trx_started IS NULL, t.trx_started, p.TIME DESC`,
@@ -127,12 +137,13 @@ export const sessionList = defineCapability({
             oldest_trx_age_s: ages.length ? Math.max(...ages) : null,
           },
         },
-        sources: [s.src('performance_schema.processlist LEFT JOIN information_schema.INNODB_TRX')],
+        sources: [s.src(`${plTable} LEFT JOIN information_schema.INNODB_TRX`)],
         coverage: {
           complete: process,
           scope: i.include_idle ? 'all visible sessions' : 'active sessions + sessions with open transactions',
           notes: [
             ...(process ? [] : [`账号 ${s.user} 无 PROCESS 权限，只能看到本账号的会话`]),
+            ...(ps ? [] : ['performance_schema=OFF，改用 information_schema.PROCESSLIST']),
             '瞬时快照；SQL 字面量已替换为 ?，截断至 512 字符；已排除 workctl 自身连接',
           ],
         },
@@ -181,6 +192,10 @@ export const lockList = defineCapability({
     instance: z.string(),
     lock_waits: z.array(LockWaitSchema),
     metadata_lock_waits: z.array(MdlWaitSchema).nullable().describe('performance_schema.metadata_locks 中 PENDING 的等待；null 表示未能读取'),
+    waiting_without_blocker_info: z
+      .array(z.object({ trx_id: z.string(), thread_id: z.number().nullable(), wait_age_s: z.number().nullable(), trx_age_s: z.number().nullable(), sql_text: z.string().nullable() }))
+      .optional()
+      .describe('仅 performance_schema=OFF 时出现：处于 LOCK WAIT 的事务（阻塞方未知）'),
     summary: z.object({ waiting_trx: z.number(), blocking_trx: z.number(), root_blockers: z.array(z.string()).describe('自身不在等待中的阻塞事务 ID') }),
   }),
   adapter: ADAPTER,
@@ -196,6 +211,36 @@ export const lockList = defineCapability({
   examples: ['workctl mysql lock list --instance demo-mysql'],
   handler: async (ctx, i) =>
     withMysql(ctx, i.instance, async (s) => {
+      if (!(await performanceSchemaOn(s))) {
+        // data_locks / data_lock_waits are empty when performance_schema is OFF: an empty list
+        // would falsely mean "no waits". Report waiting transactions only, blockers unknown.
+        const w = await s.query(
+          `SELECT trx_id, trx_mysql_thread_id AS pid, TIMESTAMPDIFF(SECOND, trx_wait_started, NOW()) AS wait_age_s,
+                  TIMESTAMPDIFF(SECOND, trx_started, NOW()) AS trx_age_s, trx_query
+             FROM information_schema.INNODB_TRX WHERE trx_state = 'LOCK WAIT' ORDER BY trx_wait_started`,
+        );
+        return {
+          status: 'partial' as const,
+          data: {
+            instance: s.ep.name,
+            lock_waits: [],
+            waiting_without_blocker_info: w.map((r) => ({
+              trx_id: String(r.trx_id),
+              thread_id: num(r.pid),
+              wait_age_s: num(r.wait_age_s),
+              trx_age_s: num(r.trx_age_s),
+              sql_text: sqlText(r.trx_query).text,
+            })),
+            metadata_lock_waits: null,
+            summary: { waiting_trx: w.length, blocking_trx: 0, root_blockers: [] },
+          },
+          sources: [s.src("information_schema.INNODB_TRX (trx_state='LOCK WAIT')")],
+          coverage: {
+            complete: false,
+            notes: ['performance_schema=OFF：无法读取 data_lock_waits，阻塞方未知；只列出处于 LOCK WAIT 的事务', '瞬时快照'],
+          },
+        };
+      }
       const rows = await s.query(
         `SELECT w.REQUESTING_ENGINE_TRANSACTION_ID AS waiting_trx_id, w.BLOCKING_ENGINE_TRANSACTION_ID AS blocking_trx_id,
                 rl.OBJECT_SCHEMA, rl.OBJECT_NAME, rl.INDEX_NAME, rl.LOCK_TYPE, rl.LOCK_MODE AS waiting_mode, bl.LOCK_MODE AS blocking_mode,

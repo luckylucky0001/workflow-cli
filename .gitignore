@@ -8,3 +8,6 @@ coverage/
 .claude/skills/
 .workctl-bin/
 demo/agent-host/runs/*.json
+demo/environment/workctl.agent.yaml
+demo/agent-host/runs/mcp.json
+demo/agent-host/runs/loadgen.log

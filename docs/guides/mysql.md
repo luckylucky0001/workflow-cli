@@ -102,6 +102,8 @@ GRANT PROCESS ON *.* TO 'workctl_ro'@'%';
 
 `error.details` 保留 MySQL 原始 `errno`、`sql_state`、`driver_code` 和服务端消息。
 
+performance_schema=OFF（静态参数，需重启才能开启）时：`statement summary` → `COLLECTION_DISABLED`；`session list` 回退到 `information_schema.PROCESSLIST`；`lock list` 无法读取 `data_lock_waits`，只列出处于 `LOCK WAIT` 的事务（`waiting_without_blocker_info`，阻塞方未知，`status=partial`）——不会把空表当成“没有锁等待”；`index list` 的 `io_by_index=null` 并给出 warning。
+
 ## 敏感信息处理
 
 - `session list`、`lock list`、`slowlog list` 中的 SQL 文本把字符串/数字字面量替换为 `?` 并截断到 512 字符；`statement summary` 只输出归一化的 `digest_text`，不输出 `QUERY_SAMPLE_TEXT`。
