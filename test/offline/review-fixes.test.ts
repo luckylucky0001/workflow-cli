@@ -231,3 +231,27 @@ describe('quality layer in offline run get', () => {
     expect(qualityStaleness(undefined, { partitionState: 'present', partitionUpdatedAt: '2026-10-17T00:00:00Z' }).stale).toBeNull();
   });
 });
+
+describe('business-date run lookup window', () => {
+  it('finds a manual run triggered during D+1 whose inferred interval is day D', async () => {
+    const { runsForBusinessDate } = await import('../../src/domains/offline/runs');
+    const { businessInterval } = await import('../../src/domains/offline/time');
+    const day = businessInterval('2026-10-15', 'Asia/Shanghai');
+    // triggered 2026-10-16 10:00 +08:00, Airflow inferred the previous complete interval (day 15)
+    const manual = { dag_run_id: 'manual__2026-10-16T02:00:00+00:00', state: 'success', logical_date: '2026-10-16T02:00:00+00:00', data_interval_start: day.start_utc, data_interval_end: day.end_utc };
+    let q: any;
+    const fakeAf: any = {
+      get: async (_p: string, query: any) => {
+        q = query;
+        const lte = Date.parse(query.execution_date_lte);
+        const gte = Date.parse(query.execution_date_gte);
+        const inWindow = [manual].filter((r) => Date.parse(r.logical_date) <= lte && Date.parse(r.logical_date) >= gte);
+        return { dag_runs: inWindow, total_entries: inWindow.length };
+      },
+    };
+    const r = await runsForBusinessDate(fakeAf, DAG_ID, day);
+    expect(Date.parse(q.execution_date_lte)).toBeGreaterThanOrEqual(Date.parse(manual.logical_date));
+    expect(r.matched.map((m) => m.run.dag_run_id)).toEqual([manual.dag_run_id]);
+    expect(r.matched[0].match).toBe('exact');
+  });
+});

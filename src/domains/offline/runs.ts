@@ -49,12 +49,15 @@ export function normRun(run: any, tz: string, match?: IntervalMatch): RunView {
 
 /**
  * DAG runs whose data interval intersects the business day. Queries logical dates in
- * [D-1d, D+1d] — runs of DAGs with intervals longer than one day may be missed (stated in coverage).
+ * [D 00:00 - 1d, D+1 00:00 + 1d] — a manual run triggered during D+1 without an explicit
+ * interval gets the inferred interval [D, D+1) but a logical date after D+1 00:00, so the
+ * upper bound must extend past the end of the day too. Runs of DAGs with intervals longer
+ * than one day may still be missed (stated in coverage).
  */
 export async function runsForBusinessDate(af: AirflowClient, dagId: string, iv: BusinessInterval, limit = 100) {
   const query = {
     execution_date_gte: new Date(iv.startMs - 86_400_000).toISOString(),
-    execution_date_lte: new Date(iv.endMs).toISOString(),
+    execution_date_lte: new Date(iv.endMs + 86_400_000).toISOString(),
     order_by: '-execution_date',
     limit,
   };
