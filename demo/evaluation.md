@@ -57,6 +57,8 @@
 
 同一 Skill 在 Kubernetes provider 下（k3s，只读 profile，主线 A 提示相同）：5 次 workctl 调用、25.3 s、$0.26，合格——Pod/Deployment 状态、事件按 1h event-ttl 标注覆盖不完整、metrics-server 快照、只按绑定认定依赖；并识别出验证用例做过的真实滚动更新（[A-infra.k8s.summary.md](agent-host/runs/A-infra.k8s.summary.md)）。
 
+新接入能力（`run-agent-demo.sh D-extend`：etcd 配置中心/服务发现 + demo-search 插件，只读 profile，无故障注入）：10 次 workctl 调用（MCP）、13 次工具调用、31.9 s、$0.19，合格——`config diff` 给出修订 30→41 的逐键新增/修改/删除，敏感值只说“已变更”；`discovery list` 指出 `order-2` 自报不健康、`order-legacy` 无租约可能是残留，并说明健康为自报而非探测；对 `demo-orders-all` 按 `created_at` 排序识别出 `status: partial`（archive 分片因映射缺少 `created_at` 失败，total 3000 而非 3400），用无排序查询排除别名/分片本身的问题，并区分 yellow（副本未分配）与本次不完整无关；未做变更（[D-extend.summary.md](agent-host/runs/D-extend.summary.md)）。这些能力是在主线 A/B/C 之后才加入的；这次运行中 Agent 没有读取 Skill，直接从 MCP 工具目录（由同一能力定义生成）找到 `config_*`、`discovery_list`、`search_*` 工具。
+
 同一任务两次运行的调用次数与成本有波动（LLM 非确定性），只能说明量级，不能作为精确对比。
 
 CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同一任务卡计时）。
@@ -89,7 +91,7 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 | 接口版本替换（设计稿 §10.4） | `version-swap.mjs`：9 个离线/计算能力（10 次调用）分别对 Airflow 2.10.5（REST v1）与 Airflow 3.3.2（REST v2）真实调用，两侧 `data` 通过同一 zod 输出 schema、顶层字段与 `run get` 四层状态一致，差异只在 `meta.sources`（adapter/method/version）；适配器侧新增 `airflow-v2.ts` 约 250 行 + 客户端约 130 行改动，能力代码改动约 40 行、输出 schema 未改；v2 补数执行器真实执行成功。见 [version-swap.md](verification/version-swap.md) |
 | 新系统接入（内置领域） | config/discovery（etcd v3 网关）：约 0.76k 行领域代码，复用核心的资源绑定、凭据引用、HTTP 客户端与错误映射，`src/core` 未改（只在 doctor 的端点类型表登记 etcd，2 行）；etcd 3.5.21 上 16/16 |
 | 多 provider 同一契约 | Docker ↔ Kubernetes（k3s v1.31.4，10/10）、Airflow 2 ↔ 3（REST v1 ↔ v2）、Spark ↔ Trino 476（15/15）、Docker 日志 ↔ Loki 3.5.5：每组都由同一能力定义与输出 Schema 承载，差异只在 `meta.sources` 与可选的 provider 专有字段 |
-| 分发 | `npm pack` 后全局安装，CLI 可运行并找到随包 Skill；包大小 1.8 MB（依赖已打包进单文件） |
+| 分发 | `npm pack` 后全局安装，CLI 可运行并找到随包 Skill；包大小 2.0 MB（依赖已打包进单文件；含 11 个 Skill 与文档） |
 
 ## 5. 验收结论（设计稿 §12.3）
 

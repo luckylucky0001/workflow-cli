@@ -13,6 +13,7 @@
 npm run build
 node dist/workctl.js skills install --dir .claude/skills      # 记录版本到 .claude/skills/.workctl-skills.json
 ./demo/agent-host/run-agent-demo.sh                            # 以无头模式运行三条主线，保存转录到 demo/agent-host/runs/
+./demo/agent-host/run-agent-demo.sh D-extend                   # 新接入能力：etcd 配置中心/服务发现 + demo-search 插件（需先安装插件并执行两个种子脚本）
 ```
 
 脚本对每条主线记录：Agent 调用了哪些 workctl 命令 / MCP 工具、最终回答、耗时与成本（取自宿主输出），用于 [demo/evaluation.md](../evaluation.md) 的对照记录。转录中只包含合成数据。

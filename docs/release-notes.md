@@ -6,7 +6,7 @@
 
 | 类别 | 内容 |
 | --- | --- |
-| CLI | TypeScript + Commander + Zod，esbuild 打包为单文件 ESM，npm 分发（1.8 MB）。内置能力目录 70 个可调用 + 19 个待接入；安装 demo-mq 与 demo-search 两个插件后 76 个可调用 + 19 个待接入：核心 13、基础设施 17、中间件 25（含插件 6）、离线链路 21 |
+| CLI | TypeScript + Commander + Zod，esbuild 打包为单文件 ESM，npm 分发（压缩包 2.0 MB）。内置能力目录 70 个可调用 + 19 个待接入；安装 demo-mq 与 demo-search 两个插件后 76 个可调用 + 19 个待接入：核心 13、基础设施 17、中间件 25（含插件 6）、离线链路 21 |
 | 统一契约 | 结果信封（status/data/error/meta.sources/meta.coverage/context）、14 个稳定错误码与退出码、凭据只允许 `*_ref` 引用、执行类操作需 `allow_execute` 与计划确认、计划执行加锁 |
 | 消费入口 | 终端（text/yaml/json）、脚本（`--json` 与 `createClient` 库 API）、Agent（Skill + CLI，或 `workctl mcp serve`，默认不暴露执行类工具） |
 | 扩展机制 | 插件协议 `workctl-plugin/1`（清单、stdin/stdout 执行、安装校验、凭据仅经 stdin 传递）；插件可新增领域，也可实现内置目录中 planned 的能力。示例 demo-mq（Kafka，新增领域）、demo-search（OpenSearch，实现内置 planned 的 `search.index.get` / `search.query`） |
@@ -34,7 +34,7 @@
 - 单元 + 契约测试 469 个通过；开启全部开关的真实环境集成测试 540/540；逐能力真实调用用例：主套件 74、Trino 15、配置中心 16、搜索插件 19、Kubernetes 10，均全部通过（`demo/verify-all.sh` 从完整复位开始一键复现，约 7 分钟）。
 - 各领域由非作者交叉审查，修复的缺陷均有回归测试（见 git 历史 “Cross-review fixes”）。
 - 完整复位：`reset.sh` 后 `up.sh` 约 40 秒重建，场景重放约 2 分钟，随后全部套件通过。
-- Agent 宿主：Claude Code 无头模式经 Skill + MCP 跑三条主线（只读 profile）均达到验收标准；仅 CLI 对照组与回归运行记录见 `demo/evaluation.md`。
+- Agent 宿主：Claude Code 无头模式经 Skill + MCP 跑三条主线（只读 profile）均达到验收标准；新接入的配置中心与搜索插件（D-extend）同样合格；仅 CLI 对照组与回归运行记录见 `demo/evaluation.md`。
 
 ## 已知限制
 
