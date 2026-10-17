@@ -1,0 +1,90 @@
+# workctl profile for the "version swap" demo (design §10.4): the same capabilities against
+# Airflow 3.x (REST API v2, demo/environment/offline3-up.sh) instead of Airflow 2.10 (REST API v1).
+# Differences from workctl.yaml's demo profile are marked "# af3"; everything else is identical.
+# Credentials are referenced, never inlined.
+schema_version: "1.0"
+current_profile: demo-af3
+profiles:
+  demo-af3:
+    description: 隔离演示环境 · Airflow 3（REST v2）调度实例，数据写入独立仓库目录 warehouse-af3
+    env: sandbox
+    data_mode: live
+    allow_execute: true
+    resources_file: ./bindings.yaml
+    state_dir: ./.runtime/state-af3                     # af3: separate plan / quality state
+    defaults:
+      mysql: demo-mysql
+      redis: demo-redis
+      docker: local
+      prometheus: demo-prometheus
+      airflow: demo-airflow3                            # af3
+      spark: demo-spark
+      catalog: demo
+      kafka: demo-mq
+    endpoints:
+      docker:
+        local:
+          socket: /var/run/docker.sock
+      mysql:
+        demo-mysql:
+          host: 127.0.0.1
+          port: 13306
+          user: workctl_ro
+          password_ref: file:.runtime/secrets/mysql_ro_password
+          max_execution_time_ms: 5000
+          sensitive_columns: [phone, email, id_card, address]
+      redis:
+        demo-redis:
+          host: 127.0.0.1
+          port: 16379
+      prometheus:
+        demo-prometheus:
+          url: http://127.0.0.1:19090
+          metrics:
+            request_latency:
+              description: 请求延迟 p95（秒），按 service 聚合
+              query: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service="$service"}[1m])))
+              unit: seconds
+            request_rate:
+              description: 每秒请求数
+              query: sum(rate(http_requests_total{service="$service"}[1m]))
+              unit: req/s
+            error_rate:
+              description: 5xx 比例
+              query: sum(rate(http_requests_total{service="$service",code=~"5.."}[1m])) / sum(rate(http_requests_total{service="$service"}[1m]))
+              unit: ratio
+            cache_hit_ratio:
+              description: 应用侧缓存命中率
+              query: sum(rate(cache_requests_total{service="$service",result="hit"}[1m])) / sum(rate(cache_requests_total{service="$service"}[1m]))
+              unit: ratio
+            db_query_rate:
+              description: 应用侧数据库查询速率
+              query: sum(rate(db_queries_total{service="$service"}[1m]))
+              unit: req/s
+      airflow:
+        demo-airflow3:                                  # af3
+          url: http://127.0.0.1:18090                   # af3: Airflow 3 api-server
+          api_version: v2                               # af3: REST API v2 (token auth via POST /auth/token)
+          username: admin
+          password_ref: file:.runtime/secrets/airflow_admin_password
+          timezone: Asia/Shanghai
+      spark:
+        demo-spark:                                     # same Spark history server / driver logs
+          history_url: http://127.0.0.1:18088
+          spark_home: /opt/venvs/spark/lib/python3.12/site-packages/pyspark
+          python: /opt/venvs/spark/bin/python
+          driver_log_dir: ./.runtime/spark/driver-logs
+          event_log_dir: ./.runtime/spark/events
+          query_state_dir: ./.runtime/spark/queries
+          warehouse_root: ./.runtime/warehouse-af3      # af3
+          submit_script: ../offline-workflows/spark/spark-submit.sh
+      catalog:
+        demo:
+          provider: file
+          metadata_dir: ../catalog
+          warehouse_root: ./.runtime/warehouse-af3      # af3: partitions written by the Airflow 3 runs
+          storage: local-filesystem
+      kafka:
+        demo-mq:
+          brokers: [127.0.0.1:19092]
+          client_id: workctl
