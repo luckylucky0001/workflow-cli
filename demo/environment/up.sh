@@ -11,5 +11,7 @@ services="${*:-mysql redis kafka demo-order prometheus}"
 # demo-order image copies a prebuilt bundle (needs root `npm ci` first)
 node ../sample-service/build.mjs
 docker compose up -d --build $services
+# MySQL init scripts cannot read the 0600 secret files; set account passwords as root once healthy.
+case " $services " in *" mysql "*) ./mysql/provision-users.sh ;; esac
 if [ -x ./offline-up.sh ] && [ -z "${SKIP_OFFLINE:-}" ]; then ./offline-up.sh; fi
 echo "demo environment is up. export WORKCTL_CONFIG=$(pwd)/workctl.yaml"

@@ -207,6 +207,7 @@ export class Ctx {
 const DURATION_RE = /^(\d+(?:\.\d+)?)(ms|s|m|h|d)$/;
 
 export function parseDuration(v: string): number {
+  if (String(v).trim() === '0') return 0;
   const m = DURATION_RE.exec(String(v).trim());
   if (!m) throw new WorkError('INVALID_ARGUMENT', `无法解析时长: ${v}`, { hint: '使用如 500ms、30s、15m、2h、1d' });
   const n = Number(m[1]);

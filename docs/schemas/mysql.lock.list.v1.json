@@ -222,6 +222,50 @@
       ],
       "description": "performance_schema.metadata_locks 中 PENDING 的等待；null 表示未能读取"
     },
+    "waiting_without_blocker_info": {
+      "description": "仅 performance_schema=OFF 时出现：处于 LOCK WAIT 的事务（阻塞方未知）",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "trx_id": {
+            "type": "string"
+          },
+          "thread_id": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "wait_age_s": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "trx_age_s": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "sql_text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "trx_id",
+          "thread_id",
+          "wait_age_s",
+          "trx_age_s",
+          "sql_text"
+        ],
+        "additionalProperties": false
+      }
+    },
     "summary": {
       "type": "object",
       "properties": {
