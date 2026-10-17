@@ -8,6 +8,8 @@ for s in mysql_root_password mysql_ro_password mysql_app_password airflow_admin_
 done
 chmod 600 .runtime/secrets/*
 services="${*:-mysql redis kafka demo-order prometheus}"
+# demo-order image copies a prebuilt bundle (needs root `npm ci` first)
+node ../sample-service/build.mjs
 docker compose up -d --build $services
 if [ -x ./offline-up.sh ] && [ -z "${SKIP_OFFLINE:-}" ]; then ./offline-up.sh; fi
 echo "demo environment is up. export WORKCTL_CONFIG=$(pwd)/workctl.yaml"

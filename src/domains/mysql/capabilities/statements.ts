@@ -21,7 +21,7 @@ async function snapshot(s: MysqlSession, database?: string): Promise<DigestRow[]
 }
 
 /** Ensure performance_schema statement digests are being collected; otherwise COLLECTION_DISABLED. */
-export async function assertDigestCollection(s: MysqlSession): Promise<{ digests_size: number | null; max_digest_length: number | null }> {
+export async function assertDigestCollection(s: MysqlSession): Promise<{ digests_size: number | null; max_digest_length: number | null; rows: number | null }> {
   const v = await globalVariables(s, ['performance_schema', 'performance_schema_digests_size', 'max_digest_length']);
   if (v.performance_schema !== 'ON') {
     throw new WorkError('COLLECTION_DISABLED', `实例 ${s.ep.name} 未开启 performance_schema，没有语句摘要可读`, {
@@ -35,7 +35,13 @@ export async function assertDigestCollection(s: MysqlSession): Promise<{ digests
       hint: "UPDATE performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME IN (...)（需要 DBA 权限）",
     });
   }
-  return { digests_size: num(v.performance_schema_digests_size), max_digest_length: num(v.max_digest_length) };
+  const [cnt] = await s.query('SELECT COUNT(*) AS n FROM performance_schema.events_statements_summary_by_digest');
+  return { digests_size: num(v.performance_schema_digests_size), max_digest_length: num(v.max_digest_length), rows: num(cnt?.n) };
+}
+
+function capacityNote(info: { digests_size: number | null; rows: number | null }): string {
+  const full = info.digests_size !== null && info.rows !== null && info.digests_size > 0 && info.rows >= info.digests_size;
+  return `摘要表占用 ${info.rows ?? 'unknown'}/${info.digests_size ?? 'unknown'} 行（performance_schema_digests_size）${full ? '：已满，新语句归入 DIGEST=NULL 行，统计不完整' : '；表满后新语句归入 DIGEST=NULL 行'}`;
 }
 
 /** Our own snapshot statement shows up in the digest table; it is excluded from results. */
@@ -148,7 +154,7 @@ export const statementSummary = defineCapability({
             notes: [
               '累计值：自服务启动、摘要表重置或该摘要首次出现（first_seen）以来，不是窗口值',
               ...notes,
-              `摘要表容量 performance_schema_digests_size=${info.digests_size ?? 'unknown'}；表满后新语句归入 DIGEST=NULL 行`,
+              capacityNote(info),
             ],
           },
         };
@@ -193,7 +199,7 @@ export const statementSummary = defineCapability({
           notes: [
             ...partialReasons,
             ...notes,
-            `摘要表容量 performance_schema_digests_size=${info.digests_size ?? 'unknown'}`,
+            capacityNote(info),
             '已排除查询 events_statements_summary_by_digest 的语句（含 workctl 自身采样）；窗口内没有执行的摘要不出现',
           ],
         },

@@ -39,7 +39,7 @@ workctl mysql statement summary --instance demo-mysql --sample-window 10s    # m
 workctl mysql query explain --instance demo-mysql --database demo --sql-file customer_recent.sql
 ```
 
-预期能被证据支撑的链条（以实测为准）：注入时刻之后 `cache_requests_total{result="bypass"}` 出现、`cache_hit_ratio` 变为 NaN/下降、`db_query_rate` 上升、p95 上升；日志中有 `cache mode changed`（warn，含前后值）；慢 trace 的耗时集中在 `mysql.pool.acquire`（排队）和 `mysql.query`（全表扫描）；EXPLAIN 显示 `customer_id` 条件没有可用索引（`possible_keys` 为空，优化器沿 `idx_created_at` 全索引扫描并逐行过滤）。
+预期能被证据支撑的链条（以实测为准）：注入时刻之后 `cache_requests_total{result="bypass"}` 出现、`cache_hit_ratio` 降为 0（bypass 计入分母；NaN 只表示没有缓存请求）、`db_query_rate` 上升、p95 上升；日志中有 `cache mode changed`（warn，含前后值）；慢 trace 的耗时集中在 `mysql.query`（并发全表扫描），负载更高时还会出现 `mysql.pool.acquire` 排队和 `Queue limit reached` 错误；EXPLAIN 显示 `customer_id` 条件没有可用索引（`possible_keys` 为空，优化器沿 `idx_created_at` 全索引扫描并逐行过滤）。
 
 ## 实测记录（隔离环境，2026-10-17，单机 Docker，4 vCPU）
 

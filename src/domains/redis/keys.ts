@@ -364,7 +364,11 @@ export const keyInspect = defineCapability({
           throw s.fail(e);
         }
       })()) ?? []) as Array<[Error | null, unknown]>;
-      for (const e of [e1, e2, e4]) if (e) throw s.fail(e);
+      for (const e of [e1, e2]) if (e) throw s.fail(e);
+      if (e4) {
+        if (!/^NOPERM/.test(e4.message)) throw s.fail(e4);
+        ctx.warn(`MEMORY USAGE 被 ACL 拒绝，memory_bytes 为 null: ${e4.message}`);
+      }
       if (type === 'none' || Number(pttl) === -2) {
         throw new WorkError('NOT_FOUND', `键不存在: ${key}`, { hint: '键可能已过期、被删除或被淘汰；用 redis key sample --pattern 查看现有键' });
       }
@@ -375,8 +379,13 @@ export const keyInspect = defineCapability({
       let lfu: number | null = null;
       let lfuNote: string;
       if (policy && policy.endsWith('-lfu')) {
-        lfu = Number(await s.cmd('OBJECT', 'FREQ', key));
-        lfuNote = `maxmemory-policy=${policy}：OBJECT FREQ 为对数计数器（0–255），不是 QPS`;
+        try {
+          lfu = Number(await s.cmd('OBJECT', 'FREQ', key));
+          lfuNote = `maxmemory-policy=${policy}：OBJECT FREQ 为对数计数器（0–255），不是 QPS`;
+        } catch (e) {
+          if (!(e instanceof WorkError && e.code === 'PERMISSION_DENIED')) throw e;
+          lfuNote = `OBJECT FREQ 被 ACL 拒绝（null）: ${e.message}`;
+        }
       } else lfuNote = `maxmemory-policy=${policy ?? 'unknown'}，Redis 未跟踪 LFU 频度（null）`;
 
       let value: { kind: string; encoding?: 'utf8' | 'base64' | 'mixed'; data: unknown; returned: number; truncated: boolean } | null = null;
@@ -422,7 +431,7 @@ export const keyInspect = defineCapability({
           ttl_ms: ttl >= 0 ? ttl : null,
           expires_at: ttl >= 0 ? new Date(Date.now() + ttl).toISOString() : null,
           encoding: enc === null || enc === undefined ? null : String(enc),
-          memory_bytes: mem === null || mem === undefined ? null : Number(mem),
+          memory_bytes: e4 || mem === null || mem === undefined ? null : Number(mem),
           length,
           lfu_counter: lfu,
           lfu_note: lfuNote,

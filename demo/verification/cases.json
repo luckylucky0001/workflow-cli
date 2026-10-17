@@ -216,6 +216,8 @@
    "sandbox",
    "--window",
    "6h",
+   "--contains",
+   "request completed",
    "--limit",
    "50"
   ],
