@@ -14,7 +14,7 @@
 | 项目 | 结果 | 证据 |
 | --- | --- | --- |
 | 单元 + 契约测试 | 全部通过（契约测试检查：设计稿命令全覆盖、输出 Schema、指南/Skill 存在、示例命令有效、生成文档与定义一致、MCP 工具与能力一致） | `npm test` |
-| 真实环境集成测试 | `WORKCTL_IT=1 npm test` 全部通过 | MySQL 8.4.11、Redis 7.4.11、Kafka 3.9.1、Airflow 2.10.5、Spark 3.5.5、Docker 29.8.2、Prometheus 3.5.0 |
+| 真实环境集成测试 | `WORKCTL_IT=1 npm test` 全部通过 | MySQL 8.4.11、Redis 7.4.11、Kafka 3.9.1、Airflow 2.10.5 / 3.3.2、Spark 3.5.5、Docker 29.8.2、Prometheus 3.5.0、k3s v1.31.4 |
 | 逐能力真实调用 | 74/74 用例通过（含插件、补数计划、隔离环境中真实执行重启并记录状态迁移、预期错误码） | [demo/verification/report.md](demo/verification/report.md) |
 | 交叉审查 | 各领域由非作者复审，修复 46 个缺陷并补回归测试（如优化器提示绕过执行时限、Spark SQL `reflect`/文件查询绕过只读防护、重启后 unhealthy 仍判成功、组合调用绕过执行授权） | git 历史 “Cross-review fixes” |
 | Kubernetes provider | 单节点 k3s v1.31.4 上 10/10（身份探测、Pod/Deployment 状态、事件、metrics-server 快照、容量、真实滚动重启）；Docker 与 Kubernetes 两种 provider 输出通过同一 Schema | [demo/verification/report.k8s.md](demo/verification/report.k8s.md) |
@@ -37,7 +37,7 @@ workctl capability get --name mysql.statement.summary
 | --- | --- | --- |
 | 基础设施 | `container` `capacity` `network` `storage` `metric` `log` `trace` `resource` `service` `operation` `auth` `access` | Docker 与 Kubernetes（k3s v1.31.4 实测）工作负载状态/事件/资源、资源绑定与依赖、Prometheus 指标、容器日志、日志派生调用链、重启操作计划与执行 |
 | 中间件 | `mysql` `redis` `mq`（插件） | MySQL 库表/索引/会话/锁/语句采样差分/慢日志/执行计划/受限查询/索引计划；Redis 运行信息/窗口采样/慢日志/Key 元数据/SCAN 采样/LFU 热度 |
-| 离线链路 | `offline` `compute` `sql` `data` | Airflow 工作流/实例/依赖/日志/补数计划与执行、Spark 作业/Stage/日志、Airflow 资源池、Spark SQL 提交、数据目录/分区/血缘/质量规则/时效 |
+| 离线链路 | `offline` `compute` `sql` `data` | Airflow 2.x（REST v1）与 3.x（REST v2）工作流/实例/依赖/日志/补数计划与执行、Spark 作业/Stage/日志、Airflow 资源池、Spark SQL 提交、数据目录/分区/血缘/质量规则/时效 |
 | 待接入 | `config` `discovery` `search` `document` `kv` `analytics` `middleware` `object` … | 只出现在目录中（`status: planned`），不生成可调用命令 |
 
 完整列表：[docs/capability-catalog.md](docs/capability-catalog.md) · 参数与输出：[docs/command-reference.md](docs/command-reference.md)
