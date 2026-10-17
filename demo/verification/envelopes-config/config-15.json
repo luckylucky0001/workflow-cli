@@ -7,7 +7,7 @@
     "service": "demo-payment",
     "env": null,
     "prefix": "/services/demo-payment/",
-    "observed_revision": 85,
+    "observed_revision": 19,
     "instances": [],
     "summary": {
       "registered": 0,
@@ -29,7 +29,7 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-17T15:29:27.867Z",
+        "observed_at": "2026-10-17T15:39:39.067Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
         "method": "POST /v3/kv/range prefix=/services/demo-payment/",
         "relation": "explicit",
@@ -39,15 +39,15 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "etcd etcd/demo-etcd 键前缀 /services/demo-payment/，修订 85",
+      "scope": "etcd etcd/demo-etcd 键前缀 /services/demo-payment/，修订 19",
       "notes": [
-        "前缀 /services/demo-payment/ 下没有注册（修订 85）：服务未注册、已全部下线（租约过期）或前缀不同"
+        "前缀 /services/demo-payment/ 下没有注册（修订 19）：服务未注册、已全部下线（租约过期）或前缀不同"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcjy9e6-124529",
+    "request_id": "req-mvckbd0c-f321a3",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -55,7 +55,7 @@
     "adapter": "etcd-v3-gateway",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:29:27.822Z",
-    "duration_ms": 46
+    "started_at": "2026-10-17T15:39:39.036Z",
+    "duration_ms": 31
   }
 }

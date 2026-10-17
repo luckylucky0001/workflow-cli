@@ -7,7 +7,7 @@
     "requested": "demo-orders-archive",
     "index": "demo-orders-archive",
     "resolved_from_alias": null,
-    "uuid": "qq8viV70RpuSX7CDczO54g",
+    "uuid": "XHEjVB1oRbek3lS5ware2g",
     "health": "yellow",
     "status": "open",
     "aliases": [
@@ -20,7 +20,7 @@
       "number_of_shards": 1,
       "number_of_replicas": 1,
       "refresh_interval": null,
-      "creation_date": "2026-10-17T15:19:51.621Z",
+      "creation_date": "2026-10-17T15:37:50.363Z",
       "version_created": "136408127"
     },
     "mapping": {
@@ -68,11 +68,11 @@
     "cumulative_stats": {
       "basis": "cumulative_since_shard_start",
       "scope": "total",
-      "search_query_total": 2,
-      "search_query_time_ms": 0,
-      "search_fetch_total": 2,
+      "search_query_total": 1,
+      "search_query_time_ms": 4,
+      "search_fetch_total": 1,
       "indexing_index_total": 400,
-      "indexing_index_time_ms": 20,
+      "indexing_index_time_ms": 16,
       "indexing_index_failed": 0,
       "refresh_total": 5
     },
@@ -96,14 +96,14 @@
         }
       ],
       "nodes": [
-        "80c6f139a307"
+        "ee978e9dec74"
       ],
       "rows": [
         {
           "shard": 0,
           "prirep": "p",
           "state": "STARTED",
-          "node": "80c6f139a307",
+          "node": "ee978e9dec74",
           "docs": 400,
           "store_bytes": 37947,
           "unassigned_reason": null
@@ -119,7 +119,7 @@
         }
       ]
     },
-    "observed_at": "2026-10-17T15:32:13.679Z"
+    "observed_at": "2026-10-17T15:43:28.237Z"
   },
   "error": null,
   "meta": {
@@ -129,7 +129,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "GET /_cat/indices/demo-orders-archive?bytes=b",
-        "observed_at": "2026-10-17T15:32:13.649Z",
+        "observed_at": "2026-10-17T15:43:28.207Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       },
@@ -138,7 +138,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "GET /demo-orders-archive/_settings, /demo-orders-archive/_mapping, /demo-orders-archive/_alias",
-        "observed_at": "2026-10-17T15:32:13.667Z",
+        "observed_at": "2026-10-17T15:43:28.225Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       },
@@ -147,7 +147,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "GET /demo-orders-archive/_stats/docs,store,search,indexing,refresh",
-        "observed_at": "2026-10-17T15:32:13.673Z",
+        "observed_at": "2026-10-17T15:43:28.231Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       },
@@ -156,7 +156,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "GET /_cat/shards/demo-orders-archive?bytes=b",
-        "observed_at": "2026-10-17T15:32:13.679Z",
+        "observed_at": "2026-10-17T15:43:28.237Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       },
@@ -165,7 +165,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "mapping.field_count / shards 汇总",
-        "observed_at": "2026-10-17T15:32:13.679Z",
+        "observed_at": "2026-10-17T15:43:28.237Z",
         "version": "opensearch 2.19.3",
         "relation": "derived"
       }
@@ -184,7 +184,7 @@
     ]
   },
   "context": {
-    "request_id": "req-mvck1t84-d0855b",
+    "request_id": "req-mvckg9ps-088207",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -192,7 +192,7 @@
     "adapter": "opensearch-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:32:13.492Z",
-    "duration_ms": 234
+    "started_at": "2026-10-17T15:43:28.048Z",
+    "duration_ms": 253
   }
 }

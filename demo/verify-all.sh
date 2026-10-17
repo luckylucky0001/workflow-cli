@@ -15,11 +15,12 @@ export WORKCTL_CONFIG="$ROOT/demo/environment/workctl.yaml"
 STATUS=0
 step() { printf '\n== %s (%s)\n' "$1" "$(date -u +%H:%M:%S)"; }
 check() { if "$@"; then echo "   ok"; else echo "   FAILED: $*"; STATUS=1; fi; }
+quiet() { "$@" >/dev/null; }   # use as `check quiet cmd`: hides cmd output but keeps check's ok/FAILED line
 
 step "build"
 check npm run -s build
 for p in demo-mq demo-search; do
-  check sh -c "node plugins/$p/build.mjs >/dev/null && node dist/workctl.js --json plugin install --file plugins/$p/dist/$p-plugin.tgz >/dev/null"
+  check quiet sh -c "node plugins/$p/build.mjs && node dist/workctl.js --json plugin install --file plugins/$p/dist/$p-plugin.tgz >/dev/null"
 done
 
 if [ -z "${SKIP_RESET:-}" ]; then
@@ -27,14 +28,14 @@ if [ -z "${SKIP_RESET:-}" ]; then
   [ -x demo/environment/offline3-down.sh ] && demo/environment/offline3-down.sh >/dev/null 2>&1 || true
   demo/environment/reset.sh >/dev/null
   step "up"
-  t0=$(date +%s); check demo/environment/up.sh >/dev/null; echo "   up: $(( $(date +%s) - t0 ))s"
+  t0=$(date +%s); check quiet demo/environment/up.sh; echo "   up: $(( $(date +%s) - t0 ))s"
   step "scenarios"
   t0=$(date +%s)
-  check demo/scenarios/offline/run-all.sh >/dev/null
-  check node demo/scenarios/mysql-redis/scenario.mjs warm-cache >/dev/null
-  check node demo/scenarios/mq/produce-and-consume.mjs --reset >/dev/null
-  check node demo/scenarios/config/seed.mjs >/dev/null
-  check node demo/scenarios/search/seed.mjs >/dev/null
+  check quiet demo/scenarios/offline/run-all.sh
+  check quiet node demo/scenarios/mysql-redis/scenario.mjs warm-cache
+  check quiet node demo/scenarios/mq/produce-and-consume.mjs --reset
+  check quiet node demo/scenarios/config/seed.mjs
+  check quiet node demo/scenarios/search/seed.mjs
   node demo/scenarios/latency/loadgen.mjs --rps 8 --duration 30 --seed 9 --label verify >/dev/null 2>&1
   echo "   scenarios: $(( $(date +%s) - t0 ))s"
 fi
@@ -44,21 +45,22 @@ step "per-capability suite (trino)"; check node scripts/verify-demo.mjs demo/ver
 step "per-capability suite (config)"; check node scripts/verify-demo.mjs demo/verification/cases.config.json
 step "per-capability suite (search plugin)"; check node scripts/verify-demo.mjs demo/verification/cases.search.json
 step "consumers: cli == script == mcp"
-check node demo/scenarios/reuse/same-contract.mjs >/dev/null
-check node demo/scenarios/reuse/same-contract.mjs mq.consumer.lag '{"cluster":"demo-mq","group":"demo-consumer"}' >/dev/null
+check quiet node demo/scenarios/reuse/same-contract.mjs
+check quiet node demo/scenarios/reuse/same-contract.mjs mq.consumer.lag '{"cluster":"demo-mq","group":"demo-consumer"}'
+check quiet node demo/scenarios/reuse/same-contract.mjs search.index.get '{"cluster":"demo-search","index":"demo-orders-current"}'
 step "log provider swap (docker ↔ loki)"
 check node demo/scenarios/reuse/log-provider-swap.mjs --out demo/verification/log-provider-swap.md
 
 if [ -n "${WITH_AF3:-}" ]; then
   step "airflow 3 version swap"
-  check demo/environment/offline3-up.sh >/dev/null
-  check demo/scenarios/reuse/af3-produce.sh >/dev/null
+  check quiet demo/environment/offline3-up.sh
+  check quiet demo/scenarios/reuse/af3-produce.sh
   check node demo/scenarios/reuse/version-swap.mjs --out demo/verification/version-swap.md
 fi
 
 if [ -n "${WITH_K8S:-}" ]; then
   step "kubernetes provider"
-  check demo/environment/k8s/k3s-up.sh >/dev/null
+  check quiet demo/environment/k8s/k3s-up.sh
   until docker exec workctl-k3s kubectl top pods -n workctl-demo >/dev/null 2>&1; do sleep 5; done
   check env WORKCTL_CONFIG="$ROOT/demo/environment/k8s/workctl.k8s.yaml" node scripts/verify-demo.mjs demo/verification/cases.k8s.json
 fi

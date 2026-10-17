@@ -15,20 +15,20 @@
     "provider": "kubernetes",
     "containers": [
       {
-        "id": "6a5b4e76e0c3",
-        "name": "demo-order-6bff5b4f4-58947/nginx",
+        "id": "42323e72760b",
+        "name": "demo-order-55b4656794-lxcfm/nginx",
         "service": "demo-order",
         "env": "sandbox",
         "image": "nginx:1.27-alpine",
         "image_id": "65645c7bb6a0",
-        "created": "2026-10-17T15:02:18Z",
+        "created": "2026-10-17T15:06:53Z",
         "state": "running",
         "health": "healthy",
         "health_failing_streak": null,
         "last_health_check": null,
         "restart_count": 0,
         "restart_policy": "Always",
-        "started_at": "2026-10-17T15:02:19Z",
+        "started_at": "2026-10-17T15:06:54Z",
         "finished_at": null,
         "exit_code": 0,
         "oom_killed": false,
@@ -51,7 +51,7 @@
         "networks": [
           {
             "name": "pod",
-            "ip": "10.42.0.12",
+            "ip": "10.42.0.13",
             "aliases": []
           }
         ],
@@ -65,7 +65,7 @@
           },
           {
             "type": "projected",
-            "name": "kube-api-access-kjlcr",
+            "name": "kube-api-access-5fnvt",
             "source": "",
             "destination": "/var/run/secrets/kubernetes.io/serviceaccount",
             "rw": false
@@ -73,21 +73,21 @@
         ],
         "labels": {
           "app": "demo-order",
-          "pod-template-hash": "6bff5b4f4",
+          "pod-template-hash": "55b4656794",
           "workctl.env": "sandbox",
           "workctl.service": "demo-order"
         },
         "kubernetes": {
           "namespace": "workctl-demo",
-          "pod": "demo-order-6bff5b4f4-58947",
+          "pod": "demo-order-55b4656794-lxcfm",
           "container": "nginx",
-          "pod_uid": "d0820264-1c27-4608-80fe-297fc6f10f9f",
+          "pod_uid": "ed8e768c-3179-4dee-bddc-7b5910875529",
           "node": "vm",
           "phase": "Running",
           "pod_ready": true,
           "container_ready": true,
           "qos_class": "Burstable",
-          "owner": "ReplicaSet/demo-order-6bff5b4f4",
+          "owner": "ReplicaSet/demo-order-55b4656794",
           "state_reason": null,
           "last_termination": null,
           "requests": {
@@ -124,20 +124,20 @@
         }
       },
       {
-        "id": "66c7a0562293",
-        "name": "demo-order-6bff5b4f4-72x5v/nginx",
+        "id": "97b383f1a00a",
+        "name": "demo-order-55b4656794-qmrgb/nginx",
         "service": "demo-order",
         "env": "sandbox",
         "image": "nginx:1.27-alpine",
         "image_id": "65645c7bb6a0",
-        "created": "2026-10-17T15:02:18Z",
+        "created": "2026-10-17T15:06:54Z",
         "state": "running",
         "health": "healthy",
         "health_failing_streak": null,
         "last_health_check": null,
         "restart_count": 0,
         "restart_policy": "Always",
-        "started_at": "2026-10-17T15:02:18Z",
+        "started_at": "2026-10-17T15:06:55Z",
         "finished_at": null,
         "exit_code": 0,
         "oom_killed": false,
@@ -160,7 +160,7 @@
         "networks": [
           {
             "name": "pod",
-            "ip": "10.42.0.11",
+            "ip": "10.42.0.14",
             "aliases": []
           }
         ],
@@ -174,7 +174,7 @@
           },
           {
             "type": "projected",
-            "name": "kube-api-access-thdpz",
+            "name": "kube-api-access-l5lcg",
             "source": "",
             "destination": "/var/run/secrets/kubernetes.io/serviceaccount",
             "rw": false
@@ -182,21 +182,21 @@
         ],
         "labels": {
           "app": "demo-order",
-          "pod-template-hash": "6bff5b4f4",
+          "pod-template-hash": "55b4656794",
           "workctl.env": "sandbox",
           "workctl.service": "demo-order"
         },
         "kubernetes": {
           "namespace": "workctl-demo",
-          "pod": "demo-order-6bff5b4f4-72x5v",
+          "pod": "demo-order-55b4656794-qmrgb",
           "container": "nginx",
-          "pod_uid": "b9ff736a-288e-479b-b0f3-c09da82320db",
+          "pod_uid": "e2fcdbee-b704-47cf-8196-8fe57b19d363",
           "node": "vm",
           "phase": "Running",
           "pod_ready": true,
           "container_ready": true,
           "qos_class": "Burstable",
-          "owner": "ReplicaSet/demo-order-6bff5b4f4",
+          "owner": "ReplicaSet/demo-order-55b4656794",
           "state_reason": null,
           "last_termination": null,
           "requests": {
@@ -251,8 +251,8 @@
           "name": "demo-order",
           "namespace": "workctl-demo",
           "uid": "e32abd5e-1d03-4697-a778-107a8fc6df2b",
-          "generation": 4,
-          "observed_generation": 4,
+          "generation": 5,
+          "observed_generation": 5,
           "replicas": 2,
           "ready_replicas": 2,
           "updated_replicas": 2,
@@ -262,26 +262,26 @@
             "status": "True",
             "reason": "NewReplicaSetAvailable"
           },
-          "restarted_at": "2026-10-17T15:02:17Z"
+          "restarted_at": "2026-10-17T15:06:53Z"
         }
       ],
       "pods": [
         {
-          "name": "demo-order-6bff5b4f4-58947",
+          "name": "demo-order-55b4656794-lxcfm",
           "phase": "Running",
           "ready": true,
           "node": "vm",
-          "pod_ip": "10.42.0.12",
-          "start_time": "2026-10-17T15:02:18Z",
+          "pod_ip": "10.42.0.13",
+          "start_time": "2026-10-17T15:06:53Z",
           "restarts": 0
         },
         {
-          "name": "demo-order-6bff5b4f4-72x5v",
+          "name": "demo-order-55b4656794-qmrgb",
           "phase": "Running",
           "ready": true,
           "node": "vm",
-          "pod_ip": "10.42.0.11",
-          "start_time": "2026-10-17T15:02:18Z",
+          "pod_ip": "10.42.0.14",
+          "start_time": "2026-10-17T15:06:54Z",
           "restarts": 0
         }
       ]
@@ -293,7 +293,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T15:06:51.876Z",
+        "observed_at": "2026-10-17T15:41:34.514Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/deployments",
         "relation": "explicit",
@@ -302,7 +302,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T15:06:51.876Z",
+        "observed_at": "2026-10-17T15:41:34.515Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/statefulsets",
         "relation": "explicit",
@@ -311,7 +311,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T15:06:51.876Z",
+        "observed_at": "2026-10-17T15:41:34.515Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/namespaces/workctl-demo/pods?labelSelector=app=demo-order",
         "relation": "explicit",
@@ -320,7 +320,7 @@
       {
         "system": "workctl",
         "adapter": "resource-bindings",
-        "observed_at": "2026-10-17T15:06:51.876Z",
+        "observed_at": "2026-10-17T15:41:34.515Z",
         "method": "bindings: demo-order runs_on demo-order-k8s（endpoint kubernetes/k3s）",
         "relation": "explicit"
       }
@@ -338,7 +338,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj572r-24197b",
+    "request_id": "req-mvckdu1w-9ffe7b",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -346,7 +346,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:06:51.795Z",
-    "duration_ms": 82
+    "started_at": "2026-10-17T15:41:34.435Z",
+    "duration_ms": 80
   }
 }

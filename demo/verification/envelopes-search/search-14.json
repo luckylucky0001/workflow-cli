@@ -27,7 +27,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvck1wt5-c976b8",
+    "request_id": "req-mvckgcy7-24a647",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -35,7 +35,7 @@
     "adapter": "opensearch-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:32:18.137Z",
-    "duration_ms": 126
+    "started_at": "2026-10-17T15:43:32.239Z",
+    "duration_ms": 90
   }
 }

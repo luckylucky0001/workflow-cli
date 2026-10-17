@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "container.workload.restart_plan",
   "data": {
-    "id": "op-20261017-25e239",
+    "id": "op-20261017-056568",
     "kind": "container.restart",
     "title": "滚动重启服务 demo-order（sandbox）的 1 个 Kubernetes 工作负载",
     "params": {
@@ -21,8 +21,8 @@
         "namespace": "workctl-demo",
         "name": "demo-order",
         "uid": "e32abd5e-1d03-4697-a778-107a8fc6df2b",
-        "generation": 4,
-        "observed_generation": 4,
+        "generation": 5,
+        "observed_generation": 5,
         "replicas": 2,
         "ready_replicas": 2,
         "updated_replicas": 2,
@@ -93,14 +93,14 @@
     "idempotent": false,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-17T15:06:53.552Z",
-    "expires_at": "2026-10-17T15:36:53.552Z",
+    "created_at": "2026-10-17T15:41:36.148Z",
+    "expires_at": "2026-10-17T16:11:36.148Z",
     "profile": "k8s-demo",
     "env": "sandbox",
     "executable": true,
     "history": [
       {
-        "at": "2026-10-17T15:06:53.552Z",
+        "at": "2026-10-17T15:41:36.148Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
@@ -112,7 +112,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T15:06:53.565Z",
+        "observed_at": "2026-10-17T15:41:36.154Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/{deployments|statefulsets} + /api/v1/namespaces/workctl-demo/pods",
         "relation": "explicit",
@@ -121,7 +121,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T15:06:53.565Z",
+        "observed_at": "2026-10-17T15:41:36.155Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/k8s/state/operations",
         "relation": "derived"
       }
@@ -130,13 +130,13 @@
       "complete": true,
       "scope": "计划生成时解析出的目标",
       "notes": [
-        "执行: workctl operation execute --id op-20261017-25e239 --confirm op-20261017-25e239"
+        "执行: workctl operation execute --id op-20261017-056568 --confirm op-20261017-056568"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj58dh-d2806e",
+    "request_id": "req-mvckdvbo-c5659e",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -144,7 +144,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:06:53.477Z",
-    "duration_ms": 88
+    "started_at": "2026-10-17T15:41:36.084Z",
+    "duration_ms": 71
   }
 }

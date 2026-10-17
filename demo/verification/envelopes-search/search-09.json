@@ -254,7 +254,7 @@
         ]
       }
     },
-    "observed_at": "2026-10-17T15:32:15.745Z"
+    "observed_at": "2026-10-17T15:43:30.243Z"
   },
   "error": null,
   "meta": {
@@ -264,7 +264,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "POST /demo-orders/_search",
-        "observed_at": "2026-10-17T15:32:15.745Z",
+        "observed_at": "2026-10-17T15:43:30.243Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       }
@@ -283,7 +283,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvck1utw-b61f1e",
+    "request_id": "req-mvckgba1-79d0e6",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -291,7 +291,7 @@
     "adapter": "opensearch-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:32:15.571Z",
-    "duration_ms": 186
+    "started_at": "2026-10-17T15:43:30.073Z",
+    "duration_ms": 182
   }
 }
