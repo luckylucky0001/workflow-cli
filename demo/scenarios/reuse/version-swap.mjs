@@ -62,19 +62,37 @@ const CASES = [
   },
 ];
 
-/** Key paths of a JSON value (array items collapsed to []), excluding the values of open records. */
-function keyPaths(v, prefix = '', out = new Set()) {
+/** Key paths of a JSON value (array items collapsed to []); `nulls` collects paths whose value is null. */
+function keyPaths(v, prefix = '', out = new Set(), nulls = new Set()) {
+  if (v === null && prefix) nulls.add(prefix);
   if (Array.isArray(v)) {
-    for (const x of v) keyPaths(x, `${prefix}[]`, out);
+    for (const x of v) keyPaths(x, `${prefix}[]`, out, nulls);
   } else if (v && typeof v === 'object') {
     for (const [k, x] of Object.entries(v)) {
       const p = prefix ? `${prefix}.${k}` : k;
       out.add(p);
       // provenance objects nested in data (layers.*.source) are expected to differ only in values
-      if (k !== 'source') keyPaths(x, p, out);
+      if (k !== 'source') keyPaths(x, p, out, nulls);
     }
   }
-  return out;
+  return { paths: out, nulls };
+}
+
+/** Paths present on one side only, split into "null on the other side" and "really missing". */
+function pathDiff(a, b) {
+  const under = (p, set) => [...set].find((n) => p.startsWith(`${n}.`) || p.startsWith(`${n}[]`));
+  const only = (x, y) => {
+    const nullOther = new Set();
+    const missing = [];
+    for (const p of x.paths) {
+      if (y.paths.has(p)) continue;
+      const n = under(p, y.nulls);
+      if (n) nullOther.add(n);
+      else missing.push(p);
+    }
+    return { missing, nullOther: [...nullOther] };
+  };
+  return { a: only(a, b), b: only(b, a) };
 }
 
 const clients = SIDES.map((s) => ({ ...s, client: createClient({ configPath: s.config, profile: s.profile, timeoutMs: 120_000 }) }));
@@ -92,8 +110,12 @@ for (const c of CASES) {
   const schemaOk = res.map((env) => env.status !== 'error' && def.output.safeParse(env.data).success);
   const topKeys = res.map((env) => (env.data ? Object.keys(env.data).sort().join(',') : ''));
   const kp = res.map((env) => keyPaths(env.data));
-  const onlyV1 = [...kp[0]].filter((k) => !kp[1].has(k));
-  const onlyV2 = [...kp[1]].filter((k) => !kp[0].has(k));
+  const pd = pathDiff(kp[0], kp[1]);
+  const nestedParts = [];
+  if (pd.a.missing.length) nestedParts.push(`仅 v1 有: ${pd.a.missing.join(', ')}`);
+  if (pd.b.missing.length) nestedParts.push(`仅 v2 有: ${pd.b.missing.join(', ')}`);
+  if (pd.b.nullOther.length) nestedParts.push(`v1 为 null、v2 有值: ${pd.b.nullOther.join(', ')}`);
+  if (pd.a.nullOther.length) nestedParts.push(`v2 为 null、v1 有值: ${pd.a.nullOther.join(', ')}`);
   let layered = 'n/a';
   if (c.layered && res.every((e) => e.data)) {
     const st = res.map((e) => ['scheduler', 'compute', 'output', 'quality'].map((k) => `${k}=${e.data.summary[`${k}_state`]}`).join(' '));
@@ -112,7 +134,7 @@ for (const c of CASES) {
     methods,
     schema: schemaOk.every(Boolean) ? 'yes' : `NO (v1=${schemaOk[0]}, v2=${schemaOk[1]})`,
     keys: topKeys[0] === topKeys[1] ? 'yes' : 'NO',
-    nested: onlyV1.length || onlyV2.length ? `v1 only: ${onlyV1.join(', ') || '-'}; v2 only: ${onlyV2.join(', ') || '-'}` : 'none',
+    nested: nestedParts.length ? nestedParts.join('；') : '无',
     layered,
     facts: factDiff,
     factValues: facts,
@@ -131,11 +153,14 @@ lines.push('| 能力 | v1 适配器 · 实际版本 | v2 适配器 · 实际版�
 lines.push('|---|---|---|---|---|---|---|');
 for (const r of rows) lines.push(`| \`${r.capability}\` | ${r.v1} | ${r.v2} | ${r.schema} | ${r.keys} | ${r.layered} | ${r.facts === 'same' ? '相同' : `不同: ${r.facts}`} |`);
 lines.push('');
-lines.push('## 嵌套字段差异（键路径，只在一侧出现）');
+lines.push('## 嵌套字段差异（键路径；同一 schema 内的可选/可空字段）');
 lines.push('');
 lines.push('| 能力 | 差异 |');
 lines.push('|---|---|');
 for (const r of rows) lines.push(`| \`${r.capability}\` | ${r.nested} |`);
+lines.push('');
+lines.push('已知原因（适配层不改写这些值）：`mapping.query` 记录实际发送给调度器的查询参数，REST v1 为 `execution_date_*`、REST v2 为 `logical_date_*`（同一时间窗口）；');
+lines.push('`queued_at`：Airflow 2.10 的 REST v1 DAGRun 响应没有该字段（schema 中可空，v1 为 null），REST v2 返回它。');
 lines.push('');
 lines.push('## 来源方法（meta.sources 中第一个 airflow 来源）与 context.adapter');
 lines.push('');

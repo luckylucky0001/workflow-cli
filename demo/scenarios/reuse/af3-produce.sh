@@ -75,3 +75,17 @@ wait_ti demo-daily-orders demo__2026-10-14__missing_upstream wait_for_ods_partit
 set_paused demo-ods-orders true
 set_paused demo-daily-orders true
 echo "warehouse (airflow 3): $(cd "$ENV_DIR/.runtime/warehouse-af3" && find . -name _SUCCESS | sort | tr '\n' ' ')"
+
+# Same data quality checks as recorded for the Airflow 2 side (demo/verification/report.md data-06/07 and
+# the 2026-10-16 check), so that the quality layer of `offline run get` is comparable. They read
+# .runtime/warehouse-af3 and write results only to the demo-af3 state dir (.runtime/state-af3).
+REPO_ROOT="$(cd "$HERE/../../.." && pwd)"
+if [ -f "$REPO_ROOT/dist/workctl.js" ]; then
+  for args in "demo.daily_orders dt=2026-10-16 demo-daily-rules" "demo.daily_orders dt=2026-10-17 demo-daily-rules" "demo.ods.orders dt=2026-10-16 demo-ods-rules"; do
+    set -- $args
+    node "$REPO_ROOT/dist/workctl.js" --json --config "$ENV_DIR/workctl.af3.yaml" --timeout 2m data quality check --dataset "$1" --partition "$2" --ruleset "$3" \
+      | python3 -c 'import json,sys; e=json.load(sys.stdin); d=e.get("data") or {}; print("quality", d.get("dataset",{}).get("table"), d.get("partition"), d.get("quality_state") or e["error"]["code"])'
+  done
+else
+  echo "dist/workctl.js missing: run npm run build, then re-run this script for the quality checks" >&2
+fi
