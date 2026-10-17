@@ -35,7 +35,32 @@
 
 ## 4. 实测记录
 
-（随实测更新）
+### 4.1 Agent 组（Claude Code 无头模式，隔离演示环境，2026-10-17）
+
+运行：`./demo/agent-host/run-agent-demo.sh`。Agent 使用只读 profile（`allow_execute: false`），主线 A/B 运行期间真实注入缓存旁路故障并保持 8 rps 负载。转录摘要：[agent-host/runs/](agent-host/runs/)。成本为宿主报告值，含能力发现（ToolSearch、Skill 读取）的消耗。
+
+| 组 | 主线 | workctl 调用 | 总工具调用 | 耗时 | 宿主报告成本 | 是否合格 | 依据 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Skill + MCP/CLI | A 资源巡检 | 9 | 10 | 24.3 s | $0.26 | 合格 | 依赖带来源；容器状态/重启/OOM/限制；快照与窗口区分；指出事件缓冲覆盖不足而不说“没有事件” |
+| Skill + MCP/CLI | B 中间件分析 | 20 | 24 | 58.9 s | $0.38 | 合格 | 时间对齐（13:00:47 切换 bypass 后 hit_ratio→0、db_query_rate↑、p95↑）；EXPLAIN + 慢日志 + 10s 摘要差分定位无索引全扫描；Redis 无查找时命中率为 null；累计值不当窗口；未执行 analyze 与变更 |
+| Skill + MCP/CLI | C 离线链路 | 11 | 13 | 37.3 s | $0.25 | 合格 | 四层状态分别取证；日志证明写入 dt=2026-10-17；目标分区、上游就绪、下游影响；补数计划含区间/写入方式/并发并识别 `dag_not_paused` 前置条件与 conf 复用风险；未执行 |
+
+CLI-only 对照组见 §4.2（实测后填写）。人工组：**未测量**（需要参与者按同一任务卡计时）。
+
+### 4.2 仅 CLI 对照组
+
+（实测后填写）
+
+### 4.3 基础设施层
+
+| 维度 | 实测 |
+| --- | --- |
+| 消费者复用 | `same-contract.mjs`：`redis.info.get` 与插件能力 `mq.consumer.lag` 经 CLI、脚本 API、MCP 三种入口返回相同的能力名、版本、适配器、数据字段和来源 |
+| 流程复用 | [reuse-matrix.md](../docs/reuse-matrix.md)：10 个 Skill 引用 55 个能力，其中 16 个能力被 2 个及以上 Skill 复用；`offline run get` 在代码层通过 `ctx.call` 复用 `data.partition.get`、`compute.job.get` |
+| 共享代码 | `scripts/maintenance-report.mjs`：共享运行时（core）约 1.3k 行、CLI+MCP 约 0.7k 行，被 10 个内置领域和插件共用；领域适配器 0.3k–2.4k 行 |
+| 新系统接入（插件） | demo-mq：约 1.1k 行插件代码 + 清单/指南/Skill，无需为消息队列修改核心（开发过程中修复了插件加载器 2 个通用缺陷：重装校验、Schema 路径）；安装后命令、帮助、目录、MCP 工具自动出现，真实 Kafka 结果与 `kafka-consumer-groups.sh` 一致 |
+| 文档一致性 | 契约测试在 CI 中强制：生成文档逐字一致、示例命令/参数存在、设计稿命令全覆盖 |
+| 分发 | `npm pack` 后全局安装，CLI 可运行并找到随包 Skill；包大小 1.8 MB（依赖已打包进单文件） |
 
 ## 5. 验收结论
 

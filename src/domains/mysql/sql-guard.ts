@@ -347,7 +347,7 @@ export function sensitiveOutputPlan(tokens: Token[], sensitive: Set<string>): Se
     let k = start + 1;
     for (; k < tokens.length; k++) {
       const t = tokens[k];
-      if (t.depth < branchDepth || (t.kind === 'punct' && t.text === ')' && t.depth === branchDepth && items[0].length === 0 && false)) break;
+      if (t.depth < branchDepth) break;
       if (t.depth === branchDepth && t.kind === 'word' && ITEM_END.has(t.upper)) break;
       if (t.depth === branchDepth && t.kind === 'punct' && t.text === ')') break;
       if (t.depth === branchDepth && t.kind === 'punct' && t.text === ',') {

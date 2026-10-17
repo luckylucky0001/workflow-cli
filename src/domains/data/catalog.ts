@@ -291,9 +291,29 @@ export function resolveDataset(ctx: Ctx, dataset: string, catalogName?: string):
     return { input: dataset, catalog: catalogName, table: dataset, method: '--catalog 指定目录，dataset 按 <db>.<table> 解析' };
   }
   const catalogs = ctx.endpointNames('catalog');
+  let defName: string | undefined;
+  try {
+    defName = ctx.endpoint('catalog').name;
+  } catch {
+    defName = undefined;
+  }
   if (catalogs.includes(segs[0])) {
     const cat = openCatalog(ctx, segs[0]);
     const matches = [...cat.tables.keys()].filter((t) => t.split('.')[1] === segs[1]);
+    // the other reading: <db>.<table> in the default catalog (when that is a different catalog)
+    let altHas = false;
+    if (defName && defName !== segs[0]) {
+      try {
+        altHas = openCatalog(ctx, defName).tables.has(dataset);
+      } catch {
+        altHas = false;
+      }
+    }
+    if (matches.length >= 1 && altHas) {
+      throw new WorkError('INVALID_ARGUMENT', `--dataset ${dataset} 有歧义：既可指目录 ${segs[0]} 中的 ${matches.join(', ')}，也可指默认目录 ${defName} 中的表 ${dataset}`, {
+        hint: `使用完整名称 --dataset ${segs[0]}.<db>.${segs[1]} 或 --dataset ${defName}.${dataset}`,
+      });
+    }
     if (matches.length === 1) {
       return { input: dataset, catalog: segs[0], table: matches[0], method: `目录 ${segs[0]} 中表名 ${segs[1]} 唯一匹配` };
     }
@@ -302,11 +322,12 @@ export function resolveDataset(ctx: Ctx, dataset: string, catalogName?: string):
         hint: `使用完整名称 --dataset ${segs[0]}.<db>.${segs[1]}`,
       });
     }
-    if (!cat.tables.has(dataset)) {
+    if (!altHas) {
       throw new WorkError('NOT_FOUND', `目录 ${segs[0]} 中没有表名为 ${segs[1]} 的表`, { hint: `已登记的表: ${[...cat.tables.keys()].join(', ') || '(无)'}` });
     }
   }
-  const def = ctx.endpoint('catalog').name;
+  if (!defName) throw new WorkError('NOT_CONFIGURED', '有多个 catalog 端点且没有默认值，无法解析 <db>.<table>', { hint: '使用 --catalog 或 <catalog>.<db>.<table>' });
+  const def = defName;
   return { input: dataset, catalog: def, table: dataset, method: `默认目录 ${def}，dataset 按 <db>.<table> 解析` };
 }
 

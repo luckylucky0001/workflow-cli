@@ -590,6 +590,16 @@ export async function evaluateRuleset(inp: EvaluateInput): Promise<Evaluation> {
       push(r, { status: 'error', message: `未知规则类型 ${(r as Rule).type}` }, 'none');
       continue;
     }
+    if (rowsRead === 0) {
+      // no parsed record: a row-level rule has nothing to evaluate. Reporting "pass" here
+      // would claim e.g. "no nulls" for an empty or unparseable partition.
+      push(r, {
+        status: 'skipped',
+        message: parseErrors ? `没有可解析的记录（${parseErrors} 行解析失败），规则无法评估` : `分区没有数据记录（partition_state=${state}），规则无法评估`,
+        observed: { rows_checked: 0 },
+      }, 'none');
+      continue;
+    }
     const declared = new Set(meta.columns.map((c) => c.name));
     const cols = 'columns' in r && r.columns ? r.columns : 'column' in r ? [r.column] : [];
     const undeclared = cols.filter((c) => !declared.has(c));
@@ -623,7 +633,10 @@ export async function evaluateRuleset(inp: EvaluateInput): Promise<Evaluation> {
     skipped: results.filter((r) => r.status === 'skipped').length,
     warn_failures: results.filter((r) => r.severity === 'warn' && r.status === 'fail').length,
   };
-  const conclusive = qualityState === 'fail' || (qualityState === 'pass' && results.every((r) => r.status !== 'pass' || r.conclusive || r.severity === 'warn'));
+  // a pass is conclusive only if every blocking rule actually passed on full data
+  const conclusive =
+    qualityState === 'fail' ||
+    (qualityState === 'pass' && results.every((r) => r.severity === 'warn' || (r.status === 'pass' && r.conclusive)));
   return {
     quality_state: qualityState,
     conclusive,

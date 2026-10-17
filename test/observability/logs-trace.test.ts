@@ -196,3 +196,67 @@ describe('log query and trace get against a fake Docker Engine', () => {
     expect(env.error?.hint).toContain('--window');
   });
 });
+
+describe('review regressions (logs / trace)', () => {
+  it('decodes a multi-byte UTF-8 character split across TTY chunks and across frames', () => {
+    const got: string[] = [];
+    const sp = new LineSplitter((l) => got.push(l));
+    const bytes = Buffer.from('2026-10-17T12:00:00Z 订单超时\n', 'utf8');
+    const cut = bytes.indexOf(Buffer.from('单', 'utf8')) + 1; // inside the 3-byte character
+    sp.push(bytes.subarray(0, cut));
+    sp.push(bytes.subarray(cut));
+    sp.flush();
+    expect(got).toEqual(['2026-10-17T12:00:00Z 订单超时']);
+
+    const out: string[] = [];
+    const lines = new LineSplitter((l) => out.push(l));
+    const d = new FrameDemuxer((_s, p) => lines.push(p));
+    const payload = Buffer.from('缓存命中率下降\n', 'utf8');
+    const head = (n: number) => {
+      const h = Buffer.alloc(8);
+      h[0] = 1;
+      h.writeUInt32BE(n, 4);
+      return h;
+    };
+    // one log line split across two frames in the middle of a character
+    d.push(Buffer.concat([head(4), payload.subarray(0, 4), head(payload.length - 4), payload.subarray(4)]));
+    lines.flush();
+    expect(out).toEqual(['缓存命中率下降']);
+  });
+
+  it('keeps the globally newest/oldest entries when containers arrive one after another', () => {
+    const mk = (ts: string, container: string) => ({ ts, container }) as LogEntry;
+    // container A (newer logs) is scanned first, then container B (older logs)
+    const a = ['12:00:10', '12:00:11', '12:00:12', '12:00:13', '12:00:14'].map((t) => mk(`2026-10-17T${t}Z`, 'a'));
+    const b = ['12:00:01', '12:00:02', '12:00:03', '12:00:04', '12:00:05'].map((t) => mk(`2026-10-17T${t}Z`, 'b'));
+    const newest = new BoundedCollector(2, 'newest');
+    [...a, ...b].forEach((e) => newest.add(e));
+    expect(newest.entries().map((e) => e.ts)).toEqual(['2026-10-17T12:00:13Z', '2026-10-17T12:00:14Z']);
+    const oldest = new BoundedCollector(2, 'oldest');
+    [...a, ...b].forEach((e) => oldest.add(e));
+    expect(oldest.entries().map((e) => e.ts)).toEqual(['2026-10-17T12:00:01Z', '2026-10-17T12:00:02Z']);
+  });
+
+  const span = (id: string, parent: string | null, start: string, d: number): SpanRecord => ({
+    trace_id: 't', span_id: id, parent_span_id: parent, name: id, service: 's', container: 'c', start, duration_ms: d, status: 'ok', attributes: {},
+  });
+
+  it('does not drop spans whose parents form a cycle (or that are their own parent)', () => {
+    const v = buildTrace('t', [
+      span('root', null, '2026-10-17T12:00:00.000Z', 100),
+      span('a', 'b', '2026-10-17T12:00:00.010Z', 10),
+      span('b', 'a', '2026-10-17T12:00:00.020Z', 5),
+      span('self', 'self', '2026-10-17T12:00:00.030Z', 3),
+    ], []);
+    expect(v.span_count).toBe(4);
+    expect(v.spans.map((s) => s.span_id).sort()).toEqual(['a', 'b', 'root', 'self']);
+    expect(v.cyclic_parents).toEqual(['a', 'self']);
+    expect(v.external_parent).toBeNull();
+  });
+
+  it('rejects span records with an unparseable start or negative duration instead of crashing', () => {
+    expect(spanFromFields({ trace_id: 't', span_id: 's', name: 'n', start: 'not-a-time', duration_ms: 5 }, 'c')).toBeNull();
+    expect(spanFromFields({ trace_id: 't', span_id: 's', name: 'n', start: '2026-10-17T12:00:00Z', duration_ms: -1 }, 'c')).toBeNull();
+    expect(spanFromFields({ trace_id: 't', span_id: 's', name: 'n', start: '2026-10-17T12:00:00Z', duration_ms: 5 }, 'c')).not.toBeNull();
+  });
+});

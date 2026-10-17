@@ -24,6 +24,17 @@ describe('prometheus helpers (pure)', () => {
     expect(summarize([]).summary.avg).toBeNull();
   });
 
+  it('counts Prometheus +Inf/-Inf separately from NaN (histogram_quantile above the largest bucket)', () => {
+    const { points, summary } = summarize([
+      [1700000000, '0.2'],
+      [1700000015, '+Inf'],
+      [1700000030, '-Inf'],
+      [1700000045, 'NaN'],
+    ]);
+    expect(points[1][1]).toBeNull();
+    expect(summary).toMatchObject({ points: 4, nan_points: 1, inf_points: 2, min: 0.2, max: 0.2, last: 0.2 });
+  });
+
   it('renders $service and rejects label-breaking resource ids', () => {
     expect(renderQuery('x{service="$service"}', 'demo-order')).toBe('x{service="demo-order"}');
     expect(() => renderQuery('x{service="$service"}', 'a"}or vector(1)')).toThrow(/不允许/);
