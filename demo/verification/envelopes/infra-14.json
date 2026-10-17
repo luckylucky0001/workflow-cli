@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "container.workload.restart_plan",
   "data": {
-    "id": "op-20261017-55a8ce",
+    "id": "op-20261017-8d57ba",
     "kind": "container.restart",
     "title": "重启服务 demo-order（sandbox）的 1 个容器",
     "params": {
@@ -12,12 +12,12 @@
     },
     "targets": [
       {
-        "container_id": "3132b175b5dcf7b3a418ef277778850460407adffb2c933fc0140d4f9c778e7d",
+        "container_id": "f095b8e1d5e93b7ae0bf99180b0b7ffda1fe037f1918f0683778044d78158251",
         "name": "demo-order",
         "image": "workctl-demo/demo-order:local",
         "state": "running",
         "health": "none",
-        "started_at": "2026-10-17T13:18:42.379608446Z",
+        "started_at": "2026-10-17T14:22:38.336131109Z",
         "restart_policy": "no",
         "selector": "workctl.service=demo-order",
         "selector_kind": "label",
@@ -82,7 +82,7 @@
     "steps": [
       {
         "name": "restart demo-order",
-        "detail": "POST /containers/3132b175b5dc/restart?t=10"
+        "detail": "POST /containers/f095b8e1d5e9/restart?t=10"
       },
       {
         "name": "verify",
@@ -93,14 +93,14 @@
     "idempotent": true,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-17T13:51:40.208Z",
-    "expires_at": "2026-10-17T14:21:40.208Z",
+    "created_at": "2026-10-17T14:25:04.392Z",
+    "expires_at": "2026-10-17T14:55:04.392Z",
     "profile": "demo",
     "env": "sandbox",
     "executable": true,
     "history": [
       {
-        "at": "2026-10-17T13:51:40.208Z",
+        "at": "2026-10-17T14:25:04.392Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
@@ -112,7 +112,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T13:51:40.217Z",
+        "observed_at": "2026-10-17T14:25:04.402Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/json + /containers/{id}/json",
         "relation": "explicit",
@@ -121,7 +121,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T13:51:40.218Z",
+        "observed_at": "2026-10-17T14:25:04.402Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/state/operations",
         "relation": "derived"
       }
@@ -130,13 +130,13 @@
       "complete": true,
       "scope": "计划生成时解析出的目标",
       "notes": [
-        "执行: workctl operation execute --id op-20261017-55a8ce --confirm op-20261017-55a8ce"
+        "执行: workctl operation execute --id op-20261017-8d57ba --confirm op-20261017-8d57ba"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcgghv9-d9198e",
+    "request_id": "req-mvchngat-ad33ab",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -144,7 +144,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:51:40.149Z",
-    "duration_ms": 69
+    "started_at": "2026-10-17T14:25:04.325Z",
+    "duration_ms": 77
   }
 }

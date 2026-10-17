@@ -4,13 +4,13 @@
   "capability": "container.stats.get",
   "data": {
     "kind": "snapshot",
-    "observed_at": "2026-10-17T13:51:33.894Z",
+    "observed_at": "2026-10-17T14:24:58.501Z",
     "service": "demo-order",
     "env": "sandbox",
     "matched_by": "label workctl.service=demo-order（binding attribute container_label）",
     "containers": [
       {
-        "id": "3132b175b5dc",
+        "id": "f095b8e1d5e9",
         "name": "demo-order",
         "state": "running",
         "limits": {
@@ -18,9 +18,9 @@
           "memory_bytes": 268435456
         },
         "stats": {
-          "read_at": "2026-10-17T13:51:33.890909195Z",
-          "preread_at": "2026-10-17T13:51:32.888436825Z",
-          "sample_interval_ms": 1002,
+          "read_at": "2026-10-17T14:24:58.497825299Z",
+          "preread_at": "2026-10-17T14:24:57.494028498Z",
+          "sample_interval_ms": 1003,
           "cpu": {
             "cores_used": 0,
             "percent": 0,
@@ -28,16 +28,16 @@
             "percent_of_limit": 0
           },
           "memory": {
-            "usage_bytes": 26644480,
-            "working_set_bytes": 26644480,
+            "usage_bytes": 21037056,
+            "working_set_bytes": 21037056,
             "limit_bytes": 268435456,
             "limit_source": "container",
-            "percent_of_limit": 9.93
+            "percent_of_limit": 7.84
           },
           "pids": 11,
           "network": {
-            "rx_bytes": 1893036,
-            "tx_bytes": 5745721,
+            "rx_bytes": 238216,
+            "tx_bytes": 361155,
             "rx_errors": 0,
             "tx_errors": 0
           },
@@ -57,7 +57,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T13:51:33.903Z",
+        "observed_at": "2026-10-17T14:24:58.512Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/stats?stream=false",
         "relation": "sampled",
@@ -66,7 +66,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T13:51:33.903Z",
+        "observed_at": "2026-10-17T14:24:58.512Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/json",
         "relation": "explicit",
@@ -85,7 +85,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcggc7x-09f539",
+    "request_id": "req-mvchnaz2-023e9f",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -93,7 +93,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:51:32.829Z",
-    "duration_ms": 1074
+    "started_at": "2026-10-17T14:24:57.422Z",
+    "duration_ms": 1090
   }
 }

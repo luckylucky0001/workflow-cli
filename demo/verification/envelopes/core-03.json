@@ -284,7 +284,7 @@
       {
         "system": "workctl",
         "adapter": "registry",
-        "observed_at": "2026-10-17T13:51:29.988Z",
+        "observed_at": "2026-10-17T14:24:54.625Z",
         "relation": "explicit"
       }
     ],
@@ -292,7 +292,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcgga0f-d5767f",
+    "request_id": "req-mvchn8sx-da6171",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -300,7 +300,7 @@
     "adapter": "registry",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:51:29.967Z",
-    "duration_ms": 21
+    "started_at": "2026-10-17T14:24:54.609Z",
+    "duration_ms": 17
   }
 }

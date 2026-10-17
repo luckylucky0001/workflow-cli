@@ -25,17 +25,17 @@
       },
       "queued_at": null,
       "start_date": {
-        "utc": "2026-10-17T12:37:14.816Z",
-        "local": "2026-10-17T20:37:14+08:00"
+        "utc": "2026-10-17T14:22:58.271Z",
+        "local": "2026-10-17T22:22:58+08:00"
       },
       "end_date": {
-        "utc": "2026-10-17T12:38:23.016Z",
-        "local": "2026-10-17T20:38:23+08:00"
+        "utc": "2026-10-17T14:24:05.015Z",
+        "local": "2026-10-17T22:24:05+08:00"
       },
-      "duration_seconds": 68,
+      "duration_seconds": 67,
       "last_scheduling_decision": {
-        "utc": "2026-10-17T12:38:23.015Z",
-        "local": "2026-10-17T20:38:23+08:00"
+        "utc": "2026-10-17T14:24:05.013Z",
+        "local": "2026-10-17T22:24:05+08:00"
       },
       "conf": {},
       "note": "workctl offline scenario"
@@ -50,18 +50,18 @@
         "pool": "default_pool",
         "hostname": "vm",
         "queued_when": {
-          "utc": "2026-10-17T12:37:49.551Z",
-          "local": "2026-10-17T20:37:49+08:00"
+          "utc": "2026-10-17T14:23:32.476Z",
+          "local": "2026-10-17T22:23:32+08:00"
         },
         "start_date": {
-          "utc": "2026-10-17T12:37:51.098Z",
-          "local": "2026-10-17T20:37:51+08:00"
+          "utc": "2026-10-17T14:23:33.922Z",
+          "local": "2026-10-17T22:23:33+08:00"
         },
         "end_date": {
-          "utc": "2026-10-17T12:37:51.253Z",
-          "local": "2026-10-17T20:37:51+08:00"
+          "utc": "2026-10-17T14:23:34.051Z",
+          "local": "2026-10-17T22:23:34+08:00"
         },
-        "duration_seconds": 0.155416,
+        "duration_seconds": 0.129219,
         "map_index": -1
       },
       {
@@ -73,18 +73,18 @@
         "pool": "demo-batch-pool",
         "hostname": "vm",
         "queued_when": {
-          "utc": "2026-10-17T12:37:51.825Z",
-          "local": "2026-10-17T20:37:51+08:00"
+          "utc": "2026-10-17T14:23:34.634Z",
+          "local": "2026-10-17T22:23:34+08:00"
         },
         "start_date": {
-          "utc": "2026-10-17T12:37:55.209Z",
-          "local": "2026-10-17T20:37:55+08:00"
+          "utc": "2026-10-17T14:23:38.468Z",
+          "local": "2026-10-17T22:23:38+08:00"
         },
         "end_date": {
-          "utc": "2026-10-17T12:38:06.396Z",
-          "local": "2026-10-17T20:38:06+08:00"
+          "utc": "2026-10-17T14:23:49.607Z",
+          "local": "2026-10-17T22:23:49+08:00"
         },
-        "duration_seconds": 11.186515,
+        "duration_seconds": 11.138975,
         "map_index": -1
       },
       {
@@ -96,18 +96,18 @@
         "pool": "default_pool",
         "hostname": "vm",
         "queued_when": {
-          "utc": "2026-10-17T12:38:07.186Z",
-          "local": "2026-10-17T20:38:07+08:00"
+          "utc": "2026-10-17T14:23:50.281Z",
+          "local": "2026-10-17T22:23:50+08:00"
         },
         "start_date": {
-          "utc": "2026-10-17T12:38:22.170Z",
-          "local": "2026-10-17T20:38:22+08:00"
+          "utc": "2026-10-17T14:24:04.148Z",
+          "local": "2026-10-17T22:24:04+08:00"
         },
         "end_date": {
-          "utc": "2026-10-17T12:38:22.314Z",
-          "local": "2026-10-17T20:38:22+08:00"
+          "utc": "2026-10-17T14:24:04.293Z",
+          "local": "2026-10-17T22:24:04+08:00"
         },
-        "duration_seconds": 0.143625,
+        "duration_seconds": 0.144872,
         "map_index": -1
       }
     ],
@@ -140,7 +140,7 @@
           "source": {
             "system": "airflow",
             "adapter": "airflow-rest-v1",
-            "observed_at": "2026-10-17T13:52:06.379Z",
+            "observed_at": "2026-10-17T14:25:31.925Z",
             "endpoint": "airflow/demo-airflow",
             "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-15__ok",
             "version": "2.10.5",
@@ -150,18 +150,18 @@
         },
         "compute": {
           "state": "succeeded",
-          "app_id": "local-1792240678198",
+          "app_id": "local-1792247021417",
           "task_id": "aggregate_orders",
           "app_id_via": "xcom:return_value",
           "detail": "应用已结束（attempt.completed=true）且没有失败作业；history server 不记录驱动进程退出码；driver 日志末尾没有未处理异常",
-          "duration_ms": 8417,
+          "duration_ms": 8193,
           "failed_jobs": 0,
           "source": {
             "system": "spark",
             "adapter": "spark-history-rest",
-            "observed_at": "2026-10-17T13:52:06.669Z",
+            "observed_at": "2026-10-17T14:25:32.376Z",
             "endpoint": "spark/demo-spark",
-            "method": "GET /api/v1/applications/local-1792240678198",
+            "method": "GET /api/v1/applications/local-1792247021417",
             "version": "3.5.5",
             "relation": "explicit"
           }
@@ -172,12 +172,12 @@
           "table": "analytics.daily_orders",
           "partition": "dt=2026-10-15",
           "path": "/home/user/workflow-cli/demo/environment/.runtime/warehouse/analytics/daily_orders/dt=2026-10-15",
-          "updated_at": "2026-10-17T12:38:05.470Z",
+          "updated_at": "2026-10-17T14:23:48.604Z",
           "via": "data.partition.get",
           "source": {
             "system": "local-filesystem",
             "adapter": "file-catalog",
-            "observed_at": "2026-10-17T13:52:06.729Z",
+            "observed_at": "2026-10-17T14:25:32.413Z",
             "endpoint": "catalog/demo:warehouse_root",
             "method": "stat+readdir analytics/daily_orders/dt=2026-10-15",
             "relation": "derived"
@@ -191,7 +191,7 @@
           "source": {
             "system": "workctl-state",
             "adapter": "data-quality-store",
-            "observed_at": "2026-10-17T13:52:06.730Z",
+            "observed_at": "2026-10-17T14:25:32.414Z",
             "method": "readLatestQualityResult",
             "relation": "derived"
           }
@@ -211,7 +211,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T13:52:06.379Z",
+        "observed_at": "2026-10-17T14:25:31.925Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-15__ok",
         "version": "2.10.5",
@@ -220,7 +220,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T13:52:06.379Z",
+        "observed_at": "2026-10-17T14:25:31.926Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-15__ok/taskInstances",
         "version": "2.10.5",
@@ -229,7 +229,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T13:52:06.644Z",
+        "observed_at": "2026-10-17T14:25:32.186Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET .../taskInstances/{task}/xcomEntries/return_value | logs",
         "version": "2.10.5",
@@ -238,16 +238,16 @@
       {
         "system": "spark",
         "adapter": "spark-history-rest",
-        "observed_at": "2026-10-17T13:52:06.669Z",
+        "observed_at": "2026-10-17T14:25:32.376Z",
         "endpoint": "spark/demo-spark",
-        "method": "GET /api/v1/applications/local-1792240678198",
+        "method": "GET /api/v1/applications/local-1792247021417",
         "version": "3.5.5",
         "relation": "explicit"
       },
       {
         "system": "catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T13:52:06.689Z",
+        "observed_at": "2026-10-17T14:25:32.387Z",
         "endpoint": "catalog/demo",
         "method": "tables/*.yaml produced_by.workflow=demo-daily-orders",
         "relation": "explicit"
@@ -255,7 +255,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T13:52:06.729Z",
+        "observed_at": "2026-10-17T14:25:32.413Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "stat+readdir analytics/daily_orders/dt=2026-10-15",
         "relation": "derived"
@@ -263,7 +263,7 @@
       {
         "system": "workctl-state",
         "adapter": "data-quality-store",
-        "observed_at": "2026-10-17T13:52:06.730Z",
+        "observed_at": "2026-10-17T14:25:32.414Z",
         "method": "readLatestQualityResult",
         "relation": "derived"
       }
@@ -275,15 +275,15 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcgh1ta-7d525b",
+    "request_id": "req-mvcho1a7-a0e449",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
     "capability_version": "1.0.0",
-    "adapter": "airflow-rest-v1",
+    "adapter": "airflow-rest-v1|v2",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:52:05.998Z",
-    "duration_ms": 738
+    "started_at": "2026-10-17T14:25:31.519Z",
+    "duration_ms": 899
   }
 }

@@ -3,16 +3,16 @@
   "status": "success",
   "capability": "sql.query.submit",
   "data": {
-    "query_id": "q-20261017-87dd37",
+    "query_id": "q-20261017-0db7ae",
     "engine": "spark",
     "state": "submitted",
-    "submitted_at": "2026-10-17T13:52:12.343Z",
-    "pid": 18779,
+    "submitted_at": "2026-10-17T14:25:38.481Z",
+    "pid": 916,
     "sql_sha256": "896905aaaf3124413d1931ed32f229b686e4f80fa1b14d44430b7ba5114ca293",
-    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261017-87dd37/result",
-    "state_file": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261017-87dd37.json",
+    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261017-0db7ae/result",
+    "state_file": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261017-0db7ae.json",
     "tables": "数仓目录注册为 <db>_<table> 临时视图",
-    "next": "workctl sql query get --id q-20261017-87dd37"
+    "next": "workctl sql query get --id q-20261017-0db7ae"
   },
   "error": null,
   "meta": {
@@ -20,7 +20,7 @@
       {
         "system": "spark",
         "adapter": "spark-submit-local",
-        "observed_at": "2026-10-17T13:52:12.350Z",
+        "observed_at": "2026-10-17T14:25:38.490Z",
         "endpoint": "spark/demo-spark",
         "method": "spawn /home/user/workflow-cli/demo/offline-workflows/spark/spark-submit.sh --mode query",
         "relation": "explicit"
@@ -28,12 +28,12 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "q-20261017-87dd37"
+      "scope": "q-20261017-0db7ae"
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcgh6ox-c8009d",
+    "request_id": "req-mvcho6mv-5d62fc",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -41,7 +41,7 @@
     "adapter": "spark-submit-local",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:52:12.321Z",
-    "duration_ms": 29
+    "started_at": "2026-10-17T14:25:38.455Z",
+    "duration_ms": 35
   }
 }

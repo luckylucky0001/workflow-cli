@@ -6,8 +6,8 @@
     "instance": "demo-mysql",
     "aggregation": "window_delta",
     "window": {
-      "start": "2026-10-17T13:51:42.205Z",
-      "end": "2026-10-17T13:51:52.208Z",
+      "start": "2026-10-17T14:25:06.479Z",
+      "end": "2026-10-17T14:25:16.482Z",
       "duration_ms": 10003
     },
     "cumulative_since": null,
@@ -27,7 +27,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T13:51:52.212Z",
+        "observed_at": "2026-10-17T14:25:16.486Z",
         "endpoint": "mysql/demo-mysql",
         "method": "performance_schema.events_statements_summary_by_digest (t1 − t0)",
         "version": "8.4.11",
@@ -39,19 +39,19 @@
       "limit": 10,
       "truncated": false,
       "window": {
-        "start": "2026-10-17T13:51:42.205Z",
-        "end": "2026-10-17T13:51:52.208Z"
+        "start": "2026-10-17T14:25:06.479Z",
+        "end": "2026-10-17T14:25:16.482Z"
       },
       "notes": [
         "digest_text 最长 1024 字节（max_digest_length），超出部分被截断",
-        "摘要表占用 47/10000 行（performance_schema_digests_size）；表满后新语句归入 DIGEST=NULL 行",
+        "摘要表占用 32/10000 行（performance_schema_digests_size）；表满后新语句归入 DIGEST=NULL 行",
         "已排除查询 events_statements_summary_by_digest 的语句（含 workctl 自身采样）；窗口内没有执行的摘要不出现"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcggjeu-0c7b14",
+    "request_id": "req-mvchnhww-e816da",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -59,7 +59,7 @@
     "adapter": "mysql-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:51:42.150Z",
-    "duration_ms": 10063
+    "started_at": "2026-10-17T14:25:06.416Z",
+    "duration_ms": 10071
   }
 }

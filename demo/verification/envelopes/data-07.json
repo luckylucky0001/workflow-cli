@@ -240,15 +240,15 @@
         "evaluated_on": "filesystem",
         "conclusive": true,
         "status": "fail",
-        "message": "更新时间 2026-10-17T20:37:24+08:00 晚于期限 2026-10-17T02:00:00+08:00",
+        "message": "更新时间 2026-10-17T22:23:08+08:00 晚于期限 2026-10-17T02:00:00+08:00",
         "expected": {
           "deadline": "2026-10-17T02:00:00+08:00",
           "rule": "业务日期 2026-10-16 + 1 天 02:00 (Asia/Shanghai) 前产出"
         },
         "observed": {
-          "updated_at": "2026-10-17T12:37:24.528Z",
+          "updated_at": "2026-10-17T14:23:08.364Z",
           "basis": "_SUCCESS 文件修改时间（本地文件系统 mtime）",
-          "updated_at_local": "2026-10-17T20:37:24+08:00"
+          "updated_at_local": "2026-10-17T22:23:08+08:00"
         }
       },
       {
@@ -274,7 +274,7 @@
       "files_total": 1,
       "parse_errors": 0
     },
-    "checked_at": "2026-10-17T13:52:16.821Z",
+    "checked_at": "2026-10-17T14:25:43.089Z",
     "persisted_to": "/home/user/workflow-cli/demo/environment/.runtime/state/quality/ods.orders/dt=2026-10-16.json"
   },
   "error": null,
@@ -283,7 +283,7 @@
       {
         "system": "file-catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T13:52:16.821Z",
+        "observed_at": "2026-10-17T14:25:43.089Z",
         "endpoint": "catalog/demo",
         "method": "read tables/ods.orders.yaml",
         "relation": "explicit"
@@ -291,14 +291,14 @@
       {
         "system": "quality-ruleset",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T13:52:16.822Z",
+        "observed_at": "2026-10-17T14:25:43.089Z",
         "method": "read demo-ods-rules.yaml",
         "relation": "explicit"
       },
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T13:52:16.822Z",
+        "observed_at": "2026-10-17T14:25:43.089Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "stat+readdir ods/orders/dt=2026-10-16",
         "relation": "derived"
@@ -306,7 +306,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T13:52:16.822Z",
+        "observed_at": "2026-10-17T14:25:43.089Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "read 1/1 files, 5000 rows",
         "relation": "derived"
@@ -323,7 +323,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcgh9c3-fab20d",
+    "request_id": "req-mvcho9ga-cd2dbb",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -331,7 +331,7 @@
     "adapter": "file-catalog",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:52:15.747Z",
-    "duration_ms": 1076
+    "started_at": "2026-10-17T14:25:42.106Z",
+    "duration_ms": 984
   }
 }

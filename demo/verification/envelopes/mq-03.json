@@ -23,7 +23,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcggz49-c2e186",
+    "request_id": "req-mvchnxre-b85e08",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -31,7 +31,7 @@
     "adapter": "kafka-admin",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:52:02.505Z",
-    "duration_ms": 168
+    "started_at": "2026-10-17T14:25:26.954Z",
+    "duration_ms": 200
   }
 }

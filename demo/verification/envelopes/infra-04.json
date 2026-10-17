@@ -4,7 +4,7 @@
   "capability": "container.capacity.summary",
   "data": {
     "kind": "snapshot",
-    "observed_at": "2026-10-17T13:51:35.916Z",
+    "observed_at": "2026-10-17T14:25:00.536Z",
     "env": "sandbox",
     "host": {
       "name": "vm",
@@ -20,15 +20,15 @@
       "cpu_unlimited": 4,
       "memory_limit_sum_bytes": 268435456,
       "memory_unlimited": 4,
-      "cpu_used_cores": 0.0365,
-      "memory_working_set_bytes": 1014702080,
+      "cpu_used_cores": 0.1029,
+      "memory_working_set_bytes": 924725248,
       "cpu_limit_to_host_ratio": 0.125,
       "memory_limit_to_host_ratio": 0.016
     },
     "containers": [
       {
         "name": "demo-kafka",
-        "id": "dc09a5809dac",
+        "id": "b3d37d24d9e3",
         "owner_label": "workctl.resource=demo-mq",
         "state": "running",
         "limits": {
@@ -36,9 +36,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0203,
+          "cpu_cores": 0.0494,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 435322880,
+          "memory_working_set_bytes": 384397312,
           "memory_percent_of_limit": null,
           "pids": 103
         },
@@ -51,7 +51,7 @@
       },
       {
         "name": "demo-mysql",
-        "id": "b8abfc2dc253",
+        "id": "9f5d9a717a77",
         "owner_label": "workctl.resource=demo-mysql",
         "state": "running",
         "limits": {
@@ -59,11 +59,11 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0093,
+          "cpu_cores": 0.0502,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 513695744,
+          "memory_working_set_bytes": 484548608,
           "memory_percent_of_limit": null,
-          "pids": 44
+          "pids": 37
         },
         "oom_killed": false,
         "restart_count": 0,
@@ -74,7 +74,7 @@
       },
       {
         "name": "demo-order",
-        "id": "3132b175b5dc",
+        "id": "f095b8e1d5e9",
         "owner_label": "workctl.service=demo-order",
         "state": "running",
         "limits": {
@@ -82,10 +82,10 @@
           "memory_bytes": 268435456
         },
         "usage": {
-          "cpu_cores": 0.0016,
-          "cpu_percent_of_limit": 0.32,
-          "memory_working_set_bytes": 26644480,
-          "memory_percent_of_limit": 9.93,
+          "cpu_cores": 0.0003,
+          "cpu_percent_of_limit": 0.05,
+          "memory_working_set_bytes": 21282816,
+          "memory_percent_of_limit": 7.93,
           "pids": 11
         },
         "oom_killed": false,
@@ -94,7 +94,7 @@
       },
       {
         "name": "demo-prometheus",
-        "id": "f36afe61e971",
+        "id": "fda45cbc62be",
         "owner_label": "workctl.resource=demo-prometheus",
         "state": "running",
         "limits": {
@@ -102,9 +102,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0019,
+          "cpu_cores": 0,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 30760960,
+          "memory_working_set_bytes": 25665536,
           "memory_percent_of_limit": null,
           "pids": 10
         },
@@ -117,7 +117,7 @@
       },
       {
         "name": "demo-redis",
-        "id": "31b3b2ba27c5",
+        "id": "0095530b5d76",
         "owner_label": "workctl.resource=demo-redis",
         "state": "running",
         "limits": {
@@ -125,9 +125,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0034,
+          "cpu_cores": 0.003,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 8278016,
+          "memory_working_set_bytes": 8830976,
           "memory_percent_of_limit": null,
           "pids": 6
         },
@@ -146,7 +146,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T13:51:35.926Z",
+        "observed_at": "2026-10-17T14:25:00.547Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /info",
         "relation": "explicit",
@@ -155,7 +155,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T13:51:35.926Z",
+        "observed_at": "2026-10-17T14:25:00.547Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/json?filters={label:workctl.env=sandbox}",
         "relation": "explicit",
@@ -164,7 +164,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T13:51:35.926Z",
+        "observed_at": "2026-10-17T14:25:00.547Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/stats?stream=false",
         "relation": "sampled",
@@ -182,7 +182,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcggd9z-0b31a9",
+    "request_id": "req-mvchnc0p-463993",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -190,7 +190,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:51:34.199Z",
-    "duration_ms": 1727
+    "started_at": "2026-10-17T14:24:58.777Z",
+    "duration_ms": 1770
   }
 }

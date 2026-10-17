@@ -20,8 +20,8 @@
       "version": "8.4.11",
       "version_comment": "MySQL Community Server - GPL",
       "current_user": "workctl_ro@%",
-      "uptime_s": 2248,
-      "started_at": "2026-10-17T13:14:12.553Z",
+      "uptime_s": 150,
+      "started_at": "2026-10-17T14:22:34.763Z",
       "read_only": false,
       "super_read_only": false
     },
@@ -42,15 +42,15 @@
       "version_comment": "MySQL Community Server - GPL"
     },
     "status": {
-      "Uptime": 2248,
-      "Threads_connected": 8,
+      "Uptime": 150,
+      "Threads_connected": 3,
       "Threads_running": 2,
-      "Questions": 2045,
-      "Slow_queries": 302,
-      "Aborted_connects": 12,
-      "Aborted_clients": 2,
-      "Connections": 506,
-      "Max_used_connections": 9
+      "Questions": 83,
+      "Slow_queries": 7,
+      "Aborted_connects": 4,
+      "Aborted_clients": 0,
+      "Connections": 47,
+      "Max_used_connections": 3
     },
     "status_semantics": {
       "Uptime": "gauge",
@@ -75,7 +75,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T13:51:40.553Z",
+        "observed_at": "2026-10-17T14:25:04.763Z",
         "endpoint": "mysql/demo-mysql",
         "method": "SHOW GLOBAL VARIABLES; SHOW GLOBAL STATUS; SELECT VERSION(), CURRENT_USER()",
         "version": "8.4.11",
@@ -84,7 +84,7 @@
       {
         "system": "workctl",
         "adapter": "binding-file",
-        "observed_at": "2026-10-17T13:51:40.552Z",
+        "observed_at": "2026-10-17T14:25:04.763Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "method": "resources.forEndpoint(mysql, demo-mysql)",
         "relation": "explicit"
@@ -97,7 +97,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcggi4z-5ed47c",
+    "request_id": "req-mvchnglf-0e2331",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -105,7 +105,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T13:51:40.499Z",
-    "duration_ms": 54
+    "started_at": "2026-10-17T14:25:04.707Z",
+    "duration_ms": 57
   }
 }
