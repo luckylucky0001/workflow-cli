@@ -198,7 +198,9 @@ export function windowDelta(a: StatsSnapshot, b: StatsSnapshot): WindowDelta {
 
 // ------------------------------------------------------------------ slowlog / sampling helpers
 
-const NO_ARGS = new Set(['AUTH', 'HELLO']);
+const NO_ARGS = new Set(['AUTH', 'HELLO', 'MIGRATE']);
+/** Script/function calls: first argument is the script body / sha / function name, not a key. */
+const SCRIPT_CALLS = new Set(['EVAL', 'EVAL_RO', 'EVALSHA', 'EVALSHA_RO', 'FCALL', 'FCALL_RO']);
 const SUBCOMMAND = new Set(['ACL', 'CONFIG', 'CLIENT', 'CLUSTER', 'COMMAND', 'DEBUG', 'FUNCTION', 'SCRIPT', 'MEMORY', 'OBJECT', 'XINFO', 'XGROUP', 'MODULE', 'LATENCY', 'SLOWLOG', 'PUBSUB']);
 const KEY_AFTER_SUBCOMMAND = new Set(['MEMORY', 'OBJECT', 'XINFO', 'XGROUP']);
 
@@ -211,6 +213,12 @@ export function redactCommand(args: string[], maxKeyLen = 128): { command: strin
   const rest = args.slice(1);
   const clip = (s: string) => (s.length > maxKeyLen ? `${s.slice(0, maxKeyLen)}…` : s);
   if (NO_ARGS.has(cmd)) return { command: cmd, key: null, args: rest.map(() => '?'), arg_count: rest.length };
+  if (SCRIPT_CALLS.has(cmd)) {
+    // EVAL script numkeys key... arg...: the script source can embed literal values; keep only the first key
+    const numkeys = Number(rest[1]);
+    const key = Number.isInteger(numkeys) && numkeys > 0 && rest[2] !== undefined ? clip(String(rest[2])) : null;
+    return { command: cmd, key, args: rest.map((a, idx) => (idx === 2 && key !== null ? clip(String(a)) : idx === 1 ? String(a) : '?')), arg_count: rest.length };
+  }
   if (SUBCOMMAND.has(cmd)) {
     const sub = String(rest[0] ?? '').toUpperCase();
     const keyIdx = KEY_AFTER_SUBCOMMAND.has(cmd) ? 1 : -1;

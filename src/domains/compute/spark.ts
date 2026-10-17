@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { closeSync, existsSync, openSync, readdirSync, readFileSync, readSync, realpathSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { httpJson } from '../../core/http';
 import { source, WorkError, type Source } from '../../core/output';
@@ -88,8 +88,20 @@ export function tailFile(path: string, limit: number, maxBytes = 4 * 1024 * 1024
   let text: string;
   let partial = false;
   if (st.size > maxBytes) {
-    const buf = readFileSync(real);
-    text = buf.subarray(buf.length - maxBytes).toString('utf8');
+    // read only the tail: driver logs can be very large
+    const buf = Buffer.alloc(maxBytes);
+    const fd = openSync(real, 'r');
+    try {
+      let off = 0;
+      while (off < maxBytes) {
+        const n = readSync(fd, buf, off, maxBytes - off, st.size - maxBytes + off);
+        if (n <= 0) break;
+        off += n;
+      }
+      text = buf.subarray(0, off).toString('utf8');
+    } finally {
+      closeSync(fd);
+    }
     text = text.slice(text.indexOf('\n') + 1);
     partial = true;
   } else text = readFileSync(real, 'utf8');
@@ -115,4 +127,30 @@ export function deriveStatus(app: any, jobs: any[]): { status: 'running' | 'succ
     return { status: 'running', basis: `事件日志未结束（in-progress），最近一次写入 ${idleS} 秒前，${runningJobs} 个作业为 RUNNING；被强制终止的驱动在 10 分钟内也会显示为 running` };
   }
   return { status: 'incomplete', basis: `事件日志未正常结束且 ${idleS === null ? '未知时长' : `${Math.round(idleS / 60)} 分钟`}无写入：驱动可能被终止或崩溃（history 中残留的 RUNNING 作业不代表仍在执行）` };
+}
+
+const UNCAUGHT_RE = /^Traceback \(most recent call last\):|Exception in thread "main"|ERROR SparkUncaughtExceptionHandler|^py4j\.protocol\.Py4JJavaError|^pyspark\.errors\.exceptions\./;
+
+/**
+ * Evidence in the driver log that the driver program failed outside any Spark job (e.g. an
+ * AnalysisException or a missing input raised before a job was submitted): the event log then
+ * shows a completed application without failed jobs. Returns the exception line, or null.
+ * An exception followed by a finished job was handled by the program and is ignored.
+ */
+export function driverFailureSignal(lines: string[]): string | null {
+  let idx = -1;
+  for (let k = lines.length - 1; k >= 0; k--) {
+    if (UNCAUGHT_RE.test(lines[k])) {
+      idx = k;
+      break;
+    }
+  }
+  if (idx < 0) return null;
+  if (lines.slice(idx + 1).some((l) => /DAGScheduler: Job \d+ finished/.test(l))) return null;
+  let msg = lines[idx];
+  if (/^Traceback/.test(msg)) {
+    const exc = lines.slice(idx + 1).find((l) => l && !/^\s/.test(l));
+    if (exc) msg = exc;
+  }
+  return msg.length > 300 ? `${msg.slice(0, 300)}…` : msg;
 }

@@ -590,7 +590,7 @@ export async function evaluateRuleset(inp: EvaluateInput): Promise<Evaluation> {
       push(r, { status: 'error', message: `未知规则类型 ${(r as Rule).type}` }, 'none');
       continue;
     }
-    if (rowsRead === 0) {
+    if (rowsRead === 0 && acc.finish().status !== 'error') {
       // no parsed record: a row-level rule has nothing to evaluate. Reporting "pass" here
       // would claim e.g. "no nulls" for an empty or unparseable partition.
       push(r, {

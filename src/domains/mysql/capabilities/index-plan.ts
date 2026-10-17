@@ -107,14 +107,16 @@ export async function planIndexCreate(ctx: Ctx, params: Record<string, string>):
     let affected: Record<string, unknown>[] = [];
     let affectedNote = '';
     try {
-      const needle = `\`${table}\``;
+      // LIKE treats _ and % as wildcards: escape them so `daily_orders` does not also match `dailyXorders`
+      const like = (v: string) => v.replace(/[\\%_]/g, (c) => `\\${c}`);
+      const needle = `\`${like(table)}\``;
       const dig = await s.query(
         `SELECT SCHEMA_NAME, DIGEST, DIGEST_TEXT, COUNT_STAR, SUM_TIMER_WAIT, SUM_ROWS_EXAMINED, SUM_NO_INDEX_USED, FIRST_SEEN
            FROM performance_schema.events_statements_summary_by_digest
           WHERE DIGEST_TEXT LIKE ? AND (SCHEMA_NAME = ? OR DIGEST_TEXT LIKE ?)
             AND DIGEST_TEXT NOT LIKE '%events_statements_summary_by_digest%' AND DIGEST_TEXT NOT LIKE '%information_schema%' AND DIGEST_TEXT NOT LIKE 'EXPLAIN%'
           ORDER BY SUM_TIMER_WAIT DESC LIMIT 10`,
-        [`%${needle}%`, database, `%\`${database}\` . ${needle}%`],
+        [`%${needle}%`, database, `%\`${like(database)}\` . ${needle}%`],
       );
       const lead = `\`${columns[0]}\``;
       affected = dig.map((r) => {

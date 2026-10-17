@@ -11,7 +11,7 @@ import { HANDLERS } from '../../plugins/demo-mq/src/capabilities';
 import { mapKafkaError, requireTopicName, resolveEndpoint } from '../../plugins/demo-mq/src/kafka';
 import { computePartitionLag, parseOffset, summarizeTopic, summarizeTotals } from '../../plugins/demo-mq/src/lag';
 import { buildManifest, CAPABILITIES } from '../../plugins/demo-mq/src/manifest';
-import { RequestSchema } from '../../plugins/demo-mq/src/protocol';
+import { RequestSchema, serializeResponse, successResponse } from '../../plugins/demo-mq/src/protocol';
 import { OUTPUT_SCHEMAS } from '../../plugins/demo-mq/src/schemas';
 
 const pluginDir = resolve(__dirname, '..', '..', 'plugins', 'demo-mq');
@@ -330,5 +330,21 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('demo-mq live (WORKCTL_IT=1, dem
     }
     const staged = JSON.parse(readFileSync(join(pluginDir, 'dist', 'package', 'workctl-plugin.json'), 'utf8'));
     expect(staged.name).toBe('demo-mq');
+  });
+});
+
+describe('demo-mq protocol robustness (review regression)', () => {
+  it('always produces exactly one JSON document, even when the payload cannot be serialized', () => {
+    const ok = JSON.parse(serializeResponse(successResponse({ data: { lag: 1 }, sources: [], coverage: null })));
+    expect(ok).toMatchObject({ status: 'success', data: { lag: 1 } });
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+    for (const data of [{ offset: 10n }, circular]) {
+      const out = serializeResponse(successResponse({ data, sources: [], coverage: null }));
+      const parsed = JSON.parse(out);
+      expect(parsed.status).toBe('error');
+      expect(parsed.error.code).toBe('INTERNAL');
+      expect(out.includes('\n')).toBe(false);
+    }
   });
 });

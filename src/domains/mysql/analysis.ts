@@ -127,7 +127,7 @@ export function diffDigests(t0: DigestRow[], t1: DigestRow[], windowStartIso: st
     seen.add(k);
     const b = before.get(k);
     let stat: DigestStat;
-    if (b && big(r.count_star) >= big(b.count_star)) {
+    if (b && !wasReset(b, r)) {
       stat = statFromRow(r, b);
     } else if (b) {
       reset++;
@@ -146,6 +146,19 @@ export function diffDigests(t0: DigestRow[], t1: DigestRow[], windowStartIso: st
   for (const k of before.keys()) if (!seen.has(k)) disappeared++;
   stats.sort((a, b) => b.total_latency_ms - a.total_latency_ms);
   return { stats, disappeared, reset, reappeared, null_digest_count: nullDigest };
+}
+
+const COUNTERS: (keyof DigestRow)[] = ['count_star', 'sum_timer_wait', 'sum_rows_examined', 'sum_rows_sent', 'sum_rows_affected', 'sum_no_index_used', 'sum_no_good_index_used', 'sum_errors'];
+
+/**
+ * The digest row was re-created between the snapshots (TRUNCATE, eviction + re-insert):
+ * FIRST_SEEN moved forward, or any cumulative counter went backwards. COUNT_STAR alone is not
+ * enough — after a reset it can grow past the t0 value while SUM_TIMER_WAIT is smaller,
+ * which would produce a wrong (even negative) window delta.
+ */
+function wasReset(b: DigestRow, r: DigestRow): boolean {
+  if (b.first_seen && r.first_seen && String(b.first_seen) !== String(r.first_seen)) return true;
+  return COUNTERS.some((k) => big(r[k]) < big(b[k]));
 }
 
 function isoish(s: string): string {
@@ -257,14 +270,17 @@ export interface AnalyzeNode {
   never_executed: boolean;
 }
 
+/** Number as printed by EXPLAIN ANALYZE: 12, 0.0105, 1.2e+6, 880e-6. */
+const NUM = '\\d+(?:\\.\\d+)?(?:e[+-]?\\d+)?';
+
 export function parseAnalyzeTree(tree: string): AnalyzeNode[] {
   const out: AnalyzeNode[] = [];
   for (const line of tree.split('\n')) {
     const m = /^(\s*)-> (.*)$/.exec(line);
     if (!m) continue;
     const body = m[2];
-    const est = /\(cost=([\d.e+]+)(?:\.\.[\d.e+]+)? rows=([\d.e+]+)\)/.exec(body) ?? /\(rows=([\d.e+]+)\)/.exec(body);
-    const act = /\(actual time=([\d.e+]+)\.\.([\d.e+]+) rows=([\d.e+]+) loops=(\d+)\)/.exec(body);
+    const est = new RegExp(`\\(cost=(${NUM})(?:\\.\\.${NUM})? rows=(${NUM})\\)`).exec(body) ?? new RegExp(`\\(rows=(${NUM})\\)`).exec(body);
+    const act = new RegExp(`\\(actual time=(${NUM})\\.\\.(${NUM}) rows=(${NUM}) loops=(\\d+)\\)`).exec(body);
     const op = body.replace(/\s*\((?:cost|rows|actual time)=[^)]*\)/g, '').replace(/\s*\(never executed\)/, '').trim();
     const hasCost = est && est.length === 3;
     out.push({
@@ -291,7 +307,10 @@ export function maskValue(v: unknown): unknown {
   if (!s) return '***';
   const at = s.indexOf('@');
   if (at > 0) return `${s[0]}***${s.slice(at)}`;
-  if (s.length >= 7) return `${s.slice(0, 3)}****${s.slice(-4)}`;
+  // reveal at most 7 characters and never more than ~40% of the value:
+  // 11-digit phone → 138****1111, 18-char ID → 110****1234; shorter values keep 1+1 or nothing
+  if (s.length >= 11) return `${s.slice(0, 3)}****${s.slice(-4)}`;
+  if (s.length >= 6) return `${s[0]}****${s.slice(-1)}`;
   return '***';
 }
 

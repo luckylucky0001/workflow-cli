@@ -5,10 +5,30 @@ import { WorkError } from '../../../core/output';
 import { defineCapability } from '../../../core/registry';
 import { cell, flattenExplain, maskValue, parseAnalyzeTree } from '../analysis';
 import { ADAPTER, AUTH_PROVIDER, GUIDE, mapMysqlError, sensitiveColumns, withMysql, type MysqlSession } from '../client';
-import { COMMON_PREREQS, DATABASE, INSTANCE, SQL_FILE } from '../inputs';
-import { guardSql } from '../sql-guard';
+import { COMMON_PREREQS, DATABASE, INSTANCE, SQL_FILE, SQL_INLINE, SQL_MAX_BYTES } from '../inputs';
+import { guardSql, sensitiveOutputPlan } from '../sql-guard';
 
 const DEFAULT_MAX_EXEC_MS = 5000;
+
+/**
+ * SQL text from exactly one of --sql / --sql-file. Both go through the same guard and the same
+ * size budget as readInputFile (256 KiB).
+ */
+export function sqlText(i: Record<string, unknown>): { text: string; origin: 'inline' | 'file' } {
+  const inline = typeof i.sql === 'string' && i.sql.trim() !== '' ? i.sql : undefined;
+  const file = i.sql_file !== undefined && i.sql_file !== null && String(i.sql_file) !== '' ? String(i.sql_file) : undefined;
+  if (inline !== undefined && file !== undefined) {
+    throw new WorkError('INVALID_ARGUMENT', '--sql 与 --sql-file 只能提供一个', { hint: '内联语句用 --sql "SELECT ..."，或把语句写入文件用 --sql-file q.sql' });
+  }
+  if (inline === undefined && file === undefined) {
+    throw new WorkError('INVALID_ARGUMENT', '缺少 SQL：需要 --sql 或 --sql-file 之一', { hint: '例如 --sql "SELECT * FROM orders WHERE id = 1" 或 --sql-file q.sql' });
+  }
+  if (inline !== undefined) {
+    if (Buffer.byteLength(inline, 'utf8') > SQL_MAX_BYTES) throw new WorkError('INVALID_ARGUMENT', `--sql 超过 ${SQL_MAX_BYTES} 字节上限`);
+    return { text: inline, origin: 'inline' };
+  }
+  return { text: readInputFile(file!, SQL_MAX_BYTES), origin: 'file' };
+}
 
 function maxExecMs(s: MysqlSession): number {
   return Math.max(100, Math.floor(s.ep.num('max_execution_time_ms', DEFAULT_MAX_EXEC_MS) ?? DEFAULT_MAX_EXEC_MS));
@@ -92,6 +112,7 @@ export const queryExecute = defineCapability({
   inputs: {
     instance: INSTANCE,
     database: DATABASE,
+    sql: SQL_INLINE,
     sql_file: SQL_FILE,
     max_rows: { type: 'int', default: 20, description: '最多返回行数（上限 1000）；超出时 coverage.truncated=true' },
   },
@@ -122,11 +143,15 @@ export const queryExecute = defineCapability({
     '实际权限边界是数据库账号（workctl_ro 只有 SELECT）；程序层静态检查、只读事务、MAX_EXECUTION_TIME、行数上限是额外防线',
     '静态检查：只允许单条 SELECT / WITH...SELECT / SHOW / DESCRIBE / EXPLAIN；拒绝 INTO OUTFILE/DUMPFILE、FOR UPDATE/SHARE、LOCK IN SHARE MODE、变量赋值、可执行注释、EXPLAIN ANALYZE',
     'MAX_EXECUTION_TIME 只约束 SELECT；SHOW 等语句只受客户端超时约束',
-    '敏感列按列名/原始列名匹配端点 sensitive_columns 脱敏；表达式（如 CONCAT(phone,\'\')）无法识别，不能替代数据库侧的列权限或脱敏视图',
+    '敏感列按列名/原始列名匹配端点 sensitive_columns 脱敏；选择列表中引用敏感列的表达式/别名、UNION 对应位置、引用敏感列的派生表/CTE 会保守地整列脱敏；仍不能替代数据库侧的列权限或脱敏视图',
+    'SQL 来源二选一：--sql（内联，≤256KB）或 --sql-file；两者走同一静态检查；拒绝 MAX_EXECUTION_TIME / SET_VAR / RESOURCE_GROUP 优化器提示',
   ],
-  examples: ['workctl mysql query execute --instance demo-mysql --database demo --sql-file ./q.sql --max-rows 20'],
+  examples: [
+    'workctl mysql query execute --instance demo-mysql --database demo --sql "SELECT id, status FROM orders WHERE customer_id = 42" --max-rows 20',
+    'workctl mysql query execute --instance demo-mysql --database demo --sql-file ./q.sql --max-rows 20',
+  ],
   handler: async (ctx, i) => {
-    const text = readInputFile(String(i.sql_file));
+    const { text } = sqlText(i);
     const g = guardSql(text, 'execute');
     const maxRows = Math.max(1, Math.min(Number(i.max_rows), 1000));
     return withMysql(
@@ -140,10 +165,15 @@ export const queryExecute = defineCapability({
         const r = await streamRows(s, g.sql, maxRows, Math.min(limitMs + 3000, ctx.remainingMs()));
         const elapsed = Date.now() - started;
         if (!r.truncated) await rollbackQuietly(s);
-        const warnings = elapsed >= limitMs * 0.98 && g.statement_type === 'SELECT' ? [`耗时 ${elapsed}ms 达到 MAX_EXECUTION_TIME=${limitMs}ms，语句可能被中断（如 SLEEP() 被中断时返回 1），结果可能不完整`] : [];
+        const hitLimit = elapsed >= limitMs * 0.98 && g.statement_type === 'SELECT';
+        const warnings = hitLimit ? [`耗时 ${elapsed}ms 达到 MAX_EXECUTION_TIME=${limitMs}ms，语句可能被中断（如 SLEEP() 被中断时返回 1），结果可能不完整`] : [];
         const sens = sensitiveColumns(s.ep);
-        const columns = r.fields.map((f) => {
-          const masked = sens.has(String(f.name).toLowerCase()) || (!!f.orgName && sens.has(String(f.orgName).toLowerCase()));
+        // metadata names catch direct references; the token analysis catches expressions/aliases,
+        // UNION branches and derived tables built from sensitive columns
+        const flow = sensitiveOutputPlan(g.tokens, sens);
+        const columns = r.fields.map((f, idx) => {
+          const masked =
+            sens.has(String(f.name).toLowerCase()) || (!!f.orgName && sens.has(String(f.orgName).toLowerCase())) || flow.all || flow.positions.has(idx);
           return { name: String(f.name), type: typeName(f), table: f.orgTable || f.table || null, source_column: f.orgName || null, masked };
         });
         let cellTruncated = 0;
@@ -173,13 +203,14 @@ export const queryExecute = defineCapability({
           warnings,
           sources: [s.src(`START TRANSACTION READ ONLY; ${g.statement_type} (guarded)`)],
           coverage: {
-            complete: !r.truncated && cellTruncated === 0,
+            complete: !r.truncated && cellTruncated === 0 && !hitLimit,
             truncated: r.truncated || cellTruncated > 0,
             limit: maxRows,
             notes: [
               ...(r.truncated ? [`结果超过 ${maxRows} 行，只返回前 ${maxRows} 行（已停止读取剩余行）`] : []),
               ...(cellTruncated ? [`${cellTruncated} 个单元格超过 2048 字符被截断`] : []),
-              ...(maskedCols.length ? [`已脱敏列: ${maskedCols.join(', ')}（按端点 sensitive_columns）`] : []),
+              ...(hitLimit ? ['达到执行时间上限，结果可能不完整'] : []),
+              ...(maskedCols.length ? [`已脱敏列: ${maskedCols.join(', ')}（按端点 sensitive_columns${flow.reasons.length ? `；${flow.reasons.join('；')}` : ''}）`] : []),
             ],
           },
         };
@@ -194,7 +225,7 @@ export const queryExplain = defineCapability({
   command: 'mysql query explain',
   summary: '查看语句的执行计划（EXPLAIN FORMAT=JSON，不执行语句），附扁平化摘要',
   domain: 'mysql',
-  inputs: { instance: INSTANCE, database: DATABASE, sql_file: SQL_FILE },
+  inputs: { instance: INSTANCE, database: DATABASE, sql: SQL_INLINE, sql_file: SQL_FILE },
   output: z.object({
     instance: z.string(),
     database: z.string(),
@@ -236,10 +267,14 @@ export const queryExplain = defineCapability({
   notes: [
     '优化器估计，非实际执行：rows_examined_per_scan / filtered / cost 都是估计值；实际耗时用 mysql query analyze（会执行语句）',
     '只接受单条语句；带 EXPLAIN ANALYZE 前缀的输入会被拒绝',
+    'SQL 来源二选一：--sql（内联，≤256KB）或 --sql-file',
   ],
-  examples: ['workctl mysql query explain --instance demo-mysql --database demo --sql-file ./q.sql'],
+  examples: [
+    'workctl mysql query explain --instance demo-mysql --database demo --sql "SELECT * FROM orders WHERE customer_id = 42"',
+    'workctl mysql query explain --instance demo-mysql --database demo --sql-file ./q.sql',
+  ],
   handler: async (ctx, i) => {
-    const text = readInputFile(String(i.sql_file));
+    const { text } = sqlText(i);
     const g = guardSql(text, 'explain');
     return withMysql(
       ctx,
@@ -277,7 +312,7 @@ export const queryAnalyze = defineCapability({
   command: 'mysql query analyze',
   summary: '用 EXPLAIN ANALYZE 实际执行 SELECT 并返回各算子的实际耗时与行数（只读事务 + 执行时间上限）',
   domain: 'mysql',
-  inputs: { instance: INSTANCE, database: DATABASE, sql_file: SQL_FILE },
+  inputs: { instance: INSTANCE, database: DATABASE, sql: SQL_INLINE, sql_file: SQL_FILE },
   output: z.object({
     instance: z.string(),
     database: z.string(),
@@ -309,10 +344,14 @@ export const queryAnalyze = defineCapability({
     'EXPLAIN ANALYZE 会实际执行语句（消耗实例资源、读取数据），只允许 SELECT；在只读事务中执行并受 MAX_EXECUTION_TIME 约束',
     'actual time 单位为毫秒，是每次 loop 的平均值；rows 也是每次 loop 的平均值',
     '结果集本身不返回，只返回计划与实际统计',
+    'SQL 来源二选一：--sql（内联，≤256KB）或 --sql-file；拒绝 MAX_EXECUTION_TIME / SET_VAR / RESOURCE_GROUP 优化器提示',
   ],
-  examples: ['workctl mysql query analyze --instance demo-mysql --database demo --sql-file ./q.sql'],
+  examples: [
+    'workctl mysql query analyze --instance demo-mysql --database demo --sql "SELECT * FROM orders WHERE customer_id = 42"',
+    'workctl mysql query analyze --instance demo-mysql --database demo --sql-file ./q.sql',
+  ],
   handler: async (ctx, i) => {
-    const text = readInputFile(String(i.sql_file));
+    const { text } = sqlText(i);
     const g = guardSql(text, 'analyze');
     return withMysql(
       ctx,

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { source, WorkError } from '../../core/output';
 import { defineCapability, defineDomain } from '../../core/registry';
 import { AirflowClient, checkId } from '../offline/airflow';
-import { checkAppId, COMPUTE_GUIDE, deriveStatus, driverLogPath, SPARK_HISTORY_ADAPTER, SPARK_LOG_ADAPTER, SparkHistory, tailFile } from './spark';
+import { checkAppId, COMPUTE_GUIDE, deriveStatus, driverFailureSignal, driverLogPath, SPARK_HISTORY_ADAPTER, SPARK_LOG_ADAPTER, SparkHistory, tailFile } from './spark';
 
 const iso = (ms: unknown): string | null => (typeof ms === 'number' && ms > 0 ? new Date(ms).toISOString() : null);
 const sparkTime = (v: unknown): string | null => {
@@ -76,6 +76,25 @@ const jobGet = defineCapability({
     const first = attempts[0];
     const startMs = first?.start_time ? Date.parse(first.start_time) : NaN;
     const ep = sh.ep;
+    const driverLog = driverLogPath(ep, id);
+    let driverChecked = false;
+    if (st.status === 'succeeded') {
+      // history has no driver exit code: a driver that failed before/after its jobs (e.g. table
+      // not found, missing input) still shows a completed app without failed jobs
+      if (driverLog) {
+        try {
+          const signal = driverFailureSignal(tailFile(driverLog, 400).lines);
+          driverChecked = true;
+          if (signal) {
+            st.status = 'failed';
+            st.basis = `应用已结束且没有失败作业，但 driver 日志末尾有未处理异常（驱动程序失败）: ${signal}`;
+          } else st.basis = `${st.basis}；driver 日志末尾没有未处理异常`;
+        } catch {
+          driverChecked = false;
+        }
+      }
+      if (!driverChecked) st.basis = `${st.basis}；未能检查 driver 日志：驱动在作业之外失败时仍会显示为 succeeded`;
+    }
     return {
       data: {
         app_id: app.id,
@@ -112,13 +131,13 @@ const jobGet = defineCapability({
           max_memory_bytes: execs.reduce((a, e) => a + Number(e.maxMemory ?? 0), 0),
           total_gc_time_ms: execs.reduce((a, e) => a + Number(e.totalGCTime ?? 0), 0),
         },
-        driver_log: driverLogPath(ep, id),
+        driver_log: driverLog,
       },
       sources: [
         await sh.source(`GET /api/v1/applications/${id}`, appVersion ?? undefined),
         await sh.source(`GET /api/v1/applications/${id}/jobs`, appVersion ?? undefined),
         await sh.source(`GET /api/v1/applications/${id}/allexecutors`, appVersion ?? undefined),
-        source('spark', SPARK_HISTORY_ADAPTER, { method: 'status = f(attempt.completed, job states)', relation: 'derived' }),
+        source('spark', SPARK_HISTORY_ADAPTER, { method: `status = f(attempt.completed, job states${driverChecked ? ', driver log tail' : ''})`, relation: 'derived' }),
       ],
       coverage: { complete: jobs.length <= 50, scope: id, ...(jobs.length > 50 ? { truncated: true, limit: 50 } : {}) },
     };

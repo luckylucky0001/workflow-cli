@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { z } from 'zod';
 import { source, WorkError, type Source } from '../../core/output';
 import { defineCapability, defineDomain, type CapabilityDef } from '../../core/registry';
@@ -526,8 +526,19 @@ async function lineage(ctx: Ctx, i: Record<string, any>) {
     }
     for (const s of scan.path_sources) {
       const r = refName(s);
-      const path = r.name.replace(/^\w+:/, '');
-      const byLoc = [...cat.tables.values()].find((t) => path.includes(`/${t.meta.location.replace(/^\.?\/*|\/+$/g, '')}/`) || path.endsWith(`/${t.meta.location.replace(/^\.?\/*|\/+$/g, '')}`));
+      const path = r.name.replace(/^\w+:/, '').replace(/^file:\/\//, '');
+      // match by the resolved table directory, not by a path-suffix (a table located at
+      // `orders` must not claim every `/x/orders/...` path on the machine)
+      const absPath = isAbsolute(path) ? resolve(path) : resolve(cat.warehouseRoot, path);
+      const byLoc = [...cat.tables.values()].find((t) => {
+        let dir: string;
+        try {
+          dir = tableDir(cat, t.meta);
+        } catch {
+          return false;
+        }
+        return absPath === dir || absPath.startsWith(dir + sep);
+      });
       out.push({ id: byLoc ? byLoc.meta.name : r.name, detail: `文件源 ${r.name}${r.line ? ` @L${r.line}` : ''}${byLoc ? '（路径与表 location 匹配）' : ''}`, sqlFile: scan.sql_file });
     }
     return out;

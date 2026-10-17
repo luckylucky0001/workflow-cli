@@ -114,7 +114,8 @@ export function inferSql(sql: string): SqlInference {
     tempViews.add(unquote(m[1]).toLowerCase());
   }
   const targets: SqlRef[] = [];
-  const targetRe = new RegExp(`\\b(?:insert\\s+(?:into|overwrite)\\s+(?:table\\s+)?|create\\s+(?:or\\s+replace\\s+)?table\\s+(?:if\\s+not\\s+exists\\s+)?|merge\\s+into\\s+)${IDENT_RE}`, 'gi');
+  // INSERT OVERWRITE [LOCAL] DIRECTORY '...' writes files, not a table
+  const targetRe = new RegExp(`\\b(?:insert\\s+(?:into|overwrite)\\s+(?!(?:local\\s+)?directory\\b)(?:table\\s+)?|create\\s+(?:or\\s+replace\\s+)?table\\s+(?:if\\s+not\\s+exists\\s+)?|merge\\s+into\\s+)${IDENT_RE}`, 'gi');
   for (const m of text.matchAll(targetRe)) {
     const name = [m[1], m[2], m[3]].filter(Boolean).map(unquote).join('.');
     targets.push({ name, line: lineAt(text, m.index ?? 0) });
@@ -157,6 +158,15 @@ export function inferSql(sql: string): SqlInference {
       const comma = /^\s*(?:(?:as\s+)?(?!(?:where|group|order|having|limit|union|join|left|right|inner|outer|full|cross|on|lateral|window)\b)[A-Za-z_]\w*)?\s*,/i.exec(tail);
       if (!comma) break;
       pos = pos + consumed + comma[0].length;
+    }
+  }
+  // MERGE INTO target [AS] [alias] USING source — the source of a MERGE is not after FROM/JOIN
+  const mergeRe = new RegExp(`\\bmerge\\s+into\\s+${IDENT_RE}(?:\\s+(?:as\\s+)?(?!using\\b)[A-Za-z_]\\w*)?\\s+using\\s+(?!\\()${IDENT_RE}`, 'gi');
+  for (const m of text.matchAll(mergeRe)) {
+    const name = [m[4], m[5], m[6]].filter(Boolean).map(unquote).join('.');
+    const lower = name.toLowerCase();
+    if (!KEYWORDS.has(lower) && !ctes.has(lower) && !tempViews.has(lower)) {
+      sources.push({ name, line: lineAt(text, (m.index ?? 0) + m[0].length - 1) });
     }
   }
   const dedupe = (refs: SqlRef[]) => {

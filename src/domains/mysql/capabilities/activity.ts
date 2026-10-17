@@ -277,7 +277,14 @@ export const lockList = defineCapability({
       }));
       const sources = [s.src('performance_schema.data_lock_waits JOIN data_locks / information_schema.INNODB_TRX')];
       let mdl: z.infer<typeof MdlWaitSchema>[] | null = null;
+      let mdlNote: string | null = null;
       try {
+        // metadata_locks stays empty when the MDL instrument is off: that is "not collected", not "no waits"
+        const [ins] = await s.query(`SELECT ENABLED FROM performance_schema.setup_instruments WHERE NAME = 'wait/lock/metadata/sql/mdl'`);
+        if (!ins || String(ins.ENABLED).toUpperCase() !== 'YES') {
+          mdlNote = '元数据锁 instrument wait/lock/metadata/sql/mdl 未启用，metadata_locks 不记录等待（metadata_lock_waits=null，不代表没有元数据锁等待）';
+          throw Object.assign(new Error(mdlNote), { mdlDisabled: true });
+        }
         const m = await s.query(
           `SELECT t.PROCESSLIST_ID, ml.OBJECT_TYPE, ml.OBJECT_SCHEMA, ml.OBJECT_NAME, ml.LOCK_TYPE, t.PROCESSLIST_TIME, t.PROCESSLIST_INFO
              FROM performance_schema.metadata_locks ml
@@ -295,7 +302,8 @@ export const lockList = defineCapability({
         }));
         sources.push(s.src('performance_schema.metadata_locks (LOCK_STATUS=PENDING)'));
       } catch (e) {
-        ctx.warn(`元数据锁等待不可用: ${e instanceof Error ? e.message : String(e)}`);
+        mdl = null;
+        if (!(e as { mdlDisabled?: boolean }).mdlDisabled) ctx.warn(`元数据锁等待不可用: ${e instanceof Error ? e.message : String(e)}`);
       }
       const waitingIds = new Set(waits.map((w) => w.waiting.trx_id));
       const blockingIds = new Set(waits.map((w) => w.blocking.trx_id));
@@ -311,7 +319,7 @@ export const lockList = defineCapability({
           complete: mdl !== null,
           notes: [
             ...(waits.length ? [] : ['当前没有 InnoDB 行锁等待']),
-            ...(mdl === null ? ['元数据锁等待未能读取（见 warnings）'] : []),
+            ...(mdl === null ? [mdlNote ?? '元数据锁等待未能读取（见 warnings）'] : []),
             '瞬时快照；锁等待可能在毫秒内结束',
           ],
         },

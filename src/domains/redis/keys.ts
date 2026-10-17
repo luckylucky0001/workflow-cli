@@ -417,7 +417,12 @@ export const keyInspect = defineCapability({
           for (let k = 0; k + 1 < flat.length; k += 2) arr.push({ member: clip(conv(flat[k])), score: Number(String(flat[k + 1])) });
           value = { kind: 'zset', data: arr, returned: arr.length, truncated: (length ?? 0) > arr.length };
         } else if (t === 'stream') {
-          const entries = (await s.cmd<unknown[]>('XRANGE', key, '-', '+', 'COUNT', VALUE_ITEMS_MAX)) ?? [];
+          const raw = ((await s.client.callBuffer('XRANGE', [key, '-', '+', 'COUNT', VALUE_ITEMS_MAX])) ?? []) as unknown[];
+          // field values are clipped like other collection members (entries can hold large payloads)
+          const entries = raw.map((e) => {
+            const [id, fields] = e as [unknown, unknown[]];
+            return { id: String(id), fields: (fields ?? []).map((f) => clip(conv(f))) };
+          });
           value = { kind: 'stream', data: entries, returned: entries.length, truncated: (length ?? 0) > entries.length };
         }
         if (value) value.encoding = kinds.size > 1 ? 'mixed' : ((kinds.values().next().value as 'utf8' | 'base64' | undefined) ?? 'utf8');

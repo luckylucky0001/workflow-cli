@@ -340,8 +340,9 @@ export const indexList = defineCapability({
         data: { instance: s.ep.name, database: i.database, table: i.table, indexes, io_by_index: io },
         sources,
         coverage: {
-          complete: true,
+          complete: io !== null,
           notes: [
+            ...(io === null ? ['io_by_index 不可用（performance_schema 关闭或读取失败，见 warnings），不代表索引未被访问'] : []),
             ...(indexes.length ? [] : ['该表没有任何索引（包括主键）']),
             'cardinality_estimate 为统计估计值；io_by_index 为累计值（非窗口）',
           ],

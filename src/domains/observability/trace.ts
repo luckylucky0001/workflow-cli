@@ -162,13 +162,14 @@ export function buildTrace(traceId: string, spansIn: SpanRecord[], logs: SpanLog
   for (const r of roots) walk(r, 0, roots.length > 1 && r.parent_span_id !== null);
   // Spans in a parent cycle (a→b→a, or self-parent) are reachable from no root. Do not drop
   // them silently: promote the earliest unvisited span of each cycle to an (orphan) root.
-  const cyclic: string[] = [];
+  const cyclicSet = new Set(spans.filter((s) => s.parent_span_id === s.span_id).map((s) => s.span_id));
   for (const s of [...spans].sort(byStart)) {
     if (visited.has(s.span_id)) continue;
-    cyclic.push(s.span_id);
+    cyclicSet.add(s.span_id);
     roots.push(s);
     walk(s, 0, true);
   }
+  const cyclic = [...spans].sort(byStart).filter((s) => cyclicSet.has(s.span_id)).map((s) => s.span_id);
 
   const agg = new Map<string, { count: number; total: number; self: number }>();
   for (const s of out) {

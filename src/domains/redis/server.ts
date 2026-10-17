@@ -307,6 +307,11 @@ export const slowlogList = defineCapability({
           hint: 'CONFIG SET slowlog-log-slower-than 10000（单位微秒，需管理员权限）；关闭时无法判断是否有慢命令',
         });
       }
+      if (maxLen !== undefined && Number(maxLen) <= 0) {
+        throw new WorkError('COLLECTION_DISABLED', `实例 ${s.ep.name} 的慢日志不保留任何条目 (slowlog-max-len=${maxLen})`, {
+          hint: 'CONFIG SET slowlog-max-len 128（需管理员权限）；保留上限为 0 时慢日志永远为空，无法判断是否有慢命令',
+        });
+      }
       const raw = (await s.cmd<unknown[]>('SLOWLOG', 'GET', limit)) ?? [];
       const len = Number(await s.cmd('SLOWLOG', 'LEN'));
       const entries = raw.map((e) => {
@@ -329,7 +334,9 @@ export const slowlogList = defineCapability({
         '只含命令执行时间，不含网络/排队/I/O',
         cfg.values ? `阈值 slowlog-log-slower-than=${slower}us，保留上限 slowlog-max-len=${maxLen}` : `无法读取慢日志配置（${cfg.reason}），阈值与保留上限 unknown`,
       ];
-      if (!entries.length) notes.unshift('慢日志当前为空（已开启）');
+      if (!entries.length) {
+        notes.unshift(cfg.values ? '慢日志当前为空（已开启）' : '慢日志当前为空；无法读取配置，不能确认慢日志是否开启（可能被 slowlog-log-slower-than<0 关闭）');
+      }
       return {
         data: {
           instance: s.ep.name,
@@ -339,7 +346,8 @@ export const slowlogList = defineCapability({
         },
         sources: [await s.src('SLOWLOG GET / SLOWLOG LEN / CONFIG GET slowlog-*')],
         coverage: {
-          complete: Number.isFinite(len) && len <= limit,
+          // without CONFIG we cannot tell "empty" from "disabled"
+          complete: Number.isFinite(len) && len <= limit && cfg.values !== null,
           truncated: Number.isFinite(len) && len > limit,
           limit,
           notes,
