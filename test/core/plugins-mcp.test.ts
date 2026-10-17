@@ -68,8 +68,9 @@ describe('plugins', () => {
     const env = await invoke(reg2, 'q.lag', { group: 'g1' }, { configPath, requestId: 'req-test' });
     expect(env.status).toBe('success');
     expect((env.data as any).group).toBe('g1');
-    // credential resolved by core and passed only through stdin
-    expect((env.data as any).endpoint.qbroker.main.token).toBe('tok-123');
+    // credential resolved by core and passed only through stdin; echoed values are redacted
+    expect((env.data as any).endpoint.qbroker.main.token).toBe('***');
+    expect(JSON.stringify(env)).not.toContain('tok-123');
     expect(env.context.request_id).toBe('req-test');
     const err = await invoke(reg2, 'q.lag', { group: 'missing' }, { configPath });
     expect(err.error?.code).toBe('NOT_FOUND');

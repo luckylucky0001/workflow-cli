@@ -16,6 +16,14 @@
     "selector": {
       "type": "object",
       "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "label",
+            "name"
+          ],
+          "description": "label=按 Docker 标签；name=按资源绑定中声明的精确容器名"
+        },
         "label": {
           "type": "string"
         },
@@ -28,12 +36,18 @@
         },
         "evidence": {
           "type": "string"
+        },
+        "matched_by": {
+          "type": "string",
+          "description": "实际匹配到容器的选择器，如 label workctl.resource=demo-mysql 或 binding attribute container=demo-mysql"
         }
       },
       "required": [
+        "kind",
         "label",
         "origin",
-        "evidence"
+        "evidence",
+        "matched_by"
       ],
       "additionalProperties": false
     },

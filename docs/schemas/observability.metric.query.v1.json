@@ -86,7 +86,7 @@
               "minItems": 2,
               "maxItems": 2
             },
-            "description": "[时间, 值]；null 表示 NaN/Inf（如分母为零）"
+            "description": "[时间, 值]；null 表示 NaN 或 ±Inf，分别计入 nan_points / inf_points"
           },
           "summary": {
             "type": "object",
@@ -96,6 +96,10 @@
               },
               "nan_points": {
                 "type": "number"
+              },
+              "inf_points": {
+                "type": "number",
+                "description": "+Inf/-Inf 点数（如分位数落在最大有限桶之上）；不计入 min/max/avg"
               },
               "min": {
                 "type": [
@@ -131,6 +135,7 @@
             "required": [
               "points",
               "nan_points",
+              "inf_points",
               "min",
               "max",
               "avg",

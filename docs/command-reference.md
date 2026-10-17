@@ -751,7 +751,8 @@ workctl mysql lock list --instance demo-mysql
 | --- | --- | --- | --- | --- |
 | `--instance` | string | 否 |  | MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql） |
 | `--database` | string | 是 |  | 库名（schema） |
-| `--sql-file` | file | 是 |  | 包含单条 SQL 语句的文件路径（≤256KB） |
+| `--sql` | string | 否 |  | 直接给出单条 SQL 语句（≤256KB，适合 Agent/MCP 调用）；与 --sql-file 二选一 |
+| `--sql-file` | file | 否 |  | 包含单条 SQL 语句的文件路径（≤256KB）；与 --sql 二选一 |
 
 前置条件：
 
@@ -763,8 +764,10 @@ workctl mysql lock list --instance demo-mysql
 - EXPLAIN ANALYZE 会实际执行语句（消耗实例资源、读取数据），只允许 SELECT；在只读事务中执行并受 MAX_EXECUTION_TIME 约束
 - actual time 单位为毫秒，是每次 loop 的平均值；rows 也是每次 loop 的平均值
 - 结果集本身不返回，只返回计划与实际统计
+- SQL 来源二选一：--sql（内联，≤256KB）或 --sql-file；拒绝 MAX_EXECUTION_TIME / SET_VAR / RESOURCE_GROUP 优化器提示
 
 ```bash
+workctl mysql query analyze --instance demo-mysql --database demo --sql "SELECT * FROM orders WHERE customer_id = 42"
 workctl mysql query analyze --instance demo-mysql --database demo --sql-file ./q.sql
 ```
 
@@ -779,7 +782,8 @@ workctl mysql query analyze --instance demo-mysql --database demo --sql-file ./q
 | --- | --- | --- | --- | --- |
 | `--instance` | string | 否 |  | MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql） |
 | `--database` | string | 是 |  | 库名（schema） |
-| `--sql-file` | file | 是 |  | 包含单条 SQL 语句的文件路径（≤256KB） |
+| `--sql` | string | 否 |  | 直接给出单条 SQL 语句（≤256KB，适合 Agent/MCP 调用）；与 --sql-file 二选一 |
+| `--sql-file` | file | 否 |  | 包含单条 SQL 语句的文件路径（≤256KB）；与 --sql 二选一 |
 | `--max-rows` | int | 否 | `20` | 最多返回行数（上限 1000）；超出时 coverage.truncated=true |
 
 前置条件：
@@ -793,9 +797,11 @@ workctl mysql query analyze --instance demo-mysql --database demo --sql-file ./q
 - 实际权限边界是数据库账号（workctl_ro 只有 SELECT）；程序层静态检查、只读事务、MAX_EXECUTION_TIME、行数上限是额外防线
 - 静态检查：只允许单条 SELECT / WITH...SELECT / SHOW / DESCRIBE / EXPLAIN；拒绝 INTO OUTFILE/DUMPFILE、FOR UPDATE/SHARE、LOCK IN SHARE MODE、变量赋值、可执行注释、EXPLAIN ANALYZE
 - MAX_EXECUTION_TIME 只约束 SELECT；SHOW 等语句只受客户端超时约束
-- 敏感列按列名/原始列名匹配端点 sensitive_columns 脱敏；表达式（如 CONCAT(phone,'')）无法识别，不能替代数据库侧的列权限或脱敏视图
+- 敏感列按列名/原始列名匹配端点 sensitive_columns 脱敏；选择列表中引用敏感列的表达式/别名、UNION 对应位置、引用敏感列的派生表/CTE 会保守地整列脱敏；仍不能替代数据库侧的列权限或脱敏视图
+- SQL 来源二选一：--sql（内联，≤256KB）或 --sql-file；两者走同一静态检查；拒绝 MAX_EXECUTION_TIME / SET_VAR / RESOURCE_GROUP 优化器提示
 
 ```bash
+workctl mysql query execute --instance demo-mysql --database demo --sql "SELECT id, status FROM orders WHERE customer_id = 42" --max-rows 20
 workctl mysql query execute --instance demo-mysql --database demo --sql-file ./q.sql --max-rows 20
 ```
 
@@ -810,7 +816,8 @@ workctl mysql query execute --instance demo-mysql --database demo --sql-file ./q
 | --- | --- | --- | --- | --- |
 | `--instance` | string | 否 |  | MySQL 端点名（profile 中 endpoints.mysql 的键；缺省取 defaults.mysql） |
 | `--database` | string | 是 |  | 库名（schema） |
-| `--sql-file` | file | 是 |  | 包含单条 SQL 语句的文件路径（≤256KB） |
+| `--sql` | string | 否 |  | 直接给出单条 SQL 语句（≤256KB，适合 Agent/MCP 调用）；与 --sql-file 二选一 |
+| `--sql-file` | file | 否 |  | 包含单条 SQL 语句的文件路径（≤256KB）；与 --sql 二选一 |
 
 前置条件：
 
@@ -822,8 +829,10 @@ workctl mysql query execute --instance demo-mysql --database demo --sql-file ./q
 
 - 优化器估计，非实际执行：rows_examined_per_scan / filtered / cost 都是估计值；实际耗时用 mysql query analyze（会执行语句）
 - 只接受单条语句；带 EXPLAIN ANALYZE 前缀的输入会被拒绝
+- SQL 来源二选一：--sql（内联，≤256KB）或 --sql-file
 
 ```bash
+workctl mysql query explain --instance demo-mysql --database demo --sql "SELECT * FROM orders WHERE customer_id = 42"
 workctl mysql query explain --instance demo-mysql --database demo --sql-file ./q.sql
 ```
 

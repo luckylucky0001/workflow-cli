@@ -13,6 +13,10 @@
         "null"
       ]
     },
+    "matched_by": {
+      "type": "string",
+      "description": "匹配容器所用的选择器（标签或资源绑定中的精确容器名）"
+    },
     "window": {
       "type": "object",
       "properties": {
@@ -233,6 +237,7 @@
   "required": [
     "service",
     "env",
+    "matched_by",
     "window",
     "order",
     "entries",

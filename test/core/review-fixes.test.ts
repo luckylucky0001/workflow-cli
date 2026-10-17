@@ -362,6 +362,21 @@ describe('plugin install hardening', () => {
     expect(() => installPlugin(tgz, testRegistry())).toThrow(/命令冲突/);
   });
 
+  it('redacts credentials a broken plugin echoes in its raw output', async () => {
+    const tgz = pluginPackage(dir, { name: 'rvecho', domain: { name: 'rvecho', title: 'E', summary: 's', pillar: 'middleware', guide: 'guide.md' }, endpoint_kinds: ['qq'], capabilities: [{ name: 'rvecho.dump', command: 'rvecho dump', summary: 'd', adapter: 'x', operation: 'read', auth_provider: 'x', capability_version: '1.0.0', guide: 'guide.md' }] }, (root) =>
+      writeFileSync(join(root, 'dist', 'p.mjs'), `let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{process.stdout.write('DEBUG '+s);});`),
+    );
+    installPlugin(tgz, testRegistry());
+    const reg = testRegistry();
+    loadPlugins(reg);
+    process.env.RV_Q_PASS = 'pa55-word-xyz';
+    const env = await invoke(reg, 'rvecho.dump', {}, { configPath: writeConfig(tempDir(), { endpoints: { qq: { a: { host: 'h', password_ref: 'env:RV_Q_PASS' } } } }) });
+    expect(env.error?.code).toBe('INTERNAL');
+    expect(JSON.stringify(env)).not.toContain('pa55-word-xyz');
+    expect(JSON.stringify(env.error?.details)).toContain('***');
+    delete process.env.RV_Q_PASS;
+  });
+
   it('runs plugins with a minimal environment (credentials only via stdin)', async () => {
     installPlugin(pluginPackage(dir, {}), testRegistry());
     const reg = testRegistry();

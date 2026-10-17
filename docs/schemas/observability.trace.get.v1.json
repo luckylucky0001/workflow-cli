@@ -34,6 +34,13 @@
         "type": "string"
       }
     },
+    "cyclic_parents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "父子关系成环的 span（日志数据异常），已提升为根以免丢失"
+    },
     "external_parent": {
       "description": "根 span 的父 span 不在日志中（来自外部调用方）",
       "type": [
@@ -268,6 +275,7 @@
     "services",
     "error_spans",
     "roots",
+    "cyclic_parents",
     "external_parent",
     "spans",
     "breakdown",

@@ -286,7 +286,7 @@ export function pluginEnv(): Record<string, string> {
 }
 
 /** Endpoint configs for the plugin's kinds, with credential references resolved (passed only via stdin). */
-function pluginEndpoints(ctx: Ctx, kinds: string[]): Record<string, Record<string, Record<string, unknown>>> {
+function pluginEndpoints(ctx: Ctx, kinds: string[], secrets: string[] = []): Record<string, Record<string, Record<string, unknown>>> {
   const out: Record<string, Record<string, Record<string, unknown>>> = {};
   const profile = ctx.profile;
   if (!profile) return out;
@@ -294,8 +294,11 @@ function pluginEndpoints(ctx: Ctx, kinds: string[]): Record<string, Record<strin
     for (const [name, cfg] of Object.entries(profile.endpoints[kind] ?? {})) {
       const resolved: Record<string, unknown> = {};
       for (const [k, v] of Object.entries(cfg)) {
-        if (k.endsWith('_ref')) resolved[k.slice(0, -4)] = resolveSecretRef(String(v), ctx.loaded.baseDir);
-        else resolved[k] = v;
+        if (k.endsWith('_ref')) {
+          const value = resolveSecretRef(String(v), ctx.loaded.baseDir);
+          resolved[k.slice(0, -4)] = value;
+          if (value) secrets.push(value);
+        } else resolved[k] = v;
       }
       (out[kind] ??= {})[name] = resolved;
     }
@@ -303,12 +306,36 @@ function pluginEndpoints(ctx: Ctx, kinds: string[]): Record<string, Record<strin
   return out;
 }
 
+/**
+ * Replace credential values a plugin echoes back (in data, errors or its raw output)
+ * so they never reach the envelope, logs or a model context.
+ */
+export function redactSecrets<T>(value: T, secrets: string[]): T {
+  const list = [...new Set(secrets.filter((x) => x.length > 0))].sort((a, b) => b.length - a.length);
+  if (!list.length) return value;
+  const walk = (v: unknown): unknown => {
+    if (typeof v === 'string') {
+      let out = v;
+      for (const sec of list) {
+        if (sec.length >= 4) out = out.split(sec).join('***');
+        else if (out === sec) out = '***';
+      }
+      return out;
+    }
+    if (Array.isArray(v)) return v.map(walk);
+    if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v as Record<string, unknown>).map(([k, x]) => [k, walk(x)]));
+    return v;
+  };
+  return walk(value) as T;
+}
+
 async function execPlugin(ctx: Ctx, p: InstalledPlugin, m: PluginManifest, capability: string, inputs: Record<string, unknown>): Promise<Result> {
+  const secrets: string[] = [];
   const request = {
     protocol: PLUGIN_API,
     capability,
     inputs,
-    endpoints: pluginEndpoints(ctx, m.endpoint_kinds),
+    endpoints: pluginEndpoints(ctx, m.endpoint_kinds, secrets),
     defaults: Object.fromEntries(m.endpoint_kinds.map((k) => [k, ctx.profile?.defaults[k]]).filter(([, v]) => v)),
     profile: ctx.profileName,
     env: ctx.env,
@@ -349,15 +376,18 @@ async function execPlugin(ctx: Ctx, p: InstalledPlugin, m: PluginManifest, capab
     });
     child.stdin.end(JSON.stringify(request));
   });
-  if (stderr.trim()) ctx.debug(`plugin ${p.name} stderr: ${stderr.trim().slice(0, 2000)}`);
+  if (stderr.trim()) ctx.debug(`plugin ${p.name} stderr: ${redactSecrets(stderr.trim().slice(0, 2000), secrets)}`);
   if (timedOut) throw new WorkError('TIMEOUT', `插件 ${p.name} 超过时间预算被终止`, { hint: '增大 --timeout 或缩小查询范围' });
   if (overflow) throw new WorkError('INTERNAL', `插件 ${p.name} 输出超过 ${MAX_PLUGIN_OUTPUT} 字节上限`);
   let parsed: z.infer<typeof PluginResponseSchema>;
   try {
     parsed = PluginResponseSchema.parse(JSON.parse(stdout));
   } catch {
-    throw new WorkError('INTERNAL', `插件 ${p.name} 返回了不符合协议的输出 (exit ${code})`, { details: { stdout: stdout.slice(0, 500), stderr: stderr.slice(-500) } });
+    throw new WorkError('INTERNAL', `插件 ${p.name} 返回了不符合协议的输出 (exit ${code})`, {
+      details: { stdout: redactSecrets(stdout.slice(0, 500), secrets), stderr: redactSecrets(stderr.slice(-500), secrets) },
+    });
   }
+  parsed = redactSecrets(parsed, secrets);
   if (parsed.status === 'error') {
     const e = parsed.error ?? { code: 'INTERNAL', message: '插件返回错误但未提供详情' };
     const known = ['INVALID_ARGUMENT', 'UNAUTHENTICATED', 'PERMISSION_DENIED', 'NOT_FOUND', 'UPSTREAM_UNAVAILABLE', 'TIMEOUT', 'COLLECTION_DISABLED', 'DATA_UNAVAILABLE', 'NOT_CONFIGURED', 'UNSUPPORTED', 'PRECONDITION_FAILED', 'CONFLICT', 'INTERNAL'];

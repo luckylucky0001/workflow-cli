@@ -14,6 +14,10 @@
     "service": {
       "type": "string"
     },
+    "matched_by": {
+      "type": "string",
+      "description": "匹配容器所用的选择器"
+    },
     "env": {
       "type": [
         "string",
@@ -271,6 +275,7 @@
     "kind",
     "observed_at",
     "service",
+    "matched_by",
     "env",
     "containers"
   ],
