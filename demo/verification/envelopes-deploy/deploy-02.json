@@ -13,6 +13,28 @@
     },
     "releases": [
       {
+        "id": "8",
+        "provider": "jenkins",
+        "version": "v1.4.0",
+        "images": [],
+        "revision": 8,
+        "started_at": "2026-10-17T16:37:35.256Z",
+        "finished_at": "2026-10-17T16:37:37.272Z",
+        "timestamps": "explicit",
+        "duration_ms": 2016,
+        "status": "succeeded",
+        "status_basis": "Jenkins 构建结果 SUCCESS；最近一次成功的部署构建，视为当前版本（Jenkins 不观测目标环境实际运行的版本）",
+        "current": true,
+        "triggered_by": "admin",
+        "cause": "Started by user admin",
+        "source_ref": {
+          "system": "jenkins",
+          "kind": "jenkins.build",
+          "name": "deploy-demo-order#8",
+          "url": "http://127.0.0.1:18091/job/deploy-demo-order/8/"
+        }
+      },
+      {
         "id": "6",
         "provider": "jenkins",
         "version": "v1.4.1",
@@ -23,8 +45,8 @@
         "timestamps": "explicit",
         "duration_ms": 2020,
         "status": "succeeded",
-        "status_basis": "Jenkins 构建结果 SUCCESS；最近一次成功的部署构建，视为当前版本（Jenkins 不观测目标环境实际运行的版本）",
-        "current": true,
+        "status_basis": "Jenkins 构建结果 SUCCESS",
+        "current": false,
         "triggered_by": "admin",
         "cause": "Started by user admin",
         "source_ref": {
@@ -145,7 +167,7 @@
         }
       }
     ],
-    "retained": 6
+    "retained": 7
   },
   "error": null,
   "meta": {
@@ -153,7 +175,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:37:21.867Z",
+        "observed_at": "2026-10-17T16:43:58.037Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100}",
         "relation": "explicit",
@@ -166,8 +188,8 @@
       "limit": 20,
       "truncated": false,
       "window": {
-        "start": "2026-10-10T16:37:21.866Z",
-        "end": "2026-10-17T16:37:21.867Z"
+        "start": "2026-10-10T16:43:58.035Z",
+        "end": "2026-10-17T16:43:58.037Z"
       },
       "notes": [
         "Jenkins job 构建丢弃策略只保留最近 20 个构建；更早的发布不可见",
@@ -179,7 +201,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmdkpv-ed91d4",
+    "request_id": "req-mvcmm2gt-bcca6c",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -187,7 +209,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:37:21.571Z",
-    "duration_ms": 296
+    "started_at": "2026-10-17T16:43:57.821Z",
+    "duration_ms": 216
   }
 }

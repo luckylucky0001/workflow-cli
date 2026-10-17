@@ -6,7 +6,8 @@ import { invoke } from '../../src/core/engine';
 import { Registry, describeCapability } from '../../src/core/registry';
 import postgresDomain from '../../src/domains/postgres';
 import { isoFromPg, mapPgError } from '../../src/domains/postgres/client';
-import { flattenPlan, maskedColumns } from '../../src/domains/postgres/capabilities/query';
+import { WorkError } from '../../src/core/output';
+import { assertStandardStrings, flattenPlan, maskedColumns, redactErrorValues } from '../../src/domains/postgres/capabilities/query';
 import { diffStatements, isSelf, parseWindow, type PssRow } from '../../src/domains/postgres/capabilities/statements';
 import { guardPg } from '../../src/domains/postgres/sql-guard';
 
@@ -91,6 +92,12 @@ describe('postgres error mapping', () => {
 
   it('maps pg_stat_statements not loaded to COLLECTION_DISABLED', () => {
     expect(mapPgError(dbErr('55000', 'pg_stat_statements must be loaded via "shared_preload_libraries"'))?.code).toBe('COLLECTION_DISABLED');
+  });
+
+  it('domain-wide mapper claims only server-side PostgreSQL errors (a refused Airflow connection is not "PostgreSQL 不可达")', () => {
+    const refused = Object.assign(new Error('connect ECONNREFUSED 127.0.0.1:18080'), { code: 'ECONNREFUSED' });
+    expect(postgresDomain.mapError?.(refused)).toBeUndefined();
+    expect(postgresDomain.mapError?.(dbErr('42501', 'permission denied for table internal_ledger'))?.code).toBe('PERMISSION_DENIED');
   });
 
   it('maps network / auth driver errors and ignores unrelated errors', () => {
@@ -264,5 +271,35 @@ describe('postgres whole-row masking', () => {
     const m = maskedColumns(fields, new Map(), new Set(['phone']), g, { sensitiveRelations: ['customers'], categoryOf: (o) => cats.get(o) });
     expect(m.masked).toEqual([true, true, false]);
     expect(m.reasons.join('')).toContain('customers');
+  });
+});
+
+describe('postgres error redaction over sensitive data', () => {
+  it('hides quoted values and drops DETAIL/HINT from a server error (e.g. phone::int would echo the phone)', () => {
+    const e = mapPgError(
+      Object.assign(new Error('invalid input syntax for type integer: "+86-13800001111"'), { code: '22P02', severity: 'ERROR', detail: 'Token "+86-13800001111" is invalid.', hint: "try 'x'" }),
+    )!;
+    const r = redactErrorValues(e);
+    expect(r).toBeInstanceOf(WorkError);
+    expect(r.code).toBe('INVALID_ARGUMENT');
+    const text = JSON.stringify({ m: r.message, d: r.details, h: r.hint });
+    expect(text).not.toContain('13800001111');
+    expect(r.message).toContain('"***"');
+    expect(r.details).toMatchObject({ sql_state: '22P02', severity: 'ERROR', server_detail_redacted: true });
+    expect(r.details).not.toHaveProperty('server_detail');
+    expect(r.details).not.toHaveProperty('server_hint');
+    expect(r.cause).toBeUndefined();
+    const timeout = mapPgError(Object.assign(new Error('canceling statement due to statement timeout'), { code: '57014', severity: 'ERROR' }))!;
+    expect(redactErrorValues(timeout)).toBe(timeout);
+  });
+});
+
+describe('postgres guarded statements need standard_conforming_strings=on', () => {
+  const session = (scs: string) => ({ ep: { id: 'postgres/x' } as any, query: async () => [{ scs }] as any[] });
+  it('refuses when the session has standard_conforming_strings=off (guard would mis-lex \\\' and miss a 2nd statement)', async () => {
+    // with scs=off the server runs `SELECT '\\'' ; SELECT 2; -- '` as two statements; the guard sees one
+    expect(guardPg("SELECT '\\'' ; SELECT 2; -- '", 'run').sql).toContain('SELECT 2');
+    await expect(assertStandardStrings(session('off'))).rejects.toMatchObject({ code: 'UNSUPPORTED' });
+    await expect(assertStandardStrings(session('on'))).resolves.toBeUndefined();
   });
 });

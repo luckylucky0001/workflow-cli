@@ -4,6 +4,7 @@ import { Registry } from '../../src/core/registry';
 import configDomain from '../../src/domains/config';
 import { mapConsulError } from '../../src/domains/config/consul';
 import { docFormat, mapNacosError, parseDoc, parseProperties } from '../../src/domains/config/nacos';
+import { decodeValue, isSecretName } from '../../src/domains/config/values';
 import { FakeConsul, FakeNacos, writeProviderConfig } from './fake-providers';
 
 process.env.WORKCTL_VALIDATE_OUTPUT = '1';
@@ -39,7 +40,24 @@ describe('Nacos document parsing (pure)', () => {
     expect([...bad.raw.keys()]).toEqual(['a.yaml']);
     expect(parseDoc('<x/>', 'text', 'a.xml')).toMatchObject({ parsed: false, parse_error: null });
     expect(docFormat(null, 'svc.yml')).toBe('yaml');
+    // regression: YAML merge keys resolve like Spring/SnakeYAML (not a literal "<<" path segment)
+    expect(Object.fromEntries(parseDoc('base: &b\n  pool: 4\n  user: u\nother:\n  <<: *b\n  pool: 8\n', 'yaml', 'a.yaml').raw)).toEqual({ 'base.pool': '4', 'base.user': 'u', 'other.pool': '8', 'other.user': 'u' });
     expect(docFormat('html', 'svc.properties')).toBe('text');
+    // regression: "text" is Nacos' default type for typeless publishes — the extension decides then
+    expect(docFormat('text', 'svc.properties')).toBe('properties');
+    expect(docFormat('text', 'svc.yaml')).toBe('yaml');
+    expect(docFormat('text', 'svc')).toBe('text');
+  });
+
+  it('regression: bare numbers keep their spelling ("1.10" is a version, not 1.1); list indices do not hide secret names', () => {
+    const v = (s: string) => decodeValue(Buffer.from(s), 'x');
+    expect(v('1.10')).toMatchObject({ value: '1.10', value_format: 'text' });
+    expect(v('1e3')).toMatchObject({ value: '1e3', value_format: 'text' });
+    expect(v('-0')).toMatchObject({ value: '-0', value_format: 'text' });
+    expect(v('1500')).toMatchObject({ value: 1500, value_format: 'json' });
+    expect(v('0.25')).toMatchObject({ value: 0.25, value_format: 'json' });
+    expect(['credentials[0]', 'dsn[1]', 'db.credential[2].user'].every(isSecretName)).toBe(true);
+    expect(isSecretName('hosts[0]')).toBe(false);
   });
 
   it('maps HTTP errors to stable codes', () => {
@@ -161,6 +179,88 @@ describe('Nacos provider against a fake Open API', () => {
     expect((none.data as any).summary).toMatchObject({ registered: 0, service_registered: false });
   });
 
+  it('regression: username + password_ref against an auth-disabled Nacos (2.4.x login → HTTP 500 "User x not found") is ignored with a note', async () => {
+    const env = await call('config.get', { service: 'pay' }, writeProviderConfig({ nacos: fake.url, nacosExtra: { username: 'ro', password_ref: 'file:secret' }, secret: 'pw-1' }));
+    expect(env.status).toBe('success');
+    expect(env.meta.coverage?.notes?.join('\n')).toMatch(/未开启鉴权，已忽略端点配置的 username（ro）/);
+    // with auth on, the same 500 body is a failed login, never UPSTREAM_UNAVAILABLE
+    expect(mapNacosError(401, 'caused: User ro not found;', 'x').code).toBe('UNAUTHENTICATED');
+  });
+
+  it('regression: a structured document that fails to parse (multi-document YAML) is masked whole, and md5 is withheld when values are masked', async () => {
+    fake.publish('multi.yaml', 'a: 1\n---\ndb:\n  password: synthetic-multi\n', 'yaml');
+    const env = await call('config.get', { service: 'multi', endpoint: 'n1' }, writeProviderConfig({ nacos: `${fake.url}/nacos`, nacosExtra: { data_id: '${service}.yaml' } }));
+    expect(env.status).toBe('success');
+    const d = env.data as any;
+    expect(d.nacos).toMatchObject({ parsed: false, content_bytes: null });
+    expect(d.nacos.parse_error).toMatch(/multiple documents/);
+    expect(d.items).toEqual([expect.objectContaining({ name: 'multi.yaml', value: '***', masked: true, value_bytes: null })]);
+    expect(JSON.stringify(env)).not.toContain('synthetic-multi');
+    const pay = await call('config.get', { service: 'pay' }, cfg);
+    expect((pay.data as any).nacos).toMatchObject({ md5: null, content_bytes: null });
+    const plain = await call('config.get', { service: 'other', endpoint: 'n1' }, cfg);
+    expect((plain.data as any).nacos).toMatchObject({ md5: 'm', content_bytes: 4 });
+  });
+
+  it('regression: a .properties document published without a type (Nacos records "text") is split and masked, not returned whole', async () => {
+    fake.publish('typeless.properties', 'a=1\ndb.password=synthetic-typeless\n', 'text');
+    const env = await call('config.get', { service: 'typeless', endpoint: 'n1' }, cfg);
+    const d = env.data as any;
+    expect(d.nacos).toMatchObject({ type: 'text', content_format: 'properties', parsed: true });
+    expect(by(d.items)).toMatchObject({ a: { value: 1 }, 'db.password': { value: '***', masked: true } });
+    expect(JSON.stringify(env)).not.toContain('synthetic-');
+  });
+
+  it('regression: list items flattened below a secret-like name (credentials[0], dsn[1]) are masked', async () => {
+    fake.publish('lists.yaml', 'credentials:\n  - synthetic-cred-a\n  - user: u\n    note: synthetic-cred-b\ndsn: [x, synthetic-dsn]\nhosts: [h1]\n', 'yaml');
+    const env = await call('config.get', { service: 'lists', endpoint: 'n1' }, writeProviderConfig({ nacos: `${fake.url}/nacos`, nacosExtra: { data_id: '${service}.yaml' } }));
+    const it = by((env.data as any).items);
+    expect(it['credentials[0]']).toMatchObject({ value: '***', masked: true, value_bytes: null });
+    expect(it['credentials[1].note']).toMatchObject({ value: '***', masked: true });
+    expect(it['dsn[1]']).toMatchObject({ value: '***', masked: true });
+    expect(it['hosts[0]']).toMatchObject({ value: 'h1', masked: false });
+    expect(JSON.stringify(env)).not.toContain('synthetic-');
+  });
+
+  it('regression: unreadable history is reported, not left as an unexplained latest_history_id=null', async () => {
+    fake.denyHistory = true;
+    try {
+      const env = await call('config.get', { service: 'pay' }, cfg);
+      expect(env.status).toBe('success');
+      expect((env.data as any).nacos.latest_history_id).toBeNull();
+      expect(env.meta.coverage?.notes?.join('\n')).toMatch(/配置历史不可读（PERMISSION_DENIED/);
+    } finally {
+      fake.denyHistory = false;
+    }
+  });
+
+  it('regression: --from-rev after the config\'s latest change (ids are global) with --to-rev current is an empty diff, not INVALID_ARGUMENT', async () => {
+    const later = fake.publish('unrelated.properties', 'z=1\n');
+    const env = await call('config.diff', { service: 'pay', from_rev: later }, cfg);
+    expect(env.status).toBe('success');
+    expect(env.data as any).toMatchObject({ from_revision: later, to_revision: later, current_revision: ids.v3, changes: [], summary: { unchanged: 4 } });
+  });
+
+  it('regression: a --from-rev older than the 500 history records read is reported as truncation, not as retention', async () => {
+    const first = fake.publish('hist.properties', 'n=0\n');
+    for (let n = 1; n <= 501; n++) fake.publish('hist.properties', `n=${n}\n`);
+    const env = await call('config.diff', { service: 'hist', endpoint: 'n1', from_rev: first }, cfg);
+    expect(env.error?.code).toBe('DATA_UNAVAILABLE');
+    expect(env.error?.details).toMatchObject({ history_truncated: true });
+    expect(env.error?.hint).toMatch(/超过 500 条/);
+    const recent = await call('config.diff', { service: 'hist', endpoint: 'n1', from_rev: fake.nid - 1 }, cfg);
+    expect(recent.status).toBe('partial');
+    expect((recent.data as any).changes[0]).toMatchObject({ name: 'n', old: { value: 500 }, new: { value: 501 } });
+  });
+
+  it('regression: a cluster with more instances than one catalog page is reported as partial, not complete', async () => {
+    fake.services.set('big', Array.from({ length: 1001 }, (_, n) => ({ instanceId: `i-${String(n).padStart(4, '0')}`, ip: '10.1.0.1', port: n, healthy: true, enabled: true, ephemeral: true, clusterName: 'DEFAULT', metadata: {} })));
+    const env = await call('discovery.list', { service: 'big', endpoint: 'n1' }, cfg);
+    expect(env.status).toBe('partial');
+    expect(env.meta.coverage).toMatchObject({ complete: false, truncated: true });
+    expect((env.data as any).summary).toMatchObject({ registered: 1001, returned: 1000 });
+  });
+
   it('auth: login with username + password_ref sends accessToken; failures map to UNAUTHENTICATED / PERMISSION_DENIED', async () => {
     fake.auth = { users: { ro: 'pw-1' }, deny: ['secret-ns'] };
     try {
@@ -227,6 +327,11 @@ describe('Consul provider against a fake HTTP API', () => {
     expect(env.meta.sources[0]).toMatchObject({ system: 'consul', adapter: 'consul-http-api', version: '1.20.6' });
   });
 
+  it('regression: a JSON value with a masked field has value_bytes=null (raw size minus the shown fields = secret length)', async () => {
+    const env = await call('config.get', { service: 'inv', key: 'upstream.order' }, cfg);
+    expect((env.data as any).items[0]).toMatchObject({ value: { url: 'http://x', api_key: '***' }, masked: true, masked_paths: ['$.api_key'], value_bytes: null });
+  });
+
   it('config get: empty prefix is success+empty, missing --key is NOT_FOUND, truncation is partial', async () => {
     const none = await call('config.get', { service: 'ghost', endpoint: 'consul/c1' }, cfg);
     expect(none.status).toBe('success');
@@ -249,6 +354,35 @@ describe('Consul provider against a fake HTTP API', () => {
     expect(same.status).toBe('success');
     expect((same.data as any).changes).toEqual([]);
     expect((await call('config.diff', { service: 'inv', from_rev: fake.index + 100 }, cfg)).error?.code).toBe('INVALID_ARGUMENT');
+  });
+
+  it('regression: X-Consul-Index of a single key is its ModifyIndex, not the store index: --from-rev after it is an empty diff, not INVALID_ARGUMENT', async () => {
+    const keyMod = idx.v1 + 1; // cache.ttl_seconds; db.password was written after it
+    const env = await call('config.diff', { service: 'inv', key: 'cache.ttl_seconds', from_rev: keyMod + 1 }, cfg);
+    expect(env.status).toBe('success');
+    expect(env.data as any).toMatchObject({ from_revision: keyMod + 1, current_revision: keyMod, changes: [], summary: { unchanged: 1 } });
+    // an explicit --to-rev at/after the last write is the current state as well
+    expect((await call('config.diff', { service: 'inv', key: 'cache.ttl_seconds', from_rev: keyMod, to_rev: String(fake.index) }, cfg)).status).toBe('success');
+    expect((await call('config.diff', { service: 'inv', key: 'cache.ttl_seconds', from_rev: keyMod - 1, to_rev: String(keyMod - 1) }, cfg)).error?.code).toBe('DATA_UNAVAILABLE');
+    // beyond the KV store index is still rejected
+    expect((await call('config.diff', { service: 'inv', key: 'cache.ttl_seconds', from_rev: fake.index + 1 }, cfg)).error?.code).toBe('INVALID_ARGUMENT');
+  });
+
+  it('regression: results filtered by ACLs (X-Consul-Results-Filtered-By-ACLs) are partial, not complete', async () => {
+    fake.aclFiltered = true;
+    try {
+      const g = await call('config.get', { service: 'inv' }, cfg);
+      expect(g.status).toBe('partial');
+      expect(g.meta.coverage?.complete).toBe(false);
+      const d = await call('discovery.list', { service: 'inv' }, cfg);
+      expect(d.status).toBe('partial');
+      expect(d.meta.coverage?.notes?.join('\n')).toMatch(/ACL/);
+      // absence in a filtered catalog is unknown, not "not registered"
+      const ghost = await call('discovery.list', { service: 'ghost', endpoint: 'c1' }, cfg);
+      expect((ghost.data as any).summary.service_registered).toBeNull();
+    } finally {
+      fake.aclFiltered = false;
+    }
   });
 
   it('discovery list: checks aggregated (critical → unhealthy, warning → healthy), Meta masked, not-registered distinguished', async () => {

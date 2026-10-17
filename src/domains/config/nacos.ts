@@ -6,7 +6,7 @@ import { source, WorkError, type Result, type Source } from '../../core/output';
 import type { Ctx, Endpoint } from '../../core/runtime';
 import { fill, send, type HttpResult, type ProviderChoice } from './provider';
 import { MAX_KEYS, side, type Change, type Instance, type Item } from './schema';
-import { checkRelKey, checkSegment, decodeValue, isSecretName } from './values';
+import { checkRelKey, checkSegment, decodeValue, MASK } from './values';
 
 export const NACOS_ADAPTER = 'nacos-open-api';
 export const NACOS_AUTH = 'nacos-token';
@@ -61,17 +61,26 @@ export class NacosClient {
     if (password === undefined) throw new WorkError('UNAUTHENTICATED', `端点 ${this.id} 配置了 username 但缺少 password_ref`, { hint: 'password_ref: file:<path> 或 env:<NAME>' });
     const r = await this.raw('POST', '/v1/auth/login', {}, new URLSearchParams({ username: user, password }).toString());
     if (r.status >= 400) {
-      // auth disabled servers may not expose the login endpoint at all
-      if (r.status === 404 || /auth.*(not enabled|disabled)/i.test(r.text)) {
+      // auth disabled servers may not expose the login endpoint at all, or (2.4.x) answer it with
+      // HTTP 500 "User <name> not found" (no user initialised): the server state says whether auth is on
+      if (r.status === 404 || /auth.*(not enabled|disabled)/i.test(r.text) || (await this.authDisabled())) {
         this.authNote = `Nacos 未开启鉴权，已忽略端点配置的 username（${user}）`;
         return (this.token = null);
       }
-      const e = mapNacosError(r.status === 403 ? 401 : r.status, r.text, `${safeUrl(this.base)}/v1/auth/login`);
+      const e = mapNacosError(r.status === 403 || /user \S+ not found/i.test(r.text) ? 401 : r.status, r.text, `${safeUrl(this.base)}/v1/auth/login`);
       throw e;
     }
     const t = r.json?.accessToken ? String(r.json.accessToken) : null;
     if (!t) throw new WorkError('UNAUTHENTICATED', `Nacos 登录未返回 accessToken (${this.id})`);
     return (this.token = t);
+  }
+
+  /** true only when the (unauthenticated) server state explicitly reports auth_enabled=false. */
+  private async authDisabled(): Promise<boolean> {
+    const s = await this.raw('GET', '/v1/console/server/state', {}).catch(() => null);
+    if (!s || s.status !== 200 || !s.json || typeof s.json !== 'object') return false;
+    if (this.stateCache === undefined) this.stateCache = s.json as Record<string, unknown>;
+    return String((s.json as Record<string, unknown>).auth_enabled) === 'false';
   }
 
   /** GET with auth; returns null on 404 when `allow404` (absence is a fact the caller reports). */
@@ -122,7 +131,10 @@ export function nacosClient(ctx: Ctx, name?: string): NacosClient {
 export type DocFormat = 'properties' | 'yaml' | 'json' | 'text';
 
 export function docFormat(type: string | null, dataId: string): DocFormat {
-  const t = (type ?? '').toLowerCase() || (/\.([a-z]+)$/i.exec(dataId)?.[1] ?? '').toLowerCase();
+  // "text" is what Nacos records when the publisher gave no type (SDK publishConfig, v1 API default):
+  // the dataId extension then tells more (a typeless demo.properties must still be split and masked)
+  const recorded = (type ?? '').toLowerCase();
+  const t = (recorded !== 'text' && recorded) || (/\.([a-z]+)$/i.exec(dataId)?.[1] ?? '').toLowerCase();
   if (t === 'properties') return 'properties';
   if (t === 'yaml' || t === 'yml') return 'yaml';
   if (t === 'json') return 'json';
@@ -181,7 +193,7 @@ export function parseDoc(content: string, format: DocFormat, dataId: string): Pa
     if (format === 'properties') {
       for (const [k, v] of parseProperties(content)) raw.set(k, v);
     } else {
-      const doc = YAML.parse(content, { intAsBigInt: true, uniqueKeys: false });
+      const doc = YAML.parse(content, { intAsBigInt: true, uniqueKeys: false, merge: true }); // merge: `<<: *anchor` as Spring (SnakeYAML) reads it
       if (doc === null || doc === undefined) return { format, parsed: true, parse_error: null, raw };
       if (typeof doc !== 'object') return whole(`文档顶层不是对象（${typeof doc}）`);
       const leaves: [string, Leaf | '{}' | '[]'][] = [];
@@ -198,7 +210,13 @@ export function parseDoc(content: string, format: DocFormat, dataId: string): Pa
 function toItems(doc: ParsedDoc, keyBase: string): Item[] {
   return [...doc.raw.entries()]
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-    .map(([name, v]) => ({ key: `${keyBase}#${name}`, name, ...decodeValue(Buffer.from(v, 'utf8'), name), create_revision: null, mod_revision: null, version: null, lease: null }));
+    .map(([name, v]) => {
+      const dv = decodeValue(Buffer.from(v, 'utf8'), name);
+      // a properties/yaml/json document that failed to parse (e.g. multi-document YAML) is still config
+      // whose secret-like keys cannot be located: fail closed and mask the whole document
+      const value = doc.parse_error && !dv.masked && dv.value_format !== 'empty' ? { value: MASK, value_format: dv.value_format, value_bytes: null, masked: true, masked_paths: ['$'] } : dv;
+      return { key: `${keyBase}#${name}`, name, ...value, create_revision: null, mod_revision: null, version: null, lease: null };
+    });
 }
 
 // ---------------------------------------------------------------------------
@@ -306,16 +324,20 @@ export async function nacosConfigGet(ctx: Ctx, i: Record<string, any>, p: Provid
   const detail = await readConfig(client, c);
   const sources = [await client.source(`GET /v1/cs/configs?show=all dataId=${c.dataId} group=${c.group} tenant=${c.namespace || '(public)'}`)];
   let latest: number | null = null;
+  let historyError: string | null = null;
   try {
     const h = await listHistory(client, c);
     latest = h.recs.length ? h.recs[h.recs.length - 1].id : null;
     sources.push(await client.source(h.method));
   } catch (e) {
     if (!(e instanceof WorkError) || !['PERMISSION_DENIED', 'NOT_FOUND', 'UPSTREAM_UNAVAILABLE'].includes(e.code)) throw e;
+    historyError = `${e.code}: ${e.message}`;
   }
   const format = docFormat(detail?.type ?? null, c.dataId);
   const doc = detail ? parseDoc(detail.content, format, c.dataId) : { format, parsed: false, parse_error: null, raw: new Map<string, string>() };
   let items = toItems(doc, c.base);
+  // the document md5 plus every unmasked value is a verifier for the masked ones: withhold it then
+  const docMasked = items.some((x) => x.masked);
   if (relKey) {
     items = items.filter((x) => x.name === relKey);
     if (!items.length) {
@@ -331,12 +353,14 @@ export async function nacosConfigGet(ctx: Ctx, i: Record<string, any>, p: Provid
   const notes: string[] = [];
   if (!detail) notes.push(`配置文档 ${c.base} 不存在；检查 --env / --service 与端点的 namespace / group / data_id 模板`);
   else if (!doc.raw.size) notes.push(`配置文档 ${c.base} 存在但没有配置项`);
-  if (doc.parse_error) notes.push(`${doc.parse_error}；整个文档作为一个值（name=${c.dataId}）返回，只按 dataId 名称判断是否遮蔽`);
+  if (doc.parse_error) notes.push(`${doc.parse_error}；整个文档作为一个值（name=${c.dataId}）返回并整体遮蔽（无法定位其中的敏感键）`);
   else if (detail && !doc.parsed) notes.push(`配置类型 ${detail.type ?? '未知'} 不可拆分为键，整个文档作为一个值返回（只按 dataId 名称判断是否遮蔽，内容中的敏感值不会被识别）`);
   const masked = items.filter((x) => x.masked).length;
   if (masked) notes.push(`${masked} 个配置项的值或字段已遮蔽（按名称匹配敏感模式）`);
   if (truncated) notes.push(`文档中共 ${count} 个键，只返回按键名排序的前 ${items.length} 个`);
   notes.push('Nacos 没有键级修订：create_revision / mod_revision / version 为 null；文档级历史见 nacos.latest_history_id（config diff 的修订空间）');
+  if (historyError) notes.push(`配置历史不可读（${historyError}），nacos.latest_history_id 为 null 不表示没有历史`);
+  if (detail && docMasked) notes.push('文档含遮蔽值，nacos.md5 / content_bytes 不返回（与其余明文一起可用于校验被遮蔽的值或推算其长度）');
   if (client.authNote) notes.push(client.authNote);
   return {
     status: truncated ? 'partial' : 'success',
@@ -362,8 +386,9 @@ export async function nacosConfigGet(ctx: Ctx, i: Record<string, any>, p: Provid
         content_format: doc.format,
         parsed: doc.parsed,
         parse_error: doc.parse_error,
-        md5: detail?.md5 ?? null,
-        content_bytes: detail ? (isSecretName(c.dataId) && !doc.parsed ? null : Buffer.byteLength(detail.content, 'utf8')) : null,
+        md5: docMasked ? null : (detail?.md5 ?? null),
+        // like value_bytes: with the rest of the document shown, its size gives away the masked values' length
+        content_bytes: detail && !docMasked ? Buffer.byteLength(detail.content, 'utf8') : null,
         last_modified: detail?.modifyTime ? new Date(detail.modifyTime).toISOString() : null,
         latest_history_id: latest,
       },
@@ -407,9 +432,9 @@ export async function nacosConfigDiff(ctx: Ctx, i: Record<string, any>, p: Provi
     return k;
   };
   const beyond = (label: string, rev: number) =>
-    new WorkError('DATA_UNAVAILABLE', `${label} ${rev} 早于保留的最早历史记录 ${oldest}，该时刻的内容不可知`, {
-      details: { requested_revision: rev, oldest_history_id: oldest, retention_days: retention },
-      hint: `Nacos 历史只保留 ${retention ?? 30} 天；用 --from-rev ${oldest} 或更大的历史 ID`,
+    new WorkError('DATA_UNAVAILABLE', `${label} ${rev} 早于${h.truncated ? '已读取（最近 500 条）' : '保留'}的最早历史记录 ${oldest}，该时刻的内容不可知`, {
+      details: { requested_revision: rev, oldest_history_id: oldest, retention_days: retention, history_truncated: h.truncated },
+      hint: h.truncated ? `该配置的历史超过 500 条，workctl 只读取最近 5 页；用 --from-rev ${oldest} 或更大的历史 ID` : `Nacos 历史只保留 ${retention ?? 30} 天；用 --from-rev ${oldest} 或更大的历史 ID`,
     });
   const ref = (k: number) => (k >= 0 ? { id: recs[k].id, op_type: recs[k].op, modified_at: recs[k].modified, src_user: recs[k].user } : null);
   const notes: string[] = [];
@@ -450,7 +475,8 @@ export async function nacosConfigDiff(ctx: Ctx, i: Record<string, any>, p: Provi
   } else {
     fromRev = i.from_rev;
     if (fromRev < oldest) throw beyond('--from-rev', fromRev);
-    toRev = toArg === 'current' ? latest : toArg;
+    // ids are global: a --from-rev after this config's latest change is still a valid point (state = current)
+    toRev = toArg === 'current' ? Math.max(latest, fromRev) : toArg;
     if (toRev < oldest) throw beyond('--to-rev', toRev);
     if (fromRev > toRev) throw new WorkError('INVALID_ARGUMENT', `--from-rev ${fromRev} 大于 --to-rev ${toRev}`);
     fromIdx = idxAt(fromRev);
@@ -533,17 +559,26 @@ export async function nacosDiscoveryList(ctx: Ctx, i: Record<string, any>, p: Pr
   sources.push(await client.source(`GET /v1/ns/service serviceName=${service} groupName=${group} namespaceId=${namespace || '(public)'}`));
   const exists = !!svc && !/service not found/i.test(svc.text);
   let hosts: Record<string, any>[] = [];
+  let truncated = false;
+  let total = 0;
   if (exists) {
     const clusters = ((svc!.json?.clusters ?? []) as { name?: string }[]).map((x) => String(x.name ?? '')).filter(Boolean);
     let viaCatalog = clusters.length > 0;
+    let catalogError = false;
     try {
       for (const cl of clusters) {
         const r = await client.get('/v1/ns/catalog/instances', { serviceName: service, groupName: group, namespaceId: namespace, clusterName: cl, pageNo: '1', pageSize: String(MAX_KEYS) });
-        hosts.push(...((r?.json?.list ?? []) as Record<string, any>[]));
+        const list = (r?.json?.list ?? []) as Record<string, any>[];
+        // one page only: `count` is the cluster total
+        if (Number(r?.json?.count) > list.length) truncated = true;
+        total += Math.max(Number(r?.json?.count) || 0, list.length);
+        hosts.push(...list);
       }
     } catch (e) {
       if (e instanceof WorkError && e.code === 'UNAUTHENTICATED') throw e;
       viaCatalog = false;
+      catalogError = true;
+      truncated = false;
       hosts = [];
     }
     if (viaCatalog) sources.push(await client.source('GET /v1/ns/catalog/instances（逐集群，含 enabled=false 实例）'));
@@ -551,7 +586,7 @@ export async function nacosDiscoveryList(ctx: Ctx, i: Record<string, any>, p: Pr
       const r = await client.get('/v1/ns/instance/list', { serviceName: service, groupName: group, namespaceId: namespace, healthyOnly: 'false' });
       hosts = (r?.json?.hosts ?? []) as Record<string, any>[];
       sources.push(await client.source('GET /v1/ns/instance/list healthyOnly=false'));
-      notes.push('控制台目录接口不可用，改用 /v1/ns/instance/list：该接口不返回 enabled=false（已下线）的实例');
+      notes.push(`${catalogError ? '控制台目录接口不可用' : '服务详情未列出集群'}，改用 /v1/ns/instance/list：该接口不返回 enabled=false（已下线）的实例`);
     }
   }
   const excluded = { env_mismatch: 0, env_missing: 0, not_healthy: 0 };
@@ -600,7 +635,8 @@ export async function nacosDiscoveryList(ctx: Ctx, i: Record<string, any>, p: Pr
     });
   }
   instances.sort((x, y) => (x.instance_id < y.instance_id ? -1 : 1));
-  const registered = hosts.length;
+  const registered = truncated ? total : hosts.length;
+  if (truncated) notes.push(`某集群实例数超过 ${MAX_KEYS}，只读取了每个集群的前 ${MAX_KEYS} 个`);
   if (!exists) notes.push(`服务 ${group}@@${service} 未在命名空间 ${namespace || 'public'} 注册（Nacos: service not found）`);
   else if (!registered) notes.push(`服务 ${group}@@${service} 已注册但没有实例（临时实例停止心跳/断开后会被摘除）`);
   else if (!instances.length) notes.push(`服务下有 ${registered} 个实例，过滤后为空`);
@@ -613,6 +649,7 @@ export async function nacosDiscoveryList(ctx: Ctx, i: Record<string, any>, p: Pr
   const healthyN = instances.filter((x) => x.healthy === true).length;
   const unhealthyN = instances.filter((x) => x.healthy === false).length;
   return {
+    status: truncated ? 'partial' : 'success',
     data: {
       endpoint: client.id,
       provider: 'nacos',
@@ -625,7 +662,7 @@ export async function nacosDiscoveryList(ctx: Ctx, i: Record<string, any>, p: Pr
       summary: { registered, returned: instances.length, healthy: healthyN, unhealthy: unhealthyN, health_unknown: instances.length - healthyN - unhealthyN, without_lease: 0, excluded, service_registered: exists },
     },
     sources,
-    coverage: { complete: true, scope: `Nacos ${client.id} 服务 ${namespace || 'public'}/${group}@@${service}`, notes },
+    coverage: { complete: !truncated, truncated, scope: `Nacos ${client.id} 服务 ${namespace || 'public'}/${group}@@${service}`, notes },
   };
 }
 
@@ -634,7 +671,7 @@ export async function nacosProbe(ctx: Ctx, name: string): Promise<{ ok: boolean;
   const st = await client.serverState();
   return {
     ok: true,
-    identity: client.username ?? 'anonymous',
+    identity: client.username && !client.authNote ? client.username : 'anonymous', // username ignored when auth is off
     version: st.version ? String(st.version) : undefined,
     detail: [`模式 ${st.startup_mode ?? st.standalone_mode ?? '未知'}`, `鉴权${String(st.auth_enabled) === 'true' ? '已开启' : '未开启'}`, st.config_retention_days ? `配置历史保留 ${st.config_retention_days} 天` : '', client.authNote ?? '']
       .filter(Boolean)

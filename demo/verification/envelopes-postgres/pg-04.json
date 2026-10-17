@@ -102,10 +102,10 @@
           "id"
         ],
         "size_bytes": 1138688,
-        "idx_scan": 3030,
-        "idx_tup_read": 3149,
-        "idx_tup_fetch": 3045,
-        "last_idx_scan": "2026-10-17T16:29:01.100824Z"
+        "idx_scan": 19581,
+        "idx_tup_read": 19760,
+        "idx_tup_fetch": 19602,
+        "last_idx_scan": "2026-10-17T16:46:45.707317Z"
       },
       {
         "name": "orders_created_at_idx",
@@ -117,21 +117,21 @@
           "created_at"
         ],
         "size_bytes": 1138688,
-        "idx_scan": 18,
-        "idx_tup_read": 715654,
-        "idx_tup_fetch": 711675,
-        "last_idx_scan": "2026-10-17T16:18:59.463578Z"
+        "idx_scan": 102,
+        "idx_tup_read": 4028998,
+        "idx_tup_fetch": 4025019,
+        "last_idx_scan": "2026-10-17T16:36:30.574687Z"
       }
     ],
     "stats": {
-      "seq_scan": 7921,
-      "seq_tup_read": 396050000,
-      "idx_scan": 3048,
-      "idx_tup_fetch": 714720,
+      "seq_scan": 26664,
+      "seq_tup_read": 1333200000,
+      "idx_scan": 19683,
+      "idx_tup_fetch": 4044621,
       "n_tup_ins": 0,
-      "n_tup_upd": 5016,
+      "n_tup_upd": 5022,
       "n_tup_del": 0,
-      "n_tup_hot_upd": 16,
+      "n_tup_hot_upd": 22,
       "n_live_tup": 0,
       "n_dead_tup": 5002,
       "dead_ratio": null,
@@ -153,7 +153,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-17T16:29:04.848Z",
+        "observed_at": "2026-10-17T16:46:49.149Z",
         "endpoint": "postgres/demo-postgres",
         "method": "pg_class / pg_attribute / pg_index / pg_stat_all_tables / pg_stat_all_indexes / pg_*_size()",
         "version": "16.15",
@@ -170,7 +170,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcm2xdu-73ddae",
+    "request_id": "req-mvcmpqm5-f7e980",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -178,7 +178,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:29:04.770Z",
-    "duration_ms": 83
+    "started_at": "2026-10-17T16:46:49.085Z",
+    "duration_ms": 69
   }
 }

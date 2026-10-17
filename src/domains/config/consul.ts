@@ -112,12 +112,15 @@ function toItem(kv: ConsulKv, prefix: string): Item {
   };
 }
 
-async function readKv(client: ConsulClient, prefix: string, relKey: string | null): Promise<{ kvs: ConsulKv[]; index: number | null }> {
+/** Consul ≥ 1.13 marks list responses from which entries the token may not read were silently dropped. */
+const aclFiltered = (r: HttpResult | null) => !!r && header(r.headers, 'x-consul-results-filtered-by-acls') === 'true';
+
+async function readKv(client: ConsulClient, prefix: string, relKey: string | null): Promise<{ kvs: ConsulKv[]; index: number | null; filtered: boolean }> {
   const r = await client.get(kvPath(relKey ? prefix + relKey : prefix), relKey ? {} : { recurse: 'true' });
   const idx = r ? Number(header(r.headers, 'x-consul-index')) : NaN;
   // directory placeholder keys ("a/b/") carry no config value
   const kvs = ((r?.json ?? []) as ConsulKv[]).filter((kv) => !kv.Key.endsWith('/')).sort((a, b) => (a.Key < b.Key ? -1 : a.Key > b.Key ? 1 : 0));
-  return { kvs, index: Number.isFinite(idx) ? idx : null };
+  return { kvs, index: Number.isFinite(idx) ? idx : null, filtered: aclFiltered(r) };
 }
 
 export async function consulConfigGet(ctx: Ctx, i: Record<string, any>, p: ProviderChoice, env: string): Promise<Result> {
@@ -141,6 +144,7 @@ export async function consulConfigGet(ctx: Ctx, i: Record<string, any>, p: Provi
   const truncated = !relKey && count > limit;
   if (truncated) items = items.slice(0, limit);
   const notes: string[] = [];
+  if (r.filtered) notes.push('Consul 按 ACL 过滤了结果（X-Consul-Results-Filtered-By-ACLs）：token 无权读取的键未返回，列表不完整');
   if (!count) notes.push(`前缀 ${prefix} 下没有配置项（Consul 返回 404）；不同环境/服务的键前缀不同，检查 --env / --service`);
   const masked = items.filter((x) => x.masked).length;
   if (masked) notes.push(`${masked} 个配置项的值或字段已遮蔽（按名称匹配敏感模式）`);
@@ -148,7 +152,7 @@ export async function consulConfigGet(ctx: Ctx, i: Record<string, any>, p: Provi
   if (relKey) notes.push('单键读取时 observed_revision（X-Consul-Index）即该键的 ModifyIndex');
   notes.push('Consul KV 不保留历史：mod_revision 为 ModifyIndex（最后修改时的 raft 索引），version 不提供（null）；旧值不可回溯');
   return {
-    status: truncated ? 'partial' : 'success',
+    status: truncated || r.filtered ? 'partial' : 'success',
     data: {
       endpoint: client.id,
       provider: 'consul',
@@ -164,7 +168,7 @@ export async function consulConfigGet(ctx: Ctx, i: Record<string, any>, p: Provi
       items,
     },
     sources: [await client.source(relKey ? `GET /v1/kv/${prefix}${relKey}` : `GET /v1/kv/${prefix}?recurse`)],
-    coverage: { complete: !truncated, truncated, limit: relKey ? undefined : limit, scope: `Consul ${client.id} KV 前缀 ${prefix}${r.index !== null ? `，索引 ${r.index}` : ''}`, notes },
+    coverage: { complete: !truncated && !r.filtered, truncated, limit: relKey ? undefined : limit, scope: `Consul ${client.id} KV 前缀 ${prefix}${r.index !== null ? `，索引 ${r.index}` : ''}`, notes },
   };
 }
 
@@ -191,17 +195,32 @@ export async function consulConfigDiff(ctx: Ctx, i: Record<string, any>, p: Prov
     });
   }
   const fromRev = i.from_rev as number;
-  const toRev = toArg === 'current' ? current : toArg;
-  if (toArg !== 'current' && current !== null && toArg !== current) {
-    throw new WorkError('DATA_UNAVAILABLE', `Consul KV 只能读当前状态（索引 ${current}），不能读取索引 ${toArg} 时的快照`, { hint, details: { requested_revision: toArg, current_index: current } });
+  // X-Consul-Index of a KV read is the index of the last write under that key / prefix (not the global
+  // index): every index at or after it sees the current values
+  if (toArg !== 'current' && fromRev > toArg) throw new WorkError('INVALID_ARGUMENT', `--from-rev ${fromRev} 大于 --to-rev ${toArg}`);
+  if (toArg !== 'current' && current !== null && toArg < current) {
+    throw new WorkError('DATA_UNAVAILABLE', `Consul KV 只能读当前状态（最近写入索引 ${current}），不能读取索引 ${toArg} 时的快照`, { hint, details: { requested_revision: toArg, current_index: current } });
   }
-  if (current !== null && fromRev > current) throw new WorkError('INVALID_ARGUMENT', `--from-rev ${fromRev} 大于 Consul 当前索引 ${current}`, { details: { requested_revision: fromRev, current_revision: current } });
   const changedSince = r.kvs.filter((kv) => kv.ModifyIndex > fromRev).map((kv) => ({ key: kv.Key, create_index: kv.CreateIndex, modify_index: kv.ModifyIndex, created_after: kv.CreateIndex > fromRev }));
-  if (fromRev === toRev) {
+  if (current !== null && fromRev >= current) {
+    if (fromRev > current) {
+      // only an index beyond the whole KV store's index is in the future (`?keys` at the root reports the KV table index)
+      const all = await client.get('/v1/kv/', { keys: 'true', separator: '/' });
+      const kvIndex = all ? Number(header(all.headers, 'x-consul-index')) : NaN;
+      if (Number.isFinite(kvIndex) && fromRev > kvIndex) throw new WorkError('INVALID_ARGUMENT', `--from-rev ${fromRev} 大于 Consul KV 当前索引 ${kvIndex}`, { details: { requested_revision: fromRev, current_revision: kvIndex } });
+    }
+    const toRev = toArg === 'current' ? fromRev : toArg;
     return {
-      data: { endpoint: client.id, provider: 'consul', provider_selected_by: p.origin, service, env, prefix, key: relKey, revision_space: 'consul-raft-index', mode: 'revisions', from_revision: fromRev, to_revision: fromRev, current_revision: current ?? fromRev, changes: [], summary: { added: 0, removed: 0, changed: 0, unchanged: r.kvs.length, rewritten_same_value: 0 } },
-      sources: [await client.source(`GET /v1/kv/${prefix}?recurse`)],
-      coverage: { complete: true, scope: `Consul ${client.id} KV 前缀 ${prefix}，索引 ${fromRev}`, notes: ['起止索引相同（即当前索引），差异必然为空'] },
+      data: { endpoint: client.id, provider: 'consul', provider_selected_by: p.origin, service, env, prefix, key: relKey, revision_space: 'consul-raft-index', mode: 'revisions', from_revision: fromRev, to_revision: toRev, current_revision: current, changes: [], summary: { added: 0, removed: 0, changed: 0, unchanged: r.kvs.length, rewritten_same_value: 0 } },
+      sources: [await client.source(relKey ? `GET /v1/kv/${prefix}${relKey}` : `GET /v1/kv/${prefix}?recurse`)],
+      coverage: {
+        complete: true,
+        scope: `Consul ${client.id} KV ${relKey ? `键 ${prefix}${relKey}` : `前缀 ${prefix}`}，索引 ${fromRev} → ${toRev}`,
+        notes: [
+          `${relKey ? '该键' : '该前缀'}最近一次写入的索引（X-Consul-Index）为 ${current}，不晚于 --from-rev ${fromRev}：区间内没有写入，差异为空`,
+          '删除的键：Consul 回收删除墓碑后，删除不再反映在 X-Consul-Index 中，区间内的删除可能无法发现',
+        ],
+      },
     };
   }
   throw new WorkError('DATA_UNAVAILABLE', `Consul KV 不保留历史，无法重建索引 ${fromRev} 时的值；已知事实见 details.changed_since（ModifyIndex > ${fromRev} 的键，旧值不可知），删除的键无法发现`, {
@@ -225,12 +244,15 @@ export async function consulDiscoveryList(ctx: Ctx, i: Record<string, any>, p: P
   const r = await client.get(`/v1/health/service/${encodeURIComponent(service)}`);
   const index = r ? Number(header(r.headers, 'x-consul-index')) : NaN;
   const entries = (r?.json ?? []) as HealthEntry[];
+  const filtered = aclFiltered(r);
   const sources: Source[] = [await client.source(`GET /v1/health/service/${service}`)];
   let registeredInCatalog: boolean | null = null;
   if (!entries.length) {
     try {
       const c = await client.get('/v1/catalog/services');
       registeredInCatalog = !!c?.json && Object.prototype.hasOwnProperty.call(c.json, service);
+      // a catalog filtered by ACLs cannot prove absence
+      if (!registeredInCatalog && aclFiltered(c)) registeredInCatalog = null;
       sources.push(await client.source('GET /v1/catalog/services'));
     } catch (e) {
       if (e instanceof WorkError && e.code === 'UNAUTHENTICATED') throw e;
@@ -281,6 +303,7 @@ export async function consulDiscoveryList(ctx: Ctx, i: Record<string, any>, p: P
   }
   instances.sort((a, b) => (a.instance_id < b.instance_id ? -1 : 1));
   const notes: string[] = [];
+  if (filtered) notes.push('Consul 按 ACL 过滤了结果（X-Consul-Results-Filtered-By-ACLs）：token 无权读取的实例（service/node read）未返回，列表不完整');
   if (!entries.length) notes.push(registeredInCatalog === false ? `服务 ${service} 未在 Consul 目录中注册` : registeredInCatalog ? `服务 ${service} 在目录中但没有实例` : `服务 ${service} 没有实例（目录不可读，无法区分未注册与 0 实例）`);
   else if (!instances.length) notes.push(`服务下有 ${entries.length} 个实例，过滤后为空`);
   const warn = instances.filter((x) => x.consul?.status === 'warning').length;
@@ -291,6 +314,7 @@ export async function consulDiscoveryList(ctx: Ctx, i: Record<string, any>, p: P
   const healthyN = instances.filter((x) => x.healthy === true).length;
   const unhealthyN = instances.filter((x) => x.healthy === false).length;
   return {
+    status: filtered ? 'partial' : 'success',
     data: {
       endpoint: client.id,
       provider: 'consul',
@@ -303,7 +327,7 @@ export async function consulDiscoveryList(ctx: Ctx, i: Record<string, any>, p: P
       summary: { registered: entries.length, returned: instances.length, healthy: healthyN, unhealthy: unhealthyN, health_unknown: instances.length - healthyN - unhealthyN, without_lease: 0, excluded, service_registered: registeredInCatalog },
     },
     sources,
-    coverage: { complete: true, scope: `Consul ${client.id} 服务 ${service}${Number.isFinite(index) ? `，索引 ${index}` : ''}`, notes },
+    coverage: { complete: !filtered, scope: `Consul ${client.id} 服务 ${service}${Number.isFinite(index) ? `，索引 ${index}` : ''}`, notes },
   };
 }
 

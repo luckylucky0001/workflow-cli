@@ -542,3 +542,15 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('demo-search live (WORKCTL_IT=1,
   });
 });
 
+describe('parseDsl error does not echo file content', () => {
+  it('a non-JSON file (e.g. /etc/passwd) is rejected without quoting its content', () => {
+    let msg = '';
+    try {
+      parseDsl('root:x:0:0:root:/root:/bin/bash\n');
+    } catch (e) {
+      msg = (e as Error).message;
+    }
+    expect(msg).toContain('不是合法 JSON');
+    expect(msg).not.toContain('root:x');
+  });
+});

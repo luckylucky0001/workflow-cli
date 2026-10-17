@@ -94,7 +94,10 @@ export function parseDsl(text: string): DslInput {
   try {
     json = JSON.parse(text);
   } catch (e) {
-    throw bad(`--dsl-file 不是合法 JSON: ${(e as Error).message}`);
+    // Node's message quotes the start of the input ("root:x:0:0"... is not valid JSON): report only the position,
+    // never file content (the path may point at any file readable by the caller)
+    const pos = /position (\d+)/.exec((e as Error).message)?.[1];
+    throw bad(`--dsl-file 不是合法 JSON${pos ? `（第 ${pos} 个字符附近）` : ''}`);
   }
   if (!json || typeof json !== 'object' || Array.isArray(json)) throw bad('--dsl-file 顶层必须是 JSON 对象');
   const obj = json as Record<string, unknown>;

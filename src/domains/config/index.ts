@@ -83,7 +83,7 @@ const configGet = defineCapability({
     '值为 JSON（对象/数组/数字/布尔）时返回解析后的值；非 UTF-8 字节以 base64 返回（value_format=binary_base64）',
     'mod_revision 是最后一次修改的集群修订；可作为 config diff --from-rev 的输入',
     PROVIDER_NOTE,
-    'Nacos：读取 <namespace>/<group>/<dataId> 整个配置文档，properties / yaml / json 拆分为键（嵌套键以 . 和 [i] 展平），其他类型或解析失败时整个文档作为一个值；没有键级修订（null）',
+    'Nacos：读取 <namespace>/<group>/<dataId> 整个配置文档，properties / yaml / json 拆分为键（嵌套键以 . 和 [i] 展平；类型为 text 时按 dataId 扩展名判断），其他类型时整个文档作为一个值，解析失败时整个文档作为一个值并整体遮蔽；没有键级修订（null）',
     'Consul：读取 KV 前缀 <config_prefix><env>/<service>/（?recurse），create/mod_revision 为 CreateIndex/ModifyIndex，observed_revision 为 X-Consul-Index；version 不提供',
     '键列表被截断（超过 --limit）时 status=partial、coverage.complete=false',
     PLANNED_NOTE,

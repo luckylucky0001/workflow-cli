@@ -67,7 +67,8 @@ export async function startFakeJenkins(state: FakeJenkinsState): Promise<{ url: 
       res.writeHead(401, { 'content-type': 'text/html' });
       return res.end('<html>Authentication required</html>');
     }
-    const p = u.pathname;
+    // folder "team" holds the same job: /job/team/job/deploy-demo-order/... is served like the top-level job
+    const p = u.pathname.replace(/^\/job\/team(?=\/job\/)/, '');
     if (p === '/me/api/json') return json(200, { id: 'admin', fullName: 'admin' });
     if (p === '/api/json') return json(200, { numExecutors: 2, jobs: [{ name: 'deploy-demo-order' }] });
     if (p === '/queue/api/json') return json(200, { items: state.queue });

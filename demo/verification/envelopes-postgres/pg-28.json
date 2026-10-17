@@ -45,15 +45,19 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-17T16:29:25.189Z",
+        "observed_at": "2026-10-17T16:47:12.574Z",
         "relation": "derived"
       }
     ],
-    "coverage": null,
+    "coverage": {
+      "complete": true,
+      "scope": "profile demo 下 postgres.replication.get 的 workctl 侧前置条件",
+      "notes": []
+    },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcm3d22-432c49",
+    "request_id": "req-mvcmq8o5-d868ce",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -61,7 +65,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:29:25.082Z",
-    "duration_ms": 107
+    "started_at": "2026-10-17T16:47:12.485Z",
+    "duration_ms": 89
   }
 }

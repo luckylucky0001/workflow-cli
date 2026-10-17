@@ -4,7 +4,7 @@ import { source, WorkError, type Result } from '../../core/output';
 import { defineCapability, defineDomain, type Executor, type Planner } from '../../core/registry';
 import type { Ctx } from '../../core/runtime';
 import { K8S_ADAPTER, kubeClient } from '../container/kubernetes';
-import { CONSOLE_TAIL_DEFAULT, JENKINS_ADAPTER, jenkinsClient, jenkinsProbe, jenkinsReleaseGet, jenkinsReleaseList, jenkinsRollbackExecutor, jenkinsStatusGet, planJenkinsRollback } from './jenkins';
+import { CONSOLE_TAIL_DEFAULT, JENKINS_ADAPTER, jenkinsClient, jenkinsProbe, jobPath, jenkinsReleaseGet, jenkinsReleaseList, jenkinsRollbackExecutor, jenkinsStatusGet, planJenkinsRollback } from './jenkins';
 import { k8sReleaseGet, k8sReleaseList, k8sRollbackExecutor, k8sStatusGet, planK8sRollback } from './k8s';
 import { deployBindingFor, ReleaseSchema, resolveEnv, TargetSchema } from './model';
 
@@ -215,7 +215,7 @@ const rollbackPlan = defineCapability({
     const plan = ctx.plans().create(draft, { profile: ctx.profileName, env: ctx.env, executable: true });
     const providerSource = k8s
       ? await kubeClient(ctx, String(draft.params.endpoint)).source(`GET /apis/apps/v1/namespaces/${String(draft.params.namespace)}/deployments/${String(draft.params.deployment)} + replicasets`)
-      : jenkinsClient(ctx, String(draft.params.endpoint)).source(`GET /job/${String(draft.params.job)}/api/json`);
+      : jenkinsClient(ctx, String(draft.params.endpoint)).source(`GET ${jobPath(String(draft.params.job))}/api/json`); // folder/job → /job/folder/job/job
     const failed = plan.preconditions.filter((p) => !p.ok).map((p) => p.check);
     return {
       data: plan,

@@ -45,15 +45,19 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-17T16:29:02.073Z",
+        "observed_at": "2026-10-17T16:46:46.531Z",
         "relation": "derived"
       }
     ],
-    "coverage": null,
+    "coverage": {
+      "complete": true,
+      "scope": "profile demo 下 postgres.query.run 的 workctl 侧前置条件",
+      "notes": []
+    },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcm2v93-4b17d6",
+    "request_id": "req-mvcmpolr-25ade4",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -61,7 +65,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:29:02.007Z",
-    "duration_ms": 67
+    "started_at": "2026-10-17T16:46:46.479Z",
+    "duration_ms": 52
   }
 }

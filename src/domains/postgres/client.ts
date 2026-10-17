@@ -42,7 +42,7 @@ interface DriverError extends Error {
   routine?: string;
 }
 
-function isDbError(e: unknown): e is DriverError {
+export function isDbError(e: unknown): e is DriverError {
   if (!e || typeof e !== 'object') return false;
   const d = e as DriverError;
   return typeof d.code === 'string' && /^[0-9A-Z]{5}$/.test(d.code) && typeof d.severity === 'string';

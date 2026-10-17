@@ -105,6 +105,10 @@ GRANT SELECT ON customers, orders, order_items TO workctl_ro;   -- internal_ledg
 - `statement summary` 输出 `pg_stat_statements` 已归一化的文本（常量为 `$n`），再做同样的字面量替换。
 - `query run` 按端点 `sensitive_columns` 脱敏；`table get` 不读数据，只标注 `sensitive`。
 
+- 语句引用敏感列（或含敏感列的表）时，服务端错误消息中的引号内容一律替换为 `"***"`，并丢弃 DETAIL/HINT（例如 `SELECT phone::int` 的类型转换错误会带出原值）。
+- `query run / analyze / explain` 要求会话 `standard_conforming_strings=on`（PostgreSQL 默认值）；被关闭时返回 `UNSUPPORTED`，因为反斜杠转义会让语句切分与服务端不一致。`U&"..."` Unicode 转义标识符、`ts_rewrite`、`txid_current()` / `pg_current_xact_id()` 等会执行文本或分配事务号的函数被拒绝。
+- 脱敏只按列名进行，数值型表达式（如 `ascii(substr(...))`）可以绕过；真正的边界是数据库列权限与只读角色。
+
 ## Demo 数据与场景
 
 - `demo/environment/docker-compose.yml` 的 `postgres` 服务（容器 `demo-postgres`，宿主端口 15432）；`up.sh` 生成 `pg_superuser_password`、`pg_ro_password` 并调用 `postgres/provision-users.sh`（初始化脚本读不到 0600 的 secret，`workctl_ro` 先以 NOLOGIN 创建，该脚本在容器内以 root 设置口令并开启 LOGIN，幂等）。

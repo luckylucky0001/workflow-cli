@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "postgres.query.run",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "PostgreSQL 拒绝该语句 (postgres/demo-postgres): invalid input syntax for type integer: \"***\"",
+    "hint": "语句涉及敏感列，错误信息中引号内的值已隐藏",
+    "retryable": false,
+    "details": {
+      "endpoint": "postgres/demo-postgres",
+      "sql_state": "22P02",
+      "severity": "ERROR",
+      "reason": "invalid input syntax for type integer: \"***\""
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcmq79a-5d06f0",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:47:10.654Z",
+    "duration_ms": 93
+  }
+}

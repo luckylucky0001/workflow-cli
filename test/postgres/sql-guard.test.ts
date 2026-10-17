@@ -130,3 +130,34 @@ describe('postgres literal masking', () => {
     expect(maskValue(null)).toBeNull();
   });
 });
+
+describe('postgres guardPg deny-list bypasses (review regressions)', () => {
+  it.each([
+    // U&"\0071uery_to_xml" is query_to_xml after server-side decoding: the name check cannot see it
+    ["SELECT U&\"\\0071uery_to_xml\"('select 1', true, true, '')", 'Unicode'],
+    ['SELECT u&"\\0070g_terminate_backend"(1)', 'Unicode'],
+    ["SELECT pg_catalog.U&\"\\006Eextval\"('orders_id_seq')", 'Unicode'],
+    // ts_rewrite(tsquery, text) executes the text as a query (like query_to_xml)
+    ["SELECT ts_rewrite('a & b'::tsquery, 'SELECT ''a''::tsquery, ''c''::tsquery')", 'ts_rewrite'],
+    // assign a transaction ID even inside a READ ONLY transaction
+    ['SELECT txid_current()', 'txid_current'],
+    ['SELECT pg_current_xact_id()', 'pg_current_xact_id'],
+  ])('run rejects %s', (sql, fragment) => {
+    for (const mode of ['run', 'analyze', 'explain'] as const) {
+      let msg = '';
+      try {
+        guardPg(sql, mode);
+      } catch (e) {
+        expect((e as WorkError).code).toBe('INVALID_ARGUMENT');
+        msg = (e as WorkError).message;
+      }
+      expect(msg, mode).toContain(fragment);
+    }
+  });
+
+  it('keeps accepting U& strings, the U & operator spelling and non-assigning xact functions', () => {
+    expect(code(() => guardPg("SELECT U&'d\\0061ta'", 'run'))).toBe('ok');
+    expect(code(() => guardPg('SELECT xu&"a" FROM t', 'run'))).toBe('ok');
+    expect(code(() => guardPg('SELECT txid_current_if_assigned(), pg_current_xact_id_if_assigned()', 'run'))).toBe('ok');
+  });
+});

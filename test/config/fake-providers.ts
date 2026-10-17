@@ -60,6 +60,8 @@ export class FakeNacos extends FakeHttp {
   tokens = new Set<string>();
   services = new Map<string, Record<string, unknown>[]>();
   fail: number | null = null;
+  /** history endpoints answer 403 (permission on configs but not on history) */
+  denyHistory = false;
 
   private k(t: string, g: string, d: string) {
     return `${t}|${g}|${d}`;
@@ -88,7 +90,9 @@ export class FakeNacos extends FakeHttp {
     if (path === '/nacos/v1/console/server/state') return { status: 200, body: { version: '2.4.3', startup_mode: 'standalone', auth_enabled: String(!!this.auth), config_retention_days: '30' } };
     if (path === '/nacos/v1/auth/login' && method === 'POST') {
       const u = body.get('username') ?? '';
-      if (!this.auth || this.auth.users[u] !== body.get('password')) return { status: 403, body: 'unknown user!' };
+      // 2.4.x with auth disabled has no initialised user: login answers HTTP 500
+      if (!this.auth) return { status: 500, body: `caused: User ${u} not found;` };
+      if (this.auth.users[u] !== body.get('password')) return { status: 403, body: 'unknown user!' };
       const t = `tok-${u}`;
       this.tokens.add(t);
       return { status: 200, body: { accessToken: t, tokenTtl: 18000, globalAdmin: false, username: u } };
@@ -107,6 +111,7 @@ export class FakeNacos extends FakeHttp {
       if (!c) return { status: 200, body: '' };
       return { status: 200, body: { id: '1085585522723713024', dataId, group, tenant, content: c.content, md5: 'm', type: c.type, modifyTime: 1792252998042 } };
     }
+    if (this.denyHistory && path.includes('/cs/history')) return { status: 403, body: 'authorization failed!' };
     const mine = this.history.filter((h) => h.tenant === tenant && h.group === group && h.dataId === dataId && h.id >= this.oldestKept);
     if (path === '/nacos/v2/cs/history/list') {
       const pageNo = Number(q.get('pageNo') ?? 1);
@@ -124,7 +129,12 @@ export class FakeNacos extends FakeHttp {
       if (!this.services.has(name)) return { status: 400, body: `caused: service not found, namespace: ${tenant}, serviceName: DEFAULT_GROUP@@${name};` };
       return { status: 200, body: { namespaceId: tenant, groupName: 'DEFAULT_GROUP', name, clusters: [{ name: 'DEFAULT', healthChecker: { type: 'TCP' } }] } };
     }
-    if (path === '/nacos/v1/ns/catalog/instances') return { status: 200, body: { list: this.services.get(q.get('serviceName')!) ?? [], count: 0 } };
+    if (path === '/nacos/v1/ns/catalog/instances') {
+      const all = this.services.get(q.get('serviceName')!) ?? [];
+      const size = Number(q.get('pageSize') ?? 10);
+      const pageNo = Number(q.get('pageNo') ?? 1);
+      return { status: 200, body: { list: all.slice((pageNo - 1) * size, pageNo * size), count: all.length } };
+    }
     if (path === '/nacos/v1/ns/instance/list') return { status: 200, body: { hosts: (this.services.get(q.get('serviceName')!) ?? []).filter((h) => h.enabled !== false) } };
     return { status: 404, body: { status: 404, error: 'Not Found', path } };
   }
@@ -141,6 +151,8 @@ export class FakeConsul extends FakeHttp {
   health = new Map<string, unknown[]>();
   catalog: Record<string, string[]> = { consul: [] };
   fail: number | null = null;
+  /** list responses carry X-Consul-Results-Filtered-By-ACLs: true */
+  aclFiltered = false;
 
   put(key: string, value: string): number {
     this.index += 1;
@@ -161,13 +173,17 @@ export class FakeConsul extends FakeHttp {
     if (path.startsWith('/v1/kv/')) {
       if (this.denyKv) return { status: 403, body: 'Permission denied: token with AccessorID lacks permission "key:read"' };
       const key = decodeURIComponent(path.slice('/v1/kv/'.length));
+      // ?keys at the root: the index is the KV table index
+      if (q.has('keys')) return { status: 200, headers: h, body: [...new Set([...this.kv.keys()].filter((k) => k.startsWith(key)).map((k) => k.slice(0, k.indexOf('/', key.length) + 1 || undefined)))] };
       const rows = [...this.kv.entries()].filter(([k]) => (q.has('recurse') ? k.startsWith(key) : k === key)).sort(([a], [b]) => (a < b ? -1 : 1));
       if (!rows.length) return { status: 404, body: '', headers: h };
-      const idx = q.has('recurse') ? this.index : rows[0][1].modify;
-      return { status: 200, headers: { 'x-consul-index': String(idx) }, body: rows.map(([k, v]) => ({ Key: k, Value: v.value === '' ? null : Buffer.from(v.value).toString('base64'), CreateIndex: v.create, ModifyIndex: v.modify, LockIndex: 0, Flags: 0 })) };
+      // recurse: the last write under the prefix; single key: its ModifyIndex (as real Consul)
+      const idx = q.has('recurse') ? Math.max(...rows.map(([, v]) => v.modify)) : rows[0][1].modify;
+      const filtered: Record<string, string> = q.has('recurse') && this.aclFiltered ? { 'x-consul-results-filtered-by-acls': 'true' } : {};
+      return { status: 200, headers: { 'x-consul-index': String(idx), ...filtered }, body: rows.map(([k, v]) => ({ Key: k, Value: v.value === '' ? null : Buffer.from(v.value).toString('base64'), CreateIndex: v.create, ModifyIndex: v.modify, LockIndex: 0, Flags: 0 })) };
     }
-    if (path.startsWith('/v1/health/service/')) return { status: 200, headers: h, body: this.health.get(decodeURIComponent(path.slice('/v1/health/service/'.length))) ?? [] };
-    if (path === '/v1/catalog/services') return { status: 200, headers: h, body: this.catalog };
+    if (path.startsWith('/v1/health/service/')) return { status: 200, headers: { ...h, ...(this.aclFiltered ? { 'x-consul-results-filtered-by-acls': 'true' } : {}) }, body: this.health.get(decodeURIComponent(path.slice('/v1/health/service/'.length))) ?? [] };
+    if (path === '/v1/catalog/services') return { status: 200, headers: { ...h, ...(this.aclFiltered ? { 'x-consul-results-filtered-by-acls': 'true' } : {}) }, body: this.catalog };
     return { status: 404, body: 'not found' };
   }
 }

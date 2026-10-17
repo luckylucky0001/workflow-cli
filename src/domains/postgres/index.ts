@@ -1,5 +1,5 @@
 import { defineCapability, defineDomain } from '../../core/registry';
-import { ADAPTER, AUTH_PROVIDER, ENDPOINT_KIND, GUIDE, mapPgError, withPg } from './client';
+import { ADAPTER, AUTH_PROVIDER, ENDPOINT_KIND, GUIDE, isDbError, mapPgError, withPg } from './client';
 import { lockList, sessionList } from './capabilities/activity';
 import { databaseList, instanceGet, tableGet } from './capabilities/inventory';
 import { queryAnalyze, queryExplain, queryRun } from './capabilities/query';
@@ -57,5 +57,7 @@ export default defineDomain({
         };
       }),
   },
-  mapError: (e) => mapPgError(e),
+  // domain-wide fallback: only server-side PostgreSQL errors; network/driver errors are mapped inside withPg
+  // with their endpoint, so a refused connection elsewhere is never reported as "PostgreSQL 不可达"
+  mapError: (e) => (isDbError(e) ? mapPgError(e) : undefined),
 });

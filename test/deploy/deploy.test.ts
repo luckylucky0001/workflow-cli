@@ -505,3 +505,22 @@ describe('deploy domain (review regressions: conditional rollback patch)', () =>
     }
   });
 });
+
+describe('deploy domain (review regressions: jenkins folder job)', () => {
+  it('rollback plan source names the real folder job path /job/team/job/deploy-demo-order', async () => {
+    const s = await startFakeJenkins({ builds: [jbuild(1, { version: 'v1.0', minutesAgo: 90 }), jbuild(2, { version: 'v1.1', minutesAgo: 80 })], queue: [], console: {} });
+    try {
+      const configPath = writeDeployConfig({ jenkinsUrl: s.url });
+      const bp = join(dirname(configPath), 'bindings.yaml');
+      const bind = YAML.parse(readFileSync(bp, 'utf8'));
+      bind.resources.find((x: any) => x.id === 'demo-order-jenkins').attributes.job = 'team/deploy-demo-order';
+      writeFileSync(bp, YAML.stringify(bind));
+      const env = await invoke(r, 'deploy.rollback.plan', { service: 'demo-order' }, { configPath });
+      expect(env.status).toBe('success');
+      expect(env.meta.sources[0].method).toBe('GET /job/team/job/deploy-demo-order/api/json');
+      expect(s.requests).toContain('GET /job/team/job/deploy-demo-order/api/json');
+    } finally {
+      s.server.close();
+    }
+  });
+});

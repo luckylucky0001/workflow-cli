@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "postgres.query.run",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "不允许调用有副作用或执行任意 SQL 的函数 txid_current()",
+    "hint": "只读查询不应终止会话、读写文件、加咨询锁、修改序列或重置统计",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcmq6wn-d765a3",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:47:10.199Z",
+    "duration_ms": 20
+  }
+}

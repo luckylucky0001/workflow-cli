@@ -11,7 +11,7 @@
     "prefix": "/config/sandbox/demo-order/",
     "key": "upstream.payment",
     "revision_space": "etcd-cluster-revision",
-    "observed_revision": 134,
+    "observed_revision": 156,
     "count": 1,
     "truncated": false,
     "items": [
@@ -29,8 +29,8 @@
         "masked_paths": [
           "$.token"
         ],
-        "create_revision": 123,
-        "mod_revision": 130,
+        "create_revision": 145,
+        "mod_revision": 152,
         "version": 2,
         "lease": null
       }
@@ -42,7 +42,7 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-17T16:39:08.164Z",
+        "observed_at": "2026-10-17T16:42:33.468Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
         "method": "POST /v3/kv/range key=/config/sandbox/demo-order/upstream.payment",
         "relation": "explicit",
@@ -52,7 +52,7 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "etcd etcd/demo-etcd 键前缀 /config/sandbox/demo-order/，修订 134",
+      "scope": "etcd etcd/demo-etcd 键前缀 /config/sandbox/demo-order/，修订 156",
       "notes": [
         "1 个配置项的值或字段已遮蔽（按名称匹配敏感模式）"
       ]
@@ -60,7 +60,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmfuwe-8199cc",
+    "request_id": "req-mvcmk9c8-70bd65",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -68,7 +68,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:39:08.078Z",
-    "duration_ms": 86
+    "started_at": "2026-10-17T16:42:33.416Z",
+    "duration_ms": 52
   }
 }

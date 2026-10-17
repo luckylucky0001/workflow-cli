@@ -9,8 +9,24 @@ function limitMs(s: PgSession, ctxRemaining: number): number {
   return Math.max(100, Math.min(endpointStatementTimeout(s.ep), ctxRemaining - 500));
 }
 
+/**
+ * The static guard lexes '...' with standard_conforming_strings=on. With it off (settable per role /
+ * database) the server treats `\'` as an escaped quote, so `SELECT '\'' ; <stmt> -- '` is one string to
+ * the guard but two statements to the server: refuse instead of running unguarded text.
+ */
+export async function assertStandardStrings(s: Pick<PgSession, 'query' | 'ep'>): Promise<void> {
+  const [r] = await s.query("SELECT current_setting('standard_conforming_strings') AS scs");
+  if (String(r?.scs) !== 'on') {
+    throw new WorkError('UNSUPPORTED', `会话的 standard_conforming_strings=${String(r?.scs)}，SQL 静态检查假定为 on，拒绝执行 (${s.ep.id})`, {
+      hint: '为 workctl 使用的角色/库设置 standard_conforming_strings=on（PostgreSQL 9.1 起的默认值）',
+      details: { endpoint: s.ep.id, standard_conforming_strings: r?.scs ?? null },
+    });
+  }
+}
+
 /** BEGIN READ ONLY + SET LOCAL statement_timeout. The role's own default_transaction_read_only is a further layer. */
 async function beginReadOnly(s: PgSession, ms: number): Promise<void> {
+  await assertStandardStrings(s);
   await s.query('BEGIN TRANSACTION READ ONLY');
   await s.query(`SET LOCAL statement_timeout = ${Math.floor(ms)}`);
   await s.query('SET LOCAL lock_timeout = 2000');
@@ -50,6 +66,7 @@ async function sensitiveRelations(s: PgSession, names: string[], sens: Set<strin
 export function redactErrorValues(e: WorkError): WorkError {
   const scrub = (t: unknown) => (typeof t === 'string' ? t.replace(/"(?:[^"]|"")*"/g, '"***"').replace(/'(?:[^']|'')*'/g, "'***'") : t);
   const { server_detail, server_hint, ...rest } = e.details ?? {};
+  if (scrub(e.message) === e.message && scrub(rest.reason) === rest.reason && server_detail === undefined && server_hint === undefined) return e;
   return new WorkError(e.code, String(scrub(e.message)), {
     hint: `${e.hint ? `${e.hint}；` : ''}语句涉及敏感列，错误信息中引号内的值已隐藏${server_detail !== undefined || server_hint !== undefined ? '，DETAIL/HINT 已省略' : ''}`,
     details: { ...rest, ...(rest.reason !== undefined ? { reason: scrub(rest.reason) } : {}), ...(server_detail !== undefined || server_hint !== undefined ? { server_detail_redacted: true } : {}) },

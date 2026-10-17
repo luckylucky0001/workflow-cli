@@ -222,7 +222,7 @@
           ]
         },
         "content_bytes": {
-          "description": "文档字节数；整个文档被遮蔽时为 null",
+          "description": "文档字节数；文档含遮蔽值时为 null",
           "type": [
             "number",
             "null"

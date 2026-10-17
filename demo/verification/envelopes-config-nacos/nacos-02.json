@@ -121,9 +121,9 @@
       "parsed": true,
       "parse_error": null,
       "md5": null,
-      "content_bytes": 259,
-      "last_modified": "2026-10-17T16:38:57.623Z",
-      "latest_history_id": 41
+      "content_bytes": null,
+      "last_modified": "2026-10-17T16:42:18.922Z",
+      "latest_history_id": 47
     }
   },
   "error": null,
@@ -132,7 +132,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-17T16:39:18.200Z",
+        "observed_at": "2026-10-17T16:42:41.731Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/cs/configs?show=all dataId=demo-payment.properties group=DEFAULT_GROUP tenant=sandbox",
         "relation": "explicit",
@@ -141,7 +141,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-17T16:39:18.221Z",
+        "observed_at": "2026-10-17T16:42:41.738Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v2/cs/history/list",
         "relation": "explicit",
@@ -156,13 +156,13 @@
       "notes": [
         "2 个配置项的值或字段已遮蔽（按名称匹配敏感模式）",
         "Nacos 没有键级修订：create_revision / mod_revision / version 为 null；文档级历史见 nacos.latest_history_id（config diff 的修订空间）",
-        "文档含遮蔽值，nacos.md5 不返回（md5 与其余明文可用于校验被遮蔽的值）"
+        "文档含遮蔽值，nacos.md5 / content_bytes 不返回（与其余明文一起可用于校验被遮蔽的值或推算其长度）"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmg2n9-328c0a",
+    "request_id": "req-mvcmkfpn-7b5283",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -170,7 +170,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:39:18.117Z",
-    "duration_ms": 105
+    "started_at": "2026-10-17T16:42:41.675Z",
+    "duration_ms": 66
   }
 }

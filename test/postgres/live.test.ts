@@ -12,6 +12,7 @@ import { invoke } from '../../src/core/engine';
 import type { Envelope } from '../../src/core/output';
 import { Registry } from '../../src/core/registry';
 import postgresDomain from '../../src/domains/postgres';
+import { assertStandardStrings } from '../../src/domains/postgres/capabilities/query';
 
 process.env.WORKCTL_VALIDATE_OUTPUT = '1';
 const CONFIG = resolve(__dirname, '../../demo/environment/workctl.yaml');
@@ -86,6 +87,40 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('postgres live (demo-postgres)',
     expect((await call('postgres.query.run', { sql: 'SELECT * FROM internal_ledger' })).error?.code).toBe('PERMISSION_DENIED');
     expect((await call('postgres.query.run', { sql: 'UPDATE orders SET status = status' })).error?.code).toBe('INVALID_ARGUMENT');
     expect((await call('postgres.query.run', { sql: 'SELECT pg_sleep(8)' })).error?.code).toBe('TIMEOUT');
+  });
+
+  it('query run / analyze: Unicode-escaped names and ts_rewrite are refused; errors over sensitive columns hide the value', async () => {
+    // both were accepted and executed the SQL text before the fix (benign payloads)
+    expect((await call('postgres.query.run', { sql: `SELECT U&"\\0071uery_to_xml"('select 1', true, true, '')` })).error?.code).toBe('INVALID_ARGUMENT');
+    expect((await call('postgres.query.run', { sql: "SELECT ts_rewrite('a & b'::tsquery, 'SELECT ''a''::tsquery, ''c''::tsquery')" })).error?.code).toBe('INVALID_ARGUMENT');
+    expect((await call('postgres.query.run', { sql: 'SELECT txid_current()' })).error?.code).toBe('INVALID_ARGUMENT');
+    const phone = ok(await call('postgres.query.run', { sql: 'SELECT phone FROM customers ORDER BY id', max_rows: 1 }));
+    expect(phone.masked_columns).toEqual(['phone']);
+    for (const [cap, sql] of [
+      ['postgres.query.run', 'SELECT phone::int FROM customers ORDER BY id LIMIT 1'],
+      ['postgres.query.analyze', 'SELECT c.phone::int FROM customers c ORDER BY c.id LIMIT 1'],
+      ['postgres.query.run', "SELECT (row_to_json(c)->>('ph'||'one'))::regclass FROM customers c ORDER BY c.id LIMIT 1"],
+    ]) {
+      const env = await call(cap, { sql });
+      expect(env.error?.code, sql).toMatch(/INVALID_ARGUMENT|NOT_FOUND/);
+      expect(JSON.stringify(env), sql).not.toMatch(/\+86-1\d{3}/);
+      expect(env.error?.message, sql).toContain('"***"');
+    }
+    // unrelated errors keep their text
+    expect((await call('postgres.query.run', { sql: "SELECT 'abc'::int" })).error?.message).toContain('"abc"');
+  });
+
+  it('guarded statements refuse a session with standard_conforming_strings=off (guard lexes as on)', async () => {
+    const password = readFileSync(resolve(__dirname, '../../demo/environment/.runtime/secrets/pg_ro_password'), 'utf8').trim();
+    const c = new pg.Client({ host: '127.0.0.1', port: 15432, user: 'workctl_ro', password, database: 'demo_orders', application_name: 'it-scs-off', options: '-c standard_conforming_strings=off' });
+    c.on('error', () => undefined);
+    await c.connect();
+    try {
+      const s = { ep: { id: 'postgres/demo-postgres' } as any, query: async (sql: string) => (await c.query(sql)).rows };
+      await expect(assertStandardStrings(s)).rejects.toMatchObject({ code: 'UNSUPPORTED' });
+    } finally {
+      await c.end();
+    }
   });
 
   it('explain / analyze: Seq Scan on orders for customer_id; explain of UPDATE is denied for the ro role', async () => {

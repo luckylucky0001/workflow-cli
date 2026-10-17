@@ -325,6 +325,54 @@
   "note": "关系不存在（SQLSTATE 42P01）→ NOT_FOUND"
  },
  {
+  "id": "pg-25b",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "SELECT U&\"\\0071uery_to_xml\"('select 1', true, true, '')"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "U&\"...\" Unicode 转义标识符（解码后是 query_to_xml）会绕过函数名检查 → 拒绝（静态检查，未连接）"
+ },
+ {
+  "id": "pg-25c",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "SELECT ts_rewrite('a & b'::tsquery, 'SELECT ''a''::tsquery, ''c''::tsquery')"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "ts_rewrite(tsquery, text) 会把文本当作查询执行（同 query_to_xml）→ 拒绝"
+ },
+ {
+  "id": "pg-25d",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "SELECT txid_current()"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "txid_current() 即使在 READ ONLY 事务中也会分配事务号 → 拒绝"
+ },
+ {
+  "id": "pg-25e",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "SELECT phone::int FROM customers LIMIT 1"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "类型转换错误（SQLSTATE 22P02）的服务端消息会带出敏感列的值：语句涉及敏感列时引号内的值显示为 \"***\"，DETAIL/HINT 省略"
+ },
+ {
   "id": "pg-26",
   "args": [
    "pg",

@@ -12,12 +12,12 @@ export const RevisionSpace = z
   .enum(['etcd-cluster-revision', 'consul-raft-index', 'nacos-history-id'])
   .describe('修订号的含义：etcd 集群全局修订；Consul raft 索引（CreateIndex/ModifyIndex/X-Consul-Index）；Nacos 配置历史记录 ID（nid）');
 
-export const MASK_NOTE = `键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "${MASK}" 替代，masked=true，masked_paths 标出位置；整个值被遮蔽时 value_bytes=null（不暴露长度）`;
+export const MASK_NOTE = `键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "${MASK}" 替代，masked=true，masked_paths 标出位置；有任何遮蔽时 value_bytes=null（不暴露长度）`;
 
 export const ValueFields = {
   value: z.unknown().describe('JSON 可解析时为解析后的值，否则为文本；超出 ±2^53 的整数不做有损转换（单值为文本，JSON 内为数字字符串）；binary_base64 时为 base64；被遮蔽时为 "***"'),
   value_format: z.enum(['json', 'text', 'binary_base64', 'empty']),
-  value_bytes: z.number().nullable().describe('原始值字节数（遮蔽前）；整个值被遮蔽时为 null，避免泄露密钥长度'),
+  value_bytes: z.number().nullable().describe('原始值字节数；整个值或其中任一字段被遮蔽时为 null，避免泄露密钥长度'),
   masked: z.boolean(),
   masked_paths: z.array(z.string()).describe('被遮蔽的位置："$" 为整个值，"$.a.b" 为 JSON 字段'),
 };
@@ -44,8 +44,8 @@ export const NacosDocSchema = z
     content_format: z.enum(['properties', 'yaml', 'json', 'text']).describe('workctl 实际使用的解析方式'),
     parsed: z.boolean().describe('false 表示整个文档作为一个值返回（类型不可拆分或解析失败）'),
     parse_error: z.string().nullable(),
-    md5: z.string().nullable(),
-    content_bytes: z.number().nullable(),
+    md5: z.string().nullable().describe('Nacos 记录的内容 md5；文档含遮蔽值时为 null（md5 与其余明文可校验被遮蔽的值）'),
+    content_bytes: z.number().nullable().describe('文档字节数；文档含遮蔽值时为 null'),
     last_modified: z.string().nullable(),
     latest_history_id: z.number().nullable().describe('最近一条配置历史记录 ID（config diff 的修订空间）；历史为空或无权限读取时为 null'),
   })

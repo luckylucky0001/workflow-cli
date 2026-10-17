@@ -4,8 +4,9 @@ import { int, unb64, type EtcdKv } from './etcd';
 export const MASK = '***';
 
 /**
- * Secret-like names: a name segment (split on . _ - / and camelCase) equal to one of these.
- * Matching is by name only — values are never inspected to decide.
+ * Secret-like names: a name segment (split on . _ - / [ ] and camelCase) equal to one of these.
+ * Matching is by name only — values are never inspected to decide. Brackets split flattened list
+ * indices (Nacos yaml/json: `credentials[0]`, `dsn[1]`) off the name.
  */
 const SECRET_SEGMENTS = new Set(['password', 'passwd', 'pwd', 'secret', 'secrets', 'token', 'key', 'apikey', 'credential', 'credentials', 'dsn', 'privatekey', 'accesskey', 'secretkey']);
 
@@ -13,7 +14,7 @@ export function isSecretName(name: string): boolean {
   const segs = name
     .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
     .toLowerCase()
-    .split(/[._\-/\s]+/)
+    .split(/[._\-/\s[\]]+/)
     .filter(Boolean);
   if (segs.some((s) => SECRET_SEGMENTS.has(s))) return true;
   const joined = segs.join('');
@@ -25,7 +26,7 @@ export type ValueFormat = 'json' | 'text' | 'binary_base64' | 'empty';
 export interface DecodedValue {
   value: unknown;
   value_format: ValueFormat;
-  /** Raw size in bytes; null when the whole value is masked (its length would leak the secret's length). */
+  /** Raw size in bytes; null when anything in it is masked (its length would leak the secret's length). */
   value_bytes: number | null;
   masked: boolean;
   masked_paths: string[];
@@ -77,8 +78,9 @@ export function decodeValue(raw: Buffer, name: string): DecodedValue {
   if (/^[[{]/.test(t) || /^(true|false|null|-?\d+(\.\d+)?([eE][+-]?\d+)?)$/.test(t)) {
     try {
       let parsed = JSON.parse(t);
-      // a bare number that JSON cannot carry exactly (> 2^53 or overflow) stays text: never show rounded digits
-      if (typeof parsed === 'number' && (!Number.isFinite(parsed) || (/^-?\d+$/.test(t) && !Number.isSafeInteger(parsed)))) {
+      // a bare number that does not print back as written stays text: never show rounded digits (> 2^53,
+      // overflow) nor a different spelling ("1.10" is not 1.1 — e.g. a version; "1e3", "-0")
+      if (typeof parsed === 'number' && (!Number.isFinite(parsed) || String(parsed) !== t)) {
         return { value: text, value_format: 'text', value_bytes: bytes, masked: false, masked_paths: [] };
       }
       if (typeof parsed === 'object' && parsed !== null) {
@@ -93,7 +95,8 @@ export function decodeValue(raw: Buffer, name: string): DecodedValue {
       }
       const paths: string[] = [];
       const value = maskJson(parsed, '$', paths);
-      return { value, value_format: 'json', value_bytes: bytes, masked: paths.length > 0, masked_paths: paths };
+      // with the other fields shown, the raw size of a field-masked value gives away the secret's exact length
+      return { value, value_format: 'json', value_bytes: paths.length ? null : bytes, masked: paths.length > 0, masked_paths: paths };
     } catch {
       /* not JSON: keep text */
     }
