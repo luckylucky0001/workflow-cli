@@ -65,6 +65,8 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('offline live (demo Airflow + Sp
     expect((pool.data as any).slots).toBe(2);
     const wf = await call('offline.workflow.get', { id: 'demo-daily-orders' });
     expect((wf.data as any).timezone).toBe('Asia/Shanghai');
-    expect(wf.meta.warnings).toEqual([]);
+    // the only acceptable warning is the paused-DAG notice (demo DAGs are paused to freeze scenario state)
+    expect(wf.meta.warnings.filter((w: string) => !w.includes('暂停'))).toEqual([]);
+    expect(wf.meta.warnings.length).toBe((wf.data as any).is_paused ? 1 : 0);
   });
 });
