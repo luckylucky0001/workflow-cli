@@ -5,7 +5,9 @@ description: 查看服务的发布/变更：最近有没有发布、发布到了
 
 # 部署系统操作
 
-所有命令加 `--json`。对象模型、provider 差异与权限见 `docs/guides/deploy.md`。
+> **调用约定**：profile/端点已由环境（`WORKCTL_CONFIG` / `--profile`）给定，直接以 `workctl` 开头调用，全局参数紧跟其后：`workctl --json <命令> ...`；不要加环境变量前缀、`cd`、管道或 `node dist/workctl.js`。命令被宿主拒绝时不要换写法绕过，说明需要授权的只读命令。
+
+对象模型、provider 差异与权限见 `docs/guides/deploy.md`。
 
 ## 原则
 
@@ -14,20 +16,21 @@ description: 查看服务的发布/变更：最近有没有发布、发布到了
 - 状态有依据（`status_basis`）：Kubernetes 被替代的旧修订是 `unknown`——API 不保存当时 rollout 的结果，不能说成“成功过”。
 - 保留范围有限（`meta.coverage.notes`）：Kubernetes 只保留 `revisionHistoryLimit` 个旧修订，Jenkins 只保留构建丢弃策略内的构建。列表里没有 ≠ 没发布过。
 - Jenkins 的 `current` 是“最近一次成功的部署构建”，不是目标环境实际运行的版本；需要时用 `container workload get` 核对镜像。
-- 回滚只走 plan → 人工确认 → `operation execute`；计划预览不是执行成功的证据，执行后独立复核。
+- 回滚只走 计划 → 确认 → 执行 → 复核（场景 4）。
+- 读结果：通用规则（partial、空结果与各错误码的区分、累计/快照 vs 窗口、`relation`、`data.state`、planned、`data_mode`）见 `skills/enterprise-infra/SKILL.md` 第 4 步，单独加载本 Skill 时至少遵守：`status=partial` 读 `meta.coverage.notes` 并写明缺口；`COLLECTION_DISABLED`/`PERMISSION_DENIED`/`DATA_UNAVAILABLE` 都不是“没有”；结论引用 `meta.sources`。
 
 ## 场景 1：最近有没有发布 / 发布到了哪个版本
 
 ```bash
-workctl deploy release list --service <svc> --window 24h
-workctl deploy status get --service <svc>
+workctl --json deploy release list --service <svc> --window 24h
+workctl --json deploy status get --service <svc>
 ```
 回答时给出：当前版本（`current=true` 的 `version`/`images`）、最近几次发布的开始时间与状态、时间是 explicit 还是 derived。
 
 ## 场景 2：某次发布改了什么、为什么失败
 
 ```bash
-workctl deploy release get --service <svc> --id <release id>
+workctl --json deploy release get --service <svc> --id <release id>
 ```
 - Kubernetes：`kubernetes.containers`（镜像、环境变量，凭据值已遮蔽）、`change_cause`、`diff_vs_current`（与当前修订的镜像/环境变量差异）、副本数。
 - Jenkins：`jenkins.parameters`、`causes`（谁触发）、`result`、`console.lines`（末尾若干行，已遮蔽）。
@@ -35,7 +38,7 @@ workctl deploy release get --service <svc> --id <release id>
 ## 场景 3：rollout 卡住了吗
 
 ```bash
-workctl deploy status get --service <svc>
+workctl --json deploy status get --service <svc>
 ```
 - `state=failed`：Kubernetes `Progressing=False ProgressDeadlineExceeded`；看 `kubernetes.pods[].waiting_reasons`（如 `ImagePullBackOff`、`CrashLoopBackOff`）与哪个修订的 Pod 未就绪。旧修订 Pod 仍就绪时服务通常仍可用（maxUnavailable=0）。
 - `state=progressing`：仍在滚动，对比 `replicas.updated/available/desired`；`paused`：Deployment 被暂停。
@@ -43,11 +46,14 @@ workctl deploy status get --service <svc>
 
 ## 场景 4：回滚
 
+变更（计划 → 确认 → 执行 → 复核）：先 `workctl --json deploy rollback plan --service <svc>` 生成计划；向用户展示 `targets`（实际解析出的目标）、`impact`、`preconditions`（全部 ok）；仅当用户明确确认且 profile `allow_execute: true` 时执行 `workctl --json operation execute --id <id> --confirm <id>`；执行后用 `workctl --json operation get --id <id>` 和 `deploy status get` / `container workload get` / 关键指标 复核。计划预览不是执行成功的证据；不要自行发起执行。
+
 ```bash
-workctl deploy rollback plan --service <svc> [--to <release id>]   # 缺省：上一修订 / 上一个不同版本的成功构建
-# 人工确认 targets（当前 → 目标版本/镜像）、impact、preconditions 全部 ok 后：
-workctl operation execute --id <plan> --confirm <plan>
-workctl deploy status get --service <svc>                          # 复核
+workctl --json deploy rollback plan --service <svc> [--to <release id>]   # 缺省：上一修订 / 上一个不同版本的成功构建
+# 用户明确确认 targets（当前 → 目标版本/镜像）、impact、preconditions 全部 ok，且 allow_execute 时：
+workctl --json operation execute --id <id> --confirm <id>
+workctl --json operation get --id <id>
+workctl --json deploy status get --service <svc>                          # 复核
 ```
 - 前置条件不满足（目标已不保留、目标就是当前、目标构建失败、有进行中的发布、参数含凭据无法重放）时执行会被拒绝（`PRECONDITION_FAILED`）。
 - 执行前会复核当前版本未变；计划生成后有新发布则 `CONFLICT`，重新生成计划。
@@ -62,7 +68,7 @@ workctl deploy status get --service <svc>                          # 复核
    - “发布后指标突变，且变更内容与现象吻合（如缓存 TTL、连接池参数）”→ 高可信，可建议回滚计划；
    - “时间接近但变更内容无关”→ 只是线索，继续查配置变更（`config diff`）、依赖（Redis/MySQL）；
    - 窗口内没有可见发布 → 说明保留范围（coverage notes），不要断言“没有变更”。
-5. 回滚建议只给计划；执行由授权人员确认。
+5. 回滚建议只给计划；执行须用户明确确认（见场景 4）。
 
 ## 常见错误
 

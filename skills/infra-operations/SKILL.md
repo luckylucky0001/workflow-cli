@@ -5,29 +5,32 @@ description: 容器、网络、存储、配置中心与服务发现的日常检�
 
 # 基础设施操作
 
-所有命令加 `--json`。对象模型与语义见 `docs/guides/infrastructure.md`。
+> **调用约定**：profile/端点已由环境（`WORKCTL_CONFIG` / `--profile`）给定，直接以 `workctl` 开头调用，全局参数紧跟其后：`workctl --json <命令> ...`；不要加环境变量前缀、`cd`、管道或 `node dist/workctl.js`。命令被宿主拒绝时不要换写法绕过，说明需要授权的只读命令。
+
+对象模型与语义见 `docs/guides/infrastructure.md`。
 
 ## 原则
 
 - 服务与容器的关系只来自标签/资源绑定（输出中的 `selector.evidence`）。没有匹配就是没有匹配，不要按名称去找“看起来像”的容器。
 - 区分快照与窗口：`container stats get`、`capacity summary` 是快照；`container event list` 有窗口但受守护进程事件缓冲限制。
-- 只读检查不需要授权；任何变更都先 plan，人工确认后 `operation execute`，执行后独立复核。计划预览不是执行成功的证据。
+- 只读检查不需要 `allow_execute`（目标系统仍校验权限，`PERMISSION_DENIED` 如实报告）；变更见场景 5 的 计划 → 确认 → 执行 → 复核。
+- 读结果：通用规则（partial、空结果与各错误码的区分、累计/快照 vs 窗口、`relation`、`data.state`、planned、`data_mode`）见 `skills/enterprise-infra/SKILL.md` 第 4 步，单独加载本 Skill 时至少遵守：`status=partial` 读 `meta.coverage.notes` 并写明缺口；`COLLECTION_DISABLED`/`PERMISSION_DENIED`/`DATA_UNAVAILABLE` 都不是“没有”；结论引用 `meta.sources`。
 - 探测结果代表 workctl 所在主机的视角。
 
 ## 场景 1：服务是否正常
 
 ```bash
-workctl container workload get --service <svc>
-workctl network backend list --service <svc>
+workctl --json container workload get --service <svc>
+workctl --json network backend list --service <svc>
 ```
 判断：`state=running` 且 `health` 不是 `unhealthy`，且后端探测 `ok=true`。三者不一致时如实报告（如进程在跑但健康接口 5xx）。
 
 ## 场景 2：容器为什么重启/退出
 
 ```bash
-workctl container workload get --service <svc>          # exit_code、oom_killed、finished_at、started_at、restart_count
-workctl container event list --service <svc> --window 6h
-workctl log query --service <svc> --window 30m --level error
+workctl --json container workload get --service <svc>          # exit_code、oom_killed、finished_at、started_at、restart_count
+workctl --json container event list --service <svc> --window 6h
+workctl --json log query --service <svc> --window 30m --level error
 ```
 - `oom_killed=true` 或 exit_code 137 + 事件 `oom` → 内存超限（事实）；接着看 `container stats get` 与上限。
 - `restart_count` 不含手动重启；手动重启要看事件或 `started_at`。
@@ -36,8 +39,8 @@ workctl log query --service <svc> --window 30m --level error
 ## 场景 3：连通性
 
 ```bash
-workctl network dns get --name <host>
-workctl network connectivity check --target <host:port> --count 5
+workctl --json network dns get --name <host>
+workctl --json network connectivity check --target <host:port> --count 5
 ```
 - `lookup` 成功但 DNS 记录为空 → 来自 hosts 文件或本地配置。
 - `ECONNREFUSED`：主机可达但端口没监听；`ETIMEDOUT`：网络/防火墙丢包。TCP 通不代表应用协议或认证可用。
@@ -45,37 +48,37 @@ workctl network connectivity check --target <host:port> --count 5
 ## 场景 4：存储
 
 ```bash
-workctl storage volume get --id <volume>      # 驱动、挂载点、占用（usage.status）、挂载它的容器
-workctl storage file stat --path <path>       # 存在性、大小、mtime、可读性
+workctl --json storage volume get --id <volume>      # 驱动、挂载点、占用（usage.status）、挂载它的容器
+workctl --json storage file stat --path <path>       # 存在性、大小、mtime、可读性
 ```
 `usage.status=unavailable` 表示守护进程没有计算大小，不是 0。文件存在 ≠ 数据正确 ≠ 任务成功。
 
 ## 场景 5：受控重启
 
 ```bash
-workctl container workload restart-plan --service <svc> --env <env>
+workctl --json container workload restart-plan --service <svc> --env <env>
 ```
-向用户展示并确认：
+变更（计划 → 确认 → 执行 → 复核）：先 `workctl --json container workload restart-plan --service <svc> --env <env>` 生成计划；向用户展示 `targets`（实际解析出的目标）、`impact`、`preconditions`（全部 ok）；仅当用户明确确认且 profile `allow_execute: true` 时执行 `workctl --json operation execute --id <id> --confirm <id>`；执行后用 `workctl --json operation get --id <id>` 和 `container workload get` / `network backend list` 复核。计划预览不是执行成功的证据；不要自行发起执行。 本场景要展示的重点：
 - `targets`：实际容器 ID/名称（不是服务名的猜测）；
 - `impact.dependents_of_service`（谁依赖它，重启期间会失败）与 `impact.service_dependencies`；
 - `preconditions` 全部 `ok`（含 `profile_allow_execute`）；
 - `rollback`：重启不可回滚；`cancellable=false`。
 
-用户明确确认后：
+用户明确确认且 `allow_execute` 时：
 ```bash
-workctl operation execute --id <plan_id> --confirm <plan_id>
-workctl operation get --id <plan_id>                    # status、result.restarted[].verified、history
-workctl container workload get --service <svc>          # 独立复核 started_at 已更新、state=running
-workctl network backend list --service <svc>            # 业务探测
+workctl --json operation execute --id <id> --confirm <id>
+workctl --json operation get --id <id>                         # status、result.restarted[].verified、history
+workctl --json container workload get --service <svc>          # 独立复核 started_at 已更新、state=running
+workctl --json network backend list --service <svc>            # 业务探测
 ```
 执行器的 `verified` 只基于 inspect（进程运行、启动时间更新、健康检查状态）；业务恢复以探测与指标为准。失败时用 `container event list` 和 `log query` 查看原因，不要自动重试。
 
 ## 场景 6：配置与服务发现（etcd / Nacos / Consul，只读）
 
 ```bash
-workctl config get --service <svc> [--key <name>]                 # 当前值与修订；敏感值为 ***（整值遮蔽时 value_bytes=null）
-workctl config diff --service <svc> --from-rev <rev>              # 或 --key <name> 与上一版本比较
-workctl discovery list --service <svc> [--healthy-only]           # 注册实例与健康
+workctl --json config get --service <svc> [--key <name>]                 # 当前值与修订；敏感值为 ***（整值遮蔽时 value_bytes=null）
+workctl --json config diff --service <svc> --from-rev <rev>              # 或 --key <name> 与上一版本比较
+workctl --json discovery list --service <svc> [--healthy-only]           # 注册实例与健康
 ```
 - provider 由服务绑定的配置中心端点类型决定（`data.provider`、`provider_selected_by`）；`--endpoint <类型>/<名称>` 可显式指定。先看 `data.revision_space` 再解读修订号：etcd 集群修订、Nacos 历史 ID、Consul raft 索引，三者不可互换。
 - etcd：`DATA_UNAVAILABLE` = 修订已被压缩（`details.compact_revision` 起可读），不是“没有改过”。Nacos：历史默认只保留 30 天，早于最早记录同样是 `DATA_UNAVAILABLE`；properties/yaml/json 拆成键，其他类型整篇一项。Consul：KV **没有历史**，`config diff` 总是 `DATA_UNAVAILABLE`（只给 ModifyIndex），不要推测旧值。

@@ -5,6 +5,8 @@ description: 验证离线数据产出与质量：表元数据与分区语义、�
 
 # 数据产出与质量验证（workctl data）
 
+> **调用约定**：profile/端点已由环境（`WORKCTL_CONFIG` / `--profile`）给定，直接以 `workctl` 开头调用，全局参数紧跟其后：`workctl --json <命令> ...`；不要加环境变量前缀、`cd`、管道或 `node dist/workctl.js`。命令被宿主拒绝时不要换写法绕过，说明需要授权的只读命令。
+
 ## 能力
 
 | 目的 | 命令 |
@@ -63,5 +65,6 @@ description: 验证离线数据产出与质量：表元数据与分区语义、�
 
 ## 边界
 
-- 全部只读：不重写分区、不修复数据。补数/重跑走 offline 领域的计划（plan）与授权执行。
+- 全部只读：不重写分区、不修复数据。补数/重跑走 offline 领域的 计划 → 确认 → 执行 → 复核（`offline backfill plan`，见 offline-operations）；不要自行执行。
+- 读结果：通用规则（partial、空结果与各错误码的区分、累计/快照 vs 窗口、`relation`、`data.state`、planned、`data_mode`）见 `skills/enterprise-infra/SKILL.md` 第 4 步，单独加载本 Skill 时至少遵守：`status=partial` 读 `meta.coverage.notes` 并写明缺口；`COLLECTION_DISABLED`/`PERMISSION_DENIED`/`DATA_UNAVAILABLE` 都不是“没有”；结论引用 `meta.sources`。
 - 详细契约与规则参考见 `docs/guides/data.md`。

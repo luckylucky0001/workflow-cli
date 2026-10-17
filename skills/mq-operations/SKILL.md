@@ -5,7 +5,9 @@ description: 排查 Kafka 消息积压与消费组问题（消费组 lag、topic
 
 # 消息队列排查（Kafka，demo-mq 插件）
 
-`mq` 领域由插件提供。先确认已安装：`workctl --json capability list --domain mq`；没有则 `workctl plugin install --file <demo-mq-plugin.tgz>`。
+> **调用约定**：profile/端点已由环境（`WORKCTL_CONFIG` / `--profile`）给定，直接以 `workctl` 开头调用，全局参数紧跟其后：`workctl --json <命令> ...`；不要加环境变量前缀、`cd`、管道或 `node dist/workctl.js`。命令被宿主拒绝时不要换写法绕过，说明需要授权的只读命令。
+
+`mq` 领域由插件提供。先确认已安装：`workctl --json capability list --domain mq`；没有则 `workctl --json plugin install --file <demo-mq-plugin.tgz>`。
 
 ## 能力
 
@@ -39,6 +41,7 @@ description: 排查 Kafka 消息积压与消费组问题（消费组 lag、topic
 - Kafka lag 与 RabbitMQ 队列深度语义不同，不要相互换算或合并成一个“积压”数字。
 - `status=partial` 时（如 topic 已删除、结果截断、缺 DescribeConfigs 权限），引用 `meta.coverage` 和 `meta.warnings` 说明缺了什么。
 - 引用证据时带上 `meta.sources[].method` 与 `observed_at`；lag 本身是 `relation=derived` 的计算值。
+- 读结果：通用规则（partial、空结果与各错误码的区分、累计/快照 vs 窗口、`relation`、`data.state`、planned、`data_mode`）见 `skills/enterprise-infra/SKILL.md` 第 4 步，单独加载本 Skill 时至少遵守：`status=partial` 读 `meta.coverage.notes` 并写明缺口；`COLLECTION_DISABLED`/`PERMISSION_DENIED`/`DATA_UNAVAILABLE` 都不是“没有”；结论引用 `meta.sources`。
 
 ## 错误处理
 

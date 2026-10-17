@@ -60,7 +60,8 @@ const CASES = [
   },
   {
     id: 'nacos-config',
-    prompt: 'demo-payment 服务的配置最近改了什么？',
+    // v1 asked “最近改了什么”: the latest Nacos change is a secret rotation, so the rubric (timeout_ms) was ambiguous
+    prompt: 'demo-payment 服务配置里的 order.timeout_ms 是从多少改成多少的？在哪个修订改的？',
     facts: { 键: /timeout_ms/, 旧值: /800/, 新值: /1500/ },
     forbidden: {},
   },

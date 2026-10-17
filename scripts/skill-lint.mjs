@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // Static lint for skills/<name>/SKILL.md: frontmatter, workctl commands + flags (resolved against the
 // built CLI's --help), planned-capability labelling, referenced file paths, secret-looking literals.
+// Commands are found in code blocks / inline code written as `workctl …`, and in inline code written
+// without the prefix when the first word is a top-level command group (e.g. `deploy release get --id x`).
 // Usage: node scripts/skill-lint.mjs [--json]   (needs `npm run build`; uses $WORKCTL_CONFIG for plugins)
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -88,7 +90,8 @@ for (const name of readdirSync(skillsDir).sort()) {
   }
   const body = text.slice(fm[0].length);
   const lines = body.split('\n');
-  // (b) commands: code-block lines and inline code that start with `workctl`
+  // (b) commands: code-block lines and inline code that start with `workctl`; inline code without the
+  // prefix whose first word is a top-level command group and that has at least one more token
   const mentions = [];
   let inCode = false;
   lines.forEach((line, i) => {
@@ -99,7 +102,14 @@ for (const name of readdirSync(skillsDir).sort()) {
         if (m) mentions.push({ cmd: m[1].replace(/\s+#.*$/, ''), line: i, text: line });
       }
     }
-    for (const m of line.matchAll(/`(workctl\s[^`]+)`/g)) mentions.push({ cmd: m[1], line: i, text: line });
+    for (const m of line.matchAll(/`([^`\n]+)`/g)) {
+      const code = m[1].trim();
+      if (/^workctl\s/.test(code)) { mentions.push({ cmd: code, line: i, text: line }); continue; }
+      const [first, second] = code.split(/\s+/);
+      if (second !== undefined && root.commands.has(first) && /^(?:[a-z][a-z0-9-]*|--?[a-zA-Z][\w-]*)$/.test(second)) {
+        mentions.push({ cmd: `workctl ${code}`, line: i, text: line });
+      }
+    }
   });
   checked += mentions.length;
   for (const { cmd, line, text: lineText } of mentions) {
@@ -107,6 +117,13 @@ for (const name of readdirSync(skillsDir).sort()) {
     const words = [];
     for (const t of tokens) { if (/^[a-z][a-z0-9-]*$/.test(t)) words.push(t); else break; }
     if (!words.length) continue;
+    // planned capabilities have no command; a mention must be labelled instead of resolving
+    const plannedCmd = words.map((_, k) => words.slice(0, k + 1).join(' ')).reverse().find((c) => capByCommand.get(c)?.status === 'planned');
+    if (plannedCmd) {
+      const ctx = [lines[line - 1] ?? '', lineText, lines[line + 1] ?? ''].join(' ');
+      if (!/待接入|planned|未实现|规划|未接入/.test(ctx)) add(name, 'planned', `L${line + 1}: \`${plannedCmd}\` is planned but not labelled 待接入/planned`);
+      continue;
+    }
     const r = resolveCommand(words);
     if (!r || !r.node) { add(name, 'command', `L${line + 1}: unknown command \`workctl ${words.join(' ')}\``); continue; }
     const command = r.path.join(' ');

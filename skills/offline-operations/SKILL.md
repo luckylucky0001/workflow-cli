@@ -5,6 +5,8 @@ description: 离线调度与计算的日常操作：查看 Airflow 工作流/任
 
 # 离线调度与计算操作（workctl offline / compute / sql）
 
+> **调用约定**：profile/端点已由环境（`WORKCTL_CONFIG` / `--profile`）给定，直接以 `workctl` 开头调用，全局参数紧跟其后：`workctl --json <命令> ...`；不要加环境变量前缀、`cd`、管道或 `node dist/workctl.js`。命令被宿主拒绝时不要换写法绕过，说明需要授权的只读命令。
+
 ## 能力速查
 
 | 目的 | 命令 |
@@ -37,11 +39,12 @@ YARN 队列、VM 实例、Hive 查询为 planned：如实告知未接入，不�
 
 ## 补数流程
 
-1. `offline backfill plan --workflow <dag> --from D1 --to D2 [--timezone] [--rerun-succeeded] [--max-active-runs N]`。
+变更（计划 → 确认 → 执行 → 复核）：先 `workctl --json offline backfill plan ...` 生成计划；向用户展示 `targets`（实际解析出的目标）、`impact`、`preconditions`（全部 ok）；仅当用户明确确认且 profile `allow_execute: true` 时执行 `workctl --json operation execute --id <id> --confirm <id>`；执行后用 `workctl --json operation get --id <id>` 和 `offline backfill get --id <id>` 与 `offline run get` 复核。计划预览不是执行成功的证据；不要自行发起执行。
+1. `workctl --json offline backfill plan --workflow <dag> --from D1 --to D2 [--timezone <tz>] [--rerun-succeeded] [--max-active-runs N]`。
 2. 向用户逐日展示 `targets[]`（现有 run、动作、目标分区状态、上游输入）、`impact`（写入模式与幂等、下游、代码版本、并发）与 `preconditions`。
    - `write_mode_safe=false`（append 表重跑有重复风险）、`upstream_inputs_present=false`（先补上游）、`dag_not_paused=false` 时不要执行。
    - 调度 success 但分区不是 present 的日期会出现在 warnings：先查原因，`clear` 会沿用原 run 的 conf 和当前代码。
-3. 用户明确确认后才执行 `operation execute --id <plan> --confirm <plan>`（需要 profile `allow_execute`；MCP 默认不开放）。
+3. 仅当用户明确确认且 profile `allow_execute: true` 时执行 `workctl --json operation execute --id <id> --confirm <id>`（MCP 默认不开放）。
 4. 执行结果只说明“调度系统已接受请求”；用 `offline backfill get --id` 跟踪，再用 `run get` 分层验证产出。
 
 ## SQL 提交
@@ -52,5 +55,6 @@ YARN 队列、VM 实例、Hive 查询为 planned：如实告知未接入，不�
 ## 口径
 
 - 计划预览不是执行证据；执行成功不是数据正确的证据。
+- 读结果：通用规则（partial、空结果与各错误码的区分、累计/快照 vs 窗口、`relation`、`data.state`、planned、`data_mode`）见 `skills/enterprise-infra/SKILL.md` 第 4 步，单独加载本 Skill 时至少遵守：`status=partial` 读 `meta.coverage.notes` 并写明缺口；`COLLECTION_DISABLED`/`PERMISSION_DENIED`/`DATA_UNAVAILABLE` 都不是“没有”；结论引用 `meta.sources`。
 - 凭据只通过 profile 的 `*_ref` 引用，不要在回答或命令里出现密码。
 - 依赖只报告带 `edge_source` 的关系，不按名称相似推断。

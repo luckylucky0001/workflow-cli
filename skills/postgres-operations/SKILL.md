@@ -5,14 +5,16 @@ description: 排查 PostgreSQL 慢查询、锁等待/阻塞链、idle in transac
 
 # PostgreSQL 只读诊断
 
-所有命令加 `--json`；`--instance` 缺省取 profile 的 `defaults.postgres`；`--database` 缺省为端点配置的库。口径、权限与错误码见 `docs/guides/postgres.md`。
+> **调用约定**：profile/端点已由环境（`WORKCTL_CONFIG` / `--profile`）给定，直接以 `workctl` 开头调用，全局参数紧跟其后：`workctl --json <命令> ...`；不要加环境变量前缀、`cd`、管道或 `node dist/workctl.js`。命令被宿主拒绝时不要换写法绕过，说明需要授权的只读命令。
+
+`--instance` 缺省取 profile 的 `defaults.postgres`；`--database` 缺省为端点配置的库。口径、权限与错误码见 `docs/guides/postgres.md`。
 
 ## 原则
 
 - **事实 vs 假设**：引擎查询结果（`sources[].adapter=pg-driver`，`version` 为实际版本）是事实；资源绑定（`binding-file`）是平台元数据；“加索引会变快”在 `query explain`/`analyze` 验证前只是假设。
 - **窗口 vs 累计**：`statement summary --sample-window 0`、`database list` 的计数、`table get` 的 `seq_scan/idx_scan/n_tup_*` 都是自 `stats_reset` 以来的累计值，不能说成“最近”。“最近 N 秒”只用 `statement summary --sample-window Ns`（`aggregation=window_delta`）。报告累计值时写出起点（`cumulative_since.stats_reset` / `stats_reset`）。
 - **估计 vs 实际**：`rows_estimate`、`n_live_tup/n_dead_tup`、`query explain` 都是估计；只有 `query analyze` 是实际执行（它**会执行语句**，只用于 SELECT，先问用户是否可以在该实例上跑）。
-- **区分状态**：`COLLECTION_DISABLED`（pg_stat_statements 未加载/未在该库创建）≠ 没有慢语句；`PERMISSION_DENIED` ≠ 表不存在；空列表 + `coverage.complete=true` 才是“确实没有”。`status=partial` 时读 `meta.coverage.notes`（常见：缺 `pg_read_all_stats`，语句文本被隐藏），在结论里写明缺了什么。
+- **区分状态**：`COLLECTION_DISABLED`（pg_stat_statements 未加载/未在该库创建）≠ 没有慢语句；`PERMISSION_DENIED` ≠ 表不存在；空列表 + `coverage.complete=true` 才是“确实没有”。`status=partial` 时读 `meta.coverage.notes`（常见：缺 `pg_read_all_stats`，语句文本被隐藏），在结论里写明缺了什么。其余通用规则见 `skills/enterprise-infra/SKILL.md` 第 4 步。
 - 不执行写操作、DDL、VACUUM、`pg_terminate_backend`；`pg vacuum plan` / `pg index plan` / `pg replication get` 尚未接入（planned），不要假装有结果。
 
 ## 场景 1：数据库慢 / 慢 SQL

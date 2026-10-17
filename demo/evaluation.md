@@ -124,6 +124,18 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 
 优化内容：13 个 description 全部改写为“何时使用 + 不适用时转给哪个 Skill”（MySQL ↔ PostgreSQL、infra ↔ deploy、offline-operations ↔ offline-delay-investigation ↔ data-validation、领域 ↔ 流程），补充口语化触发词（接口超时、日报没出来、发版后报错、流量翻倍）；延迟排查流程按依赖选择 MySQL/PostgreSQL 并加入最近发布检查，容量盘点加入发布检查与“翻倍推算是假设”。详见 [runs/skill-trigger.baseline.md](agent-host/runs/skill-trigger.baseline.md)、[runs/skill-trigger.baseline-vague.md](agent-host/runs/skill-trigger.baseline-vague.md)、[runs/skill-trigger.optimized.md](agent-host/runs/skill-trigger.optimized.md)。单次运行有非确定性，只说明趋势。
 
+#### 第二轮：内容一致性与回答质量
+
+- **内容**：入口 Skill 一处给出完整的结果解读规则（partial、空 / 未采集 / 无权限 / 超出范围、快照 / 累计 / 窗口、采样、四种 relation、`data.state` 与 `status`、planned、`data_mode`），领域 Skill 只保留本领域的推论（Consul 无历史、pg 累计自 `stats_reset`、Redis LFU ≠ QPS、k8s 派生时间）并指回入口；修正 5 处错误或矛盾表述（如“只读检查不需要授权”→ 不需要 `allow_execute` 但目标系统仍校验权限；容量评审误称“走计划流程”而实际没有容量计划器）；计划 → 确认 → 执行 → 复核统一为同一句话；三个流程 Skill 统一报告模板（事实 / 判断与假设 / 下一步 / 覆盖缺口）。lint 扩展到不带 `workctl` 前缀的行内命令，检查的命令提及由 116 增至 226，仍 0 错。触发评测复跑 19/19。
+- **回答质量**：`node demo/agent-host/skill-answer-eval.mjs`，7 个用例的事实清单来自演示场景的确定性数据（失败版本与原因、Seq Scan 与缺索引、yellow 的副本与单节点、不健康实例与原因、Consul 无历史须如实说明、Nacos 修订差异、写错分区），按正则机械判定，并检查“声称已执行回滚/补数/建索引”等违规陈述；同一用例另跑仅 CLI 对照组（空目录、无 Skill）。
+
+| 轮次 | Skill 组事实命中 | 对照组事实命中 | 违规陈述 | 平均工具调用（Skill / 对照） | 平均成本（Skill / 对照） |
+| --- | --- | --- | --- | --- | --- |
+| 优化前 | 13/18（5/7 用例全中） | 18/18 | 0 / 0 | 6.1 / 9.0 | $0.12 / $0.19 |
+| 优化后 | 17/18 → 改正有歧义的用例后 18/18 | 18/18 | 0 / 0 | 5.4 / 7.9 | $0.08 / $0.12 |
+
+优化前的 2 个失败是真实缺陷：Agent 在仓库目录里照着开发说明把命令写成 `WORKCTL_CONFIG=... workctl ...`，宿主只放行以 `workctl` 开头的命令，调用被拒，于是如实回答“没有拿到数据”（0 事实但没有编造）。修复：13 个 Skill 顶部加“调用约定”（直接以 `workctl` 开头、全局参数放前面、不加环境变量前缀 / `cd` / 管道、被拒绝时不换写法绕过），示例统一为 `workctl --json <命令>`。优化后剩下的 1 个“未命中”是评测用例本身有歧义：问“最近改了什么”，而 Nacos 上最近一次变更其实是密钥轮换（回答正确且只说“已变更”），`timeout_ms` 是更早的修订；用例改为明确询问 `order.timeout_ms` 后两组都 3/3（[runs/skill-answer.nacos-v2.md](agent-host/runs/skill-answer.nacos-v2.md)）。结论：两组事实正确率相同，Skill 组工具调用约少 30%、成本约低 1/3、耗时略短；正则判定可能漏判同义表述，单次运行只说明趋势。原始记录：[skill-answer.baseline.md](agent-host/runs/skill-answer.baseline.md)、[skill-answer.optimized.md](agent-host/runs/skill-answer.optimized.md)。
+
 ## 5. 验收结论（设计稿 §12.3）
 
 | 验收项 | 结论 | 证据 |

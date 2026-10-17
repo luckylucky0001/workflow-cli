@@ -5,7 +5,9 @@ description: 排查 Redis 缓存问题（只读）：命中率下降、内存与
 
 # Redis 缓存诊断
 
-所有命令加 `--json`；`--instance` 缺省取 profile 的 `defaults.redis`。口径、权限与错误码见 `docs/guides/redis.md`。
+> **调用约定**：profile/端点已由环境（`WORKCTL_CONFIG` / `--profile`）给定，直接以 `workctl` 开头调用，全局参数紧跟其后：`workctl --json <命令> ...`；不要加环境变量前缀、`cd`、管道或 `node dist/workctl.js`。命令被宿主拒绝时不要换写法绕过，说明需要授权的只读命令。
+
+`--instance` 缺省取 profile 的 `defaults.redis`。口径、权限与错误码见 `docs/guides/redis.md`。
 
 ## 原则
 
@@ -13,7 +15,8 @@ description: 排查 Redis 缓存问题（只读）：命中率下降、内存与
 - **内存 ≠ 热度**：大键看 `key sample`（MEMORY USAGE），热键看 `key hot`（OBJECT FREQ，仅 LFU 策略）。不要用大小推断访问频率。
 - **采样不是全量**：`key sample`/`key hot` 基于有预算的 SCAN；`coverage.complete=false` 时只代表样本，结论里写明“采样 N 个键”。
 - **慢日志只含执行时间**：不含网络、排队、客户端 I/O。应用侧延迟高而慢日志为空，不能得出“Redis 不慢”，要结合连接数、`instantaneous_ops_per_sec`、应用指标。
-- `COLLECTION_DISABLED`（如非 LFU 策略下查热键、慢日志关闭）≠ 没有问题。`status=partial` 时读 `meta.coverage.notes`。
+- `COLLECTION_DISABLED`（如非 LFU 策略下查热键、慢日志关闭）≠ 没有问题。
+- 读结果：通用规则（partial、空结果与各错误码的区分、累计/快照 vs 窗口、`relation`、`data.state`、planned、`data_mode`）见 `skills/enterprise-infra/SKILL.md` 第 4 步，单独加载本 Skill 时至少遵守：`status=partial` 读 `meta.coverage.notes` 并写明缺口；`COLLECTION_DISABLED`/`PERMISSION_DENIED`/`DATA_UNAVAILABLE` 都不是“没有”；结论引用 `meta.sources`。
 - 只读：不执行 FLUSH/DEL/CONFIG SET；`--include-value` 会读取业务数据并更新该键的 LFU，仅在需要时使用。
 
 ## 场景 1：缓存命中率下降 / 请求打到数据库

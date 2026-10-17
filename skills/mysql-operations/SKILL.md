@@ -5,7 +5,9 @@ description: 排查 MySQL 慢查询、锁等待、全表扫描与索引问题，
 
 # MySQL 诊断与变更计划
 
-所有命令加 `--json`；`--instance` 缺省取 profile 的 `defaults.mysql`。口径、权限与错误码见 `docs/guides/mysql.md`。
+> **调用约定**：profile/端点已由环境（`WORKCTL_CONFIG` / `--profile`）给定，直接以 `workctl` 开头调用，全局参数紧跟其后：`workctl --json <命令> ...`；不要加环境变量前缀、`cd`、管道或 `node dist/workctl.js`。命令被宿主拒绝时不要换写法绕过，说明需要授权的只读命令。
+
+`--instance` 缺省取 profile 的 `defaults.mysql`。口径、权限与错误码见 `docs/guides/mysql.md`。
 
 ## 原则
 
@@ -13,7 +15,7 @@ description: 排查 MySQL 慢查询、锁等待、全表扫描与索引问题，
 - **窗口 vs 累计**：`statement summary --sample-window 0`、`instance get` 的 `Questions/Slow_queries`、`index list` 的 `io_by_index` 都是自启动累计值，不能说成“最近”。“最近 N 秒”只用 `statement summary --sample-window Ns`（`aggregation=window_delta`）。
 - **估计 vs 实际**：`table get` 的 `rows_estimate`、`index list` 的 `cardinality_estimate`、`query explain` 都是估计；只有 `query analyze` 是实际执行（它**会执行语句**，只用于 SELECT，先问用户是否可以在该实例上跑）。
 - **区分状态**：`COLLECTION_DISABLED`（慢日志/performance_schema 未开启）≠ 没有慢查询；`PERMISSION_DENIED` ≠ 表不存在；空列表 + `coverage.complete=true` 才是“确实没有”。
-- `status=partial` 时读 `meta.coverage.notes`，在结论里写明缺了什么。
+- 读结果：通用规则（partial、空结果与各错误码的区分、累计/快照 vs 窗口、`relation`、`data.state`、planned、`data_mode`）见 `skills/enterprise-infra/SKILL.md` 第 4 步，单独加载本 Skill 时至少遵守：`status=partial` 读 `meta.coverage.notes` 并写明缺口；`COLLECTION_DISABLED`/`PERMISSION_DENIED`/`DATA_UNAVAILABLE` 都不是“没有”；结论引用 `meta.sources`。
 - 不执行写操作或 DDL；`query execute` 只用于只读核对，结果默认最多 20 行。
 
 ## 场景 1：数据库慢 / 慢 SQL
@@ -59,7 +61,7 @@ workctl --json mysql session list --instance <i>
 workctl --json mysql index plan --instance <i> --database <db> --table <t> --columns c1[,c2]
 ```
 向用户展示：`targets`（表行数估计、大小）、`impact.ddl`、`impact.affected_statements`（哪些语句可能受益/写入需维护，来源为累计摘要的文本匹配，属推断）、`preconditions` 中 `ok=false` 的项（尤其 `no_index_with_same_leading_columns`、`no_long_running_transactions`）、`rollback`。
-- 明确告知：`executable=false`，workctl 只出计划，执行走 DBA 变更流程；计划不是执行成功的证据。
+- 本计划 `executable=false`：没有执行器，不能 `operation execute`；按 计划 → 确认 → 执行 → 复核 的结构，确认与执行改由 DBA 变更流程完成（计划 ID 可作附件）。计划预览不是执行成功的证据；不要自行执行 DDL。
 - 执行后复核：`index list` 出现新索引 → `query explain` 使用新索引 → `statement summary` 窗口对比延迟和 `rows_examined`。
 
 ## 场景 5：只读核对数据

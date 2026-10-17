@@ -5,7 +5,9 @@ description: 排查 OpenSearch 搜索引擎问题（集群 red/yellow、分片�
 
 # 搜索引擎排查（OpenSearch，demo-search 插件）
 
-`search` 领域由插件提供。先确认：`workctl --json capability list --domain search`，`search.query` 等应为 available 且 origin 为 `plugin:demo-search@…`；否则 `workctl plugin install --file <demo-search-plugin.tgz>`。
+> **调用约定**：profile/端点已由环境（`WORKCTL_CONFIG` / `--profile`）给定，直接以 `workctl` 开头调用，全局参数紧跟其后：`workctl --json <命令> ...`；不要加环境变量前缀、`cd`、管道或 `node dist/workctl.js`。命令被宿主拒绝时不要换写法绕过，说明需要授权的只读命令。
+
+`search` 领域由插件提供。先确认：`workctl --json capability list --domain search`，`search.query` 等应为 available 且 origin 为 `plugin:demo-search@…`；否则 `workctl --json plugin install --file <demo-search-plugin.tgz>`。
 
 ## 能力
 
@@ -38,6 +40,7 @@ description: 排查 OpenSearch 搜索引擎问题（集群 red/yellow、分片�
 - `coverage.truncated=true`：命中列表只是前 N 条。
 - skipped 分片是预筛选跳过，不是失败。
 - 引用证据带上 `meta.sources[].method`、`version`（实际引擎版本）和 `observed_at`。
+- 读结果：通用规则（partial、空结果与各错误码的区分、累计/快照 vs 窗口、`relation`、`data.state`、planned、`data_mode`）见 `skills/enterprise-infra/SKILL.md` 第 4 步，单独加载本 Skill 时至少遵守：`status=partial` 读 `meta.coverage.notes` 并写明缺口；`COLLECTION_DISABLED`/`PERMISSION_DENIED`/`DATA_UNAVAILABLE` 都不是“没有”；结论引用 `meta.sources`。
 
 ## 错误处理
 

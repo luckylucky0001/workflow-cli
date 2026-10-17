@@ -5,6 +5,8 @@ description: 排查离线数据延迟或缺失的流程：当用户说某个业�
 
 # 离线数据延迟 / 缺失排查
 
+> **调用约定**：profile/端点已由环境（`WORKCTL_CONFIG` / `--profile`）给定，直接以 `workctl` 开头调用，全局参数紧跟其后：`workctl --json <命令> ...`；不要加环境变量前缀、`cd`、管道或 `node dist/workctl.js`。命令被宿主拒绝时不要换写法绕过，说明需要授权的只读命令。
+
 目标：回答“业务日期 D 的 <表> 为什么没按时产出”，每个结论都有证据，事实与假设分开写。
 
 ## 步骤
@@ -48,10 +50,10 @@ description: 排查离线数据延迟或缺失的流程：当用户说某个业�
 
 ## 报告模板
 
-- **结论**：D 的 <表> 当前 `<verdict>`（时限 <expected_by.local>）。
-- **事实**（逐条带来源 system/method）：调度层…；计算层…；产出层…；质量层…；上游…
-- **假设**（明确标注，附验证方法）：如“输出路径使用了 data_interval_end 导致写入 dt=D+1”。
-- **建议动作**：修复后用 `offline backfill plan` 生成补数计划（不要直接执行；需用户确认与 allow_execute）。
+1. **事实**：每条写 命令 + 来源（`meta.sources` 的 system/method，`relation`）+ 窗口或观测时间。先写结论行：D 的 <表> 当前 `<verdict>`（时限 `expected_by.local`，业务时区 + UTC）；再按 调度层 / 计算层 / 产出层 / 质量层 / 上游 逐层列出。
+2. **判断与假设**：标注“已验证”或“假设”，写出依据、不确定性与验证命令。如“输出路径使用了 data_interval_end 导致写入 dt=D+1”。
+3. **下一步**：可复现的只读命令；涉及变更时只给计划 ID（计划 → 确认 → 执行 → 复核，执行须用户明确确认且 `allow_execute`）。修复后用 `workctl --json offline backfill plan ...` 生成补数计划，见 offline-operations。
+4. **覆盖缺口**：未采集（`COLLECTION_DISABLED`）、无权限、`partial`、保留期外/缓冲不可见、只有快照的数据。如某层 `unknown`、日志已轮转、血缘只有 inferred。
 
 ## 注意
 

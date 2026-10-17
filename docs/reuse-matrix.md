@@ -45,6 +45,7 @@
 | `observability.metric.list` | prometheus-http-api | 1 | service-latency-investigation |
 | `observability.metric.query` | prometheus-http-api | 2 | resource-capacity-review, service-latency-investigation |
 | `observability.trace.get` | docker-engine-api|loki-http-api | 1 | service-latency-investigation |
+| `offline.backfill.plan` | airflow-rest-v1|v2 | 2 | offline-delay-investigation, offline-operations |
 | `offline.dependency.list` | airflow-rest-v1|v2 | 2 | offline-delay-investigation, offline-operations |
 | `offline.freshness.check` | file-catalog+airflow-rest-v1|v2 | 1 | offline-delay-investigation |
 | `offline.log.get` | airflow-rest-v1|v2 | 1 | offline-operations |
@@ -52,8 +53,9 @@
 | `offline.run.list` | airflow-rest-v1|v2 | 1 | offline-operations |
 | `offline.task.get` | airflow-rest-v1|v2 | 1 | offline-operations |
 | `offline.workflow.get` | airflow-rest-v1|v2 | 1 | offline-operations |
-| `operation.execute` | plan-store | 2 | deploy-operations, infra-operations |
-| `operation.get` | plan-store | 1 | infra-operations |
+| `operation.execute` | plan-store | 4 | deploy-operations, enterprise-infra, infra-operations, offline-operations |
+| `operation.get` | plan-store | 4 | deploy-operations, enterprise-infra, infra-operations, offline-operations |
+| `operation.plan` | plan-store | 1 | enterprise-infra |
 | `postgres.database.list` | pg-driver | 1 | postgres-operations |
 | `postgres.instance.get` | pg-driver | 1 | postgres-operations |
 | `postgres.lock.list` | pg-driver | 1 | postgres-operations |
@@ -79,14 +81,14 @@
 | `storage.file.stat` | node-fs | 1 | infra-operations |
 | `storage.volume.get` | docker-engine-api | 2 | infra-operations, resource-capacity-review |
 
-- Skill 数：13；被引用能力数：74；被 2 个及以上 Skill 复用的能力：22
+- Skill 数：13；被引用能力数：76；被 2 个及以上 Skill 复用的能力：24
 
 | 适配器 | 使用它的 Skill 数 |
 | --- | --- |
+| plan-store | 4 |
 | kubernetes-api | jenkins-rest | 3 |
 | registry | 3 |
 | docker-engine-api | kubernetes-api | 3 |
-| plan-store | 2 |
 | binding-file | 2 |
 | docker-engine-api + http-probe | 2 |
 | docker-engine-api|loki-http-api | 2 |
