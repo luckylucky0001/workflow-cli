@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.get",
   "data": {
-    "id": "op-20261017-6f84ac",
+    "id": "op-20261017-54a4f7",
     "kind": "container.restart",
     "title": "滚动重启服务 demo-order（sandbox）的 1 个 Kubernetes 工作负载",
     "status": "succeeded",
-    "created_at": "2026-10-17T16:19:54.437Z",
-    "expires_at": "2026-10-17T16:49:54.437Z",
+    "created_at": "2026-10-17T16:38:42.002Z",
+    "expires_at": "2026-10-17T17:08:42.002Z",
     "profile": "k8s-demo",
     "env": "sandbox",
     "params": {
@@ -26,8 +26,8 @@
         "namespace": "workctl-demo",
         "name": "demo-order",
         "uid": "e32abd5e-1d03-4697-a778-107a8fc6df2b",
-        "generation": 17,
-        "observed_generation": 17,
+        "generation": 29,
+        "observed_generation": 29,
         "replicas": 2,
         "ready_replicas": 2,
         "updated_replicas": 2,
@@ -100,27 +100,27 @@
     "executable": true,
     "history": [
       {
-        "at": "2026-10-17T16:19:54.437Z",
+        "at": "2026-10-17T16:38:42.002Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       },
       {
-        "at": "2026-10-17T16:19:54.946Z",
+        "at": "2026-10-17T16:38:42.736Z",
         "status": "running",
-        "note": "由 req-mvclr54b-3c7d3c 开始执行"
+        "note": "由 req-mvcmfbar-5eda67 开始执行"
       },
       {
-        "at": "2026-10-17T16:19:54.990Z",
+        "at": "2026-10-17T16:38:42.788Z",
         "status": "running",
         "note": "rollout restart deployment/demo-order (namespace workctl-demo)"
       },
       {
-        "at": "2026-10-17T16:19:57.043Z",
+        "at": "2026-10-17T16:38:46.861Z",
         "status": "running",
         "note": "deployment/demo-order: rollout 完成：2/2 个副本已更新并可用"
       },
       {
-        "at": "2026-10-17T16:19:57.053Z",
+        "at": "2026-10-17T16:38:46.873Z",
         "status": "succeeded",
         "note": "执行器返回成功"
       }
@@ -133,16 +133,16 @@
           "kind": "Deployment",
           "namespace": "workctl-demo",
           "name": "demo-order",
-          "restarted_at": "2026-10-17T16:19:54Z",
-          "generation_before": 17,
-          "generation_after": 18,
+          "restarted_at": "2026-10-17T16:38:42Z",
+          "generation_before": 29,
+          "generation_after": 30,
           "status": {
             "kind": "Deployment",
             "name": "demo-order",
             "namespace": "workctl-demo",
             "uid": "e32abd5e-1d03-4697-a778-107a8fc6df2b",
-            "generation": 18,
-            "observed_generation": 18,
+            "generation": 30,
+            "observed_generation": 30,
             "replicas": 2,
             "ready_replicas": 2,
             "updated_replicas": 2,
@@ -152,10 +152,10 @@
               "status": "True",
               "reason": "NewReplicaSetAvailable"
             },
-            "restarted_at": "2026-10-17T16:19:54Z"
+            "restarted_at": "2026-10-17T16:38:42Z"
           },
           "verified": true,
-          "duration_ms": 2054,
+          "duration_ms": 4073,
           "detail": "rollout 完成：2/2 个副本已更新并可用"
         }
       ],
@@ -170,15 +170,18 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T16:19:57.599Z",
+        "observed_at": "2026-10-17T16:38:47.818Z",
         "relation": "explicit"
       }
     ],
-    "coverage": null,
+    "coverage": {
+      "complete": true,
+      "scope": "profile k8s-demo 的本地计划存储"
+    },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvclr766-e3600d",
+    "request_id": "req-mvcmff90-21b39a",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -186,7 +189,7 @@
     "adapter": "plan-store",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:19:57.582Z",
-    "duration_ms": 18
+    "started_at": "2026-10-17T16:38:47.796Z",
+    "duration_ms": 23
   }
 }

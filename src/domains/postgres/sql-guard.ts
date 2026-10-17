@@ -14,6 +14,8 @@ export interface PgToken {
   /** Upper-cased text for words; unquoted lower-cased name for identifiers. */
   upper: string;
   depth: number;
+  /** U&"..." identifier: its real name is only known after Unicode-escape decoding. */
+  unicode?: boolean;
 }
 
 export interface PgLexed {
@@ -114,6 +116,8 @@ export function lexPg(input: string): PgLexed {
       if (j >= n) reject('SQL 中的双引号标识符未闭合 (")');
       const text = input.slice(i, j + 1);
       push('ident', text, text.slice(1, -1).split('""').join('"').toLowerCase());
+      // U&"\0071uery_to_xml" names query_to_xml once the server decodes it
+      if (i >= 2 && /[Uu]/.test(input[i - 2]) && input[i - 1] === '&' && (i === 2 || !WORD.test(input[i - 3]))) tokens[tokens.length - 1].unicode = true;
       i = j + 1;
       continue;
     }
@@ -201,6 +205,8 @@ const DENY_FUNCTIONS = [
   /^pg_promote$/, /^pg_create_/, /^pg_drop_replication_slot$/, /^pg_replication_origin_/, /^pg_logical_/, /^pg_notify$/, /^nextval$/,
   /^setval$/, /^(query|cursor)_to_xml/, /^(database|schema|table)_to_xml/, /^ts_stat$/, /^pg_backup_/, /^pg_wal_replay_/, /^pg_file_/,
   /^pg_import_system_collations$/, /^pg_log_backend_memory_contexts$/,
+  // ts_rewrite(tsquery, text) runs the text as a query; these assign an XID even in a READ ONLY transaction
+  /^ts_rewrite$/, /^txid_current$/, /^pg_current_xact_id$/,
 ];
 
 const RUN_LEADING = new Set(['SELECT', 'WITH', 'VALUES', 'TABLE']);
@@ -217,6 +223,8 @@ export function guardPg(input: string, mode: GuardMode): GuardResult {
   const lexed = lexPg(input);
   if (!lexed.sql || lexed.statements === 0) reject('SQL 为空（去掉注释后没有语句）');
   if (lexed.statements > 1) reject(`只允许单条语句，检测到 ${lexed.statements} 条`, '拆分为多次调用');
+  // the name checks below compare identifier text; a Unicode-escaped identifier would slip past them
+  if (lexed.tokens.some((t) => t.unicode)) reject('不支持 U&"..." 形式的 Unicode 转义标识符', '直接写出标识符，如 "my_col"');
   const words = lexed.tokens.filter((t) => t.kind === 'word');
   const firstSig = lexed.tokens[0];
   const leadingParen = firstSig?.kind === 'punct' && firstSig.text === '(';
@@ -249,13 +257,14 @@ export function guardPg(input: string, mode: GuardMode): GuardResult {
       if (words[k].upper === 'FOR' && ['UPDATE', 'SHARE', 'NO', 'KEY'].includes(words[k + 1]?.upper ?? '')) reject('不允许 FOR UPDATE / FOR SHARE 等行锁子句');
     }
   }
-  // functions with side effects (any mode: EXPLAIN does not run them, but keep the surface small)
+  // functions with side effects — in every mode: EXPLAIN does not execute the query, but the planner
+  // may pre-evaluate (constant-fold) functions, so keep the surface small everywhere
   for (let k = 0; k < lexed.tokens.length - 1; k++) {
     const t = lexed.tokens[k];
     const nx = lexed.tokens[k + 1];
     if (!(nx.kind === 'punct' && nx.text === '(')) continue;
     const name = t.kind === 'word' ? t.text.toLowerCase() : t.kind === 'ident' ? t.upper : null;
-    if (name && DENY_FUNCTIONS.some((re) => re.test(name)) && mode !== 'explain') {
+    if (name && DENY_FUNCTIONS.some((re) => re.test(name))) {
       reject(`不允许调用有副作用或执行任意 SQL 的函数 ${name}()`, '只读查询不应终止会话、读写文件、加咨询锁、修改序列或重置统计');
     }
   }

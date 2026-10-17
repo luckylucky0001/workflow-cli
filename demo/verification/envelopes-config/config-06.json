@@ -12,9 +12,9 @@
     "key": "cache.ttl_seconds",
     "revision_space": "etcd-cluster-revision",
     "mode": "previous_version",
-    "from_revision": 104,
-    "to_revision": 112,
-    "current_revision": 112,
+    "from_revision": 126,
+    "to_revision": 134,
+    "current_revision": 134,
     "changes": [
       {
         "name": "cache.ttl_seconds",
@@ -27,9 +27,9 @@
           "value_bytes": 3,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 96,
+          "mod_revision": 118,
           "version": 1,
-          "create_revision": 96
+          "create_revision": 118
         },
         "new": {
           "value": 60,
@@ -37,9 +37,9 @@
           "value_bytes": 2,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 105,
+          "mod_revision": 127,
           "version": 2,
-          "create_revision": 96
+          "create_revision": 118
         }
       }
     ],
@@ -57,9 +57,9 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-17T16:20:18.277Z",
+        "observed_at": "2026-10-17T16:39:09.935Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
-        "method": "POST /v3/kv/range key=/config/sandbox/demo-order/cache.ttl_seconds revision=104 / revision=112",
+        "method": "POST /v3/kv/range key=/config/sandbox/demo-order/cache.ttl_seconds revision=126 / revision=134",
         "relation": "explicit",
         "version": "3.5.21"
       }
@@ -67,7 +67,7 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "etcd etcd/demo-etcd 键 /config/sandbox/demo-order/cache.ttl_seconds，修订 104 → 112",
+      "scope": "etcd etcd/demo-etcd 键 /config/sandbox/demo-order/cache.ttl_seconds，修订 126 → 134",
       "notes": [
         "只比较两个修订的快照；区间内的中间值不可见。历史只保留到最近一次压缩"
       ]
@@ -75,7 +75,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvclrn26-916a15",
+    "request_id": "req-mvcmfw8p-09b518",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -83,7 +83,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:20:18.174Z",
-    "duration_ms": 104
+    "started_at": "2026-10-17T16:39:09.817Z",
+    "duration_ms": 118
   }
 }

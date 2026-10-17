@@ -2,7 +2,7 @@ import { basicAuth, httpError, rawRequest, safeUrl } from '../../core/http';
 import { source, WorkError, type Result, type Source } from '../../core/output';
 import type { Plan, PlanDraft } from '../../core/operations';
 import { sleep, type Ctx } from '../../core/runtime';
-import { attr, dependencyImpact, isSecretName, maskSecrets, requireAttr, type DeployBinding, type Release } from './model';
+import { attr, dependencyImpact, isSecretName, maskSecrets, maskValue, requireAttr, type DeployBinding, type Release } from './model';
 
 /**
  * Jenkins provider: a release is a build of the bound deploy job (freestyle or pipeline).
@@ -148,7 +148,7 @@ export function releaseFromBuild(b: JenkinsBuild, cfg: JobCfg, currentNumber: nu
   return {
     id: String(b.number),
     provider: 'jenkins',
-    version: p[cfg.versionParam] ?? null,
+    version: cfg.versionParam in p ? maskSecrets(p[cfg.versionParam]) : null,
     images: [],
     revision: b.number,
     started_at: started,
@@ -172,6 +172,10 @@ interface JobView {
   currentNumber: number | null;
   numToKeep: number | null;
   method: string;
+  /** the build list hit the fetch limit: older builds exist that were not read */
+  capped: boolean;
+  /** config.xml could be read (numToKeep null then means no count limit, not "unknown") */
+  configRead: boolean;
 }
 
 async function loadJob(ctx: Ctx, b: DeployBinding, fetch = 100): Promise<JobView> {
@@ -187,7 +191,7 @@ async function loadJob(ctx: Ctx, b: DeployBinding, fetch = 100): Promise<JobView
   const xml = await client.request(`${jobPath(cfg.job)}/config.xml`, { allowStatus: [401, 403, 404] }).catch(() => null);
   const m = xml && xml.status === 200 ? /<numToKeep>(-?\d+)<\/numToKeep>/.exec(xml.text) : null;
   const keep = m ? Number(m[1]) : undefined;
-  return { client, cfg, builds, matching, currentNumber: cur?.number ?? null, numToKeep: keep !== undefined && keep >= 0 ? keep : null, method: `GET ${jobPath(cfg.job)}/api/json?tree=builds[...]{0,${fetch}}` };
+  return { client, cfg, builds, matching, currentNumber: cur?.number ?? null, numToKeep: keep !== undefined && keep >= 0 ? keep : null, method: `GET ${jobPath(cfg.job)}/api/json?tree=builds[...]{0,${fetch}}`, capped: builds.length >= fetch, configRead: xml?.status === 200 };
 }
 
 function target(b: DeployBinding, v: JobView) {
@@ -196,7 +200,11 @@ function target(b: DeployBinding, v: JobView) {
 
 function jobNotes(v: JobView, b: DeployBinding): string[] {
   return [
-    v.numToKeep !== null ? `Jenkins job 构建丢弃策略只保留最近 ${v.numToKeep} 个构建；更早的发布不可见` : 'Jenkins 只保留 job 构建丢弃策略允许的构建（未能读取 config.xml 中的策略，需要 Job/ExtendedRead）；API 最多返回 100 个构建',
+    v.numToKeep !== null
+      ? `Jenkins job 构建丢弃策略只保留最近 ${v.numToKeep} 个构建；更早的发布不可见`
+      : v.configRead
+        ? 'Jenkins job 构建丢弃策略未按构建数量限制（config.xml 中没有 numToKeep 或为 -1，可能按天数清理）；API 最多返回 100 个构建'
+        : 'Jenkins 只保留 job 构建丢弃策略允许的构建（未能读取 config.xml 中的策略，需要 Job/ExtendedRead）；API 最多返回 100 个构建',
     `时间来自构建 timestamp/duration（explicit）；version 为构建参数 ${v.cfg.versionParam}`,
     v.cfg.serviceParam || v.cfg.envParam
       ? `按构建参数过滤：${[v.cfg.serviceParam ? `${v.cfg.serviceParam}=${b.service}` : '', v.cfg.envParam && b.env ? `${v.cfg.envParam}=${b.env}` : ''].filter(Boolean).join(', ')}（${v.builds.length - v.matching.length} 个构建属于其他服务/环境，已排除）`
@@ -210,16 +218,21 @@ export async function jenkinsReleaseList(ctx: Ctx, b: DeployBinding, windowMs: n
   const since = Date.now() - windowMs;
   const inWindow = v.matching.filter((x) => (x.timestamp ?? 0) >= since).map((x) => releaseFromBuild(x, v.cfg, v.currentNumber));
   const releases = inWindow.slice(0, limit);
+  // only the newest N builds are read: when the oldest one read is still inside the window, older
+  // in-window builds (e.g. of this service in a job shared with busier services) were not seen
+  const oldest = v.builds[v.builds.length - 1];
+  const unread = v.capped && (oldest?.timestamp ?? 0) >= since;
   return {
     data: { service: b.service, env: b.env, target: target(b, v), releases, retained: v.matching.length },
     sources: [v.client.source(v.method)],
+    warnings: b.ignored.length ? [`服务 ${b.service} 还有其他部署绑定 ${b.ignored.join(', ')}，本次只查询 ${b.resource.id}`] : [],
     coverage: {
-      complete: releases.length === inWindow.length,
+      complete: releases.length === inWindow.length && !unread,
       scope: `Jenkins job ${v.cfg.job} 保留的构建（窗口内）`,
       limit,
       truncated: releases.length < inWindow.length,
       window: { start: new Date(since).toISOString(), end: new Date().toISOString() },
-      notes: jobNotes(v, b),
+      notes: [...jobNotes(v, b), ...(unread ? [`只读取了 job 最近 ${v.builds.length} 个构建，最早的 #${oldest.number} 仍在窗口内：窗口内更早的构建未读取（retained 也不含它们）`] : [])],
     },
   };
 }
@@ -238,13 +251,13 @@ export async function jenkinsReleaseGet(ctx: Ctx, b: DeployBinding, id: string, 
   if (!buildMatches(build, cfg, b.service, b.env)) {
     throw new WorkError('NOT_FOUND', `构建 #${n} 不是服务 ${b.service}${b.env ? `/${b.env}` : ''} 的发布（构建参数不匹配）`, { details: { parameters: maskParams(params(build)) } });
   }
-  // current = newest successful matching build (needs the job's build list)
-  const v = await loadJob(ctx, b, 50);
+  // current = newest successful matching build (needs the job's build list; same depth as release list)
+  const v = await loadJob(ctx, b);
   const release = releaseFromBuild(build, cfg, v.currentNumber);
   const cr = await client.request(`${jobPath(cfg.job)}/${n}/consoleText`, { allowStatus: [404] });
   const lines = cr.status === 200 ? cr.text.replace(/\r/g, '').split('\n') : [];
   if (lines.length && lines[lines.length - 1] === '') lines.pop();
-  const shown = lines.slice(-tail).map(maskSecrets);
+  const shown = (tail > 0 ? lines.slice(-tail) : []).map(maskSecrets); // slice(-0) would be every line
   return {
     data: {
       service: b.service,
@@ -273,7 +286,7 @@ export async function jenkinsReleaseGet(ctx: Ctx, b: DeployBinding, id: string, 
 }
 
 function maskParams(p: Record<string, string>): Record<string, string> {
-  return Object.fromEntries(Object.entries(p).map(([k, v]) => [k, isSecretName(k) ? '******' : v]));
+  return Object.fromEntries(Object.entries(p).map(([k, v]) => [k, maskValue(k, v)]));
 }
 
 interface QueueItem {
@@ -286,12 +299,26 @@ interface QueueItem {
   task?: { name?: string; url?: string };
 }
 
+/** Queue task URL is this job: path ends with /job/a/job/b/ and the job is not nested in a further folder. */
+function isJobUrl(url: string, jobUrlPath: string): boolean {
+  let path: string;
+  try {
+    path = new URL(url).pathname;
+  } catch {
+    return false;
+  }
+  return path.endsWith(jobUrlPath) && !/\/job\/[^/]+$/.test(path.slice(0, path.length - jobUrlPath.length));
+}
+
 export async function jenkinsStatusGet(ctx: Ctx, b: DeployBinding): Promise<Result> {
-  const v = await loadJob(ctx, b, 30);
+  // same depth as release list: in a job shared with busier services a shallow read misses this service
+  const v = await loadJob(ctx, b);
   const q = await v.client.json<{ items?: QueueItem[] }>(`/queue/api/json?tree=${encodeURIComponent('items[id,why,inQueueSince,blocked,stuck,params,task[name,url]]')}`);
   const jobName = v.cfg.job.split('/').filter(Boolean).pop();
+  const jobUrlPath = `${jobPath(v.cfg.job)}/`;
   const queued = (q.items ?? []).filter((it) => {
-    if (it.task?.name !== jobName) return false;
+    // a job of the same name in another folder has the same task.name: compare the job URL path when present
+    if (it.task?.url ? !isJobUrl(it.task.url, jobUrlPath) : it.task?.name !== jobName) return false;
     const p = Object.fromEntries((it.params ?? '').split('\n').filter((l) => l.includes('=')).map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]));
     if (v.cfg.serviceParam && v.cfg.serviceParam in p && p[v.cfg.serviceParam] !== b.service) return false;
     if (v.cfg.envParam && b.env && v.cfg.envParam in p && p[v.cfg.envParam] !== b.env) return false;
@@ -308,7 +335,9 @@ export async function jenkinsStatusGet(ctx: Ctx, b: DeployBinding): Promise<Resu
       ? `${queued.length} 个部署构建排队中：${queued.map((x) => x.why ?? '').join('; ')}`
       : last
         ? `没有进行中的部署；最近一次构建 #${last.number} 结果 ${last.result}`
-        : '该服务没有保留的部署构建';
+        : v.capped
+          ? `job 最近 ${v.builds.length} 个构建中没有该服务的部署构建（更早的构建未读取）`
+          : '该服务没有保留的部署构建';
   return {
     data: {
       service: b.service,
@@ -328,7 +357,7 @@ export async function jenkinsStatusGet(ctx: Ctx, b: DeployBinding): Promise<Resu
       },
     },
     sources: [v.client.source(v.method), v.client.source('GET /queue/api/json')],
-    coverage: { complete: true, scope: `Jenkins job ${v.cfg.job} 的构建与队列`, notes: jobNotes(v, b).slice(2) },
+    coverage: { complete: !(v.capped && !v.currentNumber), scope: `Jenkins job ${v.cfg.job} 的构建与队列`, notes: jobNotes(v, b).slice(2) },
   };
 }
 
@@ -344,9 +373,14 @@ export async function planJenkinsRollback(ctx: Ctx, b: DeployBinding, to: string
   const running = v.matching.filter((x) => x.building);
   const dep = dependencyImpact(ctx, b.service);
   const allowExecute = !!ctx.profile?.allow_execute;
-  // PasswordParameterValue has no value over the API: such builds cannot be replayed as-is
-  const secretParams = tgt ? (tgt.actions ?? []).flatMap((a) => a?.parameters ?? []).filter((x) => x.value === undefined || isSecretName(x.name)).map((x) => x.name) : [];
-  const replay = tgt ? Object.fromEntries(Object.entries(params(tgt)).filter(([k]) => !secretParams.includes(k))) : {};
+  // PasswordParameterValue has no value over the API, and secret-looking names/values would be stored and
+  // printed in the plan (replay_parameters): such builds cannot be replayed as-is
+  const secretParams = tgt ? (tgt.actions ?? []).flatMap((a) => a?.parameters ?? []).filter((x) => x.value === undefined || isSecretName(x.name) || maskSecrets(String(x.value)) !== String(x.value)).map((x) => x.name) : [];
+  const replay: Record<string, string> = tgt ? Object.fromEntries(Object.entries(params(tgt)).filter(([k]) => !secretParams.includes(k))) : {};
+  // a target build without the service/env parameter (it still matched) must not fall back to the job's
+  // parameter defaults on replay: pin them to the bound service/env
+  if (tgt && v.cfg.serviceParam) replay[v.cfg.serviceParam] = b.service;
+  if (tgt && v.cfg.envParam && b.env) replay[v.cfg.envParam] = b.env;
   return {
     kind: 'deploy.rollback',
     title: `回滚服务 ${b.service}（${b.env ?? '未指定环境'}）到 Jenkins 构建 #${tgt?.number ?? n ?? '?'}${tgtRel?.version ? `（${tgtRel.version}）` : ''}`,
@@ -381,7 +415,7 @@ export async function planJenkinsRollback(ctx: Ctx, b: DeployBinding, to: string
       {
         check: 'parameters_replayable',
         ok: secretParams.length === 0,
-        detail: secretParams.length ? `目标构建含凭据类参数 ${secretParams.join(', ')}，API 不返回其值，无法原样重放；在 Jenkins 中手工触发` : `目标构建参数可原样重放: ${Object.keys(replay).join(', ') || '(无)'}`,
+        detail: secretParams.length ? `目标构建含凭据类参数 ${secretParams.join(', ')}（API 不返回其值，或值中含凭据），无法原样重放；在 Jenkins 中手工触发` : `目标构建参数可原样重放: ${Object.keys(replay).join(', ') || '(无)'}`,
       },
       { check: 'profile_allow_execute', ok: allowExecute, detail: allowExecute ? `profile ${ctx.profileName} 允许执行` : `profile ${ctx.profileName} 未开启 allow_execute` },
     ],
@@ -429,13 +463,17 @@ export async function jenkinsRollbackExecutor(ctx: Ctx, plan: Plan, report: (not
   const replay = (plan.params.replay_parameters ?? {}) as Record<string, string>;
   const cfg: JobCfg = { job, versionParam: String(plan.params.version_param ?? 'VERSION'), serviceParam: (plan.params.service_param as string | undefined) || undefined, envParam: (plan.params.env_param as string | undefined) || undefined };
   // recheck: nothing deployed or running since the plan was made
-  const job0 = await client.json<{ builds?: JenkinsBuild[] }>(`${jobPath(job)}/api/json?tree=${encodeURIComponent(`builds[${BUILD_TREE}]{0,30}`)}`);
+  // same depth as the plan read (loadJob): a shallower read can miss the current build of a busy shared job
+  const job0 = await client.json<{ builds?: JenkinsBuild[] }>(`${jobPath(job)}/api/json?tree=${encodeURIComponent(`builds[${BUILD_TREE}]{0,100}`)}`);
   const matching = (job0.builds ?? []).filter((x) => buildMatches(x, cfg, service, env));
   const running = matching.filter((x) => x.building);
   if (running.length) throw new WorkError('CONFLICT', `部署 job ${job} 有进行中的构建 #${running.map((x) => x.number).join(', #')}，拒绝执行`, { hint: '等待构建结束后重新生成计划' });
   const curNow = matching.sort((a, c) => c.number - a.number).find((x) => x.result === 'SUCCESS');
-  if (t.current_build !== null && t.current_build !== undefined && curNow && curNow.number !== Number(t.current_build)) {
-    throw new WorkError('CONFLICT', `当前成功部署构建已从 #${t.current_build} 变为 #${curNow.number}（计划生成后有新的发布），拒绝执行`, { hint: '重新生成回滚计划' });
+  const plannedCur = t.current_build === null || t.current_build === undefined ? null : Number(t.current_build);
+  if ((curNow?.number ?? null) !== plannedCur) {
+    // also when the planned current build can no longer be seen: the deployed state cannot be confirmed
+    const what = curNow ? `已从 #${plannedCur ?? '(无)'} 变为 #${curNow.number}（计划生成后有新的发布）` : `#${plannedCur} 不在最近 ${job0.builds?.length ?? 0} 个构建中，无法确认计划生成后没有新的发布`;
+    throw new WorkError('CONFLICT', `当前成功部署构建${what}，拒绝执行`, { hint: '重新生成回滚计划' });
   }
   const q = new URLSearchParams(replay).toString();
   const headers = { ...(await crumbHeaders(client)), 'content-length': '0' };

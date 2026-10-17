@@ -12,6 +12,7 @@
     "dist/index.js",
     "skills",
     "docs",
+    "!docs/tutorial/images",
     "README.md"
   ],
   "engines": {

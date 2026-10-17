@@ -380,17 +380,22 @@ export async function main(rawArgv = process.argv): Promise<void> {
     await program.parseAsync(argv);
   } catch (e) {
     if (e instanceof CommanderError) {
-      if (e.code === 'commander.helpDisplayed' || e.code === 'commander.version' || e.code === 'commander.help') {
-        process.exitCode = 0;
-        return;
-      }
-      if (wantsJson) {
-        const env = localEnvelope('cli', null, new WorkError('INVALID_ARGUMENT', e.message.replace(/^error: /, ''), { hint: '运行 workctl <command> --help 查看用法' }), Date.now());
-        process.stdout.write(render(env, 'json') + '\n');
-      }
-      process.exitCode = e.code === 'commander.executeSubCommandAsync' ? 1 : 2;
+      process.exitCode = commanderErrorExit(e, wantsJson);
       return;
     }
     throw e;
   }
+}
+
+/** Exit code for a commander parse outcome; usage errors also get a JSON envelope when JSON was asked for. */
+export function commanderErrorExit(e: CommanderError, wantsJson: boolean): number {
+  // --help / --version, and help requested without error; `commander.help` with a non-zero exit
+  // code is commander's implicit help for an incomplete command (e.g. `workctl mysql table`)
+  if (e.code === 'commander.helpDisplayed' || e.code === 'commander.version' || (e.code === 'commander.help' && e.exitCode === 0)) return 0;
+  const message = e.code === 'commander.help' ? '命令不完整：缺少子命令' : e.message.replace(/^error: /, '');
+  if (wantsJson) {
+    const env = localEnvelope('cli', null, new WorkError('INVALID_ARGUMENT', message, { hint: '运行 workctl <command> --help 查看用法' }), Date.now());
+    process.stdout.write(render(env, 'json') + '\n');
+  }
+  return e.code === 'commander.executeSubCommandAsync' ? 1 : 2;
 }

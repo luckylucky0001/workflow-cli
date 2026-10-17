@@ -83,6 +83,8 @@ export function deployBindingFor(ctx: Ctx, service: string, env: string | null):
       details: { service, env, bindings: store.path },
     });
   }
+  // a binding for exactly this env wins over an env-agnostic one, whatever the file order
+  found.sort((a, c) => Number(!!env && c.env === env) - Number(!!env && a.env === env));
   const [r, ...rest] = found;
   const kind = r.endpoint!.kind;
   if (!(PROVIDERS as readonly string[]).includes(kind)) {
@@ -141,11 +143,22 @@ export function dependencyImpact(ctx: Ctx, service: string) {
 /** Mask credentials in free text (console logs, parameters). */
 export function maskSecrets(line: string): string {
   return line
+    // before the key=value rule, which would mask only the scheme word of "Authorization: Basic <b64>"
+    .replace(/(Basic\s+)[A-Za-z0-9+/=]{8,}/g, '$1******')
     .replace(/((?:password|passwd|pwd|token|secret|api[_-]?key|access[_-]?key|authorization)[^\s:=]*\s*[:=]\s*)(\S+)/gi, '$1******')
+    // command-line flags: --password hunter2, --token abc
+    .replace(/((?:^|\s)--?(?:password|passwd|token|secret|api[_-]?key)[\w-]*\s+)(?!-)(\S+)/gi, '$1******')
     .replace(/(Bearer\s+)[A-Za-z0-9._~+/=-]+/g, '$1******')
-    .replace(/(https?:\/\/)[^/\s:@]+:[^/\s@]+@/g, '$1******@');
+    // userinfo in any URL scheme (https://, postgres://, redis://, amqp://, ...)
+    .replace(/([a-z][a-z0-9+.-]*:\/\/)[^/\s:@]+:[^/\s@]+@/gi, '$1******@');
+}
+
+/** A name/value pair for display: secret-looking names fully masked, credentials inside values masked. */
+export function maskValue(name: string, value: string): string {
+  return isSecretName(name) ? '******' : maskSecrets(value);
 }
 
 export function isSecretName(name: string): boolean {
-  return /password|passwd|token|secret|api[_-]?key|credential/i.test(name);
+  // pwd as in maskSecrets (DB_PWD); private/access keys and DSNs carry credentials too
+  return /password|passwd|pwd|passphrase|token|secret|api[_-]?key|private[_-]?key|access[_-]?key|dsn|credential/i.test(name);
 }

@@ -104,12 +104,14 @@ export function readInputFile(path: string, maxBytes = 256 * 1024): string {
   return buf.toString('utf8');
 }
 
-function mapUnknownError(registry: Registry, e: unknown): WorkError {
+export function mapUnknownError(registry: Registry, e: unknown, domain?: string): WorkError {
   if (e instanceof WorkError) return e;
-  for (const m of registry.errorMappers) {
-    const mapped = m(e);
-    if (mapped) return mapped;
-  }
+  // The capability's own domain names its system first. Other domains' mappers come only after
+  // the generic network/timeout mapping: a mapper that claims any ECONNREFUSED would otherwise
+  // attribute e.g. an unreachable Airflow to "PostgreSQL 不可达".
+  const own = domain ? registry.domains.get(domain)?.mapError : undefined;
+  const ownMapped = own?.(e);
+  if (ownMapped) return ownMapped;
   const err = e as NodeJS.ErrnoException & { name?: string };
   if (err?.name === 'TimeoutError' || err?.name === 'AbortError') {
     return new WorkError('TIMEOUT', '调用超过时间预算', { hint: '增大 --timeout 或缩小查询范围' });
@@ -121,6 +123,11 @@ function mapUnknownError(registry: Registry, e: unknown): WorkError {
   // a path-like input longer than the OS allows is a usage error (and its message would echo the whole input)
   if (code === 'ENAMETOOLONG') {
     return new WorkError('INVALID_ARGUMENT', '路径或名称超过系统长度上限 (ENAMETOOLONG)', { hint: '缩短路径类参数' });
+  }
+  for (const m of registry.errorMappers) {
+    if (m === own) continue;
+    const mapped = m(e);
+    if (mapped) return mapped;
   }
   return new WorkError('INTERNAL', err?.message ?? String(e), { details: { name: err?.name } });
 }
@@ -212,7 +219,7 @@ export async function invoke(registry: Registry, capName: string, rawInputs: Rec
       context: base(),
     };
   } catch (e) {
-    const we = mapUnknownError(registry, e);
+    const we = mapUnknownError(registry, e, cap?.domain);
     return {
       schema_version: SCHEMA_VERSION,
       status: 'error',

@@ -50,15 +50,19 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-17T16:19:50.865Z",
+        "observed_at": "2026-10-17T16:38:38.055Z",
         "relation": "derived"
       }
     ],
-    "coverage": null,
+    "coverage": {
+      "complete": true,
+      "scope": "profile k8s-demo 下 container.workload.get 的 workctl 侧前置条件",
+      "notes": []
+    },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvclr1x2-d4ff66",
+    "request_id": "req-mvcmf7on-6c30c0",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -66,7 +70,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:19:50.774Z",
-    "duration_ms": 92
+    "started_at": "2026-10-17T16:38:37.991Z",
+    "duration_ms": 65
   }
 }

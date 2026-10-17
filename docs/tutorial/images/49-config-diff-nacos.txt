@@ -1,0 +1,60 @@
+$ workctl config diff --service demo-payment --key order.timeout_ms
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+endpoint: nacos/demo-nacos
+provider: nacos
+provider_selected_by: "bindings: demo-payment.attributes.config_center=demo-nacos（endpoint nacos/demo-nacos）"
+service: demo-payment
+env: sandbox
+prefix: sandbox/DEFAULT_GROUP/demo-payment.properties
+key: order.timeout_ms
+revision_space: nacos-history-id
+mode: previous_version
+from_revision: 32
+to_revision: 34
+current_revision: 34
+changes:
+  - name: order.timeout_ms
+    key: sandbox/DEFAULT_GROUP/demo-payment.properties#order.timeout_ms
+    change: changed
+    masked: false
+    old:
+      value: 800
+      value_format: json
+      value_bytes: 3
+      masked: false
+      masked_paths: []
+      mod_revision: null
+      version: null
+      create_revision: null
+    new:
+      value: 1500
+      value_format: json
+      value_bytes: 4
+      masked: false
+      masked_paths: []
+      mod_revision: null
+      version: null
+      create_revision: null
+summary:
+  added: 0
+  removed: 0
+  changed: 1
+  unchanged: 0
+  rewritten_same_value: 0
+nacos:
+  namespace: sandbox
+  group: DEFAULT_GROUP
+  data_id: demo-payment.properties
+  from_history:
+    id: 32
+    op_type: I
+    modified_at: 2026-10-18T00:20:03.990+08:00
+    src_user: null
+  to_history:
+    id: 34
+    op_type: U
+    modified_at: 2026-10-18T00:20:04.704+08:00
+    src_user: null
+  history_records: 31
+  oldest_history_id: 4
+# sources: nacos:GET /v1/cs/configs?show=all dataId=demo-payment.properties [explicit], nacos:GET /v2/cs/history/list + GET /v2/cs/history?nid=（前像记录） [explicit]

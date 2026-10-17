@@ -1,0 +1,134 @@
+$ workctl discovery list --service demo-inventory
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+endpoint: consul/demo-consul
+provider: consul
+provider_selected_by: "bindings: demo-inventory.attributes.config_center=demo-consul（endpoint consul/demo-consul）"
+service: demo-inventory
+env: null
+prefix: /v1/health/service/demo-inventory
+observed_revision: 189
+instances:
+  - instance_id: inventory-1
+    key: f3f661f1fe62/inventory-1
+    payload:
+      meta:
+        env: sandbox
+        version: 2.1.0
+      tags:
+        - sandbox
+        - v2.1.0
+    payload_error: null
+    address: 10.88.1.1
+    port: 9081
+    version: 2.1.0
+    env: sandbox
+    healthy: true
+    health_basis: registry_checks
+    registered_at: null
+    create_revision: 163
+    mod_revision: 163
+    lease: null
+    consul:
+      node: f3f661f1fe62
+      status: passing
+      tags:
+        - sandbox
+        - v2.1.0
+      checks:
+        - check_id: serfHealth
+          name: Serf Health Status
+          status: passing
+          service_level: false
+          output: Agent alive and reachable
+        - check_id: inventory-1-ttl
+          name: app heartbeat (TTL)
+          status: passing
+          service_level: true
+          output: synthetic ok
+  - instance_id: inventory-2
+    key: f3f661f1fe62/inventory-2
+    payload:
+      meta:
+        env: sandbox
+        version: 2.1.0
+      tags:
+        - sandbox
+        - v2.1.0
+    payload_error: null
+    address: 10.88.1.2
+    port: 9082
+    version: 2.1.0
+    env: sandbox
+    healthy: false
+    health_basis: registry_checks
+    registered_at: null
+    create_revision: 164
+    mod_revision: 164
+    lease: null
+    consul:
+      node: f3f661f1fe62
+      status: critical
+      tags:
+        - sandbox
+        - v2.1.0
+      checks:
+        - check_id: serfHealth
+          name: Serf Health Status
+          status: passing
+          service_level: false
+          output: Agent alive and reachable
+        - check_id: inventory-2-ttl
+          name: app heartbeat (TTL)
+          status: critical
+          service_level: true
+          output: "synthetic failure: db unreachable"
+  - instance_id: inventory-3
+    key: f3f661f1fe62/inventory-3
+    payload:
+      meta:
+        env: sandbox
+        version: 2.0.3
+      tags:
+        - sandbox
+        - v2.0.3
+    payload_error: null
+    address: 10.88.1.3
+    port: 9083
+    version: 2.0.3
+    env: sandbox
+    healthy: true
+    health_basis: registry_checks
+    registered_at: null
+    create_revision: 165
+    mod_revision: 165
+    lease: null
+    consul:
+      node: f3f661f1fe62
+      status: warning
+      tags:
+        - sandbox
+        - v2.0.3
+      checks:
+        - check_id: serfHealth
+          name: Serf Health Status
+          status: passing
+          service_level: false
+          output: Agent alive and reachable
+        - check_id: inventory-3-ttl
+          name: app heartbeat (TTL)
+          status: warning
+          service_level: true
+          output: synthetic slow responses
+summary:
+  registered: 3
+  returned: 3
+  healthy: 2
+  unhealthy: 1
+  health_unknown: 0
+  without_lease: 0
+  excluded:
+    env_mismatch: 0
+    env_missing: 0
+    not_healthy: 0
+  service_registered: true
+# sources: consul:GET /v1/health/service/demo-inventory [explicit]

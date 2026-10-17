@@ -38,7 +38,7 @@
       "number": 3,
       "result": "FAILURE",
       "building": false,
-      "estimated_duration_ms": 2034,
+      "estimated_duration_ms": 2019,
       "built_on": null,
       "parameters": {
         "SERVICE": "demo-order",
@@ -76,7 +76,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:15:52.281Z",
+        "observed_at": "2026-10-17T16:37:22.881Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/3/api/json",
         "relation": "explicit",
@@ -85,7 +85,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:15:52.281Z",
+        "observed_at": "2026-10-17T16:37:22.881Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/3/consoleText",
         "relation": "explicit",
@@ -94,9 +94,9 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:15:52.281Z",
+        "observed_at": "2026-10-17T16:37:22.881Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
-        "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,50}",
+        "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100}",
         "relation": "derived",
         "version": "2.541.3"
       }
@@ -111,7 +111,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcllxje-55c406",
+    "request_id": "req-mvcmdlcc-b79236",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -119,7 +119,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:15:51.818Z",
-    "duration_ms": 464
+    "started_at": "2026-10-17T16:37:22.380Z",
+    "duration_ms": 502
   }
 }

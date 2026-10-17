@@ -1,0 +1,83 @@
+$ workctl pg query explain --sql "SELECT id, status, amount, created_at FROM orders WHERE customer_id = 42 ORDER BY created_at DESC LIMIT 20"
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+instance: demo-postgres
+database: demo_orders
+statement_type: SELECT
+estimate_only: true
+generic_plan: false
+summary:
+  total_cost: 1236.99
+  plan_rows: 20
+  seq_scans:
+    - orders
+  index_scans: []
+  sorts: 1
+  planning_ms: null
+  execution_ms: null
+nodes:
+  - depth: 0
+    node_type: Limit
+    relation: null
+    alias: null
+    index: null
+    join_type: null
+    startup_cost: 1236.94
+    total_cost: 1236.99
+    plan_rows: 20
+    filter: null
+    index_cond: null
+  - depth: 1
+    node_type: Sort
+    relation: null
+    alias: null
+    index: null
+    join_type: null
+    startup_cost: 1236.94
+    total_cost: 1237.01
+    plan_rows: 28
+    filter: null
+    index_cond: null
+  - depth: 2
+    node_type: Seq Scan
+    relation: orders
+    alias: orders
+    index: null
+    join_type: null
+    startup_cost: 0
+    total_cost: 1236.26
+    plan_rows: 28
+    filter: (customer_id = 42)
+    index_cond: null
+plan:
+  - Plan:
+      Node Type: Limit
+      Parallel Aware: false
+      Async Capable: false
+      Startup Cost: 1236.94
+      Total Cost: 1236.99
+      Plan Rows: 20
+      Plan Width: 29
+      Plans:
+        - Node Type: Sort
+          Parent Relationship: Outer
+          Parallel Aware: false
+          Async Capable: false
+          Startup Cost: 1236.94
+          Total Cost: 1237.01
+          Plan Rows: 28
+          Plan Width: 29
+          Sort Key:
+            - created_at DESC
+          Plans:
+            - Node Type: Seq Scan
+              Parent Relationship: Outer
+              Parallel Aware: false
+              Async Capable: false
+              Relation Name: orders
+              Alias: orders
+              Startup Cost: 0
+              Total Cost: 1236.26
+              Plan Rows: 28
+              Plan Width: 29
+              Filter: (customer_id = 42)
+# sources: postgresql:EXPLAIN (FORMAT JSON) [derived]

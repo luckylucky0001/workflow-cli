@@ -25,6 +25,53 @@ async function rollbackQuietly(s: PgSession): Promise<void> {
   }
 }
 
+/** Lower-cased words and identifiers of the statement (candidate column / relation names). */
+function statementNames(g: GuardResult): string[] {
+  return [...new Set(g.tokens.filter((t) => t.kind === 'word' || t.kind === 'ident').map((t) => (t.kind === 'word' ? t.text.toLowerCase() : t.upper)))];
+}
+
+/** Relations named in the statement that carry a sensitive column. */
+async function sensitiveRelations(s: PgSession, names: string[], sens: Set<string>): Promise<string[]> {
+  if (!sens.size || !names.length) return [];
+  const rows = await s.query(
+    `SELECT DISTINCT c.relname FROM pg_class c JOIN pg_attribute a ON a.attrelid = c.oid
+      WHERE c.relname = ANY($1::text[]) AND c.relkind IN ('r','p','v','m','f') AND a.attnum > 0 AND NOT a.attisdropped
+        AND lower(a.attname) = ANY($2::text[]) ORDER BY 1`,
+    [names, [...sens]],
+  );
+  return rows.map((x) => String(x.relname));
+}
+
+/**
+ * PostgreSQL error text quotes the offending value (`invalid input syntax for type integer: "+86-138…"`,
+ * `relation "…" does not exist` for `phone::regclass`; DETAIL may carry it unquoted), so an error over a
+ * sensitive column would bypass masking: hide quoted text and drop DETAIL/HINT.
+ */
+export function redactErrorValues(e: WorkError): WorkError {
+  const scrub = (t: unknown) => (typeof t === 'string' ? t.replace(/"(?:[^"]|"")*"/g, '"***"').replace(/'(?:[^']|'')*'/g, "'***'") : t);
+  const { server_detail, server_hint, ...rest } = e.details ?? {};
+  return new WorkError(e.code, String(scrub(e.message)), {
+    hint: `${e.hint ? `${e.hint}；` : ''}语句涉及敏感列，错误信息中引号内的值已隐藏${server_detail !== undefined || server_hint !== undefined ? '，DETAIL/HINT 已省略' : ''}`,
+    details: { ...rest, ...(rest.reason !== undefined ? { reason: scrub(rest.reason) } : {}), ...(server_detail !== undefined || server_hint !== undefined ? { server_detail_redacted: true } : {}) },
+  });
+}
+
+/** Redact a server error raised while executing `g` when the statement touches sensitive columns (call after ROLLBACK). */
+async function redactIfSensitive(s: PgSession, g: GuardResult, e: unknown): Promise<unknown> {
+  const sens = sensitiveColumns(s.ep);
+  if (!(e instanceof WorkError) || !sens.size || e.details?.sql_state === undefined) return e;
+  const names = statementNames(g);
+  let touches = names.some((n) => sens.has(n));
+  if (!touches) {
+    try {
+      touches = (await sensitiveRelations(s, names, sens)).length > 0;
+    } catch {
+      touches = true;
+    }
+  }
+  return touches ? redactErrorValues(e) : e;
+}
+
 export interface PlanNodeSummary {
   depth: number;
   node_type: string;
@@ -264,6 +311,9 @@ export const queryAnalyze = defineCapability({
         let rows;
         try {
           rows = await s.query(`EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) ${g.sql}`);
+        } catch (e) {
+          await rollbackQuietly(s);
+          throw await redactIfSensitive(s, g, e);
         } finally {
           await rollbackQuietly(s);
         }
@@ -390,6 +440,9 @@ export const queryRun = defineCapability({
         try {
           await s.query(`DECLARE workctl_cur NO SCROLL CURSOR FOR ${g.sql}`);
           r = await s.queryArrays(`FETCH FORWARD ${maxRows + 1} FROM workctl_cur`);
+        } catch (e) {
+          await rollbackQuietly(s);
+          throw await redactIfSensitive(s, g, e);
         } finally {
           await rollbackQuietly(s);
         }
@@ -411,18 +464,10 @@ export const queryRun = defineCapability({
         const sourceNames = new Map(srcRows.map((x) => [`${x.rel}:${x.num}`, String(x.attname)]));
         const sens = sensitiveColumns(s.ep);
         // relations named in the statement that carry sensitive columns (for whole-row / computed outputs)
-        const names = [...new Set(g.tokens.filter((t) => t.kind === 'word' || t.kind === 'ident').map((t) => (t.kind === 'word' ? t.text.toLowerCase() : t.upper)))];
-        const sensRel =
-          sens.size && names.length && r.fields.some((f) => !f.tableID || !f.columnID || !sourceNames.has(`${f.tableID}:${f.columnID}`))
-            ? await s.query(
-                `SELECT DISTINCT c.relname FROM pg_class c JOIN pg_attribute a ON a.attrelid = c.oid
-                  WHERE c.relname = ANY($1::text[]) AND c.relkind IN ('r','p','v','m','f') AND a.attnum > 0 AND NOT a.attisdropped
-                    AND lower(a.attname) = ANY($2::text[]) ORDER BY 1`,
-                [names, [...sens]],
-              )
-            : [];
+        const names = statementNames(g);
+        const sensRel = r.fields.some((f) => !f.tableID || !f.columnID || !sourceNames.has(`${f.tableID}:${f.columnID}`)) ? await sensitiveRelations(s, names, sens) : [];
         const { masked, reasons } = maskedColumns(r.fields, sourceNames, sens, g, {
-          sensitiveRelations: sensRel.map((x) => String(x.relname)),
+          sensitiveRelations: sensRel,
           categoryOf: (oid) => typeCat.get(oid),
         });
         const columns = r.fields.map((f, idx) => ({

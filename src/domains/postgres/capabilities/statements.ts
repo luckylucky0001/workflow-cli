@@ -343,6 +343,7 @@ export const statementSummary = defineCapability({
           truncated: stats.length > top,
           window: { start: start.toISOString(), end: end.toISOString() },
           notes: [
+            ...(stats.length ? [] : ['窗口内没有语句执行完成（采集正常开启；不是 COLLECTION_DISABLED）']),
             ...partialReasons,
             ...visibilityNotes,
             `窗口值（t1 − t0），窗口 ${formatDuration(end.getTime() - start.getTime())}；t0 中不存在的语句按其全部计数计入（窗口内首次出现）`,

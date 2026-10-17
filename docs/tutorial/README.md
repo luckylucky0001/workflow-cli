@@ -4,13 +4,13 @@
 
 阅读前先了解几点：
 
-- **采集时间与环境**：2026-10-17 约 16:20 UTC，演示环境由 `demo/environment/up.sh` 启动（另含 k3s 与 Airflow 3）。同一环境里当时还有其他测试在跑，例如 k3s 上的滚动重启、etcd 重新灌数，所以截图中的时间戳、修订号、计数等只代表截图那一刻。重新生成后数值会不同，字段和语义不变。
+- **采集时间与环境**：2026-10-17 约 16:20 UTC（编号 41–50 的截图约 16:36 UTC），演示环境由 `demo/environment/up.sh` 启动（另含 k3s、Airflow 3、PostgreSQL、Jenkins、Nacos、Consul）。同一环境里当时还有其他测试在跑，例如 k3s 上的滚动重启、etcd 重新灌数，所以截图中的时间戳、修订号、计数等只代表截图那一刻。重新生成后数值会不同，字段和语义不变。
 - **命令写法**：截图里的 `workctl` 就是 `node dist/workctl.js`，生成器把它定义成了 shell 函数。窗口右上角标出这一步用的 `WORKCTL_CONFIG`。默认是 `demo/environment/workctl.yaml`（profile `demo`，`allow_execute=true`）；受控操作和 MCP 两节改用只读 profile `demo/environment/workctl.agent.yaml`（`allow_execute: false`）。
 - **截断**：输出较长时，截图里会折叠成灰色的 `… N lines omitted` 标记，完整内容见同名 `.txt`。折叠用的是生成器的行数和顶层键规则，CLI 本身不做裁剪。
 - **颜色**：CLI 不输出 ANSI 颜色。截图中键名、`#` 注释行、错误行和部分状态值的颜色，是截图脚本按 YAML/JSON 语法加上的。
-- **只读**：教程里没有执行任何变更。“生成计划”类命令只会在本地计划存储（profile 的 `state_dir`）里写一条计划；执行只演示“被拒绝”。
+- **只读**：教程里没有执行任何变更。“生成计划”类命令（重启、补数、回滚）只会在本地计划存储（profile 的 `state_dir`）里写一条计划；执行只演示“被拒绝”。第 12 节在后台运行 PostgreSQL 场景脚本的 `load` 模式，它只发两条 SELECT。
 
-准备工作见 [demo/walkthrough.md](../../demo/walkthrough.md) §0：`npm ci && npm run build`，`cd demo/environment && ./up.sh`，再运行场景脚本（离线场景、MQ 积压、配置中心与搜索的数据）。
+准备工作见 [demo/walkthrough.md](../../demo/walkthrough.md) §0：`npm ci && npm run build`，`cd demo/environment && ./up.sh`，再运行场景脚本（离线场景、MQ 积压、配置中心与搜索的数据，见 `demo/scenarios/*/README.md`；Jenkins 构建由 `demo/scenarios/deploy/seed-jenkins.mjs` 生成，Nacos / Consul 数据由 `demo/scenarios/config/seed-nacos.mjs`、`seed-consul.mjs` 生成）。
 
 ---
 
@@ -104,7 +104,7 @@ workctl log query --service demo-order --env sandbox --window 6h --contains "cac
 
 ![workload](images/09-workload-get.png)
 
-**怎么读**：`selector` 说明容器是怎么匹配到的（`label workctl.service=demo-order`，来自绑定文件）。`provider: docker`。容器字段里有 `state: running`、`health: none`（没有配置健康检查）、`restart_count: 0`、`oom_killed: false`、`limits.cpus: 0.5` 和 `memory_bytes: 268435456`（256 MiB）。`summary` 汇总为 `total: 1`、`running: 1`、`unhealthy: 0`。`# sources` 列出调用过的 Docker API。
+**怎么读**：`selector` 说明容器是怎么匹配到的（`label workctl.service=demo-order`，来自绑定文件）。`provider: docker`。容器字段里有 `state: running`、`health: none`（容器没有配置健康检查）、`restart_count: 0`、`oom_killed: false`、`limits.cpus: 0.5` 和 `memory_bytes: 268435456`（256 MiB）。`summary` 汇总为 `total: 1`、`running: 1`、`unhealthy: 0`。`# sources` 列出调用过的 Docker API。
 
 ![metric](images/10-metric-query.png)
 
@@ -179,7 +179,8 @@ workctl data partition get --catalog demo --table analytics.daily_orders --parti
 
 - `target_partition` 是 `analytics.daily_orders` 的 `dt=2026-10-16`，`write_mode: overwrite_partition`。
 - 四层状态分别是 `scheduler_state: success`、`compute_state: succeeded`、`output_state: missing`、`quality_state: fail`。
-- `layers` 中每层都有自己的 `source`。调度层来自 Airflow `adapter: airflow-rest-v1`、`version: 2.10.5`；计算层来自 Spark history `version: 3.5.5`，并给出 `app_id`。这两层都是 `relation: explicit`。产出层来自本地文件系统，是 `derived`。
+- `layers` 中每层都有自己的 `source`。调度层来自 Airflow `adapter: airflow-rest-v1`、`version: 2.10.5`；计算层来自 Spark history `version: 3.5.5`，并给出 `app_id`。这两层都是 `relation: explicit`。
+- 质量层中 `failed_rules` 只有 `partition_exists` 失败；`skipped_reason` 说明其余 10 条规则因为分区 missing 被跳过。来源是 `workctl-state`，`relation: derived`。产出层的细节被折叠了，但它的来源出现在最后的 `# sources` 行：`local-filesystem:stat+readdir … [derived]`。
 - 末尾的 `findings` 给出两条 `inconsistency`：调度成功但目标分区 missing；Spark 成功结束但目标分区 missing，可能写到了其他分区。
 
 ![backfill plan](images/20-offline-backfill-plan.png)
@@ -198,9 +199,11 @@ workctl data partition get --catalog demo --table analytics.daily_orders --parti
 
 ---
 
-## 7. 配置中心与服务发现（etcd）
+## 7. 配置中心与服务发现（etcd / Nacos / Consul）
 
-**目标**：读取服务配置（敏感值遮蔽），对比修订间的差异，查看注册实例和租约。
+**目标**：读取服务配置（敏感值遮蔽），对比修订间的差异，查看注册实例和租约。同一组命令按资源绑定选择 etcd、Nacos 或 Consul。
+
+### 7.1 etcd（demo-order）
 
 ```bash
 workctl config get --service demo-order --env sandbox
@@ -219,6 +222,41 @@ workctl discovery list --service demo-order
 ![discovery](images/24-discovery-list.png)
 
 **怎么读**：每个实例有 `address`、`port`、`version`、`healthy`。`health_basis: self_reported` 说明健康状态是实例自报的，不是探测结果。`lease` 给出 `granted_ttl_s` 和 `remaining_ttl_s`。`summary` 中 `healthy: 2`、`unhealthy: 1`、`without_lease: 1`。来源里租约剩余时间标为 `[sampled]`，因为它是读取那一刻的值。
+
+### 7.2 Nacos（demo-payment）与 Consul（demo-inventory）
+
+```bash
+workctl config get --service demo-payment --env sandbox          # 绑定到 Nacos
+workctl config get --service demo-inventory --env sandbox        # 绑定到 Consul KV
+workctl discovery list --service demo-payment
+workctl discovery list --service demo-inventory
+workctl config diff --service demo-payment --key order.timeout_ms
+workctl config diff --service demo-inventory --key cache.ttl_seconds; echo "exit=$?"
+```
+
+![nacos config](images/39-config-get-nacos.png)
+
+**怎么读**：命令与 7.1 相同。`provider_selected_by` 显示 demo-payment 通过绑定 `config_center=demo-nacos` 指向 `nacos/demo-nacos`，`revision_space: nacos-history-id`。`callback.token` 的 `value: "***"`、`masked: true`。末尾的 `nacos` 块给出 `data_id`、`group`、`md5` 和 `latest_history_id`。
+
+![consul config](images/40-config-get-consul.png)
+
+**怎么读**：demo-inventory 绑定到 `consul/demo-consul`，`revision_space: consul-raft-index`，来源 `consul:GET /v1/kv/config/sandbox/demo-inventory/?recurse`。
+
+![nacos discovery](images/47-discovery-nacos.png)
+
+**怎么读**：输出字段与 etcd 版一致（`address`、`port`、`version`、`healthy`），差别在依据和 provider 专有字段：`health_basis: registry_health`（健康状态取自 Nacos 注册中心），`lease: null`（Nacos 没有 etcd 式租约），`nacos` 块给出 `cluster`、`weight`、`enabled`、`ephemeral`。第二个实例（端口 9）是 `healthy: false`。`summary` 为 `healthy: 2`、`unhealthy: 1`。`# sources` 注明实例列表逐集群读取，包含 `enabled=false` 的实例。
+
+![consul discovery](images/48-discovery-consul.png)
+
+**怎么读**：`health_basis: registry_checks`，健康状态由 Consul 的检查结果决定。`consul.checks` 列出每个检查。`inventory-2` 的节点检查 `serfHealth` 是 `passing`，但服务级的 `inventory-2-ttl` 是 `critical`（`output: "synthetic failure: db unreachable"`），所以实例 `healthy: false`、`consul.status: critical`。`summary` 为 `healthy: 2`、`unhealthy: 1`。
+
+![nacos diff](images/49-config-diff-nacos.png)
+
+**怎么读**：Nacos 保留配置历史，`config diff` 可以给出上一版本：`order.timeout_ms` 从 `800` 变为 `1500`。`from_revision` / `to_revision` 是 Nacos 历史 ID（`revision_space: nacos-history-id`）。`nacos.from_history` / `to_history` 给出两条历史记录的 `op_type` 和 `modified_at`，`src_user: null`（操作人不可得）。`history_records` 和 `oldest_history_id` 说明能追溯的范围。
+
+![consul diff](images/50-config-diff-consul.png)
+
+**怎么读**：Consul KV 不保留历史，所以同一条命令如实返回 `error DATA_UNAVAILABLE`，而不是编一个“无变化”。`details` 给出能确定的部分：`create_index: 155`、`modify_index: 160`、`changed_since_creation: true`，即这个键创建后改过，但看不到改之前的值。`hint` 给出替代办法（写入侧留痕，或改用 etcd / Nacos）。退出码 `exit=7`（未采集/无数据）。
 
 ---
 
@@ -264,7 +302,7 @@ workctl --json operation execute --id <plan_id> --confirm <plan_id>; echo "exit=
 
 ![restart plan](images/29-restart-plan.png)
 
-**怎么读**：计划 `id: op-20261017-d9d549`，`kind: container.restart`。`impact` 写明预计中断（单副本服务在重启期间不可用）、被依赖方和服务依赖，以及进程内状态会丢失。`preconditions` 中 `profile_allow_execute` 为 `ok: false`。`steps` 列出将调用的 Docker API 和复核方式。`rollback` 写明“不适用：重启不可回滚”。`status: planned`，`expires_at` 是计划过期时间。截图折叠了 `params`、`targets` 和 `history`。
+**怎么读**：计划 `id: op-20261017-d9d549`，`kind: container.restart`。`impact` 写明预计中断（单副本服务在重启期间不可用）、被依赖方和服务依赖，以及进程内状态会丢失。`preconditions` 中 `profile_allow_execute` 为 `ok: false`。`steps` 列出将调用的 Docker API 和复核方式。`rollback` 写明“不适用：重启不可回滚”。`status: planned`，`expires_at` 是计划过期时间。截图折叠了 `params`、`targets`、`history` 等字段。
 
 ![access check](images/30-access-check-execute.png)
 
@@ -320,32 +358,66 @@ WORKCTL_CONFIG=demo/environment/workctl.agent.yaml node docs/tutorial/mcp-tools-
 
 ---
 
-## 附加：其他领域（截图时已可用）
+## 12. 数据库：PostgreSQL
 
-以下领域是在主线之后接入的。生成器把它们标为可选步骤：命令不存在或运行失败时会自动跳过。
+**目标**：查看实例概况；在真实负载下做窗口采样，找出最耗时的语句；用执行计划确认原因；查看锁等待。账号是只读的 `workctl_ro`。
 
 ```bash
 workctl pg instance get --instance demo-postgres
-WORKCTL_CONFIG=demo/environment/k8s/workctl.k8s.yaml workctl deploy release list --service demo-order --env sandbox --limit 3
-workctl config get --service demo-payment --env sandbox      # Nacos
-workctl config get --service demo-inventory --env sandbox    # Consul KV
+node demo/scenarios/postgres/scenario.mjs load --seconds 15 >/dev/null 2>&1 &
+workctl --timeout 30s pg statement summary --sample-window 10s --database demo_orders --top 2; wait
+workctl pg query explain --sql "SELECT id, status, amount, created_at FROM orders WHERE customer_id = 42 ORDER BY created_at DESC LIMIT 20"
+workctl pg lock list
 ```
 
-![pg](images/37-pg-instance-get.png)
+![pg instance](images/37-pg-instance-get.png)
 
 **怎么读**：`engine.version: "16.15"`，`current_user: workctl_ro`，`role: primary`。`settings` 中每项有 `value` 和 `source`（截图折叠了大部分）。`hidden_settings` 列出 `shared_preload_libraries`；`# coverage: incomplete` 说明这个参数对 `workctl_ro` 不可见，连接数是瞬时快照。
 
-![deploy](images/38-deploy-release-list.png)
+![pg statement summary](images/41-pg-statement-summary.png)
+
+**怎么读**：场景脚本在后台反复执行两条查询，同时 workctl 做 10 秒窗口采样（`aggregation: window_delta`，`duration_ms: 10011`）。
+
+- 按 `total_time` 排序，第一条是 `WHERE customer_id = $1 ORDER BY created_at DESC LIMIT $2`：窗口内 `calls: 3294`、`total_exec_ms: 11997.195`、`mean_exec_ms: 3.642`。`rows_per_call: 20` 很低，`shared_blks_hit: 1991246` 却很高。
+- 第二条主键查询 `WHERE id = $1` 调用次数相同，`mean_exec_ms: 0.046`。
+- `excluded_self: 1` 表示 workctl 自己的采样语句已排除。`collection` 给出 `pg_stat_statements` 的版本和 `dealloc: 0`（窗口内没有条目被挤出）。来源 `public.pg_stat_statements (t1 − t0) [derived]`。
+
+![pg explain](images/42-pg-query-explain.png)
+
+**怎么读**：`estimate_only: true`，`planning_ms` / `execution_ms` 为 `null`，表示只做 EXPLAIN，没有执行语句。`summary.seq_scans: [orders]`、`index_scans: []`、`sorts: 1`。`nodes` 自上而下是 `Limit` → `Sort` → `Seq Scan`（`relation: orders`，`filter: (customer_id = 42)`），即全表扫描后再排序。这与上一张图中该语句 `shared_blks_hit` 高、`rows_per_call` 低一致。`plan` 是 `EXPLAIN (FORMAT JSON)` 的原始结构（截图中折叠）。加索引属于变更，这里不做。
+
+![pg locks](images/43-pg-lock-list.png)
+
+**怎么读**：截图时没有锁等待：`waits: []`、`blockers: []`，`summary.waiting: 0`。来源标明查询了 `pg_stat_activity + pg_blocking_pids() + pg_locks (granted=false)`，`[explicit]`。这是“查过、为空”，不是“没查”。
+
+---
+
+## 13. 部署系统：Kubernetes 与 Jenkins
+
+**目标**：查看发布历史，定位失败的发布及其日志，生成回滚计划（不执行）。同一组 `deploy` 命令按资源绑定选择 provider：k3s profile 下是 Kubernetes Deployment 修订，docker profile 下是 Jenkins 部署 job。
+
+```bash
+WORKCTL_CONFIG=demo/environment/k8s/workctl.k8s.yaml workctl deploy release list --service demo-order --env sandbox --limit 3
+workctl deploy release list --service demo-order --env sandbox                 # docker profile → Jenkins
+workctl deploy release get --service demo-order --env sandbox --id 3           # 失败的 v1.4.2-bad 构建
+workctl deploy rollback plan --service demo-order --env sandbox                # 只生成计划
+```
+
+![deploy k8s](images/38-deploy-release-list.png)
 
 **怎么读**：`target.provider: kubernetes`，对象是 `Deployment workctl-demo/demo-order`。当前修订 `current: true`、`status: succeeded`，`status_basis` 写明判断依据。被替代的修订是 `status: unknown`，因为 ReplicaSet 不保存当时 rollout 的结果。`# coverage: incomplete` 说明只保留 `revisionHistoryLimit` 个修订、`started_at` 是推导值、API 不记录操作人。截图里的修订都是同一环境中其他测试做的滚动重启和回滚。
 
-![nacos](images/39-config-get-nacos.png)
+![deploy jenkins list](images/44-deploy-jenkins-release-list.png)
 
-**怎么读**：命令与第 7 节相同，`provider_selected_by` 显示 demo-payment 通过绑定指向 `nacos/demo-nacos`，`revision_space: nacos-history-id`。`callback.token` 的 `value: "***"`、`masked: true`。末尾的 `nacos` 块给出 `data_id`、`group`、`md5` 和 `latest_history_id`。
+**怎么读**：`target.provider: jenkins`，对象是 `job deploy-demo-order`。每个构建是一条发布：`version` 取自构建参数，`timestamps: explicit`（Jenkins 记录了开始和结束时间），`triggered_by: admin`。`#6`（v1.4.1）是 `current: true`；`status_basis` 写明这只是“最近一次成功的部署构建”，Jenkins 并不观测目标环境实际运行的版本。`#3` 是 `v1.4.2-bad`，`status: failed`（`Jenkins 构建结果 FAILURE`）。seed 脚本只创建 `#1`–`#4`；`#5`、`#6` 是之后在同一环境中触发的构建。
 
-![consul](images/40-config-get-consul.png)
+![deploy jenkins get](images/45-deploy-jenkins-release-get.png)
 
-**怎么读**：demo-inventory 绑定到 `consul/demo-consul`，`revision_space: consul-raft-index`，来源 `consul:GET /v1/kv/config/sandbox/demo-inventory/?recurse`。
+**怎么读**：`release` 与列表中的字段相同。`jenkins` 块给出 `result: FAILURE`、构建参数（`VERSION: v1.4.2-bad`）、触发原因，以及控制台日志末尾 `console.lines`：其中 `health check failed after rollout of v1.4.2-bad` 是失败原因。`"registry token: ******"` 被遮蔽，`masked: true`。生成器另外检查了原始输出中没有出现该 token 的明文。`total_lines: 10`、`truncated: false` 表示日志全部返回。来源包含 `GET /job/deploy-demo-order/3/consoleText`。
+
+![deploy rollback plan](images/46-deploy-jenkins-rollback-plan.png)
+
+**怎么读**：没有给 `--to` 时，计划选“上一个不同版本的成功构建”：`#6 v1.4.1 → #5 v1.4.0`（`targets`、`impact.version_change`）。`impact.expected_interruption` 说明 workctl 不了解 job 内部步骤，执行就是用目标构建的参数重新触发部署 job。`preconditions` 逐项列出目标仍保留、目标成功、与当前不同、没有进行中的部署、参数可重放、profile 允许执行。`steps` 中的 `verify` 写明“部署 job 的成功不等于服务健康”。`rollback` 写明如何反向回滚。计划 `status: planned`，本教程没有执行它；执行需要 `operation execute --id <id> --confirm <id>`，且 profile 开启 `allow_execute`。
 
 ---
 
@@ -353,12 +425,14 @@ workctl config get --service demo-inventory --env sandbox    # Consul KV
 
 ```bash
 # 仓库根目录；需要演示环境（demo/environment/up.sh）和场景数据，k8s / Airflow 3 步骤另需 k3s-up.sh / offline3-up.sh
+# 第 12 节的 pg statement summary 会在后台运行 demo/scenarios/postgres/scenario.mjs load（只读 SELECT）
 node scripts/tutorial-screenshots.mjs                      # 全部步骤，约 1 分钟
 node scripts/tutorial-screenshots.mjs --only doctor,mysql-explain
 node scripts/tutorial-screenshots.mjs --text-only          # 只运行命令、写 .txt，不截图
+node scripts/tutorial-screenshots.mjs --out /tmp/tutorial   # 输出到其他目录，试跑时不覆盖这里的截图
 ```
 
 - 截图用 Playwright + Chromium：先找本地 `playwright`，找不到再用全局安装的；浏览器取 `PLAYWRIGHT_BROWSERS_PATH`（默认 `/opt/pw-browsers`）下的 Chromium。如果有 python3 + Pillow，生成器会把 PNG 量化为 256 色调色板，体积约减半。
-- 写文件前，生成器会扫描 `demo/environment/.runtime/secrets/*` 以及 k8s token / kubeconfig 中的凭据值。输出中出现任何一个值，这一步就失败，也不写文件。
-- 步骤清单在生成器顶部的 `STEPS` 中。每步可以设置 `config`、截断规则（`maxLines` / `tail` / `keepKeys` / `blockMax`）和 `optional`；输出中出现 `unknown command` 的步骤会被跳过。
+- 写文件前，生成器会扫描 `demo/environment/.runtime/secrets/*` 以及 k8s token / kubeconfig 中的凭据值，另外还检查一个本应被遮蔽的字符串（Jenkins 部署 job 打印的 registry token 默认值）。输出中出现任何一个值，这一步就失败，也不写文件。
+- 步骤清单在生成器顶部的 `STEPS` 中。每步可以设置 `config`、截断规则（`maxLines` / `tail` / `keepKeys` / `blockMax`）、`capture`（从输出取值给后续步骤，如失败构建号）和 `optional`；输出中出现 `unknown command` 的步骤会被跳过。第 12、13 节和 7.2 的新步骤追加在清单末尾（编号 41–50），已有图片编号保持不变。
 - 重新生成后数值（时间戳、修订号、计数）会变化，本文“怎么读”中的具体数值对应本次截图。

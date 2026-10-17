@@ -91,7 +91,7 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 | 接口版本替换（设计稿 §10.4） | `version-swap.mjs`：9 个离线/计算能力（10 次调用）分别对 Airflow 2.10.5（REST v1）与 Airflow 3.3.2（REST v2）真实调用，两侧 `data` 通过同一 zod 输出 schema、顶层字段与 `run get` 四层状态一致，差异只在 `meta.sources`（adapter/method/version）；适配器侧新增 `airflow-v2.ts` 约 250 行 + 客户端约 130 行改动，能力代码改动约 40 行、输出 schema 未改；v2 补数执行器真实执行成功。见 [version-swap.md](verification/version-swap.md) |
 | 新系统接入（内置领域） | config/discovery（etcd v3 网关）：约 0.76k 行领域代码，复用核心的资源绑定、凭据引用、HTTP 客户端与错误映射，`src/core` 未改（只在 doctor 的端点类型表登记 etcd，2 行）；etcd 3.5.21 上 16/16 |
 | 多 provider 同一契约 | Docker ↔ Kubernetes（k3s v1.31.4，10/10）、Airflow 2 ↔ 3（REST v1 ↔ v2）、Spark ↔ Trino 476（15/15）、Docker 日志 ↔ Loki 3.5.5：每组都由同一能力定义与输出 Schema 承载，差异只在 `meta.sources` 与可选的 provider 专有字段 |
-| 分发 | `npm pack` 后全局安装，CLI 可运行并找到随包 Skill；包大小 2.0 MB（依赖已打包进单文件；含 11 个 Skill 与文档） |
+| 分发 | `npm pack` 后全局安装，CLI 可运行并找到随包 Skill；包大小 2.2 MB（依赖已打包进单文件；含 Skill 与文档，不含教程截图） |
 
 ## 5. 验收结论（设计稿 §12.3）
 

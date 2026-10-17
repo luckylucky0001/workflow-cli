@@ -133,5 +133,19 @@
   ],
   "expect": "CAPABILITY_PLANNED",
   "note": "规划中的 provider（Apollo）→ CAPABILITY_PLANNED，不模拟"
+ },
+ {
+  "id": "consul-12",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-inventory",
+   "--key",
+   "warehouse.default",
+   "--from-rev",
+   "${c1}"
+  ],
+  "note": "单键的 X-Consul-Index 是该键的 ModifyIndex（不是全局索引）：--from-rev 晚于它 → 区间内没有写入，空差异（不是 INVALID_ARGUMENT）"
  }
 ]

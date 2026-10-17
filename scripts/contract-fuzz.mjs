@@ -28,8 +28,9 @@ const ONLY = argOf('--only', '');
 const CONCURRENCY = Math.min(4, Number(argOf('--concurrency', '4')));
 const CALL_TIMEOUT_MS = Number(argOf('--call-timeout', '90000'));
 const NO_MCP = args.includes('--no-mcp');
-const OUT_JSON = join(ROOT, 'demo/verification/contract-fuzz.json');
-const OUT_MD = join(ROOT, 'demo/verification/contract-fuzz.md');
+const REPORT = resolve(ROOT, argOf('--report', 'demo/verification/contract-fuzz'));
+const OUT_JSON = `${REPORT}.json`;
+const OUT_MD = `${REPORT}.md`;
 const SKIP_DOMAINS = new Set((argOf('--skip-domains', 'postgres,deploy') || '').split(',').filter(Boolean));
 
 const { createClient, ERROR_CODES } = await import(join(ROOT, 'dist/index.js'));
@@ -126,9 +127,10 @@ function parseExample(ex, cap) {
     const m = /^--([a-z0-9-]+)(?:=(.*))?$/.exec(t);
     if (!m) continue;
     const flag = m[1];
-    if (m[2] !== undefined) inputs[flag] = m[2];
-    else if (i < toks.length && !toks[i].startsWith('--')) inputs[flag] = toks[i++];
-    else inputs[flag] = true;
+    const v = m[2] !== undefined ? m[2] : i < toks.length && !toks[i].startsWith('--') ? toks[i++] : true;
+    // repeated flags (--param a=1 --param b=2) accumulate
+    if (flag in inputs && v !== true) inputs[flag] = [...[inputs[flag]].flat(), v];
+    else inputs[flag] = v;
   }
   return { pre, inputs };
 }
@@ -155,8 +157,8 @@ const OVERRIDES = {
   'access.check': { capability: 'mysql.instance.get' },
   'auth.status': {},
   'doctor.run': { 'skip-network': true },
-  'operation.cancel': { id: 'op-20000101-nonexistent' },
-  'operation.get': { id: 'op-20000101-nonexistent' },
+  'operation.cancel': { id: 'op-20000101-abcdef' },
+  'operation.get': { id: 'op-20000101-abcdef' },
   'operation.list': {},
   'resource.get': { id: 'demo-mysql' },
   'redis.stats.sample': { instance: 'demo-redis', duration: '1s' },
@@ -274,10 +276,40 @@ function checkEnvelope(c, r, { expectInvalid = false, mode = 'json', budgetMs } 
         } else add('no-schema-validator', 'output schema could not be loaded');
       }
       if (!Array.isArray(env.meta?.sources) || env.meta.sources.length === 0) add('missing-sources', 'meta.sources empty on success');
-      if (!env.meta?.coverage) add('missing-coverage', 'meta.coverage null on success');
+      if (!env.meta?.coverage) add('missing-coverage', `meta.coverage null on ${env.status}`);
+      else if (env.status === 'partial' && env.meta.coverage.complete !== false) add('partial-but-complete', 'status=partial with coverage.complete=true');
     }
   }
   return v;
+}
+
+// ---------- "upstream down" profile: same config, every network endpoint refused ----------
+// Exercises the error mapping of each adapter (UPSTREAM_UNAVAILABLE, never INTERNAL / raw driver text).
+let deadConfig = null;
+if (process.env.WORKCTL_CONFIG && !args.includes('--no-dead')) {
+  const YAML = (await import('yaml')).default;
+  const cfgPath = resolve(process.env.WORKCTL_CONFIG);
+  const baseDir = dirname(cfgPath);
+  const cfg = YAML.parse(readFileSync(cfgPath, 'utf8'));
+  const abs = (v) => (typeof v === 'string' && (v.startsWith('./') || v.startsWith('../')) ? resolve(baseDir, v) : v);
+  const walk = (o) => {
+    for (const [k, v] of Object.entries(o)) {
+      if (k === 'port') o[k] = 1;
+      else if (k === 'url' || k === 'history_url') o[k] = 'http://127.0.0.1:1';
+      else if (k === 'brokers') o[k] = ['127.0.0.1:1'];
+      else if (k === 'socket') o[k] = join(tmp, 'no-docker.sock');
+      else if (k.endsWith('_ref') && typeof v === 'string' && v.startsWith('file:') && !v.startsWith('file:/')) o[k] = `file:${resolve(baseDir, v.slice(5))}`;
+      else if (v && typeof v === 'object' && !Array.isArray(v)) walk(v);
+      else o[k] = abs(v);
+    }
+  };
+  for (const prof of Object.values(cfg.profiles ?? {})) {
+    for (const k of Object.keys(prof)) if (typeof prof[k] === 'string') prof[k] = abs(prof[k]);
+    prof.state_dir = join(tmp, 'state');
+    if (prof.endpoints) walk(prof.endpoints);
+  }
+  deadConfig = join(tmp, 'dead.yaml');
+  writeFileSync(deadConfig, YAML.stringify(cfg));
 }
 
 // ---------- case generation ----------
@@ -293,13 +325,14 @@ for (const c of caps) {
   const b = baseline(c);
   const valid = { ...b.inputs };
   // never cancel a real plan
-  if (c.name === 'operation.cancel') valid.id = 'op-20000101-nonexistent';
+  if (c.name === 'operation.cancel') valid.id = 'op-20000101-abcdef';
   cases.push({ cap: c, name: 'valid-baseline', argv: argvFor(c, valid, b.pre), expectInvalid: false, kind: 'valid' });
   for (const ex of (c.examples ?? []).slice(1, 2)) {
     if (/<[a-z_]+>/.test(ex) || /\.\/q\.sql/.test(ex) || c.name === 'sql.query.submit') continue;
     const p = parseExample(ex, c);
     cases.push({ cap: c, name: 'valid-example-2', argv: argvFor(c, p.inputs, p.pre), expectInvalid: false, kind: 'valid' });
   }
+  if (deadConfig) cases.push({ cap: c, name: 'upstream-down', argv: argvFor(c, valid, ['--config', deadConfig, '--timeout', '20s', ...b.pre]), expectInvalid: false, kind: 'upstream' });
   cases.push({ cap: c, name: 'no-args', argv: argvFor(c, {}), expectInvalid: Object.values(c.inputs).some((s) => s.required), kind: 'noargs' });
   cases.push({ cap: c, name: 'unknown-flag', argv: [...argvFor(c, valid, b.pre), '--bogus-flag=1'], expectInvalid: true, kind: 'invalid' });
   cases.push({ cap: c, name: 'text-mode', argv: argvFor(c, valid, b.pre, ['-o', 'text']), mode: 'text', kind: 'mode' });
@@ -313,18 +346,30 @@ for (const c of caps) {
       // another input can satisfy the requirement (e.g. --sql vs --sql-file); then this is still invalid
       cases.push({ cap: c, name: `missing-required:${flag}`, argv: argvFor(c, m, b.pre), expectInvalid: true, kind: 'invalid' });
     }
-    for (const bad of badValues(spec)) {
+    // inputs that name a location the capability writes to (sql query submit --output) only get
+    // values under the scratch dir: the fuzzer must not create directories elsewhere
+    const writesTo = c.name === 'sql.query.submit' && name === 'output';
+    for (const bad0 of badValues(spec)) {
+      const bad = writesTo && bad0 && bad0.length < 1000 ? join(tmp, 'out', bad0.replace(/\//g, '_')) : bad0;
       const m = { ...valid, [flag]: bad };
       // a value is "invalid" for the contract only when the input type rejects it
       const typeInvalid =
         (spec.type === 'int' && !/^\s*[+-]?\d+\s*$/.test(bad)) ||
         (spec.type === 'int' && bad === '99999999999999999999') ||
         (spec.type === 'number' && !/^[+-]?\d/.test(bad)) ||
-        (spec.type === 'duration' && !['0'].includes(bad)) ||
+        (spec.type === 'duration' && !['0', '99999d'].includes(bad)) ||
         (spec.type === 'enum' && bad !== '' ) ||
         (spec.type === 'file' && bad !== '');
       const label = bad.length > 40 ? `${bad.slice(0, 12)}…(${bad.length})` : bad;
       cases.push({ cap: c, name: `bad:${flag}=${label}`, argv: argvFor(c, m, b.pre), expectInvalid: typeInvalid && !(spec.type === 'file' && bad === ''), kind: typeInvalid ? 'invalid' : 'edge' });
+    }
+  }
+  // every documented enum value must work or fail with a stable code (never INTERNAL / schema drift)
+  for (const [name, spec] of Object.entries(c.inputs)) {
+    if (spec.type !== 'enum') continue;
+    for (const ev of spec.enum ?? []) {
+      if (valid[kebab(name)] === ev) continue;
+      cases.push({ cap: c, name: `enum:${kebab(name)}=${ev}`, argv: argvFor(c, { ...valid, [kebab(name)]: ev }, b.pre), kind: 'enum' });
     }
   }
   // space-separated negative value (how people type it)
@@ -332,6 +377,13 @@ for (const c of caps) {
   if (intInput) cases.push({ cap: c, name: `space-negative:${kebab(intInput[0])}`, argv: [...argvFor(c, valid, b.pre), `--${kebab(intInput[0])}`, '-5'], kind: 'edge' });
   // timeout budget
   cases.push({ cap: c, name: 'timeout-1s', argv: argvFor(c, valid, ['--timeout', '1s', ...b.pre.filter((x, i, a) => x !== '--timeout' && a[i - 1] !== '--timeout')]), budgetMs: 1000 + 6000, kind: 'timeout' });
+}
+
+// --kinds valid,upstream: run only these case kinds (quick targeted passes)
+const KINDS = argOf('--kinds', '');
+if (KINDS) {
+  const keep = new Set(KINDS.split(','));
+  for (let k = cases.length - 1; k >= 0; k--) if (!keep.has(cases[k].kind)) cases.splice(k, 1);
 }
 
 // global / cross-cutting cases
@@ -351,7 +403,18 @@ const globalCases = [
   { name: 'excess-positional', argv: ['--json', 'resource', 'list', 'extra'], expectInvalid: true },
   { name: 'fail-on-partial-flag', argv: ['--json', '--fail-on-partial', 'capability', 'list'], expectInvalid: false },
   { name: 'combined-short-ojson', argv: ['-ojson', 'capability', 'get'], expectInvalid: true },
+  { name: 'overflowing-global-timeout', argv: ['--json', '--timeout', '30d', 'resource', 'list'], expectInvalid: true },
+  { name: 'empty-request-id', argv: ['--json', '--request-id', '', 'resource', 'list'], expectInvalid: false },
+  { name: 'mcp-serve-bad-timeout', argv: ['--json', '--timeout', 'abc', 'mcp', 'serve'], expectInvalid: true },
+  { name: 'incomplete-command:mysql', argv: ['--json', 'mysql'], expectInvalid: true },
+  { name: 'incomplete-command:mysql table', argv: ['--json', 'mysql', 'table'], expectInvalid: true },
+  { name: 'no-command', argv: ['--json'], expectInvalid: true },
 ];
+
+function parseBudget(v) {
+  const m = /^(\d+(?:\.\d+)?)(ms|s|m|h|d)$/.exec(String(v));
+  return m ? Number(m[1]) * { ms: 1, s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 }[m[2]] : 30_000;
+}
 
 // ---------- runner ----------
 async function pool(items, n, fn) {
@@ -373,7 +436,10 @@ const results = [];
 let done = 0;
 await pool(cases, CONCURRENCY, async (cs) => {
   const r = await run(cs.argv);
-  const violations = checkEnvelope(cs.cap, r, { expectInvalid: cs.expectInvalid, mode: cs.mode ?? 'json', budgetMs: cs.budgetMs });
+  // every call must end within its --timeout budget (default 30s) plus process start/teardown grace
+  const ti = cs.argv.indexOf('--timeout');
+  const budget = cs.budgetMs ?? (ti >= 0 ? parseBudget(cs.argv[ti + 1]) : 30_000) + 10_000;
+  const violations = checkEnvelope(cs.cap, r, { expectInvalid: cs.expectInvalid, mode: cs.mode ?? 'json', budgetMs: budget });
   let status = null;
   let code = null;
   try {
@@ -452,7 +518,7 @@ if (!NO_MCP) {
       case 'number':
         return ['abc', { x: 1 }, true, 1e300, -1];
       case 'bool':
-        return ['yes', 1, null];
+        return ['yes', 1]; // null is "omitted" (default applies) by contract
       case 'list':
         return [42, { a: 1 }, [1, 2]];
       case 'enum':
@@ -473,7 +539,7 @@ if (!NO_MCP) {
       const name = k.replace(/-/g, '_');
       const spec = c.inputs[name];
       if (!spec) continue;
-      validArgs[name] = spec.type === 'int' ? Number(v) : spec.type === 'bool' ? v === true : spec.type === 'list' ? [String(v)] : v;
+      validArgs[name] = spec.type === 'int' ? Number(v) : spec.type === 'bool' ? v === true : spec.type === 'list' ? [v].flat().map(String) : v;
     }
     for (const [name, spec] of Object.entries(c.inputs)) {
       for (const w of wrong(spec)) {
@@ -554,7 +620,7 @@ if (!NO_MCP) {
     for (const [k, v] of Object.entries(b.inputs)) {
       const name = k.replace(/-/g, '_');
       const spec = c.inputs[name];
-      if (spec) a[name] = spec.type === 'int' ? Number(v) : spec.type === 'bool' ? v === true : spec.type === 'list' ? [String(v)] : v;
+      if (spec) a[name] = spec.type === 'int' ? Number(v) : spec.type === 'bool' ? v === true : spec.type === 'list' ? [v].flat().map(String) : v;
     }
     const { replies } = await mcpSession([init, { jsonrpc: '2.0', id: 5, method: 'tools/call', params: { name: c.name.replace(/[^a-zA-Z0-9_-]/g, '_'), arguments: a } }]);
     try {

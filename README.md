@@ -14,11 +14,12 @@
 | 项目 | 结果 | 证据 |
 | --- | --- | --- |
 | 单元 + 契约测试 | 469 个全部通过（`npm test`；契约测试检查：设计稿命令全覆盖、输出 Schema、指南/Skill 存在、示例命令有效、生成文档与定义一致、MCP 工具与能力一致） | `npm test` |
-| 真实环境集成测试 | `WORKCTL_IT=1 WORKCTL_AF3=1 WORKCTL_K8S=1 npm test`：540/540 通过 | MySQL 8.4.11、Redis 7.4.11、Kafka 3.9.1、OpenSearch 2.19.3、etcd 3.5.21、Airflow 2.10.5 / 3.3.2、Spark 3.5.5、Trino 476、Docker 29.8.2、Prometheus 3.5.0、Loki 3.5.5、k3s v1.31.4 |
+| 真实环境集成测试 | `WORKCTL_IT=1 WORKCTL_AF3=1 WORKCTL_K8S=1 npm test`：540/540 通过 | MySQL 8.4.11、PostgreSQL 16.15、Redis 7.4.11、Kafka 3.9.1、OpenSearch 2.19.3、etcd 3.5.21、Nacos 2.4.3、Consul 1.20.6、Jenkins 2.541.3、Airflow 2.10.5 / 3.3.2、Spark 3.5.5、Trino 476、Docker 29.8.2、Prometheus 3.5.0、Loki 3.5.5、k3s v1.31.4 |
 | 逐能力真实调用 | 74/74 用例通过（含插件、补数计划、隔离环境中真实执行重启并记录状态迁移、预期错误码） | [demo/verification/report.md](demo/verification/report.md) |
 | 交叉审查 | 各领域（含后加入的 Kubernetes、Airflow v2、Trino、Loki）由非作者复审，修复 58 个缺陷并补回归测试（如优化器提示绕过执行时限、Spark SQL `reflect`/文件查询绕过只读防护、重启后 unhealthy 仍判成功、组合调用绕过执行授权、Airflow 3 无 logical_date 的运行导致补数重复、同标签的其他 Pod 混入工作负载） | git 历史 “Cross-review fixes” |
 | Kubernetes provider | 单节点 k3s v1.31.4 上 10/10（身份探测、Pod/Deployment 状态、事件、metrics-server 快照、容量、真实滚动重启）；Docker 与 Kubernetes 两种 provider 输出通过同一 Schema | [demo/verification/report.k8s.md](demo/verification/report.k8s.md) |
 | 配置中心 / 服务发现 | 内置 `config get/diff`、`discovery list`，按服务绑定选择 provider：etcd 3.5.21（修订号与逐键差异、租约）16/16；Nacos 2.4.3（namespace/group/dataId，用历史记录重建差异）13/13；Consul 1.20.6（KV 无历史 → 差异明确返回 `DATA_UNAVAILABLE`，健康检查）11/11；三者同一输出契约与敏感值遮蔽；Apollo/ZooKeeper 待接入 | [etcd](demo/verification/report.config.md)、[Nacos](demo/verification/report.config-nacos.md)、[Consul](demo/verification/report.config-consul.md) |
+| PostgreSQL | 内置 `pg instance/database/table/session/lock/statement/query`：只读角色、pg_stat_statements 两次快照差分（未加载扩展 → `COLLECTION_DISABLED`）、EXPLAIN 估计与只读事务内 ANALYZE、受限只读查询与敏感列脱敏；PostgreSQL 16.15 上 30/30 | [demo/verification/report.postgres.md](demo/verification/report.postgres.md) |
 | 部署系统 | 内置 `deploy release list/get`、`deploy status get`、`deploy rollback plan`（执行经 `operation execute` + 确认）：Kubernetes（ReplicaSet 修订、真实失败发布与回滚执行）14/14；Jenkins 2.541.3（部署 job 构建、按参数重放回滚）15/15；Argo CD/Spinnaker 待接入 | [Kubernetes](demo/verification/report.deploy-k8s.md)、[Jenkins](demo/verification/report.deploy.md) |
 | 插件补齐待接入能力 | `demo-search` 插件实现内置目录中 planned 的 `search.index.get` / `search.query`（并新增 `search.cluster.get`）：别名解析、yellow 原因、受限 DSL 白名单、部分分片失败 → `partial`；OpenSearch 2.19.3 上 19/19 | [demo/verification/report.search.md](demo/verification/report.search.md) |
 | SQL 引擎 | `sql query submit/get/cancel` 对 Spark 3.5.5 与 Trino 476 输出同一契约；Trino 用例 15/15（成功、语法错误、表不存在、只读防护、真实取消） | [demo/verification/report.trino.md](demo/verification/report.trino.md) |
@@ -41,7 +42,7 @@ workctl capability get --name mysql.statement.summary
 | 板块 | 领域（命令前缀） | 首版重点 |
 | --- | --- | --- |
 | 基础设施 | `container` `capacity` `network` `storage` `metric` `log` `trace` `config` `discovery` `deploy` `resource` `service` `operation` `auth` `access` | Docker 与 Kubernetes（k3s v1.31.4 实测）工作负载状态/事件/资源、资源绑定与依赖、Prometheus 指标、容器日志或 Loki、日志派生调用链、etcd/Nacos/Consul 配置与服务发现、Kubernetes/Jenkins 发布记录与回滚、重启操作计划与执行 |
-| 中间件 | `mysql` `redis` `mq`（插件） `search`（插件） | MySQL 库表/索引/会话/锁/语句采样差分/慢日志/执行计划/受限查询/索引计划；Redis 运行信息/窗口采样/慢日志/Key 元数据/SCAN 采样/LFU 热度；Kafka 主题与消费组 lag；OpenSearch 集群/索引/受限查询 |
+| 中间件 | `mysql` `pg` `redis` `mq`（插件） `search`（插件） | MySQL 库表/索引/会话/锁/语句采样差分/慢日志/执行计划/受限查询/索引计划；PostgreSQL 实例/表与索引/会话与阻塞链/pg_stat_statements 窗口差分/执行计划/受限只读查询；Redis 运行信息/窗口采样/慢日志/Key 元数据/SCAN 采样/LFU 热度；Kafka 主题与消费组 lag；OpenSearch 集群/索引/受限查询 |
 | 离线链路 | `offline` `compute` `sql` `data` | Airflow 2.x（REST v1）与 3.x（REST v2）工作流/实例/依赖/日志/补数计划与执行、Spark 作业/Stage/日志、Airflow 资源池、Spark SQL 与 Trino 查询提交、数据目录/分区/血缘/质量规则/时效 |
 | 待接入 | `document` `kv` `analytics` `middleware` `object` `hdfs` `quota`，以及已有领域内的条目（如 `mysql replication get`、`redis cluster get`、`compute yarn-queue get`） | 只出现在目录中（`status: planned`），不生成可调用命令；插件可以实现它们（见 `search`） |
 
@@ -64,7 +65,7 @@ flowchart TB
     E --> R[公共运行能力<br/>profile · 凭据引用 · 资源绑定 · 计划存储 · HTTP · 错误映射]
     R --> P[领域适配器 / 插件 workctl-plugin/1]
     P --> I[Docker · Kubernetes · Prometheus · Loki · etcd/Nacos/Consul · Jenkins · DNS/TCP · 文件系统]
-    P --> W[MySQL · Redis · Kafka 插件 · OpenSearch 插件]
+    P --> W[MySQL · PostgreSQL · Redis · Kafka 插件 · OpenSearch 插件]
     P --> O[Airflow · Spark · Trino · 数据目录 · 质量规则]
 ```
 
@@ -80,7 +81,7 @@ node dist/workctl.js --json mysql statement summary --instance demo-mysql --samp
 node dist/workctl.js --json offline run get --id <run_id> --workflow demo-daily-orders
 ```
 
-详见 [docs/quickstart.md](docs/quickstart.md)、[demo/walkthrough.md](demo/walkthrough.md)。
+详见 [docs/quickstart.md](docs/quickstart.md)、[demo/walkthrough.md](demo/walkthrough.md)；**带真实运行截图的逐步教程**见 [docs/tutorial/README.md](docs/tutorial/README.md)（截图由 `node scripts/tutorial-screenshots.mjs` 在演示环境中实跑生成）。
 
 ## 结果契约
 

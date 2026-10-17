@@ -101,7 +101,7 @@
                     ]
                   },
                   "value_bytes": {
-                    "description": "原始值字节数（遮蔽前）；整个值被遮蔽时为 null，避免泄露密钥长度",
+                    "description": "原始值字节数；整个值或其中任一字段被遮蔽时为 null，避免泄露密钥长度",
                     "type": [
                       "number",
                       "null"
@@ -171,7 +171,7 @@
                     ]
                   },
                   "value_bytes": {
-                    "description": "原始值字节数（遮蔽前）；整个值被遮蔽时为 null，避免泄露密钥长度",
+                    "description": "原始值字节数；整个值或其中任一字段被遮蔽时为 null，避免泄露密钥长度",
                     "type": [
                       "number",
                       "null"

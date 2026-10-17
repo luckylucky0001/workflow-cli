@@ -14,7 +14,7 @@ import {
 } from '../container/kubernetes';
 import { rolloutState } from '../container/k8s-restart';
 import { workloadPath } from '../container/k8s-workload';
-import { attr, dependencyImpact, imageTag, isSecretName, requireAttr, type DeployBinding, type Release } from './model';
+import { attr, dependencyImpact, imageTag, maskValue, requireAttr, type DeployBinding, type Release } from './model';
 
 /**
  * Kubernetes provider: a release is a ReplicaSet revision of the bound Deployment
@@ -178,18 +178,34 @@ export async function k8sReleaseList(ctx: Ctx, b: DeployBinding, windowMs: numbe
   const v = await loadDeployView(ctx, b);
   const since = Date.now() - windowMs;
   const all = v.replicasets.map((rs) => releaseFromRs(v, rs));
-  const inWindow = all.filter((r) => r.current || (r.started_at && Date.parse(r.started_at) >= since));
+  // A ReplicaSet reused by a rollback keeps its first creationTimestamp, so started_at is not when that
+  // revision went live. It went live after every lower revision was created: use the newest creation
+  // time among revisions ≤ its own as the lower bound of its rollout time (replicasets: newest first).
+  const rolledOutAfter = all.map((_, i) => Math.max(...all.slice(i).map((x) => (x.started_at ? Date.parse(x.started_at) : 0))));
+  const inWindow = all.filter((r, i) => r.current || rolledOutAfter[i] >= since);
   const releases = inWindow.slice(0, limit);
+  // excluded reused revisions whose rollout may still fall inside the window: it happened before the
+  // nearest newer non-reused revision was created (or now), and that bound is inside the window
+  const reused = (i: number) => !!v.replicasets[i].metadata.annotations?.[REVISION_HISTORY];
+  const rolledOutBefore = (i: number) => {
+    for (let k = i - 1; k >= 0; k--) if (!reused(k) && all[k].started_at) return Date.parse(all[k].started_at!);
+    return Date.now();
+  };
+  const unsure = all.filter((r, i) => !inWindow.includes(r) && reused(i) && rolledOutBefore(i) >= since);
   return {
     data: { service: b.service, env: b.env, target: target(b, v), releases, retained: all.length },
     sources: await k8sSources(v, v.methods).then((s) => [...s.slice(0, 1), { ...s[1], relation: 'derived' as const }]),
     coverage: {
-      complete: releases.length === inWindow.length,
+      complete: releases.length === inWindow.length && !unsure.length,
       scope: `Deployment ${v.ns}/${v.name} 保留的 ReplicaSet 修订（窗口内或当前生效）`,
       limit,
       truncated: releases.length < inWindow.length,
       window: { start: new Date(since).toISOString(), end: new Date().toISOString() },
-      notes: coverageNotes(v),
+      notes: [
+        ...coverageNotes(v),
+        '回滚复用的 ReplicaSet 按“晚于所有更低修订的创建时间”推得 rollout 时间下界，用于窗口判定',
+        ...(unsure.length ? [`修订 ${unsure.map((r) => r.revision).join(', ')}（回滚复用）的 rollout 时间只能推得一个跨越窗口起点的范围，可能在窗口内，未列出；加大 --window 可见`] : []),
+      ],
     },
     warnings: b.ignored.length ? [`服务 ${b.service} 还有其他部署绑定 ${b.ignored.join(', ')}，本次只查询 ${b.resource.id}`] : [],
   };
@@ -199,8 +215,15 @@ function target(b: DeployBinding, v: K8sDeployView) {
   return { binding: b.resource.id, provider: 'kubernetes' as const, endpoint: b.endpointName, object: `Deployment ${v.ns}/${v.name}` };
 }
 
-function envView(c: NonNullable<NonNullable<KubeReplicaSet['spec']['template']['spec']>['containers']>[number]) {
-  return (c.env ?? []).map((e) => ({ name: e.name, value: e.valueFrom ? '(valueFrom)' : isSecretName(e.name) ? '******' : e.value ?? '' }));
+type RsContainer = NonNullable<NonNullable<KubeReplicaSet['spec']['template']['spec']>['containers']>[number];
+
+function envView(c: RsContainer) {
+  return (c.env ?? []).map((e) => ({ name: e.name, value: e.valueFrom ? '(valueFrom)' : maskValue(e.name, e.value ?? '') }));
+}
+
+/** Unmasked env values for comparison only (never output): a changed secret must still show up in env_changed. */
+function envRaw(c: RsContainer | undefined): Map<string, string> {
+  return new Map((c?.env ?? []).map((e) => [e.name, e.valueFrom ? `valueFrom:${JSON.stringify(e.valueFrom)}` : e.value ?? '']));
 }
 
 export async function k8sReleaseGet(ctx: Ctx, b: DeployBinding, id: string): Promise<Result> {
@@ -222,11 +245,14 @@ export async function k8sReleaseGet(ctx: Ctx, b: DeployBinding, id: string): Pro
           const o = curContainers.find((x) => x.name === c.name);
           return o && o.image !== c.image ? [{ container: c.name, this_release: c.image, current: o.image }] : [];
         }),
-        env_changed: containers.flatMap((c) => {
-          const o = curContainers.find((x) => x.name === c.name);
+        env_changed: (rs.spec.template.spec?.containers ?? []).flatMap((c) => {
+          const o = (cur.spec.template.spec?.containers ?? []).find((x) => x.name === c.name);
           if (!o) return [];
-          const names = new Set([...c.env.map((e) => e.name), ...o.env.map((e) => e.name)]);
-          return [...names].filter((n) => c.env.find((e) => e.name === n)?.value !== o.env.find((e) => e.name === n)?.value).map((n) => `${c.name}:${n}`);
+          // compare raw values (masked values hide a changed secret); only names are output
+          const a = envRaw(c);
+          const z = envRaw(o);
+          const names = new Set([...a.keys(), ...z.keys()]);
+          return [...names].filter((n) => a.get(n) !== z.get(n)).map((n) => `${c.name}:${n}`);
         }),
       }
     : null;
@@ -416,9 +442,14 @@ export async function k8sRollbackExecutor(ctx: Ctx, plan: Plan, report: (note: s
   const cause = `workctl deploy rollback to revision ${rsRevision(rs) ?? '?'} (${rsName}, plan ${plan.id})`;
   const t0 = Date.now();
   report(`rollback deployment/${name} → ReplicaSet ${rsName}（修订 ${rsRevision(rs)}）`);
+  const revAnn = before.metadata.annotations?.[REVISION];
   const patched = await client.request<Deployment>('PATCH', path, {
     body: [
       { op: 'test', path: '/metadata/uid', value: before.metadata.uid },
+      // conditional patch: a rollout / spec change landing between the recheck above and this PATCH bumps
+      // generation (and later the revision annotation); the failed test rejects the whole patch (422)
+      ...(before.metadata.generation !== undefined ? [{ op: 'test', path: '/metadata/generation', value: before.metadata.generation }] : []),
+      ...(revAnn !== undefined ? [{ op: 'test', path: `/metadata/annotations/${REVISION.replace('/', '~1')}`, value: revAnn }] : []),
       { op: 'replace', path: '/spec/template', value: template },
       // JSON pointer: '/' in the annotation key is escaped as ~1; without annotations the map itself is added
       before.metadata.annotations
@@ -426,8 +457,23 @@ export async function k8sRollbackExecutor(ctx: Ctx, plan: Plan, report: (note: s
         : { op: 'add', path: '/metadata/annotations', value: { [CHANGE_CAUSE]: cause } },
     ],
     contentType: 'application/json-patch+json',
+    allowStatus: [409, 422],
   });
   const genBefore = before.metadata.generation ?? 0;
+  if (patched.status === 409 || patched.status === 422) {
+    // kube-apiserver answers a failed JSON-patch test with a generic 422 Invalid: re-read to tell a
+    // concurrent change (CONFLICT) from a genuinely rejected patch
+    const now = await client.get<Deployment>(path).catch(() => null);
+    const nowRev = now?.metadata.annotations?.[REVISION];
+    const status = (patched.body as unknown as { message?: string } | null)?.message ?? null;
+    if (!now || now.metadata.uid !== before.metadata.uid || now.metadata.generation !== before.metadata.generation || nowRev !== revAnn) {
+      throw new WorkError('CONFLICT', `Deployment ${ns}/${name} 在复核与 PATCH 之间被修改（generation ${genBefore} → ${now?.metadata.generation ?? '?'}，修订 ${revAnn ?? '?'} → ${nowRev ?? '?'}），回滚未写入`, {
+        hint: '查看 workctl deploy status get 后重新生成回滚计划（workctl deploy rollback plan）',
+        details: { http_status: patched.status, planned_generation: genBefore, current_generation: now?.metadata.generation ?? null, planned_revision: revAnn ?? null, current_revision: nowRev ?? null },
+      });
+    }
+    throw new WorkError('INVALID_ARGUMENT', `Kubernetes 拒绝回滚 PATCH（HTTP ${patched.status}${status ? `: ${status}` : ''}），回滚未写入`, { details: { http_status: patched.status, message: status } });
+  }
   const genAfter = patched.body.metadata?.generation ?? genBefore + 1;
   if (patched.body.metadata?.generation !== undefined && genAfter <= genBefore) {
     throw new WorkError('CONFLICT', `Deployment ${ns}/${name} 的 generation 未变化（${genBefore}）：目标模板与当前模板相同，没有触发回滚`, { details: { generation: genBefore } });

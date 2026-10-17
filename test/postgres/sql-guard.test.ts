@@ -89,6 +89,7 @@ describe('postgres guardPg', () => {
     expect(guardPg('WITH x AS (SELECT 1) DELETE FROM orders', 'explain').statement_type).toBe('DELETE');
     expect(code(() => guardPg('EXPLAIN SELECT 1', 'explain'))).toBe('INVALID_ARGUMENT');
     expect(code(() => guardPg('DROP TABLE orders', 'explain'))).toBe('INVALID_ARGUMENT');
+    expect(code(() => guardPg('SELECT pg_terminate_backend(1)', 'explain'))).toBe('INVALID_ARGUMENT');
   });
 
   it('analyze only accepts pure queries', () => {

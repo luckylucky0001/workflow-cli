@@ -167,12 +167,12 @@ endpoints:
 |---|---|---|---|
 | 端点类型 / 适配器 | `etcd` / `etcd-v3-gateway` | `nacos` / `nacos-open-api` | `consul` / `consul-http-api` |
 | 配置定位 | 键前缀 `<config_prefix><env>/<service>/` | 配置文档 `<namespace>/<group>/<dataId>`（模板默认 `${env}` / `DEFAULT_GROUP` / `${service}.properties`） | KV 前缀 `<config_prefix><env>/<service>/`（无前导 `/`） |
-| 键 | 每个 etcd 键一项 | 文档按类型拆分：properties 按行，yaml / json 展平为 `a.b`、`a[0]`；其他类型（text/xml/html）或解析失败时整个文档为一项（`nacos.parsed=false`，`parse_error` 说明） | 每个 KV 键一项（目录占位键 `a/` 忽略） |
+| 键 | 每个 etcd 键一项 | 文档按类型拆分：properties 按行，yaml / json 展平为 `a.b`、`a[0]`（YAML `<<` 合并键按 Spring 语义展开）；类型为 `text`（Nacos 对未指定类型的发布记录为 text）时按 dataId 扩展名判断；其他类型（xml/html，或无扩展名的 text）或解析失败时整个文档为一项（`nacos.parsed=false`，`parse_error` 说明） | 每个 KV 键一项（目录占位键 `a/` 忽略） |
 | 修订空间（`revision_space`） | `etcd-cluster-revision`：集群全局修订；键级 `create/mod_revision`、`version` | `nacos-history-id`：配置历史记录 ID（全局递增 nid）；没有键级修订（null），文档级见 `nacos.latest_history_id` | `consul-raft-index`：`CreateIndex` / `ModifyIndex`，`observed_revision` 为 `X-Consul-Index`；`version` 为 null |
 | `config diff` 历史 | 任意两个修订的快照；早于压缩点 → `DATA_UNAVAILABLE`（`compact_revision`） | 由历史记录重建（见下）；早于最早保留记录 → `DATA_UNAVAILABLE`（`oldest_history_id`、`retention_days`，默认保留 30 天） | **不保留历史**：一律 `DATA_UNAVAILABLE`，只给已知索引，不编造旧值 |
 | 服务发现 | 前缀注册 JSON，`healthy` 为实例自报，租约 TTL | `/v1/ns/service` + `/v1/ns/catalog/instances`：服务端健康状态，`enabled` / `ephemeral` / `weight` / `cluster`，metadata | `/v1/health/service/<svc>`：检查聚合（任一 critical → false；warning 计为 healthy），`/v1/catalog/services` 区分未注册 |
-| 遮蔽 | 键名 / JSON 字段名（同一规则，`values.ts`） | 同左，作用于展平后的键名；整文档项只按 dataId 判断 | 同 etcd；实例 Meta 按字段名遮蔽 |
-| 认证 | `username` + `password_ref` → `/v3/auth/authenticate` token | `username` + `password_ref` → `POST /v1/auth/login` 得 `accessToken`（查询参数）；鉴权关闭时不需要 | `token_ref` → `X-Consul-Token` 头；ACL 关闭时不需要 |
+| 遮蔽 | 键名 / JSON 字段名（同一规则，`values.ts`） | 同左，作用于展平后的键名（`credentials[0]` 按 `credentials` 判断）；不可拆分类型的整文档项只按 dataId 判断；properties / yaml / json 解析失败（如多文档 YAML）时整文档遮蔽；文档含遮蔽值时 `nacos.md5` / `content_bytes` 为 null | 同 etcd；实例 Meta 按字段名遮蔽 |
+| 认证 | `username` + `password_ref` → `/v3/auth/authenticate` token | `username` + `password_ref` → `POST /v1/auth/login` 得 `accessToken`（查询参数）；鉴权关闭时不需要（配置了 username 而服务端 `auth_enabled=false` 时忽略并在 notes 说明） | `token_ref` → `X-Consul-Token` 头；ACL 关闭时不需要 |
 | 版本来源 / 实测版本 | `GET /version` / 3.5.21 | `GET /v1/console/server/state` / 2.4.3（standalone，内嵌存储） | `GET /v1/agent/self` / 1.20.6（dev agent） |
 
 **provider 选择**（端点类型决定 provider）：`--endpoint <类型>/<名称>`（或在 etcd/nacos/consul 中唯一的名称）> 资源绑定（服务的 `attributes.config_center` 指向一个 `config.center` 资源，或服务到 `config.center` 资源的关系；取该资源的 `endpoint {kind, name}`）> profile `defaults.config`（如 `nacos` 或 `nacos/demo-nacos`）> 默认 etcd 端点（或唯一的配置中心端点）。多个候选且无法决定时 `NOT_CONFIGURED`。Apollo、ZooKeeper 是规划中的 provider：绑定或 `--endpoint` 指向这两种端点类型时返回 `CAPABILITY_PLANNED`，不做任何模拟。
@@ -186,16 +186,16 @@ resources:
 
 ### Nacos：文档、历史前像与发现
 
-- `config get` 读 `GET /v1/cs/configs?show=all`（内容 + `type` + md5 + 修改时间）。`show=all` 下文档不存在返回 200 空体，workctl 报告为 success + 空列表 + `nacos.exists=false`（与无权限 `PERMISSION_DENIED`、不可达 `UPSTREAM_UNAVAILABLE` 区分）。
+- `config get` 读 `GET /v1/cs/configs?show=all`（内容 + `type` + md5 + 修改时间）。历史不可读（无权限等）时 `nacos.latest_history_id=null` 并在 notes 说明原因。`show=all` 下文档不存在返回 200 空体，workctl 报告为 success + 空列表 + `nacos.exists=false`（与无权限 `PERMISSION_DENIED`、不可达 `UPSTREAM_UNAVAILABLE` 区分）。
 - 历史：优先 `GET /v2/cs/history/list`（2.2+ 的 v2 Open API；2.4.3 上 v1 `?search=accurately` 列表不可用），不存在时回退 v1；单条用 `/v2/cs/history?nid=`。**Nacos 历史记录保存的是变更前的内容（前像）**：`I` 记录存新内容，`U` / `D` 记录存修改/删除前的内容（2.4.3 实测）。因此“历史 ID X 生效后的文档” = X 之后下一条记录的前像，X 为最后一条时即当前内容。
-- `config diff --from-rev A [--to-rev B]`：A、B 是历史 ID；因为 nid 全局递增（不同配置共用），取“不晚于该 ID 的最后一次变更生效后”的文档，与 etcd 修订的语义一致。重建两侧文档后按键比较；`nacos.from_history` / `to_history` 给出对应记录（`op_type`、时间、操作人）。
+- `config diff --from-rev A [--to-rev B]`：A、B 是历史 ID；因为 nid 全局递增（不同配置共用），取“不晚于该 ID 的最后一次变更生效后”的文档，与 etcd 修订的语义一致（晚于该配置最近一次变更的 ID 即当前内容）。重建两侧文档后按键比较；`nacos.from_history` / `to_history` 给出对应记录（`op_type`、时间、操作人）。
 - `config diff --key K`：从最新记录往回找最近一次改变 K 的变更，用其前像比较；保留期内 K 从未变化 → `DATA_UNAVAILABLE`。
-- `discovery list`：`/v1/ns/service` 判断服务是否存在（未注册返回 400 `service not found` → success + `service_registered=false`），逐集群读 `/v1/ns/catalog/instances`（含 `enabled=false` 的已下线实例；Open API `/v1/ns/instance/list` 不返回它们，目录接口不可用时回退并在 notes 说明）。`healthy` 是服务端记录的状态：临时实例靠心跳/连接，持久实例（`ephemeral=false`）靠服务端 TCP/HTTP 探测且不会自动删除。
+- `discovery list`：`/v1/ns/service` 判断服务是否存在（未注册返回 400 `service not found` → success + `service_registered=false`），逐集群读 `/v1/ns/catalog/instances`（每集群一页 1000 个，超过时 `status=partial`；含 `enabled=false` 的已下线实例；Open API `/v1/ns/instance/list` 不返回它们，目录接口不可用时回退并在 notes 说明）。`healthy` 是服务端记录的状态：临时实例靠心跳/连接，持久实例（`ephemeral=false`）靠服务端 TCP/HTTP 探测且不会自动删除。
 
 ### Consul：KV 无历史
 
 - `config get` 读 `GET /v1/kv/<prefix>?recurse`（base64 值），`create_revision` / `mod_revision` 为 `CreateIndex` / `ModifyIndex`；404 即前缀下没有键（success + 空列表）。单键读取时 `X-Consul-Index` 即该键的 `ModifyIndex`。
-- `config diff`：Consul KV 不保留任何历史版本，也不保留删除记录。`--key` 模式返回 `DATA_UNAVAILABLE`，`details` 只有 `create_index`、`modify_index`、`changed_since_creation`；`--from-rev N` 返回 `DATA_UNAVAILABLE`，`details.changed_since` 列出 `ModifyIndex > N` 的键（旧值不可知），删除的键无法发现；`--from-rev` 等于当前索引时返回空差异；指定非当前的 `--to-rev` → `DATA_UNAVAILABLE`。需要历史请在写入侧留痕（git2consul、配置仓库、审计日志）或使用 etcd / Nacos。
+- `config diff`：Consul KV 不保留任何历史版本，也不保留删除记录。`--key` 模式返回 `DATA_UNAVAILABLE`，`details` 只有 `create_index`、`modify_index`、`changed_since_creation`；`--from-rev N` 返回 `DATA_UNAVAILABLE`，`details.changed_since` 列出 `ModifyIndex > N` 的键（旧值不可知），删除的键无法发现；`--from-rev` 不早于 `X-Consul-Index`（该前缀/键最近一次写入的索引，不是全局索引）时返回空差异，大于 KV 当前索引 → `INVALID_ARGUMENT`；早于最近写入的 `--to-rev` → `DATA_UNAVAILABLE`。列表结果带 `X-Consul-Results-Filtered-By-ACLs: true`（token 无权读取部分键/实例）时 `status=partial`。需要历史请在写入侧留痕（git2consul、配置仓库、审计日志）或使用 etcd / Nacos。
 - `discovery list`：`/v1/health/service/<svc>` 中每个实例的全部检查（含节点级 `serfHealth`）取最差状态写入 `consul.status`；`healthy = status != critical`（warning 计为 healthy，与 Consul DNS 默认一致，notes 中说明）；没有任何检查的实例 Consul 视为 passing。`version` / `env` 取自 `Service.Meta`。
 
 ### etcd 模型与键约定
@@ -222,7 +222,7 @@ resources:
 ### 敏感值遮蔽
 
 - 键名（相对名）或 JSON 字段名按分段匹配 `password/passwd/pwd/secret/token/key/apikey/dsn/credential/private_key/access_key` 等时，值替换为 `"***"`，`masked=true`，`masked_paths` 标出位置（`$` 为整个值，`$.token` 为字段）。只按名称判断，不分析值内容；宁可多遮（如 `cache.key_prefix` 也会被遮）。
-- `config diff` 中被遮蔽的项两侧都显示 `***`，`changed` 依据原始字节判断，所以“密码轮换过”可见而值不可见。`value_bytes` 是原始字节数；**整个值被遮蔽时为 `null`**（否则会泄露密钥长度及轮换前后的长度变化）；只有 JSON 字段被遮蔽时仍给出整个值的字节数。
+- `config diff` 中被遮蔽的项两侧都显示 `***`，`changed` 依据原始字节判断，所以“密码轮换过”可见而值不可见。`value_bytes` 是原始字节数；**整个值或其中任一 JSON 字段被遮蔽时为 `null`**（否则会泄露密钥长度及轮换前后的长度变化：其余字段明文可见时，整个值的字节数减去其余部分即密钥长度）。
 - 遮蔽是展示层保护，不替代 etcd 的权限控制：只读账号应只授予所需前缀（`etcdctl role grant-permission --prefix <role> read <prefix>`）。
 
 ### 服务注册与租约

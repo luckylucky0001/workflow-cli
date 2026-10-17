@@ -1,0 +1,89 @@
+$ workctl discovery list --service demo-payment
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+endpoint: nacos/demo-nacos
+provider: nacos
+provider_selected_by: "bindings: demo-payment.attributes.config_center=demo-nacos（endpoint nacos/demo-nacos）"
+service: demo-payment
+env: null
+prefix: sandbox/DEFAULT_GROUP@@demo-payment
+observed_revision: null
+instances:
+  - instance_id: 127.0.0.1#8848#DEFAULT#DEFAULT_GROUP@@demo-payment
+    key: sandbox/DEFAULT_GROUP@@demo-payment/127.0.0.1#8848#DEFAULT#DEFAULT_GROUP@@demo-payment
+    payload:
+      env: sandbox
+      version: 3.2.0
+      zone: az1
+    payload_error: null
+    address: 127.0.0.1
+    port: 8848
+    version: 3.2.0
+    env: sandbox
+    healthy: true
+    health_basis: registry_health
+    registered_at: null
+    create_revision: null
+    mod_revision: null
+    lease: null
+    nacos:
+      cluster: DEFAULT
+      weight: 1
+      enabled: true
+      ephemeral: false
+  - instance_id: 127.0.0.1#9#DEFAULT#DEFAULT_GROUP@@demo-payment
+    key: sandbox/DEFAULT_GROUP@@demo-payment/127.0.0.1#9#DEFAULT#DEFAULT_GROUP@@demo-payment
+    payload:
+      env: sandbox
+      zone: az2
+      version: 3.2.0
+    payload_error: null
+    address: 127.0.0.1
+    port: 9
+    version: 3.2.0
+    env: sandbox
+    healthy: false
+    health_basis: registry_health
+    registered_at: null
+    create_revision: null
+    mod_revision: null
+    lease: null
+    nacos:
+      cluster: DEFAULT
+      weight: 1
+      enabled: true
+      ephemeral: false
+  - instance_id: 127.0.0.2#8848#DEFAULT#DEFAULT_GROUP@@demo-payment
+    key: sandbox/DEFAULT_GROUP@@demo-payment/127.0.0.2#8848#DEFAULT#DEFAULT_GROUP@@demo-payment
+    payload:
+      env: sandbox
+      version: 3.1.9
+      zone: az1
+    payload_error: null
+    address: 127.0.0.2
+    port: 8848
+    version: 3.1.9
+    env: sandbox
+    healthy: true
+    health_basis: registry_health
+    registered_at: null
+    create_revision: null
+    mod_revision: null
+    lease: null
+    nacos:
+      cluster: DEFAULT
+      weight: 1
+      enabled: false
+      ephemeral: false
+summary:
+  registered: 3
+  returned: 3
+  healthy: 2
+  unhealthy: 1
+  health_unknown: 0
+  without_lease: 0
+  excluded:
+    env_mismatch: 0
+    env_missing: 0
+    not_healthy: 0
+  service_registered: true
+# sources: nacos:GET /v1/ns/service serviceName=demo-payment groupName=DEFAULT_GROUP namespaceId=sandbox [explicit], nacos:GET /v1/ns/catalog/instances（逐集群，含 enabled=false 实例） [explicit]

@@ -25,7 +25,7 @@
       {
         "check": "identity:etcd/demo-etcd",
         "ok": true,
-        "detail": "身份 anonymous；版本 3.5.21；leader 10276657743932975437（即本成员）；db 45056 字节（使用中 45056）；集群版本 3.5.0；认证未开启"
+        "detail": "身份 anonymous；版本 3.5.21；leader 10276657743932975437（即本成员）；db 49152 字节（使用中 49152）；集群版本 3.5.0；认证未开启"
       },
       {
         "check": "endpoint:nacos",
@@ -55,15 +55,19 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-17T16:20:26.253Z",
+        "observed_at": "2026-10-17T16:39:16.019Z",
         "relation": "derived"
       }
     ],
-    "coverage": null,
+    "coverage": {
+      "complete": true,
+      "scope": "profile demo 下 config.diff 的 workctl 侧前置条件",
+      "notes": []
+    },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvclrt90-fd20ba",
+    "request_id": "req-mvcmg0wh-7ae0c1",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -71,7 +75,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:20:26.196Z",
-    "duration_ms": 58
+    "started_at": "2026-10-17T16:39:15.857Z",
+    "duration_ms": 162
   }
 }

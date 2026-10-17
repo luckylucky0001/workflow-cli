@@ -283,7 +283,7 @@ workctl --json service dependency list --service demo-order --env sandbox
 - 只比较两个修订时刻的快照：区间内改了又改回的值显示为未变化（计入 rewritten_same_value），中间值不可见
 - 历史只保留到最近一次压缩：早于压缩点的修订返回 DATA_UNAVAILABLE，details.compact_revision 为最早可读修订（二分探测得出）
 - 修订大于当前集群修订返回 INVALID_ARGUMENT；比较只读，不会触发压缩
-- 键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "***" 替代，masked=true，masked_paths 标出位置；整个值被遮蔽时 value_bytes=null（不暴露长度）
+- 键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "***" 替代，masked=true，masked_paths 标出位置；有任何遮蔽时 value_bytes=null（不暴露长度）
 - provider 由端点类型决定（etcd | nacos | consul）：--endpoint [<类型>/]<名称> > 资源绑定（服务 attributes.config_center 或服务指向 config.center 资源的关系，取该资源的 endpoint）> profile defaults.config（<类型>[/<名称>]）> 默认 etcd 端点（或唯一的配置中心端点）；data.provider / provider_selected_by 写明实际选择
 - Nacos：修订空间为配置历史 ID（revision_space=nacos-history-id，全局递增 nid）；历史记录保存变更前的内容（前像），workctl 据此重建“该 ID 生效后”的文档再按键比较；早于最早保留记录 → DATA_UNAVAILABLE（details.oldest_history_id / retention_days）
 - Consul：KV 不保留历史，不重建任何旧值：--key 模式返回 DATA_UNAVAILABLE（details 带 create_index / modify_index），--from-rev 模式返回 DATA_UNAVAILABLE（details.changed_since 列出 ModifyIndex 更大的键）；删除的键无法发现
@@ -317,11 +317,11 @@ workctl config diff --service demo-payment --key order.timeout_ms
 口径说明：
 
 - 读的是 etcd 当前已提交的值（线性一致读），observed_revision 是读取时刻的集群修订，不代表应用已加载该值
-- 键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "***" 替代，masked=true，masked_paths 标出位置；整个值被遮蔽时 value_bytes=null（不暴露长度）
+- 键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "***" 替代，masked=true，masked_paths 标出位置；有任何遮蔽时 value_bytes=null（不暴露长度）
 - 值为 JSON（对象/数组/数字/布尔）时返回解析后的值；非 UTF-8 字节以 base64 返回（value_format=binary_base64）
 - mod_revision 是最后一次修改的集群修订；可作为 config diff --from-rev 的输入
 - provider 由端点类型决定（etcd | nacos | consul）：--endpoint [<类型>/]<名称> > 资源绑定（服务 attributes.config_center 或服务指向 config.center 资源的关系，取该资源的 endpoint）> profile defaults.config（<类型>[/<名称>]）> 默认 etcd 端点（或唯一的配置中心端点）；data.provider / provider_selected_by 写明实际选择
-- Nacos：读取 <namespace>/<group>/<dataId> 整个配置文档，properties / yaml / json 拆分为键（嵌套键以 . 和 [i] 展平），其他类型或解析失败时整个文档作为一个值；没有键级修订（null）
+- Nacos：读取 <namespace>/<group>/<dataId> 整个配置文档，properties / yaml / json 拆分为键（嵌套键以 . 和 [i] 展平；类型为 text 时按 dataId 扩展名判断），其他类型时整个文档作为一个值，解析失败时整个文档作为一个值并整体遮蔽；没有键级修订（null）
 - Consul：读取 KV 前缀 <config_prefix><env>/<service>/（?recurse），create/mod_revision 为 CreateIndex/ModifyIndex，observed_revision 为 X-Consul-Index；version 不提供
 - 键列表被截断（超过 --limit）时 status=partial、coverage.complete=false
 - 规划中的 provider（绑定或 --endpoint 指向时返回 CAPABILITY_PLANNED，不做模拟）：apollo / zookeeper
@@ -1250,6 +1250,7 @@ workctl pg database list --instance demo-postgres
 - binding 来自资源绑定文件（平台元数据，relation=explicit），engine/settings/connections 来自引擎实时查询，两者分开标注
 - 扩展按库安装：extensions 只反映当前连接的库（--instance 端点配置的 database）
 - 连接数是瞬时快照；累计计数（提交/回滚/死锁）见 pg database list，是自统计重置以来的累计值
+- statement_timeout、default_transaction_read_only 等会话级参数反映 workctl 自身会话（source=client/user 表示由连接或角色设置），不一定等于应用会话的取值
 
 ```bash
 workctl pg instance get --instance demo-postgres

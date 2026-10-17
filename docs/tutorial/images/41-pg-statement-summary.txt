@@ -1,0 +1,54 @@
+$ node demo/scenarios/postgres/scenario.mjs load --seconds 15 >/dev/null 2>&1 &
+workctl --timeout 30s pg statement summary --sample-window 10s --database demo_orders --top 2; wait
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+instance: demo-postgres
+aggregation: window_delta
+window:
+  start: 2026-10-17T16:36:17.361Z
+  end: 2026-10-17T16:36:27.372Z
+  duration_ms: 10011
+cumulative_since: null
+database: demo_orders
+order_by: total_time
+top: 2
+statements:
+  - queryid: "-6957086096547831732"
+    database: demo_orders
+    user: postgres
+    query: SELECT id, status, amount, created_at FROM orders WHERE customer_id = $1 ORDER BY created_at DESC LIMIT $2
+    query_truncated: false
+    calls: 3294
+    total_exec_ms: 11997.195
+    mean_exec_ms: 3.642
+    rows: 65880
+    rows_per_call: 20
+    shared_blks_hit: 1991246
+    shared_blks_read: 0
+    cache_hit_ratio: 1
+    temp_blks_written: 0
+  - queryid: "-5668101472451585722"
+    database: demo_orders
+    user: postgres
+    query: SELECT id, customer_id, status, amount FROM orders WHERE id = $1
+    query_truncated: false
+    calls: 3294
+    total_exec_ms: 152.488
+    mean_exec_ms: 0.046
+    rows: 3294
+    rows_per_call: 1
+    shared_blks_hit: 9882
+    shared_blks_read: 0
+    cache_hit_ratio: 1
+    temp_blks_written: 0
+totals:
+  statements_with_activity: 2
+  calls: 6588
+  total_exec_ms: 12149.683
+collection:
+  extension_version: "1.10"
+  track: top
+  max_entries: 5000
+  dealloc: 0
+  text_visible: true
+excluded_self: 1
+# sources: postgresql:public.pg_stat_statements (t1 − t0) [derived]

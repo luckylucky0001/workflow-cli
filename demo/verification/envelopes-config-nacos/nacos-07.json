@@ -11,7 +11,8 @@
     "details": {
       "requested_revision": 0,
       "oldest_history_id": 4,
-      "retention_days": 30
+      "retention_days": 30,
+      "history_truncated": false
     }
   },
   "meta": {
@@ -20,7 +21,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvclrxz1-223ffb",
+    "request_id": "req-mvcmg4x1-a4637a",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -28,7 +29,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:20:32.317Z",
-    "duration_ms": 145
+    "started_at": "2026-10-17T16:39:21.061Z",
+    "duration_ms": 66
   }
 }

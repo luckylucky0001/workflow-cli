@@ -140,6 +140,7 @@ const capabilityGet = defineCapability({
     return {
       data: { definition: describeCapability(c), output_json_schema: ctx.registry.outputJsonSchema(c) ?? null, domain_guide: d?.guide ?? null, skill: d?.skill ?? null },
       sources: [source('workctl', 'registry', { relation: 'explicit' })],
+      coverage: { complete: true, scope: `能力 ${c.name} 的注册定义（${c.origin ?? 'builtin'}）` },
     };
   },
 });
@@ -207,6 +208,7 @@ const resourceGet = defineCapability({
     return {
       data: { resource: r, upstream: store.relationsOf(r.id, 'upstream'), downstream: store.relationsOf(r.id, 'downstream') },
       sources: [bindingSource(ctx)],
+      coverage: { complete: true, scope: '绑定文件中该资源的直接关系' },
     };
   },
 });
@@ -378,6 +380,7 @@ const accessCheck = defineCapability({
     return {
       data: { capability: c.name, operation: c.operation, verdict: failed ? 'denied' : unknown ? 'unknown' : 'allowed', checks },
       sources: [source('workctl', 'profile', { relation: 'derived' })],
+      coverage: { complete: true, scope: `profile ${ctx.profileName ?? '(无)'} 下 ${c.name} 的 workctl 侧前置条件`, notes: i.probe ? [] : ['未连接目标系统校验身份（--no-probe）'] },
     };
   },
 });
@@ -411,7 +414,7 @@ const operationPlan = defineCapability({
     }
     const draft = await planner.plan(ctx, params);
     const plan = ctx.plans().create(draft, { profile: ctx.profileName, env: ctx.env, executable: ctx.registry.executors.has(draft.kind) });
-    return { data: plan, sources: [source('workctl', 'plan-store', { endpoint: ctx.plans().dir, relation: 'derived' })] };
+    return { data: plan, sources: [source('workctl', 'plan-store', { endpoint: ctx.plans().dir, relation: 'derived' })], coverage: { complete: true, scope: `计划 ${plan.id}（仅预览，未执行）` } };
   },
 });
 
@@ -426,7 +429,7 @@ const operationGet = defineCapability({
   operation: 'read',
   auth_provider: 'none',
   guide: 'docs/guides/operations.md',
-  handler: async (ctx, i) => ({ data: ctx.plans().get(i.id), sources: [source('workctl', 'plan-store', { relation: 'explicit' })] }),
+  handler: async (ctx, i) => ({ data: ctx.plans().get(i.id), sources: [source('workctl', 'plan-store', { relation: 'explicit' })], coverage: { complete: true, scope: `profile ${ctx.profileName} 的本地计划存储` } }),
 });
 
 const operationList = defineCapability({
@@ -528,7 +531,7 @@ const operationCancel = defineCapability({
     try {
       const p = store.get(i.id);
       if (p.status !== 'planned') throw new WorkError('CONFLICT', `计划状态为 ${p.status}，无法取消`);
-      return { data: store.transition(i.id, 'cancelled', '用户取消'), sources: [source('workctl', 'plan-store', { relation: 'explicit' })] };
+      return { data: store.transition(i.id, 'cancelled', '用户取消'), sources: [source('workctl', 'plan-store', { relation: 'explicit' })], coverage: { complete: true, scope: `计划 ${i.id}` } };
     } finally {
       release();
     }
@@ -628,6 +631,7 @@ const doctor = defineCapability({
     return {
       data: { healthy: checks.every((c) => c.ok), checks },
       sources: [source('workctl', 'local', { relation: 'derived' })],
+      coverage: { complete: true, scope: '本机 workctl 安装、配置与端点', notes: i.skip_network ? ['已跳过端点连通性检查（--skip-network）'] : [] },
     };
   },
 });

@@ -32,7 +32,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-17T16:20:37.525Z",
+        "observed_at": "2026-10-17T16:39:24.489Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/ns/service serviceName=ghost-svc groupName=DEFAULT_GROUP namespaceId=sandbox",
         "relation": "explicit",
@@ -41,6 +41,7 @@
     ],
     "coverage": {
       "complete": true,
+      "truncated": false,
       "scope": "Nacos nacos/demo-nacos 服务 sandbox/DEFAULT_GROUP@@ghost-svc",
       "notes": [
         "服务 DEFAULT_GROUP@@ghost-svc 未在命名空间 sandbox 注册（Nacos: service not found）",
@@ -50,7 +51,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcls1y1-1d58d8",
+    "request_id": "req-mvcmg7ib-63b6d6",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -58,7 +59,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:20:37.465Z",
-    "duration_ms": 61
+    "started_at": "2026-10-17T16:39:24.419Z",
+    "duration_ms": 71
   }
 }

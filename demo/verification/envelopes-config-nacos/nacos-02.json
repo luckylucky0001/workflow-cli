@@ -120,10 +120,10 @@
       "content_format": "properties",
       "parsed": true,
       "parse_error": null,
-      "md5": "9c0519d7a7a3830481101683c57d0d04",
+      "md5": null,
       "content_bytes": 259,
-      "last_modified": "2026-10-17T16:20:04.705Z",
-      "latest_history_id": 34
+      "last_modified": "2026-10-17T16:38:57.623Z",
+      "latest_history_id": 41
     }
   },
   "error": null,
@@ -132,7 +132,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-17T16:20:28.086Z",
+        "observed_at": "2026-10-17T16:39:18.200Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/cs/configs?show=all dataId=demo-payment.properties group=DEFAULT_GROUP tenant=sandbox",
         "relation": "explicit",
@@ -141,7 +141,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-17T16:20:28.108Z",
+        "observed_at": "2026-10-17T16:39:18.221Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v2/cs/history/list",
         "relation": "explicit",
@@ -155,13 +155,14 @@
       "scope": "Nacos nacos/demo-nacos 配置 sandbox/DEFAULT_GROUP/demo-payment.properties",
       "notes": [
         "2 个配置项的值或字段已遮蔽（按名称匹配敏感模式）",
-        "Nacos 没有键级修订：create_revision / mod_revision / version 为 null；文档级历史见 nacos.latest_history_id（config diff 的修订空间）"
+        "Nacos 没有键级修订：create_revision / mod_revision / version 为 null；文档级历史见 nacos.latest_history_id（config diff 的修订空间）",
+        "文档含遮蔽值，nacos.md5 不返回（md5 与其余明文可用于校验被遮蔽的值）"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvclrumw-4850f1",
+    "request_id": "req-mvcmg2n9-328c0a",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -169,7 +170,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:20:27.992Z",
-    "duration_ms": 118
+    "started_at": "2026-10-17T16:39:18.117Z",
+    "duration_ms": 105
   }
 }

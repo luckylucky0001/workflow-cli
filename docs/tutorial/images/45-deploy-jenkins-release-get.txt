@@ -1,0 +1,59 @@
+$ workctl deploy release get --service demo-order --env sandbox --id 3
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+service: demo-order
+env: sandbox
+target:
+  binding: demo-order-deploy
+  provider: jenkins
+  endpoint: demo-jenkins
+  object: job deploy-demo-order
+release:
+  id: "3"
+  provider: jenkins
+  version: v1.4.2-bad
+  images: []
+  revision: 3
+  started_at: 2026-10-17T16:04:19.721Z
+  finished_at: 2026-10-17T16:04:21.734Z
+  timestamps: explicit
+  duration_ms: 2013
+  status: failed
+  status_basis: Jenkins 构建结果 FAILURE
+  current: false
+  triggered_by: admin
+  cause: Started by user admin
+  source_ref:
+    system: jenkins
+    kind: jenkins.build
+    name: deploy-demo-order#3
+    url: http://127.0.0.1:18091/job/deploy-demo-order/3/
+jenkins:
+  job: deploy-demo-order
+  number: 3
+  result: FAILURE
+  building: false
+  estimated_duration_ms: 2019
+  built_on: null
+  parameters:
+    SERVICE: demo-order
+    VERSION: v1.4.2-bad
+    ENV: sandbox
+  causes:
+    - description: Started by user admin
+      user_id: admin
+  console:
+    lines:
+      - Started by user admin
+      - Running as SYSTEM
+      - Building in workspace /var/jenkins_home/workspace/deploy-demo-order
+      - "[deploy-demo-order] $ /bin/sh /tmp/jenkins12596645040018779054.sh"
+      - deploying demo-order version v1.4.2-bad to sandbox
+      - "image: workctl-demo/demo-order:v1.4.2-bad"
+      - "registry token: ******"
+      - health check failed after rollout of v1.4.2-bad
+      - Build step 'Execute shell' marked build as failure
+      - "Finished: FAILURE"
+    total_lines: 10
+    truncated: false
+    masked: true
+# sources: jenkins:GET /job/deploy-demo-order/3/api/json [explicit], jenkins:GET /job/deploy-demo-order/3/consoleText [explicit], jenkins:GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100} [derived]

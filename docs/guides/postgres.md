@@ -28,7 +28,7 @@ profile.endpoints.postgres.<instance>  ──(资源绑定 forEndpoint)──▶
 |---|---|---|---|
 | `pg instance get [--instance]` | read | `version()`、`pg_settings`、`pg_stat_activity`、`pg_is_in_recovery()`、`pg_extension` + 资源绑定 | 关键参数含 `value/unit/display/source`；角色看不到的参数列入 `hidden_settings`（不臆造）；连接数为瞬时值；`role=primary/standby` |
 | `pg database list [--include-templates]` | read | `pg_database` ⟕ `pg_stat_database` | `xact_commit/blks_hit/deadlocks/temp_bytes` 为**自 `stats_reset` 以来累计**；`cache_hit_ratio` 由累计值算出；`xid_age=age(datfrozenxid)` |
-| `pg table get [--database] [--schema public] --table` | read | `pg_class`、`pg_attribute`、`pg_index`、`pg_stat_all_tables/indexes`、`pg_*_size()` | 结构、索引（定义/列/大小/`idx_scan`）、heap/表/索引/总大小；`rows_estimate`、`n_live_tup/n_dead_tup` 为**估计**；`seq_scan/idx_scan/n_tup_*` 为**累计**；`access.select` 标明能否读数据 |
+| `pg table get [--database] [--schema public] --table` | read | `pg_class`、`pg_attribute`、`pg_index`、`pg_stat_all_tables/indexes`、`pg_*_size()` | 结构、索引（定义/列/大小/`idx_scan`）、heap/表/索引/总大小；`rows_estimate`、`n_live_tup/n_dead_tup` 为**估计**（统计重置后、下次 vacuum/analyze 前只反映重置后的变化，此时 `dead_ratio=null`）；`seq_scan/idx_scan/n_tup_*` 为**累计**；`access.select` 标明能否读数据 |
 | `pg session list [--include-idle] [--include-background]` | read | `pg_stat_activity` + `pg_blocking_pids()` | 瞬时快照；默认只含非 idle 的客户端会话（被阻塞的 idle 也保留）；`summary.idle_in_transaction` 是常见锁源；排除 workctl 自身 |
 | `pg lock list` | read | `pg_stat_activity` + `pg_blocking_pids()` + `pg_locks(granted=false)` | 等待者、等待的锁（行锁表现为 `transactionid ShareLock`）、阻塞者、`root_blockers`、`max_chain_depth`；无等待 → `success` + 空列表 |
 | `pg statement summary [--sample-window 10s] [--top 10] [--order-by total_time] [--database]` | diagnose | `pg_stat_statements` 两次快照差分 | 见下文“窗口与累计” |

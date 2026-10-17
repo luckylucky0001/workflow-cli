@@ -85,7 +85,7 @@
             ]
           },
           "value_bytes": {
-            "description": "原始值字节数（遮蔽前）；整个值被遮蔽时为 null，避免泄露密钥长度",
+            "description": "原始值字节数；整个值或其中任一字段被遮蔽时为 null，避免泄露密钥长度",
             "type": [
               "number",
               "null"
@@ -215,12 +215,14 @@
           ]
         },
         "md5": {
+          "description": "Nacos 记录的内容 md5；文档含遮蔽值时为 null（md5 与其余明文可校验被遮蔽的值）",
           "type": [
             "string",
             "null"
           ]
         },
         "content_bytes": {
+          "description": "文档字节数；整个文档被遮蔽时为 null",
           "type": [
             "number",
             "null"

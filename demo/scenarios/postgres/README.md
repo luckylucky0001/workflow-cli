@@ -19,7 +19,7 @@ export WORKCTL_CONFIG=$PWD/demo/environment/workctl.yaml
 |---|---|---|
 | `node demo/scenarios/postgres/scenario.mjs reset-stats` | `pg_stat_statements_reset()` + `pg_stat_reset()`，让累计值从现在开始 | `pg statement summary --sample-window 0` 的 `cumulative_since.stats_reset` |
 | `node demo/scenarios/postgres/scenario.mjs load [--seconds 20] [--concurrency 4]` | 复现两条查询：`WHERE customer_id=$1`（无索引 → Seq Scan + Sort）与 `WHERE id=$1`（主键） | 同时运行 `pg statement summary --sample-window 10s`、`pg session list`；之后 `pg table get --table orders`（`seq_scan` 增长） |
-| `node demo/scenarios/postgres/scenario.mjs churn` | 确定性地更新 10% 的订单（5000 行） | `pg table get --table orders` 的 `n_dead_tup` / `dead_ratio` / `n_mod_since_analyze` |
+| `node demo/scenarios/postgres/scenario.mjs churn` | 确定性地更新 10% 的订单（5000 行） | `pg table get --table orders` 的 `n_dead_tup` / `dead_ratio` / `n_mod_since_analyze`（若之前运行过 `reset-stats` 且之后未 vacuum/analyze，`dead_ratio=null` 并在 coverage 说明原因） |
 | `node demo/scenarios/postgres/scenario.mjs lock-wait [--seconds 20]` | 事务 A 锁住 `orders.id=42` 后保持 idle in transaction，事务 B 等待同一行；结束后都回滚 | 期间运行 `pg lock list`（`root_blockers`、`waiting_for` 为 transactionid ShareLock）与 `pg session list`（`idle_in_transaction=1`、`blocked=1`） |
 
 ## 端到端示例

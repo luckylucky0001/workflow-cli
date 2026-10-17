@@ -1,0 +1,96 @@
+$ workctl deploy rollback plan --service demo-order --env sandbox
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+id: op-20261017-c7652b
+kind: deploy.rollback
+title: "回滚服务 demo-order（sandbox）到 Jenkins 构建 #5（v1.4.0）"
+params:
+  service: demo-order
+  env: sandbox
+  provider: jenkins
+  endpoint: demo-jenkins
+  job: deploy-demo-order
+  to: null
+  version_param: VERSION
+  service_param: SERVICE
+  env_param: ENV
+  replay_parameters:
+    SERVICE: demo-order
+    VERSION: v1.4.0
+    ENV: sandbox
+targets:
+  - provider: jenkins
+    job: deploy-demo-order
+    current_build: 6
+    current_version: v1.4.1
+    target_build: 5
+    target_version: v1.4.0
+    target_result: SUCCESS
+    target_parameters:
+      SERVICE: demo-order
+      VERSION: v1.4.0
+      ENV: sandbox
+impact:
+  service: demo-order
+  env: sandbox
+  provider: jenkins
+  version_change: v1.4.1 → v1.4.0
+  expected_interruption: 由部署 job 自身的发布流程决定（workctl 不了解 job 内部步骤）；执行即用目标构建的参数重新触发部署 job（Jenkins 中产生新构建）
+  dependents_of_service:
+    - resource: demo-prometheus
+      relation: consumes
+      source: binding-file
+      evidence: prometheus scrape job demo-order
+  service_dependencies:
+    - resource: demo-order-workload
+      relation: runs_on
+      source: binding-file
+      evidence: container label workctl.service=demo-order
+    - resource: demo-mysql
+      relation: depends_on
+      source: service-config
+      evidence: demo-order env MYSQL_HOST=mysql (docker-compose.yml)
+    - resource: demo-redis
+      relation: depends_on
+      source: service-config
+      evidence: demo-order env REDIS_URL=redis://redis:6379 (docker-compose.yml)
+  dependency_note: 来自资源绑定 /home/user/workflow-cli/demo/environment/bindings.yaml
+preconditions:
+  - check: target_release_retained
+    ok: true
+    detail: "构建 #5 仍保留"
+  - check: target_succeeded
+    ok: true
+    detail: 目标构建结果 SUCCESS
+  - check: target_differs_from_current
+    ok: true
+    detail: 当前 v1.4.1（#6）→ 目标 v1.4.0
+  - check: no_deploy_in_progress
+    ok: true
+    detail: 没有进行中的部署构建
+  - check: parameters_replayable
+    ok: true
+    detail: "目标构建参数可原样重放: SERVICE, VERSION, ENV"
+  - check: profile_allow_execute
+    ok: true
+    detail: profile demo 允许执行
+steps:
+  - name: recheck
+    detail: "执行前重读 job：当前成功构建仍为 #6、没有进行中的部署构建（否则拒绝执行）"
+  - name: trigger deploy job
+    detail: "POST /job/deploy-demo-order/buildWithParameters（参数取自构建 #5: SERVICE=demo-order&VERSION=v1.4.0&ENV=sandbox；需要 Job/Build 权限，密码认证时附带 crumb）"
+  - name: verify
+    detail: 轮询队列项直到分配构建号，再轮询构建直到结束；结果 SUCCESS 才算成功（最多 300s，且不超过 --timeout）。部署 job 的成功不等于服务健康：再用 container workload get / 指标核对
+rollback: 再生成回滚计划 --to 6，用当前版本 v1.4.1 再次触发部署 job
+idempotent: false
+cancellable: false
+status: planned
+created_at: 2026-10-17T16:36:37.366Z
+expires_at: 2026-10-17T17:06:37.366Z
+profile: demo
+env: sandbox
+executable: true
+history:
+  - at: 2026-10-17T16:36:37.366Z
+    status: planned
+    note: 计划已生成，未执行
+# sources: jenkins:GET /job/deploy-demo-order/api/json [explicit], workctl [derived]

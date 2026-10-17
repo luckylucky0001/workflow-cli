@@ -15,7 +15,9 @@ export WORKCTL_CONFIG="$ROOT/demo/environment/workctl.yaml"
 STATUS=0
 step() { printf '\n== %s (%s)\n' "$1" "$(date -u +%H:%M:%S)"; }
 check() { if "$@"; then echo "   ok"; else echo "   FAILED: $*"; STATUS=1; fi; }
-quiet() { "$@" >/dev/null; }   # use as `check quiet cmd`: hides cmd output but keeps check's ok/FAILED line
+quiet() { "$@" >/dev/null; }
+# wait_http <url> [seconds]: services started by up.sh (Nacos, Jenkins, Consul) take a while to answer after a reset
+wait_http() { local t=$(( $(date +%s) + ${2:-180} )); until curl -fs -o /dev/null --noproxy '*' "$1"; do [ $(date +%s) -gt $t ] && { echo "   not ready: $1"; return 1; }; sleep 3; done; }   # use as `check quiet cmd`: hides cmd output but keeps check's ok/FAILED line
 
 step "build"
 check npm run -s build
@@ -35,9 +37,14 @@ if [ -z "${SKIP_RESET:-}" ]; then
   check quiet node demo/scenarios/mysql-redis/scenario.mjs warm-cache
   check quiet node demo/scenarios/mq/produce-and-consume.mjs --reset
   check quiet node demo/scenarios/config/seed.mjs
+  check wait_http http://127.0.0.1:18848/nacos/v1/console/health/readiness
+  check wait_http http://127.0.0.1:18500/v1/status/leader
+  check wait_http http://127.0.0.1:18091/login
   check quiet node demo/scenarios/config/seed-nacos.mjs
   check quiet node demo/scenarios/config/seed-consul.mjs
   check quiet node demo/scenarios/deploy/seed-jenkins.mjs
+  check quiet node demo/scenarios/postgres/scenario.mjs reset-stats
+  check quiet node demo/scenarios/postgres/scenario.mjs churn
   check quiet node demo/scenarios/search/seed.mjs
   node demo/scenarios/latency/loadgen.mjs --rps 8 --duration 30 --seed 9 --label verify >/dev/null 2>&1
   echo "   scenarios: $(( $(date +%s) - t0 ))s"
@@ -46,6 +53,7 @@ fi
 step "per-capability suite (main)";  check node scripts/verify-demo.mjs demo/verification/cases.json
 step "per-capability suite (trino)"; check node scripts/verify-demo.mjs demo/verification/cases.trino.json
 step "per-capability suite (config)"; check node scripts/verify-demo.mjs demo/verification/cases.config.json
+step "per-capability suite (postgres)"; check node scripts/verify-demo.mjs demo/verification/cases.postgres.json
 step "per-capability suite (config: nacos)"; check node scripts/verify-demo.mjs demo/verification/cases.config-nacos.json
 step "per-capability suite (config: consul)"; check node scripts/verify-demo.mjs demo/verification/cases.config-consul.json
 step "per-capability suite (deploy: jenkins)"; check node scripts/verify-demo.mjs demo/verification/cases.deploy.json

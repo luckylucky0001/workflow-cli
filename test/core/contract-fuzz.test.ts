@@ -1,6 +1,7 @@
 // Regressions for contract defects found by scripts/contract-fuzz.mjs (black-box CLI/MCP fuzzing).
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { buildProgram, wantsJsonOutput } from '../../src/cli/main';
+import { CommanderError } from 'commander';
+import { buildProgram, commanderErrorExit, wantsJsonOutput } from '../../src/cli/main';
 import { invoke } from '../../src/core/engine';
 import { MAX_TIMEOUT_MS } from '../../src/core/runtime';
 import { tempDir, testRegistry, writeConfig } from './helpers';
@@ -104,5 +105,98 @@ describe('OS limits on path inputs', () => {
     const env = await invoke(reg, 'fs.stat', { path: 'x'.repeat(10_000) }, { configPath: writeConfig(tempDir()) });
     expect(env.error?.code).toBe('INVALID_ARGUMENT');
     expect(env.error?.message).not.toContain('xxxxxxxx');
+  });
+});
+
+describe('incomplete commands', () => {
+  async function parseError(args: string[]): Promise<{ out: string; exit: number }> {
+    let out = '';
+    const spy = vi.spyOn(process.stdout, 'write').mockImplementation((chunk: any) => {
+      out += String(chunk);
+      return true;
+    });
+    const errSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    try {
+      await buildProgram(testRegistry(), [], true).parseAsync(['node', 'workctl', ...args]);
+      throw new Error('expected a commander error');
+    } catch (e) {
+      if (!(e instanceof CommanderError)) throw e;
+      const exit = commanderErrorExit(e, wantsJsonOutput(['node', 'workctl', ...args]));
+      return { out, exit };
+    } finally {
+      spy.mockRestore();
+      errSpy.mockRestore();
+    }
+  }
+
+  it('a group without its subcommand is a usage error (exit 2 + JSON envelope), not a silent exit 0', async () => {
+    const { out, exit } = await parseError(['--json', 'fake']);
+    expect(exit).toBe(2);
+    const env = JSON.parse(out);
+    expect(env.status).toBe('error');
+    expect(env.error.code).toBe('INVALID_ARGUMENT');
+  });
+
+  it('explicit --help stays exit 0', async () => {
+    const { exit } = await parseError(['fake', '--help']);
+    expect(exit).toBe(0);
+  });
+});
+
+describe('core capabilities fill meta.coverage on success', () => {
+  it('capability.get, resource.get, access.check, doctor.run and operation plan/get/cancel', async () => {
+    const reg = testRegistry();
+    const configPath = writeConfig(tempDir());
+    const call = (cap: string, inputs: Record<string, unknown>) => invoke(reg, cap, inputs, { configPath });
+    const plan = await call('operation.plan', { action: 'fake.restart', param: ['target=a'] });
+    const id = (plan.data as any)?.id;
+    for (const env of [
+      await call('capability.get', { name: 'fake.echo' }),
+      await call('resource.get', { id: 'svc-a' }),
+      await call('access.check', { capability: 'fake.echo', probe: false }),
+      await call('doctor.run', { skip_network: true }),
+      plan,
+      await call('operation.get', { id }),
+      await call('operation.cancel', { id }),
+    ]) {
+      expect(env.status, `${env.capability}: ${env.error?.message}`).toBe('success');
+      expect(env.meta.sources.length, env.capability).toBeGreaterThan(0);
+      expect(env.meta.coverage, env.capability).not.toBeNull();
+    }
+  });
+});
+
+describe('error mapping attribution', () => {
+  it("another domain's broad mapper does not claim a network error raised by this capability", async () => {
+    const { Registry, defineCapability, defineDomain } = await import('../../src/core/registry');
+    const { WorkError } = await import('../../src/core/output');
+    const { z } = await import('zod');
+    const refused = () => Object.assign(new Error('connect ECONNREFUSED 127.0.0.1:1'), { code: 'ECONNREFUSED' });
+    const cap = (domain: string) =>
+      defineCapability({
+        name: `${domain}.get`,
+        command: `${domain} get`,
+        summary: 's',
+        domain,
+        output: z.object({}),
+        adapter: domain,
+        operation: 'read',
+        auth_provider: 'none',
+        guide: 'docs/x.md',
+        handler: async () => {
+          throw refused();
+        },
+      });
+    const reg = new Registry();
+    // registered first, claims every errno error (like a driver mapper keyed only on err.code)
+    reg.addDomain(defineDomain({ name: 'pgx', title: 'pgx', summary: 's', pillar: 'middleware', guide: 'docs/x.md', capabilities: [cap('pgx')], mapError: (e: any) => (e?.code ? new WorkError('UPSTREAM_UNAVAILABLE', 'PGX 不可达') : undefined) }));
+    reg.addDomain(defineDomain({ name: 'sched', title: 'sched', summary: 's', pillar: 'offline', guide: 'docs/x.md', capabilities: [cap('sched')] }));
+    const configPath = writeConfig(tempDir());
+    const other = await invoke(reg, 'sched.get', {}, { configPath });
+    expect(other.error?.code).toBe('UPSTREAM_UNAVAILABLE');
+    expect(other.error?.message).not.toContain('PGX');
+    // the owning domain still names its own system
+    const own = await invoke(reg, 'pgx.get', {}, { configPath });
+    expect(own.error?.message).toBe('PGX 不可达');
   });
 });

@@ -12,7 +12,7 @@
       "object": "job deploy-demo-order"
     },
     "releases": [],
-    "retained": 4
+    "retained": 6
   },
   "error": null,
   "meta": {
@@ -20,7 +20,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:15:56.389Z",
+        "observed_at": "2026-10-17T16:37:27.013Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100}",
         "relation": "explicit",
@@ -33,20 +33,20 @@
       "limit": 20,
       "truncated": false,
       "window": {
-        "start": "2026-10-17T16:14:56.389Z",
-        "end": "2026-10-17T16:15:56.390Z"
+        "start": "2026-10-17T16:36:27.013Z",
+        "end": "2026-10-17T16:37:27.013Z"
       },
       "notes": [
         "Jenkins job 构建丢弃策略只保留最近 20 个构建；更早的发布不可见",
         "时间来自构建 timestamp/duration（explicit）；version 为构建参数 VERSION",
-        "按构建参数过滤：SERVICE=demo-order, ENV=sandbox（0 个构建属于其他服务/环境，已排除）",
+        "按构建参数过滤：SERVICE=demo-order, ENV=sandbox（1 个构建属于其他服务/环境，已排除）",
         "current=最近一次成功的部署构建；Jenkins 不观测目标环境实际运行的版本，需要与容器/工作负载的镜像核对"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvclm0uo-486a9c",
+    "request_id": "req-mvcmdoqx-d0bca8",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -54,7 +54,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:15:56.112Z",
-    "duration_ms": 278
+    "started_at": "2026-10-17T16:37:26.793Z",
+    "duration_ms": 221
   }
 }

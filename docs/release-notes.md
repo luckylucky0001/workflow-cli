@@ -6,7 +6,7 @@
 
 | 类别 | 内容 |
 | --- | --- |
-| CLI | TypeScript + Commander + Zod，esbuild 打包为单文件 ESM，npm 分发（压缩包 2.0 MB）。内置能力目录 70 个可调用 + 19 个待接入；安装 demo-mq 与 demo-search 两个插件后 76 个可调用 + 19 个待接入：核心 13、基础设施 17、中间件 25（含插件 6）、离线链路 21 |
+| CLI | TypeScript + Commander + Zod，esbuild 打包为单文件 ESM，npm 分发（压缩包 2.2 MB，不含教程截图）。内置能力目录 70 个可调用 + 19 个待接入；安装 demo-mq 与 demo-search 两个插件后 76 个可调用 + 19 个待接入：核心 13、基础设施 17、中间件 25（含插件 6）、离线链路 21 |
 | 统一契约 | 结果信封（status/data/error/meta.sources/meta.coverage/context）、14 个稳定错误码与退出码、凭据只允许 `*_ref` 引用、执行类操作需 `allow_execute` 与计划确认、计划执行加锁 |
 | 消费入口 | 终端（text/yaml/json）、脚本（`--json` 与 `createClient` 库 API）、Agent（Skill + CLI，或 `workctl mcp serve`，默认不暴露执行类工具） |
 | 扩展机制 | 插件协议 `workctl-plugin/1`（清单、stdin/stdout 执行、安装校验、凭据仅经 stdin 传递）；插件可新增领域，也可实现内置目录中 planned 的能力。示例 demo-mq（Kafka，新增领域）、demo-search（OpenSearch，实现内置 planned 的 `search.index.get` / `search.query`） |
@@ -22,7 +22,7 @@
 | 指标 / 日志 / 调用链 | Prometheus；Docker 日志 ↔ Loki；日志派生调用链 | Prometheus 3.5.0；Loki/Promtail 3.5.5 |
 | 配置中心 / 服务发现 | etcd v3 HTTP/JSON 网关 ↔ Nacos Open API ↔ Consul HTTP API | etcd 3.5.21；Nacos 2.4.3；Consul 1.20.6 |
 | 部署系统 | Kubernetes Deployment/ReplicaSet ↔ Jenkins REST（部署 job） | k3s v1.31.4；Jenkins 2.541.3 |
-| 关系型数据库 | MySQL 原生协议 + performance_schema | MySQL 8.4.11 |
+| 关系型数据库 | MySQL 原生协议 + performance_schema；PostgreSQL 原生协议 + pg_stat_* / pg_stat_statements | MySQL 8.4.11；PostgreSQL 16.15 |
 | 缓存 | Redis RESP | Redis 7.4.11 |
 | 消息队列（插件） | Kafka Admin | Kafka 3.9.1 |
 | 搜索引擎（插件） | OpenSearch REST | OpenSearch 2.19.3 |

@@ -11,7 +11,7 @@
     "prefix": "config/sandbox/demo-inventory/",
     "key": "upstream.order",
     "revision_space": "consul-raft-index",
-    "observed_revision": 159,
+    "observed_revision": 249,
     "count": 1,
     "truncated": false,
     "items": [
@@ -24,13 +24,13 @@
           "api_key": "***"
         },
         "value_format": "json",
-        "value_bytes": 88,
+        "value_bytes": null,
         "masked": true,
         "masked_paths": [
           "$.api_key"
         ],
-        "create_revision": 159,
-        "mod_revision": 159,
+        "create_revision": 249,
+        "mod_revision": 249,
         "version": null,
         "lease": null,
         "consul": {
@@ -47,7 +47,7 @@
       {
         "system": "consul",
         "adapter": "consul-http-api",
-        "observed_at": "2026-10-17T16:20:40.729Z",
+        "observed_at": "2026-10-17T16:39:26.935Z",
         "endpoint": "consul/demo-consul (http://127.0.0.1:18500)",
         "method": "GET /v1/kv/config/sandbox/demo-inventory/upstream.order",
         "relation": "explicit",
@@ -57,7 +57,7 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "Consul consul/demo-consul KV 前缀 config/sandbox/demo-inventory/，索引 159",
+      "scope": "Consul consul/demo-consul KV 前缀 config/sandbox/demo-inventory/，索引 249",
       "notes": [
         "1 个配置项的值或字段已遮蔽（按名称匹配敏感模式）",
         "单键读取时 observed_revision（X-Consul-Index）即该键的 ModifyIndex",
@@ -67,7 +67,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcls4f3-b5d3f2",
+    "request_id": "req-mvcmg9dm-1452bb",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -75,7 +75,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:20:40.671Z",
-    "duration_ms": 59
+    "started_at": "2026-10-17T16:39:26.842Z",
+    "duration_ms": 94
   }
 }

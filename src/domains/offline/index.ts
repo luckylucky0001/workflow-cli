@@ -776,6 +776,7 @@ const freshnessCheck = defineCapability({
       why = `已超过产出时限 ${formatInZone(dueMs, tz)}，分区状态 ${layer.state}`;
     }
     let producer: any = null;
+    let producerFailure: string | null = null;
     const wfId = t.produced_by?.workflow;
     if (wfId && ctx.hasEndpoint('airflow')) {
       try {
@@ -788,7 +789,10 @@ const freshnessCheck = defineCapability({
         };
         sources.push(await af.source(`GET /api/v1/dags/${wfId}/dagRuns`, 'derived'));
       } catch (e) {
-        producer = { workflow: wfId, runs: [], lookup: `查询产出工作流失败: ${e instanceof WorkError ? e.code : String(e)}` };
+        // not collected ≠ "no runs": report a partial result, and only the error code (no raw driver text)
+        const code = e instanceof WorkError ? e.code : ((e as NodeJS.ErrnoException)?.code ?? (e as { cause?: NodeJS.ErrnoException })?.cause?.code ?? (e as Error)?.name ?? 'ERROR');
+        producerFailure = `查询产出工作流 ${wfId} 的 run 失败（${code}），producer.runs 未采集`;
+        producer = { workflow: wfId, runs: [], lookup: `查询产出工作流失败: ${code}` };
       }
     }
     return {
@@ -806,7 +810,8 @@ const freshnessCheck = defineCapability({
         producer,
       },
       sources,
-      coverage: { complete: verdict !== 'unknown', scope: `${t.name}/${spec ?? '(no partition)'}` },
+      ...(producerFailure ? { status: 'partial' as const, warnings: [producerFailure] } : {}),
+      coverage: { complete: verdict !== 'unknown' && !producerFailure, scope: `${t.name}/${spec ?? '(no partition)'}`, ...(producerFailure ? { notes: [producerFailure] } : {}) },
     };
   },
 });

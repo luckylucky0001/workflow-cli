@@ -3,6 +3,7 @@
 | 文档 | 重点 | 位置 |
 | --- | --- | --- |
 | 总览与 Quickstart | 三大能力板块、安装、环境配置、首次查询、给 Agent 使用 | [../README.md](../README.md)、[quickstart.md](quickstart.md) |
+| 实测截图教程 | 在隔离演示环境中逐步运行只读命令：截图、原始输出与读法（可用脚本重新生成） | [tutorial/README.md](tutorial/README.md) |
 | 能力目录 | 已支持 / 需授权 / 待接入，按板块与领域（自动生成） | [capability-catalog.md](capability-catalog.md)、[capabilities.json](capabilities.json)；运行时 `workctl capability list` |
 | 命令参考 | 参数、输出 Schema、错误码与退出码、异步状态、示例（自动生成） | [command-reference.md](command-reference.md)、[schemas/](schemas/) |
 | 资源模型 | 服务、实例、作业、数据集、分区的关联与关系来源 | [resource-model.md](resource-model.md) |

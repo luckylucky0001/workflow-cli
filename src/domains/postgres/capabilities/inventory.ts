@@ -99,6 +99,7 @@ export const instanceGet = defineCapability({
     'binding 来自资源绑定文件（平台元数据，relation=explicit），engine/settings/connections 来自引擎实时查询，两者分开标注',
     '扩展按库安装：extensions 只反映当前连接的库（--instance 端点配置的 database）',
     '连接数是瞬时快照；累计计数（提交/回滚/死锁）见 pg database list，是自统计重置以来的累计值',
+    'statement_timeout、default_transaction_read_only 等会话级参数反映 workctl 自身会话（source=client/user 表示由连接或角色设置），不一定等于应用会话的取值',
   ],
   examples: ['workctl pg instance get --instance demo-postgres'],
   handler: async (ctx, i) =>
@@ -337,7 +338,7 @@ export const tableGet = defineCapability({
         n_tup_hot_upd: z.number().nullable(),
         n_live_tup: z.number().nullable().describe('估计值'),
         n_dead_tup: z.number().nullable().describe('估计值'),
-        dead_ratio: z.number().nullable().describe('n_dead_tup/(n_live_tup+n_dead_tup)'),
+        dead_ratio: z.number().nullable().describe('n_dead_tup/(n_live_tup+n_dead_tup)；统计重置后尚未 vacuum/analyze 时为 null'),
         n_mod_since_analyze: z.number().nullable(),
         last_vacuum: z.string().nullable(),
         last_autovacuum: z.string().nullable(),
@@ -421,6 +422,11 @@ export const tableGet = defineCapability({
         const sens = sensitiveColumns(s.ep);
         const live = num(st?.n_live_tup);
         const dead = num(st?.n_dead_tup);
+        // n_live_tup / n_dead_tup are re-estimated by (auto)vacuum/analyze; after a stats reset they only
+        // count changes since the reset, so a ratio computed from them would be misleading
+        const dbReset = isoFromPg(db?.stats_reset);
+        const lastEstimate = [st?.last_vacuum, st?.last_autovacuum, st?.last_analyze, st?.last_autoanalyze].map(isoFromPg).filter((x): x is string => !!x).sort().pop() ?? null;
+        const countersSinceReset = !!st && !!dbReset && (!lastEstimate || dbReset > lastEstimate);
         const KIND: Record<string, string> = { r: 'table', p: 'partitioned table', v: 'view', m: 'materialized view', f: 'foreign table' };
         return {
           data: {
@@ -468,7 +474,7 @@ export const tableGet = defineCapability({
                   n_tup_hot_upd: num(st.n_tup_hot_upd),
                   n_live_tup: live,
                   n_dead_tup: dead,
-                  dead_ratio: live !== null && dead !== null && live + dead > 0 ? Math.round((dead / (live + dead)) * 10000) / 10000 : null,
+                  dead_ratio: !countersSinceReset && live !== null && dead !== null && live + dead > 0 ? Math.round((dead / (live + dead)) * 10000) / 10000 : null,
                   n_mod_since_analyze: num(st.n_mod_since_analyze),
                   last_vacuum: isoFromPg(st.last_vacuum),
                   last_autovacuum: isoFromPg(st.last_autovacuum),
@@ -480,7 +486,7 @@ export const tableGet = defineCapability({
                   autoanalyze_count: num(st.autoanalyze_count),
                 }
               : null,
-            stats_reset: isoFromPg(db?.stats_reset),
+            stats_reset: dbReset,
           },
           sources: [s.src('pg_class / pg_attribute / pg_index / pg_stat_all_tables / pg_stat_all_indexes / pg_*_size()')],
           coverage: {
@@ -489,6 +495,9 @@ export const tableGet = defineCapability({
               'n_live_tup / n_dead_tup / rows_estimate 为估计值；seq_scan / idx_scan / n_tup_* 为自 stats_reset 以来的累计值',
               ...(t.can_select === true ? [] : [`角色 ${s.user} 对该表没有 SELECT 权限：结构来自系统目录（对所有角色可见），数据查询会返回 PERMISSION_DENIED`]),
               ...(st ? [] : ['该对象没有表级统计（视图等）']),
+              ...(countersSinceReset
+                ? [`统计在 ${dbReset} 被重置，之后该表尚未 vacuum/analyze：n_live_tup / n_dead_tup 只反映重置后的变化，dead_ratio 不可用（null）；行数以 rows_estimate 为准`]
+                : []),
             ],
           },
         };

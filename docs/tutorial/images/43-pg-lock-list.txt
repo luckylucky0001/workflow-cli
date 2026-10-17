@@ -1,0 +1,11 @@
+$ workctl pg lock list
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+instance: demo-postgres
+waits: []
+blockers: []
+summary:
+  waiting: 0
+  blockers: 0
+  root_blockers: []
+  max_chain_depth: 0
+# sources: postgresql:pg_stat_activity + pg_blocking_pids() + pg_locks (granted=false) [explicit]

@@ -1,0 +1,126 @@
+$ workctl deploy release list --service demo-order --env sandbox
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+service: demo-order
+env: sandbox
+target:
+  binding: demo-order-deploy
+  provider: jenkins
+  endpoint: demo-jenkins
+  object: job deploy-demo-order
+releases:
+  - id: "6"
+    provider: jenkins
+    version: v1.4.1
+    images: []
+    revision: 6
+    started_at: 2026-10-17T16:30:35.163Z
+    finished_at: 2026-10-17T16:30:37.183Z
+    timestamps: explicit
+    duration_ms: 2020
+    status: succeeded
+    status_basis: Jenkins 构建结果 SUCCESS；最近一次成功的部署构建，视为当前版本（Jenkins 不观测目标环境实际运行的版本）
+    current: true
+    triggered_by: admin
+    cause: Started by user admin
+    source_ref:
+      system: jenkins
+      kind: jenkins.build
+      name: deploy-demo-order#6
+      url: http://127.0.0.1:18091/job/deploy-demo-order/6/
+  - id: "5"
+    provider: jenkins
+    version: v1.4.0
+    images: []
+    revision: 5
+    started_at: 2026-10-17T16:16:04.914Z
+    finished_at: 2026-10-17T16:16:06.940Z
+    timestamps: explicit
+    duration_ms: 2026
+    status: succeeded
+    status_basis: Jenkins 构建结果 SUCCESS
+    current: false
+    triggered_by: admin
+    cause: Started by user admin
+    source_ref:
+      system: jenkins
+      kind: jenkins.build
+      name: deploy-demo-order#5
+      url: http://127.0.0.1:18091/job/deploy-demo-order/5/
+  - id: "4"
+    provider: jenkins
+    version: v1.4.1
+    images: []
+    revision: 4
+    started_at: 2026-10-17T16:04:29.725Z
+    finished_at: 2026-10-17T16:04:31.742Z
+    timestamps: explicit
+    duration_ms: 2017
+    status: succeeded
+    status_basis: Jenkins 构建结果 SUCCESS
+    current: false
+    triggered_by: admin
+    cause: Started by user admin
+    source_ref:
+      system: jenkins
+      kind: jenkins.build
+      name: deploy-demo-order#4
+      url: http://127.0.0.1:18091/job/deploy-demo-order/4/
+  - id: "3"
+    provider: jenkins
+    version: v1.4.2-bad
+    images: []
+    revision: 3
+    started_at: 2026-10-17T16:04:19.721Z
+    finished_at: 2026-10-17T16:04:21.734Z
+    timestamps: explicit
+    duration_ms: 2013
+    status: failed
+    status_basis: Jenkins 构建结果 FAILURE
+    current: false
+    triggered_by: admin
+    cause: Started by user admin
+    source_ref:
+      system: jenkins
+      kind: jenkins.build
+      name: deploy-demo-order#3
+      url: http://127.0.0.1:18091/job/deploy-demo-order/3/
+  - id: "2"
+    provider: jenkins
+    version: v1.4.1
+    images: []
+    revision: 2
+    started_at: 2026-10-17T16:04:09.717Z
+    finished_at: 2026-10-17T16:04:11.729Z
+    timestamps: explicit
+    duration_ms: 2012
+    status: succeeded
+    status_basis: Jenkins 构建结果 SUCCESS
+    current: false
+    triggered_by: admin
+    cause: Started by user admin
+    source_ref:
+      system: jenkins
+      kind: jenkins.build
+      name: deploy-demo-order#2
+      url: http://127.0.0.1:18091/job/deploy-demo-order/2/
+  - id: "1"
+    provider: jenkins
+    version: v1.4.0
+    images: []
+    revision: 1
+    started_at: 2026-10-17T16:03:59.718Z
+    finished_at: 2026-10-17T16:04:01.790Z
+    timestamps: explicit
+    duration_ms: 2072
+    status: succeeded
+    status_basis: Jenkins 构建结果 SUCCESS
+    current: false
+    triggered_by: admin
+    cause: Started by user admin
+    source_ref:
+      system: jenkins
+      kind: jenkins.build
+      name: deploy-demo-order#1
+      url: http://127.0.0.1:18091/job/deploy-demo-order/1/
+retained: 6
+# sources: jenkins:GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100} [explicit]

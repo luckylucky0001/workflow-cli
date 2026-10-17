@@ -6,6 +6,7 @@
 //   node scripts/tutorial-screenshots.mjs                 # 全部步骤
 //   node scripts/tutorial-screenshots.mjs --only doctor,mysql-explain
 //   node scripts/tutorial-screenshots.mjs --text-only     # 只运行命令、写 .txt，不截图
+//   node scripts/tutorial-screenshots.mjs --out /tmp/x    # 输出到其他目录（试跑时不覆盖已提交的截图）
 //
 // 约定：
 // - 命令从仓库根目录用 bash 运行；`workctl` 是 shell 函数，等价于 `node dist/workctl.js`。
@@ -21,9 +22,12 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const OUT = join(ROOT, 'docs/tutorial/images');
+const outIdx = process.argv.indexOf('--out');
+const OUT = outIdx >= 0 ? resolve(process.argv[outIdx + 1]) : join(ROOT, 'docs/tutorial/images');
 const DEFAULT_CONFIG = 'demo/environment/workctl.yaml';
 const AGENT_CONFIG = 'demo/environment/workctl.agent.yaml';
+// 不是秘密文件里的值，但输出中应当被遮蔽的字符串（Jenkins 部署 job 打印的 registry token 默认值）
+const EXTRA_FORBIDDEN = ['dummy-token-not-a-secret'];
 const PRELUDE = `workctl() { node "${ROOT}/dist/workctl.js" "$@"; }\n`;
 
 // ---------------------------------------------------------------------------------------------
@@ -98,15 +102,27 @@ const STEPS = [
   { id: 'mcp-tools', title: 'MCP：initialize / tools/list / tools/call', config: AGENT_CONFIG, cmd: 'node docs/tutorial/mcp-tools-list.mjs', maxLines: 60 },
   { id: 'agent-run-summary', title: 'Agent 运行摘要（D-extend）', render: 'markdown', file: 'demo/agent-host/runs/D-extend.summary.md', maxLines: 90 },
 
-  // 可选：其他 agent 正在接入的领域。命令不存在（unknown command）或失败时自动跳过。
-  { id: 'pg-instance-get', title: 'PostgreSQL 实例', optional: true, cmd: 'workctl pg instance get --instance demo-postgres', blockMax: { settings: 10 }, maxLines: 72, tail: 6 },
-  { id: 'deploy-release-list', title: '发布历史', optional: true, config: 'demo/environment/k8s/workctl.k8s.yaml', cmd: 'workctl deploy release list --service demo-order --env sandbox --limit 3', blockMax: { releases: 50 }, maxLines: 66, tail: 4 },
-  { id: 'config-get-nacos', title: '配置读取（Nacos）', optional: true, cmd: 'workctl config get --service demo-payment --env sandbox', blockMax: { items: 30 }, maxLines: 64, tail: 4 },
-  { id: 'config-get-consul', title: '配置读取（Consul KV）', optional: true, cmd: 'workctl config get --service demo-inventory --env sandbox', blockMax: { items: 30 }, maxLines: 64, tail: 4 },
-  // TODO（可选步骤，接入稳定后补充或改为必选）：
-  //   - pg statement summary / pg query explain（postgres 领域）
-  //   - deploy release list 的 Jenkins provider（服务绑定到 jenkins 的 deploy.target）
-  //   - discovery list 走 Nacos / Consul（demo-payment、demo-inventory）
+  // 附加领域（主线之后接入）：PostgreSQL、部署系统（k8s）、Nacos / Consul 配置
+  { id: 'pg-instance-get', title: 'PostgreSQL 实例', cmd: 'workctl pg instance get --instance demo-postgres', blockMax: { settings: 10 }, maxLines: 72, tail: 6 },
+  { id: 'deploy-release-list', title: '发布历史（Kubernetes）', config: 'demo/environment/k8s/workctl.k8s.yaml', cmd: 'workctl deploy release list --service demo-order --env sandbox --limit 3', blockMax: { releases: 50 }, maxLines: 66, tail: 4 },
+  { id: 'config-get-nacos', title: '配置读取（Nacos）', cmd: 'workctl config get --service demo-payment --env sandbox', blockMax: { items: 30 }, maxLines: 64, tail: 4 },
+  { id: 'config-get-consul', title: '配置读取（Consul KV）', cmd: 'workctl config get --service demo-inventory --env sandbox', blockMax: { items: 30 }, maxLines: 64, tail: 4 },
+
+  // 以下步骤追加在末尾，保持已有图片编号不变。
+  // 数据库 PostgreSQL：后台用场景脚本产生 15s 只读负载（两条 SELECT），同时做 10s 窗口采样
+  { id: 'pg-statement-summary', title: 'PostgreSQL 语句摘要（10s 窗口，后台负载）', cmd: 'node demo/scenarios/postgres/scenario.mjs load --seconds 15 >/dev/null 2>&1 &\nworkctl --timeout 30s pg statement summary --sample-window 10s --database demo_orders --top 2; wait', maxLines: 60, tail: 12 },
+  { id: 'pg-query-explain', title: 'PostgreSQL 执行计划（估计，不执行）', cmd: 'workctl pg query explain --sql "SELECT id, status, amount, created_at FROM orders WHERE customer_id = 42 ORDER BY created_at DESC LIMIT 20"', blockMax: { nodes: 34, plan: 6 }, maxLines: 70, tail: 4 },
+  { id: 'pg-lock-list', title: 'PostgreSQL 锁等待', cmd: 'workctl pg lock list', maxLines: 30 },
+  // 部署系统：Jenkins provider（docker profile 的资源绑定）；回滚只生成计划
+  { id: 'deploy-jenkins-release-list', title: '发布历史（Jenkins）', cmd: 'workctl deploy release list --service demo-order --env sandbox', blockMax: { releases: 77 }, maxLines: 86, tail: 4, capture: { BAD_BUILD: /- id: "(\d+)"\n\s+provider: jenkins\n\s+version: v1\.4\.2-bad/ } },
+  { id: 'deploy-jenkins-release-get', title: '失败构建详情（控制台日志遮蔽）', cmd: 'workctl deploy release get --service demo-order --env sandbox --id {{BAD_BUILD}}', maxLines: 70, tail: 6 },
+  { id: 'deploy-jenkins-rollback-plan', title: '回滚计划（只生成，不执行）', cmd: 'workctl deploy rollback plan --service demo-order --env sandbox', keepKeys: ['id', 'kind', 'title', 'targets', 'impact', 'preconditions', 'steps', 'rollback', 'status', 'expires_at', 'executable'], blockMax: { impact: 8 }, maxLines: 72, tail: 6 },
+  // 服务发现与配置差异：Nacos / Consul
+  { id: 'discovery-nacos', title: '服务发现（Nacos）', cmd: 'workctl discovery list --service demo-payment', blockMax: { instances: 36 }, maxLines: 66, tail: 4 },
+  { id: 'discovery-consul', title: '服务发现（Consul）', cmd: 'workctl discovery list --service demo-inventory', blockMax: { instances: 76 }, maxLines: 100, tail: 14 },
+  { id: 'config-diff-nacos', title: '配置修订差异（Nacos 配置历史）', cmd: 'workctl config diff --service demo-payment --key order.timeout_ms', maxLines: 66, tail: 6 },
+  { id: 'config-diff-consul', title: 'Consul KV 无历史 → DATA_UNAVAILABLE', cmd: 'workctl config diff --service demo-inventory --key cache.ttl_seconds; echo "exit=$?"', maxLines: 30 },
+  // TODO：deploy status get、pg table get / pg query analyze（analyze 会真实执行查询，只读但有负载）
 ];
 
 // ---------------------------------------------------------------------------------------------
@@ -294,7 +310,7 @@ const PAGE_CSS = `
 
 function terminalHtml({ title, cmd, config, lines }) {
   const body = lines.map(highlight).join('\n');
-  const cfgLabel = config === DEFAULT_CONFIG ? `WORKCTL_CONFIG=${config}` : `WORKCTL_CONFIG=${config}`;
+  const cfgLabel = `WORKCTL_CONFIG=${config}`;
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>${PAGE_CSS}</style></head><body>
 <div class="win" id="shot"><div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="t">${esc(title)}</span><span class="cfg">${esc(cfgLabel)}</span></div>
 <pre><span class="prompt">$ </span><span class="cmd">${esc(cmd)}</span>
@@ -470,7 +486,7 @@ async function main() {
         html = terminalHtml({ title: step.title + ' — ' + r.cmd, cmd: r.cmd, config: r.config, lines: shown });
       }
 
-      const leaked = secrets.filter((s) => rawText.includes(s));
+      const leaked = [...secrets, ...EXTRA_FORBIDDEN].filter((s) => rawText.includes(s));
       if (leaked.length) {
         report.push({ id: base, result: 'FAILED', why: `输出包含 ${leaked.length} 个秘密值，未写文件` });
         console.log(`! ${base}: 输出包含秘密值，未写文件`);

@@ -1,11 +1,14 @@
+import { readFileSync, writeFileSync } from 'node:fs';
 import type { Server } from 'node:http';
+import { dirname, join } from 'node:path';
+import YAML from 'yaml';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { invoke } from '../../src/core/engine';
 import { builtinRegistry } from '../../src/domains';
 import { maskSecrets } from '../../src/domains/deploy/model';
 import { deployRolloutTiming } from '../../src/domains/deploy/k8s';
 import { jenkinsRollbackTiming } from '../../src/domains/deploy/jenkins';
-import { jbuild, k8sDeployFixture, startFakeJenkins, startFakeK8sDeploy, writeDeployConfig, type FakeJenkinsState, type FakeK8sDeployState } from './fakes';
+import { jbuild, k8sDeployFixture, replicaset, startFakeJenkins, startFakeK8sDeploy, writeDeployConfig, type FakeJenkinsState, type FakeK8sDeployState } from './fakes';
 
 process.env.WORKCTL_VALIDATE_OUTPUT = '1';
 const r = builtinRegistry();
@@ -93,6 +96,11 @@ describe('deploy domain (jenkins provider, fake server)', () => {
     expect(j.console).toMatchObject({ total_lines: 5, truncated: true, masked: true });
     expect(JSON.stringify(env)).not.toContain('abc123');
     expect((env.data as any).release).toMatchObject({ status: 'failed', current: false });
+  });
+
+  it('release get --tail 0 returns no console lines (not the whole log)', async () => {
+    const env = await invoke(r, 'deploy.release.get', { service: 'demo-order', id: '3', tail: 0 }, { configPath });
+    expect((env.data as any).jenkins.console).toMatchObject({ lines: [], total_lines: 5, truncated: true });
   });
 
   it('release get: missing build → NOT_FOUND, other service build → NOT_FOUND, bad id → INVALID_ARGUMENT', async () => {
@@ -248,8 +256,10 @@ describe('deploy domain (kubernetes provider, fake API server)', () => {
     const patch = state.patches[0];
     expect(patch.contentType).toBe('application/json-patch+json');
     expect(patch.body[0]).toMatchObject({ op: 'test', path: '/metadata/uid' });
-    expect(patch.body[1].value.metadata.labels['pod-template-hash']).toBeUndefined();
-    expect(patch.body[2]).toMatchObject({ path: '/metadata/annotations/kubernetes.io~1change-cause' });
+    expect(patch.body).toContainEqual({ op: 'test', path: '/metadata/generation', value: 3 });
+    expect(patch.body).toContainEqual({ op: 'test', path: '/metadata/annotations/deployment.kubernetes.io~1revision', value: '3' });
+    expect(patch.body.find((o: any) => o.op === 'replace').value.metadata.labels['pod-template-hash']).toBeUndefined();
+    expect(patch.body[patch.body.length - 1]).toMatchObject({ path: '/metadata/annotations/kubernetes.io~1change-cause' });
     // a plan made before this rollback is stale now: current revision changed → CONFLICT
     const list = await invoke(r, 'deploy.release.list', { service: 'demo-order' }, opts());
     expect((list.data as any).releases[0]).toMatchObject({ id: 'demo-order-bbb', revision: 4, current: true });
@@ -266,5 +276,232 @@ describe('deploy domain (kubernetes provider, fake API server)', () => {
     const ro = writeDeployConfig({ k8sUrl: 'http://127.0.0.1:1', allowExecute: false });
     const p2 = await invoke(r, 'deploy.status.get', { service: 'demo-order' }, { configPath: ro, profile: 'staging' });
     expect(p2.error?.code).toBe('UPSTREAM_UNAVAILABLE');
+  });
+});
+
+describe('deploy domain (review regressions)', () => {
+  it('maskSecrets masks userinfo in any URL scheme, Basic credentials and --password/--token flags', () => {
+    expect(maskSecrets('postgres://app:s3cret@db:5432/app')).toBe('postgres://******@db:5432/app');
+    expect(maskSecrets('redis://default:pw1@cache:6379')).toBe('redis://******@cache:6379');
+    // Basic credentials (base64 of user:password) and --password/--token flags
+    expect(maskSecrets('curl -H "Authorization: Basic YWRtaW46cHc=" x')).not.toContain('YWRtaW46cHc=');
+    expect(maskSecrets('docker login --password hunter2 reg')).toBe('docker login --password ****** reg');
+    expect(maskSecrets('deploy --token abc123 --env sandbox')).toBe('deploy --token ****** --env sandbox');
+  });
+
+  it('k8s release get: credentials inside env values masked; a changed secret env still listed in env_changed', async () => {
+    const st = k8sDeployFixture();
+    const bbb = st.replicasets.find((x) => x.metadata.name === 'demo-order-bbb')!;
+    bbb.spec.template.spec.containers[0].env = [
+      { name: 'RELEASE_VERSION', value: '1.4.2' },
+      { name: 'DB_PASSWORD', value: 'hunter3' },
+      { name: 'DATABASE_URL', value: 'postgres://app:s3cret@db:5432/app' },
+      { name: 'DB_PWD', value: 'hunter2' },
+    ];
+    st.replicasets.find((x) => x.metadata.name === 'demo-order-ccc')!.spec.template.spec.containers[0].env.push({ name: 'DATABASE_URL', value: 'postgres://app:s3cret@db:5432/app' });
+    const s = await startFakeK8sDeploy(st);
+    try {
+      const configPath = writeDeployConfig({ k8sUrl: s.url });
+      const env = await invoke(r, 'deploy.release.get', { service: 'demo-order', id: '2' }, { configPath, profile: 'staging' });
+      expect(env.status).toBe('success');
+      const k = (env.data as any).kubernetes;
+      expect(k.containers[0].env).toContainEqual({ name: 'DATABASE_URL', value: 'postgres://******@db:5432/app' });
+      expect(k.containers[0].env).toContainEqual({ name: 'DB_PWD', value: '******' });
+      expect(k.diff_vs_current.env_changed).toEqual(['nginx:DB_PASSWORD', 'nginx:DB_PWD']);
+      expect(JSON.stringify(env)).not.toMatch(/s3cret|hunter[23]/);
+    } finally {
+      s.server.close();
+    }
+  });
+
+  it('k8s release list: a ReplicaSet reused by a rollback is in the window by its rollout time, not its first creation', async () => {
+    const st = k8sDeployFixture();
+    const dep = st.deployment;
+    // rev 2 (bbb, created 60m ago) was rolled back to as rev 4 after rev 3 (created 10m ago); rev 5 (ddd, 2m ago) is current
+    const bbb = st.replicasets.find((x) => x.metadata.name === 'demo-order-bbb')!;
+    bbb.metadata.annotations['deployment.kubernetes.io/revision'] = '4';
+    bbb.metadata.annotations['deployment.kubernetes.io/revision-history'] = '2';
+    st.replicasets.find((x) => x.metadata.name === 'demo-order-ccc')!.spec.replicas = 0;
+    st.replicasets.push(replicaset(dep, { hash: 'ddd', revision: 5, image: 'registry/demo-order:1.4.3', replicas: 2, minutesAgo: 2 }));
+    dep.metadata.annotations['deployment.kubernetes.io/revision'] = '5';
+    const s = await startFakeK8sDeploy(st);
+    try {
+      const configPath = writeDeployConfig({ k8sUrl: s.url });
+      const env = await invoke(r, 'deploy.release.list', { service: 'demo-order', window: '30m' }, { configPath, profile: 'staging' });
+      expect(env.status).toBe('success');
+      expect((env.data as any).releases.map((x: any) => x.revision)).toEqual([5, 4, 3]);
+      expect(env.meta.coverage?.complete).toBe(true);
+      // window 5m: rev 4 was live inside the window but its rollout time is only known to be ≥ 10m ago
+      const narrow = await invoke(r, 'deploy.release.list', { service: 'demo-order', window: '5m' }, { configPath, profile: 'staging' });
+      expect((narrow.data as any).releases.map((x: any) => x.revision)).toEqual([5]);
+      expect(narrow.meta.coverage?.complete).toBe(false);
+      expect(narrow.meta.coverage?.notes?.join(' ')).toContain('修订 4（回滚复用）');
+    } finally {
+      s.server.close();
+    }
+  });
+
+  it('jenkins release list: coverage is incomplete when the build fetch limit cuts into the window; discarder note honest', async () => {
+    const builds = [
+      ...[1, 2, 3].map((n) => jbuild(n, { version: `v1.${n}`, minutesAgo: 300 - n })),
+      ...Array.from({ length: 100 }, (_, i) => jbuild(10 + i, { version: 'x', service: 'busy-svc', minutesAgo: 100 - i })),
+    ];
+    const s = await startFakeJenkins({ builds, queue: [], console: {}, numToKeep: -1 });
+    try {
+      const configPath = writeDeployConfig({ jenkinsUrl: s.url });
+      const env = await invoke(r, 'deploy.release.list', { service: 'demo-order', window: '7d' }, { configPath });
+      expect(env.status).toBe('success');
+      expect((env.data as any).releases).toEqual([]);
+      expect(env.meta.coverage?.complete).toBe(false);
+      expect(env.meta.coverage?.notes?.join(' ')).toContain('窗口内更早的构建未读取');
+      // config.xml was read (numToKeep -1 = no count limit): the note must not claim it was unreadable
+      expect(env.meta.coverage?.notes?.join(' ')).toContain('未按构建数量限制');
+      expect(env.meta.coverage?.notes?.join(' ')).not.toContain('未能读取 config.xml');
+    } finally {
+      s.server.close();
+    }
+  });
+
+  it('jenkins status: queue items of a same-named job in another folder are not counted', async () => {
+    const s = await startFakeJenkins({
+      builds: [jbuild(1, { version: 'v1', minutesAgo: 5 })],
+      queue: [{ id: 51, why: 'Waiting', params: '\nSERVICE=demo-order\nENV=sandbox', task: { name: 'deploy-demo-order', url: 'http://jenkins.local/job/team-b/job/deploy-demo-order/' } }],
+      console: {},
+    });
+    try {
+      const configPath = writeDeployConfig({ jenkinsUrl: s.url });
+      const env = await invoke(r, 'deploy.status.get', { service: 'demo-order' }, { configPath });
+      expect(env.data).toMatchObject({ state: 'complete', in_progress: false });
+      expect((env.data as any).jenkins.queued).toEqual([]);
+    } finally {
+      s.server.close();
+    }
+  });
+
+  it('jenkins: credentials inside parameter values are masked and such builds are not replayable', async () => {
+    const b = jbuild(2, { version: 'v1.2', minutesAgo: 20 });
+    b.actions[0].parameters.push({ _class: 'hudson.model.StringParameterValue', name: 'ARTIFACT_URL', value: 'https://ci:tok3n@nexus.local/x.tgz' });
+    const s = await startFakeJenkins({ builds: [b, jbuild(3, { version: 'v1.3', minutesAgo: 10 })], queue: [], console: {} });
+    try {
+      const configPath = writeDeployConfig({ jenkinsUrl: s.url });
+      const get = await invoke(r, 'deploy.release.get', { service: 'demo-order', id: '2' }, { configPath });
+      expect((get.data as any).jenkins.parameters.ARTIFACT_URL).toBe('https://******@nexus.local/x.tgz');
+      const plan = await invoke(r, 'deploy.rollback.plan', { service: 'demo-order', to: '2' }, { configPath });
+      expect((plan.data as any).preconditions.find((p: any) => p.check === 'parameters_replayable').ok).toBe(false);
+      expect(JSON.stringify([get, plan])).not.toContain('tok3n');
+    } finally {
+      s.server.close();
+    }
+  });
+
+  it('bindings: an env-specific deploy.target wins over an env-agnostic one listed first', async () => {
+    const s = await startFakeJenkins({
+      builds: [jbuild(1, { version: 'v1.4.0', minutesAgo: 30 }), jbuild(2, { version: 'v9-prod', env: 'prod', minutesAgo: 5 })],
+      queue: [],
+      console: {},
+    });
+    try {
+      const configPath = writeDeployConfig({ jenkinsUrl: s.url });
+      const dir = dirname(configPath);
+      const bind = YAML.parse(readFileSync(join(dir, 'bindings.yaml'), 'utf8'));
+      // env-agnostic kubernetes binding listed first
+      const k8s = bind.resources.find((x: any) => x.id === 'demo-order-k8s');
+      delete k8s.env;
+      bind.resources = [k8s, ...bind.resources.filter((x: any) => x !== k8s)];
+      writeFileSync(join(dir, 'bindings.yaml'), YAML.stringify(bind));
+      const env = await invoke(r, 'deploy.release.list', { service: 'demo-order' }, { configPath });
+      expect(env.status).toBe('success');
+      expect((env.data as any).target.binding).toBe('demo-order-jenkins');
+      // the jenkins provider reports the ignored binding like the kubernetes one does
+      expect(env.meta.warnings.join(' ')).toContain('demo-order-k8s');
+    } finally {
+      s.server.close();
+    }
+  });
+});
+
+describe('deploy domain (review regressions: jenkins executor recheck)', () => {
+  it('a new deploy of this service hidden behind 30+ builds of other services still makes the plan stale (CONFLICT)', async () => {
+    jenkinsRollbackTiming.pollMs = 10;
+    const state: FakeJenkinsState = { builds: [jbuild(1, { version: 'v1.0', minutesAgo: 90 }), jbuild(2, { version: 'v1.1', minutesAgo: 80 })], queue: [], console: {} };
+    const s = await startFakeJenkins(state);
+    try {
+      const configPath = writeDeployConfig({ jenkinsUrl: s.url });
+      const plan = (await invoke(r, 'deploy.rollback.plan', { service: 'demo-order', to: '1' }, { configPath })).data as any;
+      expect(plan.targets[0]).toMatchObject({ current_build: 2, target_build: 1 });
+      // after planning: v1.2 is deployed (#3), then a busy service sharing the job runs 35 builds
+      state.builds.push(jbuild(3, { version: 'v1.2', minutesAgo: 60 }));
+      for (let n = 4; n < 39; n++) state.builds.push(jbuild(n, { version: 'x', service: 'busy-svc', minutesAgo: 50 - n / 10 }));
+      const ex = await invoke(r, 'operation.execute', { id: plan.id, confirm: plan.id }, { configPath });
+      expect(ex.error?.code).toBe('CONFLICT');
+      expect(state.posts ?? []).toEqual([]);
+    } finally {
+      s.server.close();
+    }
+  });
+});
+
+describe('deploy domain (review regressions: shared busy jenkins job)', () => {
+  it('release get / status get see the current build behind 30-50 newer builds of other services, like release list', async () => {
+    const builds = [jbuild(1, { version: 'v1.0', minutesAgo: 120 }), jbuild(2, { version: 'v1.1', minutesAgo: 110 })];
+    for (let n = 3; n < 63; n++) builds.push(jbuild(n, { version: 'x', service: 'busy-svc', minutesAgo: 100 - n }));
+    const s = await startFakeJenkins({ builds, queue: [], console: {} });
+    try {
+      const configPath = writeDeployConfig({ jenkinsUrl: s.url });
+      const list = await invoke(r, 'deploy.release.list', { service: 'demo-order' }, { configPath });
+      expect((list.data as any).releases.find((x: any) => x.current)?.id).toBe('2');
+      const get = await invoke(r, 'deploy.release.get', { service: 'demo-order', id: '2' }, { configPath });
+      expect((get.data as any).release.current).toBe(true);
+      const st = await invoke(r, 'deploy.status.get', { service: 'demo-order' }, { configPath });
+      expect(st.data).toMatchObject({ state: 'complete' });
+      expect((st.data as any).current_release?.id).toBe('2');
+    } finally {
+      s.server.close();
+    }
+  });
+});
+
+describe('deploy domain (review regressions: jenkins replay parameters)', () => {
+  it('a target build without the ENV parameter is replayed with the bound env, not the job default', async () => {
+    const old = jbuild(1, { version: 'v1.0', minutesAgo: 90 });
+    old.actions[0].parameters = old.actions[0].parameters.filter((p: any) => p.name !== 'ENV');
+    const s = await startFakeJenkins({ builds: [old, jbuild(2, { version: 'v1.1', minutesAgo: 80 })], queue: [], console: {} });
+    try {
+      const configPath = writeDeployConfig({ jenkinsUrl: s.url });
+      const plan = (await invoke(r, 'deploy.rollback.plan', { service: 'demo-order', to: '1' }, { configPath })).data as any;
+      expect(plan.params.replay_parameters).toMatchObject({ SERVICE: 'demo-order', VERSION: 'v1.0', ENV: 'sandbox' });
+    } finally {
+      s.server.close();
+    }
+  });
+});
+
+describe('deploy domain (review regressions: conditional rollback patch)', () => {
+  it('a rollout landing between the executor recheck and its PATCH → CONFLICT, template not written', async () => {
+    deployRolloutTiming.pollMs = 20;
+    const st = k8sDeployFixture();
+    const s = await startFakeK8sDeploy(st);
+    try {
+      const configPath = writeDeployConfig({ k8sUrl: s.url });
+      const plan = (await invoke(r, 'deploy.rollback.plan', { service: 'demo-order' }, { configPath, profile: 'staging' })).data as any;
+      expect(plan.preconditions.every((p: any) => p.ok)).toBe(true);
+      const imageBefore = st.deployment.spec.template.spec.containers[0].image;
+      // someone else's rollout: spec changed (generation bumped), controller moved the revision
+      st.beforePatch = (dep) => {
+        dep.metadata.generation += 1;
+        dep.metadata.annotations['deployment.kubernetes.io/revision'] = '5';
+        st.beforePatch = undefined;
+      };
+      const ex = await invoke(r, 'operation.execute', { id: plan.id, confirm: plan.id }, { configPath, profile: 'staging' });
+      expect(ex.error?.code).toBe('CONFLICT');
+      expect(ex.error?.hint).toContain('重新生成回滚计划');
+      expect(st.patches).toHaveLength(1);
+      expect(st.deployment.spec.template.spec.containers[0].image).toBe(imageBefore);
+      expect(st.deployment.metadata.annotations['kubernetes.io/change-cause']).toBe('release 1.4.2');
+      const got = await invoke(r, 'operation.get', { id: plan.id }, { configPath, profile: 'staging' });
+      expect((got.data as any).status).toBe('failed');
+    } finally {
+      s.server.close();
+    }
   });
 });

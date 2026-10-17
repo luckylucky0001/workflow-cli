@@ -1,0 +1,12 @@
+$ workctl config diff --service demo-inventory --key cache.ttl_seconds; echo "exit=$?"
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+error DATA_UNAVAILABLE: Consul KV 不保留历史，无法给出 config/sandbox/demo-inventory/cache.ttl_seconds 的上一版本
+hint: Consul KV 不保留历史版本；当前值用 workctl config get 查看。需要变更历史请在写入侧留痕（如 git2consul / consul-template 的版本库、审计日志），或改用 etcd / Nacos provider
+details:
+  provider: consul
+  key: config/sandbox/demo-inventory/cache.ttl_seconds
+  create_index: 155
+  modify_index: 160
+  observed_index: 160
+  changed_since_creation: true
+exit=7

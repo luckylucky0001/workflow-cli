@@ -102,10 +102,10 @@
           "id"
         ],
         "size_bytes": 1138688,
-        "idx_scan": 3023,
-        "idx_tup_read": 3133,
-        "idx_tup_fetch": 3029,
-        "last_idx_scan": "2026-10-17T16:23:09.305679Z"
+        "idx_scan": 3030,
+        "idx_tup_read": 3149,
+        "idx_tup_fetch": 3045,
+        "last_idx_scan": "2026-10-17T16:29:01.100824Z"
       },
       {
         "name": "orders_created_at_idx",
@@ -124,17 +124,17 @@
       }
     ],
     "stats": {
-      "seq_scan": 6458,
-      "seq_tup_read": 322900000,
-      "idx_scan": 3041,
-      "idx_tup_fetch": 714704,
+      "seq_scan": 7921,
+      "seq_tup_read": 396050000,
+      "idx_scan": 3048,
+      "idx_tup_fetch": 714720,
       "n_tup_ins": 0,
-      "n_tup_upd": 5012,
+      "n_tup_upd": 5016,
       "n_tup_del": 0,
-      "n_tup_hot_upd": 12,
+      "n_tup_hot_upd": 16,
       "n_live_tup": 0,
       "n_dead_tup": 5002,
-      "dead_ratio": 1,
+      "dead_ratio": null,
       "n_mod_since_analyze": 5000,
       "last_vacuum": null,
       "last_autovacuum": null,
@@ -153,7 +153,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-17T16:23:17.723Z",
+        "observed_at": "2026-10-17T16:29:04.848Z",
         "endpoint": "postgres/demo-postgres",
         "method": "pg_class / pg_attribute / pg_index / pg_stat_all_tables / pg_stat_all_indexes / pg_*_size()",
         "version": "16.15",
@@ -163,13 +163,14 @@
     "coverage": {
       "complete": true,
       "notes": [
-        "n_live_tup / n_dead_tup / rows_estimate 为估计值；seq_scan / idx_scan / n_tup_* 为自 stats_reset 以来的累计值"
+        "n_live_tup / n_dead_tup / rows_estimate 为估计值；seq_scan / idx_scan / n_tup_* 为自 stats_reset 以来的累计值",
+        "统计在 2026-10-17T16:11:49.362262Z 被重置，之后该表尚未 vacuum/analyze：n_live_tup / n_dead_tup 只反映重置后的变化，dead_ratio 不可用（null）；行数以 rows_estimate 为准"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvclvhio-4fa59d",
+    "request_id": "req-mvcm2xdu-73ddae",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -177,7 +178,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:23:17.616Z",
-    "duration_ms": 117
+    "started_at": "2026-10-17T16:29:04.770Z",
+    "duration_ms": 83
   }
 }

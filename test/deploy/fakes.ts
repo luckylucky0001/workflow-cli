@@ -158,6 +158,8 @@ export interface FakeK8sDeployState {
   patches: { contentType: string; body: any }[];
   /** after a rollback PATCH the rollout completes immediately unless false */
   completeAfterPatch?: boolean;
+  /** runs just before a PATCH is applied (simulates a concurrent change after the executor's recheck) */
+  beforePatch?: (dep: Obj) => void;
 }
 
 /** Deployment demo/demo-order at revision 3 (hash ccc), older revisions 2 (bbb) and 1 (aaa). */
@@ -214,6 +216,7 @@ export async function startFakeK8sDeploy(state: FakeK8sDeployState): Promise<{ u
         req.on('end', () => {
           const ops = JSON.parse(body);
           state.patches.push({ contentType: String(req.headers['content-type']), body: ops });
+          state.beforePatch?.(dep);
           try {
             applyJsonPatch(dep, ops);
           } catch {
