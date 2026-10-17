@@ -1,0 +1,6 @@
+{
+  "query": { "term": { "status": "refunded" } },
+  "size": 5,
+  "sort": [ { "created_at": "desc" } ],
+  "_source": [ "order_id", "status", "created_at" ]
+}

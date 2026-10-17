@@ -1,0 +1,10 @@
+{
+  "query": { "bool": { "filter": [ { "term": { "status": "paid" } }, { "range": { "created_at": { "gte": "2026-10-01T00:00:00Z" } } } ] } },
+  "size": 5,
+  "sort": [ { "amount": "desc" } ],
+  "_source": [ "order_id", "status", "amount", "city", "created_at" ],
+  "aggs": {
+    "by_city": { "terms": { "field": "city", "size": 10 }, "aggs": { "amount_sum": { "sum": { "field": "amount" } } } },
+    "per_day": { "date_histogram": { "field": "created_at", "calendar_interval": "day" } }
+  }
+}

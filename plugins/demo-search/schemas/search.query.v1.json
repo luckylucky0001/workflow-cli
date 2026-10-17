@@ -1,0 +1,255 @@
+{
+  "$id": "demo-search/search.query.v1",
+  "title": "search.query data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "cluster": {
+      "type": "string"
+    },
+    "index": {
+      "type": "string",
+      "description": "查询目标（索引 / 别名 / 前缀*，逗号分隔）"
+    },
+    "query_source": {
+      "type": "string",
+      "enum": [
+        "query_string",
+        "dsl",
+        "match_all"
+      ]
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "size": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "实际发送的 size"
+        },
+        "requested_size": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "max_hits": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "timeout": {
+          "type": "string",
+          "description": "发送给 OpenSearch 的搜索超时（来自时间预算）"
+        },
+        "track_total_hits": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "本次发送的精确计数上限（≤10000）"
+        },
+        "sort": {
+          "type": "boolean"
+        },
+        "aggs": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "size",
+        "requested_size",
+        "max_hits",
+        "timeout",
+        "track_total_hits",
+        "sort",
+        "aggs"
+      ],
+      "additionalProperties": false
+    },
+    "took_ms": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "timed_out": {
+      "type": "boolean"
+    },
+    "shards": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "successful": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "total",
+        "successful",
+        "skipped",
+        "failed"
+      ],
+      "additionalProperties": false
+    },
+    "shard_failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "shard": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "index",
+          "shard",
+          "type",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "total": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "relation": {
+          "type": "string",
+          "enum": [
+            "eq",
+            "gte"
+          ],
+          "description": "eq：精确命中数；gte：至少这么多（超过 track_total_hits 上限后停止计数）"
+        }
+      },
+      "required": [
+        "value",
+        "relation"
+      ],
+      "additionalProperties": false
+    },
+    "returned": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "hits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "score": {
+            "description": "相关性分数；按字段排序时为 null",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "sort": {
+            "type": "array",
+            "items": {}
+          },
+          "source": {
+            "description": "_source（长字符串、字段过多或文档过大时截断）"
+          },
+          "source_truncated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "index",
+          "id",
+          "score",
+          "source",
+          "source_truncated"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "aggregations": {
+      "anyOf": [
+        {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observed_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "cluster",
+    "index",
+    "query_source",
+    "request",
+    "took_ms",
+    "timed_out",
+    "shards",
+    "shard_failures",
+    "total",
+    "returned",
+    "hits",
+    "aggregations",
+    "observed_at"
+  ],
+  "additionalProperties": false
+}

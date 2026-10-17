@@ -1,0 +1,9 @@
+{
+  "query": {
+    "script_score": {
+      "query": { "match_all": {} },
+      "script": { "source": "doc['amount'].value * 2" }
+    }
+  },
+  "size": 5
+}

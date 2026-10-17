@@ -1,0 +1,570 @@
+{
+  "$id": "demo-search/search.index.get.v1",
+  "title": "search.index.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "cluster": {
+      "type": "string"
+    },
+    "requested": {
+      "type": "string",
+      "description": "调用方传入的名称（索引或别名）"
+    },
+    "index": {
+      "type": "string",
+      "description": "实际查询的具体索引名"
+    },
+    "resolved_from_alias": {
+      "description": "传入的是别名时为该别名，并已解析为唯一的具体索引",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "uuid": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "health": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "green",
+            "yellow",
+            "red"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "description": "open / close",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "is_write_index": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "is_write_index"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "number_of_shards": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "number_of_replicas": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "refresh_interval": {
+          "description": "索引级设置；null 表示未显式设置，使用集群默认（OpenSearch 默认 1s）",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "creation_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "version_created": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "number_of_shards",
+        "number_of_replicas",
+        "refresh_interval",
+        "creation_date",
+        "version_created"
+      ],
+      "additionalProperties": false
+    },
+    "mapping": {
+      "type": "object",
+      "properties": {
+        "dynamic": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "field_count": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "映射中的叶子字段数（含 multi-fields 子字段，不含 object 容器本身）"
+        },
+        "top_level_fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "description": "object 字段没有 type 时为 object"
+              }
+            },
+            "required": [
+              "name",
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "dynamic",
+        "field_count",
+        "top_level_fields"
+      ],
+      "additionalProperties": false
+    },
+    "docs": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "_stats primaries.docs.count（Lucene 文档数，nested 子文档也计入）"
+        },
+        "deleted": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "已标记删除、尚未被段合并清理的文档数"
+        }
+      },
+      "required": [
+        "count",
+        "deleted"
+      ],
+      "additionalProperties": false
+    },
+    "store": {
+      "type": "object",
+      "properties": {
+        "primaries_bytes": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "total_bytes": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "含副本"
+        }
+      },
+      "required": [
+        "primaries_bytes",
+        "total_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "cumulative_stats": {
+      "type": "object",
+      "properties": {
+        "basis": {
+          "type": "string",
+          "const": "cumulative_since_shard_start",
+          "description": "累计值：自分片在当前节点启动（或重新分配）以来，不是窗口值"
+        },
+        "scope": {
+          "type": "string",
+          "const": "total",
+          "description": "所有已分配分片副本（主 + 副本）之和"
+        },
+        "search_query_total": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "search_query_time_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "search_fetch_total": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "indexing_index_total": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "indexing_index_time_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "indexing_index_failed": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "refresh_total": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "basis",
+        "scope",
+        "search_query_total",
+        "search_query_time_ms",
+        "search_fetch_total",
+        "indexing_index_total",
+        "indexing_index_time_ms",
+        "indexing_index_failed",
+        "refresh_total"
+      ],
+      "additionalProperties": false
+    },
+    "shards": {
+      "type": "object",
+      "properties": {
+        "primaries": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "replicas_per_primary": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "copies_total": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "by_state": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "unassigned": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "shard": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "prirep": {
+                "type": "string",
+                "enum": [
+                  "p",
+                  "r"
+                ]
+              },
+              "state": {
+                "type": "string",
+                "description": "STARTED / RELOCATING / INITIALIZING / UNASSIGNED"
+              },
+              "node": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "docs": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "store_bytes": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "unassigned_reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "shard",
+              "prirep",
+              "state",
+              "node",
+              "docs",
+              "store_bytes"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "shard": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "prirep": {
+                "type": "string",
+                "enum": [
+                  "p",
+                  "r"
+                ]
+              },
+              "state": {
+                "type": "string",
+                "description": "STARTED / RELOCATING / INITIALIZING / UNASSIGNED"
+              },
+              "node": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "docs": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "store_bytes": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "unassigned_reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "shard",
+              "prirep",
+              "state",
+              "node",
+              "docs",
+              "store_bytes"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "primaries",
+        "replicas_per_primary",
+        "copies_total",
+        "by_state",
+        "unassigned",
+        "nodes",
+        "rows"
+      ],
+      "additionalProperties": false
+    },
+    "observed_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "cluster",
+    "requested",
+    "index",
+    "resolved_from_alias",
+    "uuid",
+    "health",
+    "status",
+    "aliases",
+    "settings",
+    "mapping",
+    "docs",
+    "store",
+    "cumulative_stats",
+    "shards",
+    "observed_at"
+  ],
+  "additionalProperties": false
+}

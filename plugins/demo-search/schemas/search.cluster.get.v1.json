@@ -1,0 +1,203 @@
+{
+  "$id": "demo-search/search.cluster.get.v1",
+  "title": "search.cluster.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "cluster": {
+      "type": "string",
+      "description": "endpoint 名（profile.endpoints.opensearch 下的键）"
+    },
+    "cluster_name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "cluster_uuid": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "distribution": {
+      "description": "GET / 的 version.distribution（opensearch）",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "version": {
+      "description": "GET / 的 version.number（实际版本）",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lucene_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "health": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "green",
+            "yellow",
+            "red"
+          ],
+          "description": "集群健康：green 全部分片已分配；yellow 有副本未分配；red 有主分片未分配"
+        },
+        "timed_out": {
+          "type": "boolean"
+        },
+        "number_of_nodes": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "number_of_data_nodes": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "active_primary_shards": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "active_shards": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "relocating_shards": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "initializing_shards": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "unassigned_shards": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "delayed_unassigned_shards": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "number_of_pending_tasks": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "active_shards_percent": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "timed_out",
+        "number_of_nodes",
+        "number_of_data_nodes",
+        "active_primary_shards",
+        "active_shards",
+        "relocating_shards",
+        "initializing_shards",
+        "unassigned_shards",
+        "delayed_unassigned_shards",
+        "number_of_pending_tasks",
+        "active_shards_percent"
+      ],
+      "additionalProperties": false
+    },
+    "indices": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "_cat/indices?expand_wildcards=all 的行数（含隐藏/系统索引与关闭的索引）"
+        },
+        "by_health": {
+          "type": "object",
+          "properties": {
+            "green": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "yellow": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "red": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "unknown": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "green",
+            "yellow",
+            "red",
+            "unknown"
+          ],
+          "additionalProperties": false
+        },
+        "closed": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "dot_prefixed": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "description": "以 . 开头的索引数（通常为系统/插件内部索引）"
+        }
+      },
+      "required": [
+        "total",
+        "by_health",
+        "closed",
+        "dot_prefixed"
+      ],
+      "additionalProperties": false
+    },
+    "observed_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "cluster",
+    "cluster_name",
+    "cluster_uuid",
+    "distribution",
+    "version",
+    "lucene_version",
+    "health",
+    "indices",
+    "observed_at"
+  ],
+  "additionalProperties": false
+}
