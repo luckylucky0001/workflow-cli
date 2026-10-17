@@ -3,10 +3,23 @@ import { isIP } from 'node:net';
 import { z } from 'zod';
 import { source, WorkError, type Result } from '../../core/output';
 import { defineCapability, defineDomain } from '../../core/registry';
-import { sleep } from '../../core/runtime';
+import { MAX_TIMEOUT_MS, sleep } from '../../core/runtime';
 import { containerName, dockerClient } from '../container/docker';
 import { listServiceContainers, resolveEnv, selectionNotes } from '../container/workload';
 import { httpProbe, latencySummary, parseTarget, tcpConnect, type TcpSample } from './probe';
+
+/**
+ * Millisecond inputs that end up in socket/timer delays. Node rejects negatives (RangeError →
+ * INTERNAL, socket left open), treats 0 as "no timeout" and fires overflowing delays at once
+ * (a false ETIMEDOUT), so the range is checked before any socket is opened.
+ */
+function msInput(v: unknown, flag: string, min: number): number {
+  const n = Number(v);
+  if (!Number.isInteger(n) || n < min || n > MAX_TIMEOUT_MS) {
+    throw new WorkError('INVALID_ARGUMENT', `${flag} 须为 ${min}-${MAX_TIMEOUT_MS} 之间的整数毫秒，收到 ${String(v)}`);
+  }
+  return n;
+}
 
 const GUIDE = 'docs/guides/infrastructure.md';
 
@@ -150,8 +163,8 @@ const backendList = defineCapability({
   ],
   examples: ['workctl network backend list --service demo-order'],
   handler: async (ctx, i): Promise<Result> => {
+    const timeout = msInput(i.timeout_ms, '--timeout-ms', 1);
     const env = resolveEnv(ctx, i.env);
-    const timeout = Number(i.timeout_ms);
     const backends = new Map<string, { host: string; port: number; origins: z.infer<typeof OriginSchema>[]; container: string | null }>();
     const add = (host: string, port: number, origin: z.infer<typeof OriginSchema>, container: string | null) => {
       const key = `${host}:${port}`;
@@ -267,6 +280,8 @@ const connectivityCheck = defineCapability({
     const { host, port } = parseTarget(String(i.target));
     const count = Number(i.count);
     if (count < 1 || count > 20) throw new WorkError('INVALID_ARGUMENT', '--count 取值 1-20');
+    const timeoutMs = msInput(i.timeout_ms, '--timeout-ms', 1);
+    const intervalMs = msInput(i.interval_ms, '--interval-ms', 0);
     let addresses: string[] = [];
     let resMs: number | null = null;
     let resErr: string | null = null;
@@ -280,8 +295,8 @@ const connectivityCheck = defineCapability({
     const samples: TcpSample[] = [];
     if (!resErr) {
       for (let n = 1; n <= count; n++) {
-        samples.push(await tcpConnect(host, port, Number(i.timeout_ms), n));
-        if (n < count) await sleep(Number(i.interval_ms), ctx.signal);
+        samples.push(await tcpConnect(host, port, timeoutMs, n));
+        if (n < count) await sleep(intervalMs, ctx.signal);
       }
     }
     const summary = latencySummary(samples);

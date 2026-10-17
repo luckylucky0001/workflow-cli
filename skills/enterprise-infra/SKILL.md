@@ -1,6 +1,6 @@
 ---
 name: enterprise-infra
-description: 当任务涉及计算/容器、网络、存储、配置中心与服务发现、数据库（MySQL）、缓存（Redis）、消息队列、搜索引擎，或离线调度、计算作业、数据分区、血缘和数据质量时使用。提供 workctl 能力发现、结果解读和跨系统组合的入口流程。
+description: 当任务涉及计算/容器、网络、存储、配置中心与服务发现（etcd/Nacos/Consul）、部署系统与发布记录（Kubernetes/Jenkins）、数据库（MySQL/PostgreSQL）、缓存（Redis）、消息队列、搜索引擎，或离线调度、计算作业、数据分区、血缘和数据质量时使用。提供 workctl 能力发现、结果解读和跨系统组合的入口流程。
 ---
 
 # 企业基础设施 / 中间件 / 离线链路入口
@@ -16,7 +16,8 @@ workctl 是统一 CLI：`workctl <domain> [resource] <action> [options]`，加 `
    - `workctl capability get --name <cap>` 或 `workctl <command> --help`：参数、口径说明、前置条件。
 3. **按需读取领域指南与 Skill**（只读需要的）：
    - 基础设施/可观测/配置中心与服务发现：`skills/infra-operations`、`docs/guides/infrastructure.md`、`docs/guides/observability.md`
-   - MySQL / Redis：`skills/mysql-operations`、`skills/redis-operations`
+   - MySQL / PostgreSQL / Redis：`skills/mysql-operations`、`skills/postgres-operations`、`skills/redis-operations`
+   - 发布与变更（最近发布了什么、是否成功、如何回滚）：`skills/deploy-operations`、`docs/guides/deploy.md`
    - 离线链路：`skills/offline-operations`、`skills/data-validation`
    - 跨系统流程：`skills/service-latency-investigation`、`skills/offline-delay-investigation`、`skills/resource-capacity-review`
    - 消息队列（插件）：安装 demo-mq 插件后见 `capability get --name mq.consumer.lag`

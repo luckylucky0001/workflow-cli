@@ -228,6 +228,19 @@
   "note": "游标取 max_rows+1 行（truncated=true）；别名 p 按来源列 phone 脱敏，表达式 em 保守脱敏"
  },
  {
+  "id": "pg-18b",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "SELECT c AS whole_row, count(*) OVER () AS n FROM customers c ORDER BY c.id",
+   "--max-rows",
+   "2"
+  ],
+  "note": "整行引用（tableID 有值、columnID=0）：涉及含敏感列的表 customers → whole_row 整列遮蔽为 ***；数值列 n 不受影响"
+ },
+ {
   "id": "pg-19",
   "args": [
    "pg",

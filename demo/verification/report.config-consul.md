@@ -1,19 +1,19 @@
 # 隔离演示环境验证记录（config-consul）
 
-> 由 `node scripts/verify-demo.mjs demo/verification/cases.config-consul.json` 生成于 2026-10-17T16:14:34.771Z；原始结果信封见 `demo/verification/envelopes-config-consul/`。全部为合成数据。
+> 由 `node scripts/verify-demo.mjs demo/verification/cases.config-consul.json` 生成于 2026-10-17T16:20:45.491Z；原始结果信封见 `demo/verification/envelopes-config-consul/`。全部为合成数据。
 
 通过 11 / 11
 
 | # | 命令 | 期望 | 实际 | 退出码 | 耗时 ms | 来源@版本 | 说明 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| ✅ consul-01 | `workctl auth status --probe` | success | success | 0 | 1301 | workctl | 端点探测：consul 走 GET /v1/agent/self + /v1/status/leader（版本、数据中心、ACL 开关） |
-| ✅ consul-02 | `workctl config get --service demo-inventory --env sandbox` | success | success | 0 | 643 | consul@1.20.6 | provider 由资源绑定 demo-inventory.attributes.config_center=demo-consul 选择；KV ?recurse，Create/ModifyIndex，observed_revision=X-Consul-Index；db.password 遮蔽 |
-| ✅ consul-03 | `workctl config get --service demo-inventory --key upstream.order` | success | success | 0 | 526 | consul@1.20.6 | JSON 字段级遮蔽：masked_paths=["$.api_key"] |
-| ✅ consul-04 | `workctl config diff --service demo-inventory --key db.password` | DATA_UNAVAILABLE | DATA_UNAVAILABLE | 7 | 622 |  | Consul KV 无历史：DATA_UNAVAILABLE，details 只给 create_index / modify_index，不编造旧值 |
-| ✅ consul-05 | `workctl config diff --service demo-inventory --from-rev 105` | DATA_UNAVAILABLE | DATA_UNAVAILABLE | 7 | 547 |  | 索引区间比较同样无历史：DATA_UNAVAILABLE，details.changed_since 列出 ModifyIndex 更大的键 |
-| ✅ consul-06 | `workctl config get --service demo-inventory --key no.such.key` | NOT_FOUND | NOT_FOUND | 5 | 546 |  | 键不存在 → NOT_FOUND |
-| ✅ consul-07 | `workctl config get --service ghost-svc --endpoint consul/demo-consul` | success | success | 0 | 609 | consul@1.20.6 | 前缀为空：success + 空列表（Consul 404 即“没有键”） |
-| ✅ consul-08 | `workctl discovery list --service demo-inventory` | success | success | 0 | 544 | consul@1.20.6 | 健康检查聚合：inventory-1 passing、inventory-2 critical → unhealthy、inventory-3 warning（计为 healthy，注明） |
-| ✅ consul-09 | `workctl discovery list --service demo-inventory --env sandbox --healthy-only` | success | success | 0 | 498 | consul@1.20.6 | 过滤 critical |
-| ✅ consul-10 | `workctl discovery list --service ghost-svc --endpoint consul/demo-consul` | success | success | 0 | 523 | consul@1.20.6 | 未注册服务：/v1/catalog/services 中不存在 → service_registered=false |
-| ✅ consul-11 | `workctl config get --service demo-inventory --endpoint apollo/demo-apollo` | CAPABILITY_PLANNED | CAPABILITY_PLANNED | 8 | 451 |  | 规划中的 provider（Apollo）→ CAPABILITY_PLANNED，不模拟 |
+| ✅ consul-01 | `workctl auth status --probe` | success | success | 0 | 1531 | workctl | 端点探测：consul 走 GET /v1/agent/self + /v1/status/leader（版本、数据中心、ACL 开关） |
+| ✅ consul-02 | `workctl config get --service demo-inventory --env sandbox` | success | success | 0 | 920 | consul@1.20.6 | provider 由资源绑定 demo-inventory.attributes.config_center=demo-consul 选择；KV ?recurse，Create/ModifyIndex，observed_revision=X-Consul-Index；db.password 遮蔽 |
+| ✅ consul-03 | `workctl config get --service demo-inventory --key upstream.order` | success | success | 0 | 622 | consul@1.20.6 | JSON 字段级遮蔽：masked_paths=["$.api_key"] |
+| ✅ consul-04 | `workctl config diff --service demo-inventory --key db.password` | DATA_UNAVAILABLE | DATA_UNAVAILABLE | 7 | 588 |  | Consul KV 无历史：DATA_UNAVAILABLE，details 只给 create_index / modify_index，不编造旧值 |
+| ✅ consul-05 | `workctl config diff --service demo-inventory --from-rev 159` | DATA_UNAVAILABLE | DATA_UNAVAILABLE | 7 | 953 |  | 索引区间比较同样无历史：DATA_UNAVAILABLE，details.changed_since 列出 ModifyIndex 更大的键 |
+| ✅ consul-06 | `workctl config get --service demo-inventory --key no.such.key` | NOT_FOUND | NOT_FOUND | 5 | 580 |  | 键不存在 → NOT_FOUND |
+| ✅ consul-07 | `workctl config get --service ghost-svc --endpoint consul/demo-consul` | success | success | 0 | 489 | consul@1.20.6 | 前缀为空：success + 空列表（Consul 404 即“没有键”） |
+| ✅ consul-08 | `workctl discovery list --service demo-inventory` | success | success | 0 | 519 | consul@1.20.6 | 健康检查聚合：inventory-1 passing、inventory-2 critical → unhealthy、inventory-3 warning（计为 healthy，注明） |
+| ✅ consul-09 | `workctl discovery list --service demo-inventory --env sandbox --healthy-only` | success | success | 0 | 587 | consul@1.20.6 | 过滤 critical |
+| ✅ consul-10 | `workctl discovery list --service ghost-svc --endpoint consul/demo-consul` | success | success | 0 | 490 | consul@1.20.6 | 未注册服务：/v1/catalog/services 中不存在 → service_registered=false |
+| ✅ consul-11 | `workctl config get --service demo-inventory --endpoint apollo/demo-apollo` | CAPABILITY_PLANNED | CAPABILITY_PLANNED | 8 | 541 |  | 规划中的 provider（Apollo）→ CAPABILITY_PLANNED，不模拟 |

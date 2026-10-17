@@ -124,6 +124,8 @@ describe('postgres literal masking', () => {
     expect(maskValue('+86-13800001111')).toBe('+86****1111');
     expect(maskValue('c42@example.invalid')).toBe('c***@example.invalid');
     expect(maskValue('abc')).toBe('***');
+    expect(maskValue('(1,customer-1,+86-13800007919,c1@example.invalid)')).toBe('***');
+    expect(maskValue('{a@b.c,d@e.f}')).toBe('***');
     expect(maskValue(null)).toBeNull();
   });
 });

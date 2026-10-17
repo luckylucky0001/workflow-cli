@@ -76,3 +76,33 @@ describe('time budget (--timeout)', () => {
     expect(exitCode).toBe(2);
   });
 });
+
+describe('OS limits on path inputs', () => {
+  it('maps ENAMETOOLONG from a handler to INVALID_ARGUMENT without echoing the path', async () => {
+    const { Registry, defineCapability } = await import('../../src/core/registry');
+    const { z } = await import('zod');
+    const { lstatSync } = await import('node:fs');
+    const reg = new Registry();
+    reg.addCapability(
+      defineCapability({
+        name: 'fs.stat',
+        command: 'fs stat',
+        summary: 'stat',
+        domain: 'fs',
+        inputs: { path: { type: 'string', required: true, description: 'p' } },
+        output: z.object({}),
+        adapter: 'fs',
+        operation: 'read',
+        auth_provider: 'none',
+        guide: 'docs/x.md',
+        handler: async (_ctx, i) => {
+          lstatSync(i.path);
+          return { data: {} };
+        },
+      }),
+    );
+    const env = await invoke(reg, 'fs.stat', { path: 'x'.repeat(10_000) }, { configPath: writeConfig(tempDir()) });
+    expect(env.error?.code).toBe('INVALID_ARGUMENT');
+    expect(env.error?.message).not.toContain('xxxxxxxx');
+  });
+});

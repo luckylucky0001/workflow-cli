@@ -291,12 +291,20 @@ export const queryAnalyze = defineCapability({
   },
 });
 
-/** Columns flowing from a sensitive source column (by catalog position) or computed from SQL that mentions one. */
+/** Type categories that cannot carry a sensitive text value (numeric, boolean, date/time, interval). */
+const SAFE_CATEGORIES = new Set(['N', 'B', 'D', 'T']);
+
+/**
+ * Columns flowing from a sensitive source column (by catalog position), computed from SQL that
+ * mentions one, or computed non-numeric values over a relation that has sensitive columns
+ * (whole-row references such as `SELECT c FROM customers c`, `row_to_json(c)`).
+ */
 export function maskedColumns(
-  fields: { name: string; tableID: number; columnID: number }[],
+  fields: { name: string; tableID: number; columnID: number; dataTypeID?: number }[],
   sourceNames: Map<string, string>,
   sensitive: Set<string>,
   g: GuardResult,
+  rel: { sensitiveRelations: string[]; categoryOf: (oid: number) => string | undefined } = { sensitiveRelations: [], categoryOf: () => undefined },
 ): { masked: boolean[]; reasons: string[] } {
   const mentioned = g.tokens.filter((t) => (t.kind === 'word' && sensitive.has(t.text.toLowerCase())) || (t.kind === 'ident' && sensitive.has(t.upper))).map((t) => (t.kind === 'word' ? t.text.toLowerCase() : t.upper));
   const reasons: string[] = [];
@@ -307,8 +315,14 @@ export function maskedColumns(
       reasons.push(`${f.name} 来自敏感列 ${src}`);
       return true;
     }
-    if (!f.tableID && mentioned.length) {
+    // no resolvable source column: expression, constant, or whole-row reference (tableID set, columnID 0)
+    const computed = !src;
+    if (computed && mentioned.length) {
       reasons.push(`${f.name} 是表达式/派生列，而语句引用了敏感列 ${[...new Set(mentioned)].join(', ')}（保守脱敏）`);
+      return true;
+    }
+    if (computed && rel.sensitiveRelations.length && !SAFE_CATEGORIES.has(rel.categoryOf(f.dataTypeID ?? 0) ?? '')) {
+      reasons.push(`${f.name} 是非数值的表达式/整行引用，而语句涉及含敏感列的表 ${rel.sensitiveRelations.join(', ')}（保守脱敏）`);
       return true;
     }
     return false;
@@ -355,7 +369,7 @@ export const queryRun = defineCapability({
     '真正的权限边界是数据库角色（workctl_ro 只有 SELECT，且 default_transaction_read_only=on）；程序层静态检查、READ ONLY 事务、statement_timeout、行数上限是额外防线，不能替代只读角色',
     '静态检查：只允许单条 SELECT / WITH...SELECT / VALUES / TABLE；拒绝多语句、数据修改型 CTE、SELECT INTO、FOR UPDATE/SHARE，以及终止会话/读写文件/咨询锁/序列/重置统计/执行任意 SQL 文本的函数（不穷尽：自定义函数仍可能有副作用，由角色权限兜底）',
     '通过游标（DECLARE CURSOR + FETCH）只取 max_rows+1 行，不缓冲完整结果集',
-    '敏感列：输出列名或其来源列（按系统目录解析，覆盖别名）命中端点 sensitive_columns 时脱敏；表达式列在语句引用了敏感列时保守脱敏；不能替代数据库侧列权限或脱敏视图',
+    '敏感列：输出列名或其来源列（按系统目录解析，覆盖别名）命中端点 sensitive_columns 时脱敏；表达式列在语句引用了敏感列时、或语句涉及含敏感列的表且该列为非数值类型（整行引用、row_to_json 等）时保守脱敏；不能替代数据库侧列权限或脱敏视图',
   ],
   examples: [
     'workctl pg query run --instance demo-postgres --sql "SELECT id, status, amount FROM orders WHERE customer_id = 42" --max-rows 20',
@@ -384,8 +398,9 @@ export const queryRun = defineCapability({
         const rowsRaw = truncated ? r.rows.slice(0, maxRows) : r.rows;
         // resolve type names and source columns through the catalog (covers aliases)
         const typeIds = [...new Set(r.fields.map((f) => f.dataTypeID))];
-        const types = typeIds.length ? await s.query('SELECT oid::int AS oid, format_type(oid, NULL) AS name FROM pg_type WHERE oid = ANY($1::oid[])', [typeIds]) : [];
+        const types = typeIds.length ? await s.query('SELECT oid::int AS oid, format_type(oid, NULL) AS name, typcategory AS cat FROM pg_type WHERE oid = ANY($1::oid[])', [typeIds]) : [];
         const typeName = new Map(types.map((t) => [Number(t.oid), String(t.name)]));
+        const typeCat = new Map(types.map((t) => [Number(t.oid), String(t.cat)]));
         const srcPairs = r.fields.filter((f) => f.tableID);
         const srcRows = srcPairs.length
           ? await s.query(
@@ -395,7 +410,21 @@ export const queryRun = defineCapability({
           : [];
         const sourceNames = new Map(srcRows.map((x) => [`${x.rel}:${x.num}`, String(x.attname)]));
         const sens = sensitiveColumns(s.ep);
-        const { masked, reasons } = maskedColumns(r.fields, sourceNames, sens, g);
+        // relations named in the statement that carry sensitive columns (for whole-row / computed outputs)
+        const names = [...new Set(g.tokens.filter((t) => t.kind === 'word' || t.kind === 'ident').map((t) => (t.kind === 'word' ? t.text.toLowerCase() : t.upper)))];
+        const sensRel =
+          sens.size && names.length && r.fields.some((f) => !f.tableID || !f.columnID || !sourceNames.has(`${f.tableID}:${f.columnID}`))
+            ? await s.query(
+                `SELECT DISTINCT c.relname FROM pg_class c JOIN pg_attribute a ON a.attrelid = c.oid
+                  WHERE c.relname = ANY($1::text[]) AND c.relkind IN ('r','p','v','m','f') AND a.attnum > 0 AND NOT a.attisdropped
+                    AND lower(a.attname) = ANY($2::text[]) ORDER BY 1`,
+                [names, [...sens]],
+              )
+            : [];
+        const { masked, reasons } = maskedColumns(r.fields, sourceNames, sens, g, {
+          sensitiveRelations: sensRel.map((x) => String(x.relname)),
+          categoryOf: (oid) => typeCat.get(oid),
+        });
         const columns = r.fields.map((f, idx) => ({
           name: f.name,
           type: typeName.get(f.dataTypeID) ?? String(f.dataTypeID),

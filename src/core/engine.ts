@@ -118,6 +118,10 @@ function mapUnknownError(registry: Registry, e: unknown): WorkError {
   if (code && ['ECONNREFUSED', 'ENOTFOUND', 'EHOSTUNREACH', 'ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'ENOENT_SOCKET'].includes(code)) {
     return new WorkError('UPSTREAM_UNAVAILABLE', `目标系统不可达 (${code})`, { details: { reason: err.message } });
   }
+  // a path-like input longer than the OS allows is a usage error (and its message would echo the whole input)
+  if (code === 'ENAMETOOLONG') {
+    return new WorkError('INVALID_ARGUMENT', '路径或名称超过系统长度上限 (ENAMETOOLONG)', { hint: '缩短路径类参数' });
+  }
   return new WorkError('INTERNAL', err?.message ?? String(e), { details: { name: err?.name } });
 }
 

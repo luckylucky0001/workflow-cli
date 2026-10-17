@@ -9,7 +9,9 @@
 | 操作语义 | read / diagnose / plan / execute、计划字段、执行前置条件 | [guides/operations.md](guides/operations.md) |
 | 基础设施指南 | 容器（Docker / Kubernetes）、网络、存储；快照与窗口；配置中心与服务发现（etcd / Nacos / Consul：provider 选择、修订空间、历史与压缩、遮蔽、租约与健康） | [guides/infrastructure.md](guides/infrastructure.md) |
 | 可观测指南 | 指标目录与 PromQL、日志查询、日志派生调用链 | [guides/observability.md](guides/observability.md) |
+| 部署系统指南 | 发布记录（Kubernetes ReplicaSet 修订 / Jenkins 构建）、当前状态、回滚计划与执行、保留期与时间口径 | [guides/deploy.md](guides/deploy.md) |
 | MySQL 指南 | 库表、索引、会话与锁、语句采样差分、慢日志、执行计划与受限查询 | [guides/mysql.md](guides/mysql.md) |
+| PostgreSQL 指南 | 实例、表与索引、会话与锁、pg_stat_statements 口径、执行计划与受限查询 | [guides/postgres.md](guides/postgres.md) |
 | Redis 指南 | 节点范围、计数器与窗口、TTL、SCAN 采样覆盖、慢日志、LFU 热度 | [guides/redis.md](guides/redis.md) |
 | 离线链路指南 | DAG、任务实例、数据区间、分层状态、补数计划与执行 | [guides/offline.md](guides/offline.md)、[guides/compute.md](guides/compute.md) |
 | 数据指南 | 目录元数据、分区检查项、explicit / inferred 血缘、质量规则 | [guides/data.md](guides/data.md) |
@@ -26,8 +28,8 @@
 | 类型 | Skill | 内容 |
 | --- | --- | --- |
 | 入口 | [enterprise-infra](../skills/enterprise-infra/SKILL.md) | 识别任务所属板块、发现能力、读懂信封、组合与报告规则 |
-| 基础设施 | [infra-operations](../skills/infra-operations/SKILL.md) | 容器/网络/存储检查，计划 → 确认 → 执行 → 复核 |
-| 中间件 | [mysql-operations](../skills/mysql-operations/SKILL.md)、[redis-operations](../skills/redis-operations/SKILL.md)、[mq-operations](../skills/mq-operations/SKILL.md)、[search-operations](../skills/search-operations/SKILL.md) | 对象模型、口径、命令选择与限制 |
+| 基础设施 | [infra-operations](../skills/infra-operations/SKILL.md)、[deploy-operations](../skills/deploy-operations/SKILL.md) | 容器/网络/存储/配置中心检查，计划 → 确认 → 执行 → 复核；发布记录与故障关联、回滚计划 |
+| 中间件 | [mysql-operations](../skills/mysql-operations/SKILL.md)、[postgres-operations](../skills/postgres-operations/SKILL.md)、[redis-operations](../skills/redis-operations/SKILL.md)、[mq-operations](../skills/mq-operations/SKILL.md)、[search-operations](../skills/search-operations/SKILL.md) | 对象模型、口径、命令选择与限制 |
 | 离线 | [offline-operations](../skills/offline-operations/SKILL.md)、[data-validation](../skills/data-validation/SKILL.md) | 任务实例、数据区间、血缘、产出与补数 |
 | 流程 | [service-latency-investigation](../skills/service-latency-investigation/SKILL.md)、[offline-delay-investigation](../skills/offline-delay-investigation/SKILL.md)、[resource-capacity-review](../skills/resource-capacity-review/SKILL.md) | 跨系统排查与盘点流程，复用领域能力 |
 

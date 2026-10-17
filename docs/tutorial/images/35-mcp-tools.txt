@@ -1,0 +1,25 @@
+$ node docs/tutorial/mcp-tools-list.mjs
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.agent.yaml
+→ initialize
+  serverInfo: workctl 0.1.0  protocolVersion: 2025-06-18
+  instructions: 企业基础设施、中间件与离线链路能力。先用 capability_list 发现能力，再按需调用；结果中的 meta.sources/coverage 说明来源与覆盖范围，空结果、未采集、无权限、部分结果含义不同。 本服务未开放 execute 类操作，只能生成计划。
+
+→ tools/list: 87 个工具
+  按前缀: access(1) auth(1) capability(2) compute(4) config(2) container(5) data(5) deploy(4) discovery(1) doctor(1) mq(3) mysql(11) network(3) observability(4) offline(9) operation(4) postgres(9) redis(8) resource(2) search(3) service(1) sql(2) storage(2)
+  按操作类型: read(66) plan(6) diagnose(15)
+  - service_dependency_list: 列出服务的依赖资源（直接与传递）及依赖它的对象，每条关系带来源与依据
+      inputSchema: {service, env, depth}
+  - mysql_statement_summary: 按语句摘要统计窗口内的执行次数、耗时、扫描行数和未用索引次数（performance_sc…
+      inputSchema: {instance, sample_window, top, database}
+  - offline_run_get: 查看一次运行：任务实例状态，并分层汇总调度、计算、数据产出、质量四个检查项
+      inputSchema: {id, workflow}
+  - mq_consumer_lag: 查看 Kafka 消费组各分区的已提交位点、结束位点与 lag（位点差）
+      inputSchema: {cluster, group, topic}
+
+→ tools/call service_dependency_list {"service":"demo-order","env":"sandbox"}
+  isError: false
+  status: success  capability: service.dependency.list
+  data.dependencies: demo-order-workload(runs_on), demo-mysql(depends_on), demo-redis(depends_on)
+  meta.sources: resource-bindings  [explicit]
+  meta.coverage: {"complete":true,"scope":"绑定文件，深度 2","notes":["运行时调用关系可用 trace get / log query 交叉验证"]}
+  context: profile=demo operation=read adapter=binding-file

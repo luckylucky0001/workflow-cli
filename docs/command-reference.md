@@ -1371,7 +1371,7 @@ workctl pg query explain --instance demo-postgres --database demo_orders --sql-f
 - 真正的权限边界是数据库角色（workctl_ro 只有 SELECT，且 default_transaction_read_only=on）；程序层静态检查、READ ONLY 事务、statement_timeout、行数上限是额外防线，不能替代只读角色
 - 静态检查：只允许单条 SELECT / WITH...SELECT / VALUES / TABLE；拒绝多语句、数据修改型 CTE、SELECT INTO、FOR UPDATE/SHARE，以及终止会话/读写文件/咨询锁/序列/重置统计/执行任意 SQL 文本的函数（不穷尽：自定义函数仍可能有副作用，由角色权限兜底）
 - 通过游标（DECLARE CURSOR + FETCH）只取 max_rows+1 行，不缓冲完整结果集
-- 敏感列：输出列名或其来源列（按系统目录解析，覆盖别名）命中端点 sensitive_columns 时脱敏；表达式列在语句引用了敏感列时保守脱敏；不能替代数据库侧列权限或脱敏视图
+- 敏感列：输出列名或其来源列（按系统目录解析，覆盖别名）命中端点 sensitive_columns 时脱敏；表达式列在语句引用了敏感列时、或语句涉及含敏感列的表且该列为非数值类型（整行引用、row_to_json 等）时保守脱敏；不能替代数据库侧列权限或脱敏视图
 
 ```bash
 workctl pg query run --instance demo-postgres --sql "SELECT id, status, amount FROM orders WHERE customer_id = 42" --max-rows 20

@@ -1,0 +1,107 @@
+$ workctl config get --service demo-payment --env sandbox
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+endpoint: nacos/demo-nacos
+provider: nacos
+provider_selected_by: "bindings: demo-payment.attributes.config_center=demo-nacos（endpoint nacos/demo-nacos）"
+service: demo-payment
+env: sandbox
+prefix: sandbox/DEFAULT_GROUP/demo-payment.properties
+key: null
+revision_space: nacos-history-id
+observed_revision: null
+count: 7
+truncated: false
+items:
+  - key: sandbox/DEFAULT_GROUP/demo-payment.properties#callback.token
+    name: callback.token
+    value: "***"
+    value_format: text
+    value_bytes: null
+    masked: true
+    masked_paths:
+      - $
+    create_revision: null
+    mod_revision: null
+    version: null
+    lease: null
+  - key: sandbox/DEFAULT_GROUP/demo-payment.properties#db.password
+    name: db.password
+    value: "***"
+    value_format: text
+    value_bytes: null
+    masked: true
+    masked_paths:
+      - $
+    create_revision: null
+    mod_revision: null
+    version: null
+    lease: null
+  - key: sandbox/DEFAULT_GROUP/demo-payment.properties#db.url
+    name: db.url
+    value: jdbc:mysql://mysql.sandbox.invalid:3306/pay
+    value_format: text
+    value_bytes: 43
+    masked: false
+    masked_paths: []
+    create_revision: null
+    mod_revision: null
+    version: null
+    lease: null
+  - key: sandbox/DEFAULT_GROUP/demo-payment.properties#feature.refund_v2
+    name: feature.refund_v2
+    value: true
+    value_format: json
+    value_bytes: 4
+    masked: false
+    masked_paths: []
+    create_revision: null
+    mod_revision: null
+    version: null
+    lease: null
+  - key: sandbox/DEFAULT_GROUP/demo-payment.properties#order.timeout_ms
+    name: order.timeout_ms
+    value: 1500
+    value_format: json
+    value_bytes: 4
+    masked: false
+    masked_paths: []
+    create_revision: null
+    mod_revision: null
+    version: null
+    lease: null
+  - key: sandbox/DEFAULT_GROUP/demo-payment.properties#pay.channel.default
+    name: pay.channel.default
+    value: alipay-sandbox
+    value_format: text
+    value_bytes: 14
+    masked: false
+    masked_paths: []
+    create_revision: null
+    mod_revision: null
+    version: null
+    lease: null
+  - key: sandbox/DEFAULT_GROUP/demo-payment.properties#risk.max_amount
+    name: risk.max_amount
+    value: 5000
+    value_format: json
+    value_bytes: 4
+    masked: false
+    masked_paths: []
+    create_revision: null
+    mod_revision: null
+    version: null
+    lease: null
+nacos:
+  namespace: sandbox
+  group: DEFAULT_GROUP
+  data_id: demo-payment.properties
+  exists: true
+  type: properties
+  content_format: properties
+  parsed: true
+  parse_error: null
+  md5: 9c0519d7a7a3830481101683c57d0d04
+  content_bytes: 259
+  last_modified: 2026-10-17T16:20:04.705Z
+  latest_history_id: 34
+# sources: nacos:GET /v1/cs/configs?show=all dataId=demo-payment.properties group=DEFAULT_GROUP tenant=sandbox [explicit], nacos:GET /v2/cs/history/list [explicit]

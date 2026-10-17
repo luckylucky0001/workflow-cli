@@ -9,7 +9,7 @@
     "service": "demo-inventory",
     "env": "sandbox",
     "prefix": "/v1/health/service/demo-inventory",
-    "observed_revision": 111,
+    "observed_revision": 165,
     "instances": [
       {
         "instance_id": "inventory-1",
@@ -32,8 +32,8 @@
         "healthy": true,
         "health_basis": "registry_checks",
         "registered_at": null,
-        "create_revision": 109,
-        "mod_revision": 109,
+        "create_revision": 163,
+        "mod_revision": 163,
         "lease": null,
         "consul": {
           "node": "f3f661f1fe62",
@@ -81,8 +81,8 @@
         "healthy": true,
         "health_basis": "registry_checks",
         "registered_at": null,
-        "create_revision": 111,
-        "mod_revision": 111,
+        "create_revision": 165,
+        "mod_revision": 165,
         "lease": null,
         "consul": {
           "node": "f3f661f1fe62",
@@ -131,7 +131,7 @@
       {
         "system": "consul",
         "adapter": "consul-http-api",
-        "observed_at": "2026-10-17T16:14:33.784Z",
+        "observed_at": "2026-10-17T16:20:44.440Z",
         "endpoint": "consul/demo-consul (http://127.0.0.1:18500)",
         "method": "GET /v1/health/service/demo-inventory",
         "relation": "explicit",
@@ -140,7 +140,7 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "Consul consul/demo-consul 服务 demo-inventory，索引 111",
+      "scope": "Consul consul/demo-consul 服务 demo-inventory，索引 165",
       "notes": [
         "1 个实例存在 warning 检查，计为 healthy（与 Consul DNS 默认一致）；?passing 过滤会排除它们",
         "healthy 由 Consul 健康检查聚合（含节点级检查，任一 critical → false），不是 workctl 的探测"
@@ -149,7 +149,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvclk9a8-da3ab4",
+    "request_id": "req-mvcls7a8-f00718",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -157,7 +157,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:14:33.728Z",
-    "duration_ms": 58
+    "started_at": "2026-10-17T16:20:44.384Z",
+    "duration_ms": 61
   }
 }

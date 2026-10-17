@@ -247,3 +247,22 @@ describe('postgres capabilities without a live server', () => {
     expect(env.error?.hint).toContain('--timeout');
   });
 });
+
+describe('postgres whole-row masking', () => {
+  it('masks non-numeric computed columns over a relation with sensitive columns, keeps numeric aggregates', () => {
+    const g = guardPg('SELECT c, row_to_json(c) AS j, count(*) AS n FROM customers c GROUP BY c', 'run');
+    const fields = [
+      { name: 'c', tableID: 16384, columnID: 0, dataTypeID: 16400 }, // whole-row Var: table set, column 0
+      { name: 'j', tableID: 0, columnID: 0, dataTypeID: 114 },
+      { name: 'n', tableID: 0, columnID: 0, dataTypeID: 20 },
+    ];
+    const cats = new Map([
+      [16400, 'C'],
+      [114, 'U'],
+      [20, 'N'],
+    ]);
+    const m = maskedColumns(fields, new Map(), new Set(['phone']), g, { sensitiveRelations: ['customers'], categoryOf: (o) => cats.get(o) });
+    expect(m.masked).toEqual([true, true, false]);
+    expect(m.reasons.join('')).toContain('customers');
+  });
+});

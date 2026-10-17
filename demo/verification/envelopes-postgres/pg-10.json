@@ -15,18 +15,35 @@
     "top": 5,
     "statements": [
       {
+        "queryid": "-6957086096547831732",
+        "database": "demo_orders",
+        "user": "postgres",
+        "query": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = $1 ORDER BY created_at DESC LIMIT $2",
+        "query_truncated": false,
+        "calls": 3009,
+        "total_exec_ms": 12157.388,
+        "mean_exec_ms": 4.04,
+        "max_exec_ms": 90.076,
+        "rows": 60180,
+        "rows_per_call": 20,
+        "shared_blks_hit": 1788151,
+        "shared_blks_read": 0,
+        "cache_hit_ratio": 1,
+        "temp_blks_written": 0
+      },
+      {
         "queryid": "-1870832129061638783",
         "database": "demo_orders",
         "user": "postgres",
         "query": "UPDATE orders SET status = $1 WHERE id = $2",
         "query_truncated": false,
-        "calls": 2,
-        "total_exec_ms": 8769.499,
-        "mean_exec_ms": 4384.749,
+        "calls": 6,
+        "total_exec_ms": 11080.667,
+        "mean_exec_ms": 1846.778,
         "max_exec_ms": 8009.514,
-        "rows": 2,
+        "rows": 6,
         "rows_per_call": 1,
-        "shared_blks_hit": 24,
+        "shared_blks_hit": 72,
         "shared_blks_read": 0,
         "cache_hit_ratio": 1,
         "temp_blks_written": 0
@@ -37,13 +54,30 @@
         "user": "postgres",
         "query": "SELECT count(*) FROM orders WHERE customer_id = $1",
         "query_truncated": false,
-        "calls": 613,
-        "total_exec_ms": 1794.471,
-        "mean_exec_ms": 2.927,
-        "max_exec_ms": 40.553,
-        "rows": 613,
+        "calls": 3458,
+        "total_exec_ms": 8989.251,
+        "mean_exec_ms": 2.6,
+        "max_exec_ms": 42.357,
+        "rows": 3458,
         "rows_per_call": 1,
-        "shared_blks_hit": 335311,
+        "shared_blks_hit": 1891526,
+        "shared_blks_read": 0,
+        "cache_hit_ratio": 1,
+        "temp_blks_written": 0
+      },
+      {
+        "queryid": "-5668101472451585722",
+        "database": "demo_orders",
+        "user": "postgres",
+        "query": "SELECT id, customer_id, status, amount FROM orders WHERE id = $1",
+        "query_truncated": false,
+        "calls": 3009,
+        "total_exec_ms": 148.241,
+        "mean_exec_ms": 0.049,
+        "max_exec_ms": 5.025,
+        "rows": 3009,
+        "rows_per_call": 1,
+        "shared_blks_hit": 9235,
         "shared_blks_read": 0,
         "cache_hit_ratio": 1,
         "temp_blks_written": 0
@@ -64,46 +98,12 @@
         "shared_blks_read": 276,
         "cache_hit_ratio": 0.994,
         "temp_blks_written": 0
-      },
-      {
-        "queryid": "3352422659137745472",
-        "database": "demo_orders",
-        "user": "workctl_ro",
-        "query": "SELECT c.oid, c.relkind, c.reltuples, obj_description(c.oid, $3) AS comment,\n                  has_table_privilege(c.oid, $4) AS can_select,\n                  pg_relation_size(c.oid) AS heap_bytes, pg_table_size(c.oid) AS table_bytes,\n                  pg_indexes_size(c.oid) AS indexes_bytes, pg_total_relation_size(c.oid) AS total_bytes\n             FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\n            WHERE n.nspname = $1 AND c.relname = $2 AND c.relkind IN ($5,$6,$7,$8,$9)",
-        "query_truncated": false,
-        "calls": 10,
-        "total_exec_ms": 10.404,
-        "mean_exec_ms": 1.04,
-        "max_exec_ms": 2.195,
-        "rows": 7,
-        "rows_per_call": 0.7,
-        "shared_blks_hit": 950,
-        "shared_blks_read": 0,
-        "cache_hit_ratio": 1,
-        "temp_blks_written": 0
-      },
-      {
-        "queryid": "2563235474036727028",
-        "database": "demo_orders",
-        "user": "workctl_ro",
-        "query": "SELECT d.datname, pg_get_userbyid(d.datdba) AS owner, pg_encoding_to_char(d.encoding) AS encoding, d.datcollate,\n                d.datistemplate, d.datallowconn, d.datconnlimit, has_database_privilege(d.oid, $2) AS can_connect,\n                CASE WHEN has_database_privilege(d.oid, $3) OR pg_has_role(current_user, $4, $5)\n                     THEN pg_database_size(d.oid) END AS size_bytes,\n                sd.numbackends, sd.xact_commit, sd.xact_rollback, sd.blks_read, sd.blks_hit, sd.deadlocks, sd.temp_byt…",
-        "query_truncated": true,
-        "calls": 3,
-        "total_exec_ms": 7.038,
-        "mean_exec_ms": 2.346,
-        "max_exec_ms": 4.703,
-        "rows": 6,
-        "rows_per_call": 2,
-        "shared_blks_hit": 24,
-        "shared_blks_read": 0,
-        "cache_hit_ratio": 1,
-        "temp_blks_written": 0
       }
     ],
     "totals": {
-      "statements_with_activity": 53,
-      "calls": 909,
-      "total_exec_ms": 10679.537
+      "statements_with_activity": 86,
+      "calls": 10453,
+      "total_exec_ms": 32654.606
     },
     "collection": {
       "extension_version": "1.10",
@@ -112,7 +112,7 @@
       "dealloc": 0,
       "text_visible": true
     },
-    "excluded_self": 2
+    "excluded_self": 6
   },
   "error": null,
   "meta": {
@@ -120,7 +120,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-17T16:16:07.209Z",
+        "observed_at": "2026-10-17T16:23:20.740Z",
         "endpoint": "postgres/demo-postgres",
         "method": "public.pg_stat_statements (cumulative)",
         "version": "16.15",
@@ -138,7 +138,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvclm9cv-42bc4f",
+    "request_id": "req-mvclvjux-416050",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -146,7 +146,7 @@
     "adapter": "pg-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:16:07.135Z",
-    "duration_ms": 81
+    "started_at": "2026-10-17T16:23:20.649Z",
+    "duration_ms": 101
   }
 }

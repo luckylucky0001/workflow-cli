@@ -20,7 +20,8 @@
 | --- | --- | --- |
 | 容器 | Docker Engine API ↔ Kubernetes API | Docker 29.8.2；k3s v1.31.4 |
 | 指标 / 日志 / 调用链 | Prometheus；Docker 日志 ↔ Loki；日志派生调用链 | Prometheus 3.5.0；Loki/Promtail 3.5.5 |
-| 配置中心 / 服务发现 | etcd v3 HTTP/JSON 网关 | etcd 3.5.21 |
+| 配置中心 / 服务发现 | etcd v3 HTTP/JSON 网关 ↔ Nacos Open API ↔ Consul HTTP API | etcd 3.5.21；Nacos 2.4.3；Consul 1.20.6 |
+| 部署系统 | Kubernetes Deployment/ReplicaSet ↔ Jenkins REST（部署 job） | k3s v1.31.4；Jenkins 2.541.3 |
 | 关系型数据库 | MySQL 原生协议 + performance_schema | MySQL 8.4.11 |
 | 缓存 | Redis RESP | Redis 7.4.11 |
 | 消息队列（插件） | Kafka Admin | Kafka 3.9.1 |
@@ -38,8 +39,8 @@
 
 ## 已知限制
 
-- 待接入（目录中为 planned，不可调用）：文档/KV、分析数据库、托管中间件生命周期、对象存储与 HDFS、YARN 队列、Hive 查询、数据同步、RabbitMQ、搜索快照、配额，以及 MySQL 复制/死锁、Redis 集群/延迟监控、负载均衡、主机实例；搜索引擎的索引与查询在未安装 demo-search 插件时也是 planned。
-- etcd 仅验证 3.5.21 单节点无认证（token 认证与权限拒绝只在假网关单测中验证）；OpenSearch 仅验证 2.19.3 单节点、安全插件关闭（basic auth 只在假服务器单测中验证），Elasticsearch 未验证。
+- 待接入（目录中为 planned，不可调用）：Apollo / ZooKeeper 配置中心、Argo CD / Spinnaker / 内部发布平台、文档/KV、分析数据库、托管中间件生命周期、对象存储与 HDFS、YARN 队列、Hive 查询、数据同步、RabbitMQ、搜索快照、配额，以及 MySQL 复制/死锁、Redis 集群/延迟监控、负载均衡、主机实例；搜索引擎的索引与查询在未安装 demo-search 插件时也是 planned。
+- etcd 仅验证 3.5.21 单节点无认证（token 认证与权限拒绝只在假网关单测中验证）；Nacos 仅 2.4.3 standalone 且演示中关闭鉴权，Consul 仅 1.20.6 dev agent（ACL 关闭），二者的鉴权路径只在假服务器单测中验证；Consul KV 没有历史，配置差异不可回溯；Jenkins 只验证核心插件下的 freestyle job，“当前版本”指最近成功的部署构建；Kubernetes 发布记录的触发人不可得、只有当前修订有完成时间；OpenSearch 仅验证 2.19.3 单节点、安全插件关闭（basic auth 只在假服务器单测中验证），Elasticsearch 未验证。
 - Kubernetes 仅在单节点 k3s 验证（演示环境因沙箱内核限制使用了仅限演示的 runc 规避）；Airflow 3 仅验证 3.3.2；Trino 仅单节点 476、未验证密码/JWT 认证；Loki 的租户与 basic auth 仅模拟测试。
 - MySQL 受限查询的脱敏是尽力而为，真实权限边界是数据库只读账号；质量检查的抽样为头部样本。
 - 人工对照组未测量；单次 Agent 运行有非确定性，只能说明量级。

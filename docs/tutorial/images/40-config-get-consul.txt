@@ -1,0 +1,112 @@
+$ workctl config get --service demo-inventory --env sandbox
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+endpoint: consul/demo-consul
+provider: consul
+provider_selected_by: "bindings: demo-inventory.attributes.config_center=demo-consul（endpoint consul/demo-consul）"
+service: demo-inventory
+env: sandbox
+prefix: config/sandbox/demo-inventory/
+key: null
+revision_space: consul-raft-index
+observed_revision: 162
+count: 6
+truncated: false
+items:
+  - key: config/sandbox/demo-inventory/cache.ttl_seconds
+    name: cache.ttl_seconds
+    value: 30
+    value_format: json
+    value_bytes: 2
+    masked: false
+    masked_paths: []
+    create_revision: 155
+    mod_revision: 160
+    version: null
+    lease: null
+    consul:
+      flags: 0
+      lock_index: 0
+      session: null
+  - key: config/sandbox/demo-inventory/db.password
+    name: db.password
+    value: "***"
+    value_format: text
+    value_bytes: null
+    masked: true
+    masked_paths:
+      - $
+    create_revision: 157
+    mod_revision: 161
+    version: null
+    lease: null
+    consul:
+      flags: 0
+      lock_index: 0
+      session: null
+  - key: config/sandbox/demo-inventory/db.pool_size
+    name: db.pool_size
+    value: 8
+    value_format: json
+    value_bytes: 1
+    masked: false
+    masked_paths: []
+    create_revision: 156
+    mod_revision: 156
+    version: null
+    lease: null
+    consul:
+      flags: 0
+      lock_index: 0
+      session: null
+  - key: config/sandbox/demo-inventory/feature.flags
+    name: feature.flags
+    value:
+      reserve_on_cart: true
+      rollout_percent: 50
+    value_format: json
+    value_bytes: 45
+    masked: false
+    masked_paths: []
+    create_revision: 162
+    mod_revision: 162
+    version: null
+    lease: null
+    consul:
+      flags: 0
+      lock_index: 0
+      session: null
+  - key: config/sandbox/demo-inventory/upstream.order
+    name: upstream.order
+    value:
+      url: http://order.sandbox.invalid
+      timeout_ms: 500
+      api_key: "***"
+    value_format: json
+    value_bytes: 88
+    masked: true
+    masked_paths:
+      - $.api_key
+    create_revision: 159
+    mod_revision: 159
+    version: null
+    lease: null
+    consul:
+      flags: 0
+      lock_index: 0
+      session: null
+  - key: config/sandbox/demo-inventory/warehouse.default
+    name: warehouse.default
+    value: wh-east
+    value_format: text
+    value_bytes: 7
+    masked: false
+    masked_paths: []
+    create_revision: 158
+    mod_revision: 158
+    version: null
+    lease: null
+    consul:
+      flags: 0
+      lock_index: 0
+      session: null
+# sources: consul:GET /v1/kv/config/sandbox/demo-inventory/?recurse [explicit]

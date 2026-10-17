@@ -1,6 +1,6 @@
 # workctl — 企业基础设施、中间件与离线链路的 Agent 能力底座
 
-通过**统一 CLI、Skill 和文档**，把计算/容器、网络、存储、可观测、配置中心与服务发现、MySQL、Redis、消息队列、搜索引擎，以及调度、计算作业、元数据、血缘、分区产出和数据质量接入 Agent，使资源查询、运行诊断、任务分析和受控操作成为**可发现、可组合、可维护**的能力。
+通过**统一 CLI、Skill 和文档**，把计算/容器、网络、存储、可观测、配置中心与服务发现、部署系统、MySQL、PostgreSQL、Redis、消息队列、搜索引擎，以及调度、计算作业、元数据、血缘、分区产出和数据质量接入 Agent，使资源查询、运行诊断、任务分析和受控操作成为**可发现、可组合、可维护**的能力。
 
 - **CLI**（TypeScript → esbuild 单文件 ESM，Node.js ≥ 20，npm 分发）：`workctl <domain> [resource] <action> [options]`，统一结果信封、错误码、凭据引用、时间预算。
 - **Skill**（Markdown）：入口 Skill + 领域 Skill + 跨系统流程 Skill，组织领域经验与排查流程。
@@ -18,7 +18,8 @@
 | 逐能力真实调用 | 74/74 用例通过（含插件、补数计划、隔离环境中真实执行重启并记录状态迁移、预期错误码） | [demo/verification/report.md](demo/verification/report.md) |
 | 交叉审查 | 各领域（含后加入的 Kubernetes、Airflow v2、Trino、Loki）由非作者复审，修复 58 个缺陷并补回归测试（如优化器提示绕过执行时限、Spark SQL `reflect`/文件查询绕过只读防护、重启后 unhealthy 仍判成功、组合调用绕过执行授权、Airflow 3 无 logical_date 的运行导致补数重复、同标签的其他 Pod 混入工作负载） | git 历史 “Cross-review fixes” |
 | Kubernetes provider | 单节点 k3s v1.31.4 上 10/10（身份探测、Pod/Deployment 状态、事件、metrics-server 快照、容量、真实滚动重启）；Docker 与 Kubernetes 两种 provider 输出通过同一 Schema | [demo/verification/report.k8s.md](demo/verification/report.k8s.md) |
-| 配置中心 / 服务发现 | 内置 `config get/diff`、`discovery list` 走 etcd v3 网关：按服务绑定解析键前缀、修订号与逐键差异、敏感值遮蔽、租约与健康；etcd 3.5.21 上 16/16 | [demo/verification/report.config.md](demo/verification/report.config.md) |
+| 配置中心 / 服务发现 | 内置 `config get/diff`、`discovery list`，按服务绑定选择 provider：etcd 3.5.21（修订号与逐键差异、租约）16/16；Nacos 2.4.3（namespace/group/dataId，用历史记录重建差异）13/13；Consul 1.20.6（KV 无历史 → 差异明确返回 `DATA_UNAVAILABLE`，健康检查）11/11；三者同一输出契约与敏感值遮蔽；Apollo/ZooKeeper 待接入 | [etcd](demo/verification/report.config.md)、[Nacos](demo/verification/report.config-nacos.md)、[Consul](demo/verification/report.config-consul.md) |
+| 部署系统 | 内置 `deploy release list/get`、`deploy status get`、`deploy rollback plan`（执行经 `operation execute` + 确认）：Kubernetes（ReplicaSet 修订、真实失败发布与回滚执行）14/14；Jenkins 2.541.3（部署 job 构建、按参数重放回滚）15/15；Argo CD/Spinnaker 待接入 | [Kubernetes](demo/verification/report.deploy-k8s.md)、[Jenkins](demo/verification/report.deploy.md) |
 | 插件补齐待接入能力 | `demo-search` 插件实现内置目录中 planned 的 `search.index.get` / `search.query`（并新增 `search.cluster.get`）：别名解析、yellow 原因、受限 DSL 白名单、部分分片失败 → `partial`；OpenSearch 2.19.3 上 19/19 | [demo/verification/report.search.md](demo/verification/report.search.md) |
 | SQL 引擎 | `sql query submit/get/cancel` 对 Spark 3.5.5 与 Trino 476 输出同一契约；Trino 用例 15/15（成功、语法错误、表不存在、只读防护、真实取消） | [demo/verification/report.trino.md](demo/verification/report.trino.md) |
 | 日志来源替换 | `log query` / `trace get` 在 Docker 日志与 Loki 3.5.5（Promtail 采集）间切换：同一批流量下条目、统计与调用树一致 | [demo/verification/log-provider-swap.md](demo/verification/log-provider-swap.md) |
@@ -39,7 +40,7 @@ workctl capability get --name mysql.statement.summary
 
 | 板块 | 领域（命令前缀） | 首版重点 |
 | --- | --- | --- |
-| 基础设施 | `container` `capacity` `network` `storage` `metric` `log` `trace` `config` `discovery` `resource` `service` `operation` `auth` `access` | Docker 与 Kubernetes（k3s v1.31.4 实测）工作负载状态/事件/资源、资源绑定与依赖、Prometheus 指标、容器日志或 Loki、日志派生调用链、etcd 配置与服务发现、重启操作计划与执行 |
+| 基础设施 | `container` `capacity` `network` `storage` `metric` `log` `trace` `config` `discovery` `deploy` `resource` `service` `operation` `auth` `access` | Docker 与 Kubernetes（k3s v1.31.4 实测）工作负载状态/事件/资源、资源绑定与依赖、Prometheus 指标、容器日志或 Loki、日志派生调用链、etcd/Nacos/Consul 配置与服务发现、Kubernetes/Jenkins 发布记录与回滚、重启操作计划与执行 |
 | 中间件 | `mysql` `redis` `mq`（插件） `search`（插件） | MySQL 库表/索引/会话/锁/语句采样差分/慢日志/执行计划/受限查询/索引计划；Redis 运行信息/窗口采样/慢日志/Key 元数据/SCAN 采样/LFU 热度；Kafka 主题与消费组 lag；OpenSearch 集群/索引/受限查询 |
 | 离线链路 | `offline` `compute` `sql` `data` | Airflow 2.x（REST v1）与 3.x（REST v2）工作流/实例/依赖/日志/补数计划与执行、Spark 作业/Stage/日志、Airflow 资源池、Spark SQL 与 Trino 查询提交、数据目录/分区/血缘/质量规则/时效 |
 | 待接入 | `document` `kv` `analytics` `middleware` `object` `hdfs` `quota`，以及已有领域内的条目（如 `mysql replication get`、`redis cluster get`、`compute yarn-queue get`） | 只出现在目录中（`status: planned`），不生成可调用命令；插件可以实现它们（见 `search`） |
@@ -62,7 +63,7 @@ flowchart TB
     C --> M
     E --> R[公共运行能力<br/>profile · 凭据引用 · 资源绑定 · 计划存储 · HTTP · 错误映射]
     R --> P[领域适配器 / 插件 workctl-plugin/1]
-    P --> I[Docker · Kubernetes · Prometheus · Loki · etcd · DNS/TCP · 文件系统]
+    P --> I[Docker · Kubernetes · Prometheus · Loki · etcd/Nacos/Consul · Jenkins · DNS/TCP · 文件系统]
     P --> W[MySQL · Redis · Kafka 插件 · OpenSearch 插件]
     P --> O[Airflow · Spark · Trino · 数据目录 · 质量规则]
 ```
@@ -105,7 +106,7 @@ node dist/workctl.js --json offline run get --id <run_id> --workflow demo-daily-
 
 ```text
 src/core/          能力注册、执行引擎、信封与错误码、profile 与凭据引用、资源绑定、计划存储、HTTP、插件加载
-src/domains/       领域适配器：container network storage observability config mysql redis offline compute sql data (+ planned)
+src/domains/       领域适配器：container network storage observability config deploy mysql postgres redis offline compute sql data (+ planned)
 src/cli/           Commander 命令树（由能力定义生成）、文档生成、Skill 分发
 src/mcp/           MCP stdio 服务（同一能力目录与引擎）
 plugins/demo-mq/   消息队列插件（Kafka）：演示新系统通过插件机制接入

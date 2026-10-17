@@ -351,6 +351,8 @@ export function maskValue(v: unknown): unknown {
   if (v === null || v === undefined) return v;
   const s = Buffer.isBuffer(v) ? '' : typeof v === 'object' ? '' : String(v);
   if (!s) return '***';
+  // composite rows, arrays, JSON text and long values may carry several fields: hide entirely
+  if (s.length > 64 || /^[({[]/.test(s)) return '***';
   const at = s.indexOf('@');
   if (at > 0) return `${s[0]}***${s.slice(at)}`;
   if (s.length >= 11) return `${s.slice(0, 3)}****${s.slice(-4)}`;

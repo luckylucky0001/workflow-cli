@@ -33,7 +33,10 @@ describe.skipIf(!it_)('deploy domain (live jenkins)', () => {
     expect((env.data as any).jenkins.console.lines.join('\n')).toContain('registry token: ******');
     expect((await invoke(r, 'deploy.status.get', { service: 'demo-order' }, { configPath: jenkinsCfg })).status).toBe('success');
     const plan = await invoke(r, 'deploy.rollback.plan', { service: 'demo-order' }, { configPath: jenkinsCfg });
-    expect((plan.data as any).executable).toBe(false);
+    expect((plan.data as any).executable).toBe(true);
+    expect((plan.data as any).targets[0].target_version).not.toBe((plan.data as any).targets[0].current_version);
+    // read-only test: never executes the re-deploy
+    expect((await invoke(r, 'operation.cancel', { id: (plan.data as any).id }, { configPath: jenkinsCfg })).status).toBe('success');
   });
 });
 

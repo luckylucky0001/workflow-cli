@@ -35,6 +35,9 @@ if [ -z "${SKIP_RESET:-}" ]; then
   check quiet node demo/scenarios/mysql-redis/scenario.mjs warm-cache
   check quiet node demo/scenarios/mq/produce-and-consume.mjs --reset
   check quiet node demo/scenarios/config/seed.mjs
+  check quiet node demo/scenarios/config/seed-nacos.mjs
+  check quiet node demo/scenarios/config/seed-consul.mjs
+  check quiet node demo/scenarios/deploy/seed-jenkins.mjs
   check quiet node demo/scenarios/search/seed.mjs
   node demo/scenarios/latency/loadgen.mjs --rps 8 --duration 30 --seed 9 --label verify >/dev/null 2>&1
   echo "   scenarios: $(( $(date +%s) - t0 ))s"
@@ -43,6 +46,9 @@ fi
 step "per-capability suite (main)";  check node scripts/verify-demo.mjs demo/verification/cases.json
 step "per-capability suite (trino)"; check node scripts/verify-demo.mjs demo/verification/cases.trino.json
 step "per-capability suite (config)"; check node scripts/verify-demo.mjs demo/verification/cases.config.json
+step "per-capability suite (config: nacos)"; check node scripts/verify-demo.mjs demo/verification/cases.config-nacos.json
+step "per-capability suite (config: consul)"; check node scripts/verify-demo.mjs demo/verification/cases.config-consul.json
+step "per-capability suite (deploy: jenkins)"; check node scripts/verify-demo.mjs demo/verification/cases.deploy.json
 step "per-capability suite (search plugin)"; check node scripts/verify-demo.mjs demo/verification/cases.search.json
 step "consumers: cli == script == mcp"
 check quiet node demo/scenarios/reuse/same-contract.mjs
@@ -63,6 +69,10 @@ if [ -n "${WITH_K8S:-}" ]; then
   check quiet demo/environment/k8s/k3s-up.sh
   until docker exec workctl-k3s kubectl top pods -n workctl-demo >/dev/null 2>&1; do sleep 5; done
   check env WORKCTL_CONFIG="$ROOT/demo/environment/k8s/workctl.k8s.yaml" node scripts/verify-demo.mjs demo/verification/cases.k8s.json
+  step "deploy: kubernetes rollouts (break → suite incl. real rollback → recover)"
+  check quiet demo/scenarios/deploy/k8s-rollouts.sh break
+  check env WORKCTL_CONFIG="$ROOT/demo/environment/k8s/workctl.k8s.yaml" node scripts/verify-demo.mjs demo/verification/cases.deploy-k8s.json
+  check quiet demo/scenarios/deploy/k8s-rollouts.sh recover
 fi
 
 step "live test suite"

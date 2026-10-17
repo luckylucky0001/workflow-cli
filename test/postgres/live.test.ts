@@ -80,6 +80,9 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('postgres live (demo-postgres)',
     expect(d.masked_columns).toEqual(['p', 'e']);
     expect(d.rows[0][0]).toBe('1');
     expect(String(d.rows[0][1])).toContain('****');
+    const w = ok(await call('postgres.query.run', { sql: 'SELECT c AS whole_row, count(*) OVER () AS n FROM customers c', max_rows: 1 }));
+    expect(w.masked_columns).toEqual(['whole_row']);
+    expect(w.rows[0]).toEqual(['***', '2000']);
     expect((await call('postgres.query.run', { sql: 'SELECT * FROM internal_ledger' })).error?.code).toBe('PERMISSION_DENIED');
     expect((await call('postgres.query.run', { sql: 'UPDATE orders SET status = status' })).error?.code).toBe('INVALID_ARGUMENT');
     expect((await call('postgres.query.run', { sql: 'SELECT pg_sleep(8)' })).error?.code).toBe('TIMEOUT');
@@ -138,8 +141,15 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('postgres live (demo-postgres)',
     expect(JSON.stringify(bad)).not.toContain('definitely-wrong');
     const a = await admin('it-visibility');
     const holder = await admin('it-visibility-holder');
+    const dropRole = async () => {
+      const exists = (await a.query("SELECT 1 FROM pg_roles WHERE rolname = 'it_nostats'")).rowCount;
+      if (exists) {
+        await a.query('DROP OWNED BY it_nostats'); // also revokes the database CONNECT grant
+        await a.query('DROP ROLE it_nostats');
+      }
+    };
     try {
-      await a.query('DROP ROLE IF EXISTS it_nostats');
+      await dropRole();
       await a.query(`CREATE ROLE it_nostats LOGIN PASSWORD '${pw}'`);
       await a.query('GRANT CONNECT ON DATABASE demo_orders TO it_nostats');
       await holder.query('BEGIN');
@@ -156,7 +166,7 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('postgres live (demo-postgres)',
     } finally {
       await holder.query('ROLLBACK');
       await holder.end();
-      await a.query('DROP ROLE IF EXISTS it_nostats').catch(() => undefined);
+      await dropRole();
       await a.end();
     }
   });

@@ -1,0 +1,49 @@
+$ workctl log query --service demo-order --env sandbox --window 6h --contains "cache mode changed" --limit 2
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.loki.yaml
+service: demo-order
+env: sandbox
+matched_by: loki selector {service="demo-order", env="sandbox"}（endpoints.loki.demo-loki.labels）
+window:
+  start: 2026-10-17T10:20:40.605Z
+  end: 2026-10-17T16:20:40.605Z
+order: newest
+entries:
+  - ts: 2026-10-17T15:44:18.692668054Z
+    container: demo-order
+    stream: stdout
+    level: warn
+    msg: cache mode changed
+    kind: null
+    trace_id: d028c0732939f0c6a9f63a29ef86c9d7
+    span_id: 2e132359d95af621
+    fields:
+      service: demo-order
+      before:
+        mode: normal
+        ttl_seconds: 300
+      after:
+        mode: normal
+        ttl_seconds: 300
+      reason: admin api (fault injection)
+      app_ts: 2026-10-17T15:44:18.692Z
+    raw: null
+stats:
+  lines_scanned: 1475
+  matched: 1
+  returned: 1
+  unparsed_lines: 0
+  spans_skipped: 1026
+  unparsed_excluded_by_level: 0
+  by_level:
+    warn: 1
+containers:
+  - name: demo-order
+    id: f878ca97b200
+    log_driver: null
+    created_at: ""
+    started_at: null
+    lines_scanned: 1475
+    matched: 1
+    status: ok
+    note: Loki 流 {service="demo-order", env="sandbox"} container_id=f878ca97b200；容器创建/启动时间与日志驱动不在 Loki 中（created_at 为空）
+# sources: loki:GET /loki/api/v1/query_range query={service="demo-order", env="sandbox"} |= "cache mode changed" | json workctl_level="level", workctl_kind="kind" | workctl_kind!="span" direction=backward limit=3 [explicit], loki:GET /loki/api/v1/query count_over_time（stats，[21600s]） [explicit]

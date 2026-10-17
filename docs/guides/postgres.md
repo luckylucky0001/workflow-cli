@@ -63,7 +63,7 @@ profile.endpoints.postgres.<instance>  ──(资源绑定 forEndpoint)──▶
 1. 静态检查（词法分析，正确处理 `'…'`、`E'…'`、`$tag$…$tag$`、`"…"`、嵌套注释）：只允许单条 `SELECT / WITH…SELECT / VALUES / TABLE`；拒绝多语句、数据修改型 CTE、`SELECT INTO`、`FOR UPDATE/SHARE`、`EXPLAIN` 前缀，以及终止会话、读写文件、咨询锁、序列、`set_config`、重置统计、执行任意 SQL 文本（`query_to_xml` 等）的函数。名单**不穷尽**——自定义函数可能有副作用，由角色权限兜底。
 2. `BEGIN TRANSACTION READ ONLY`、`SET LOCAL statement_timeout / lock_timeout`，结束后 ROLLBACK。
 3. 服务端游标 `DECLARE … NO SCROLL CURSOR` + `FETCH max_rows+1`，不缓冲完整结果集；超出 → `truncated=true`。
-4. 敏感列：输出列名或其**来源列**（按 `tableID/columnID` 查系统目录，覆盖别名）命中端点 `sensitive_columns` 时脱敏；表达式列在语句引用了敏感列时保守脱敏。不能替代数据库侧列权限或脱敏视图。
+4. 敏感列：输出列名或其**来源列**（按 `tableID/columnID` 查系统目录，覆盖别名）命中端点 `sensitive_columns` 时脱敏；表达式列在语句引用了敏感列时保守脱敏；语句涉及含敏感列的表时，非数值类型的表达式列（整行引用 `SELECT c FROM customers c`、`row_to_json(c)`、`upper(name)` 等）也保守脱敏，数值/布尔/时间类表达式（如 `count(*)`）不受影响。不能替代数据库侧列权限或脱敏视图。
 
 ## 权限前提
 
