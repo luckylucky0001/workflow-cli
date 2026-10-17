@@ -98,6 +98,8 @@ workctl --timeout 60s offline backfill plan --workflow demo-daily-orders --from 
 | 插件新增消息队列能力 | `workctl plugin install --file plugins/demo-mq/dist/demo-mq-plugin.tgz`<br>`workctl --json capability list --domain mq`<br>`workctl mq consumer lag --help`<br>`workctl --json mq consumer lag --cluster demo-mq --group demo-consumer` | 新命令、指南、Schema 与真实 Kafka 结果；`mq queue get`（RabbitMQ）显示为待接入且不可调用 |
 | 更换平台接口版本 | `demo/environment/offline3-up.sh`（Airflow 3.3.2，REST v2）后 `node demo/scenarios/reuse/version-swap.mjs` | 同一组离线/计算能力对 Airflow 2（v1）与 Airflow 3（v2）输出同一契约，只有 `meta.sources` 中的适配器与版本不同（[verification/version-swap.md](verification/version-swap.md)） |
 | 更换容器平台 | `demo/environment/k8s/k3s-up.sh` 后 `WORKCTL_CONFIG=demo/environment/k8s/workctl.k8s.yaml workctl container workload get --service demo-order --env sandbox` | 同一命令按资源绑定改用 Kubernetes provider，输出通过同一 Schema（[verification/report.k8s.md](verification/report.k8s.md)） |
+| 更换 SQL 引擎 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/orders_by_status.sql` → `sql query get --id <q>` | 与 Spark 引擎同一契约，Trino 专有信息在可选字段（[verification/report.trino.md](verification/report.trino.md)） |
+| 更换日志来源 | `node demo/scenarios/reuse/log-provider-swap.mjs` | Docker 日志与 Loki 对同一流量返回一致的条目、统计与调用树（[verification/log-provider-swap.md](verification/log-provider-swap.md)） |
 | Agent 宿主 | `./demo/agent-host/run-agent-demo.sh` | Claude Code 通过 Skill + CLI / MCP 完成三条主线的转录与摘要 |
 
 ## 复位
