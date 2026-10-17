@@ -46,7 +46,7 @@ for key in $ONLY; do
     --output-format stream-json --verbose \
     --mcp-config "$RUNS/mcp.json" \
     --allowedTools "Bash(workctl:*)" "Bash(node dist/workctl.js:*)" "Read" "Glob" "Grep" "Skill" "mcp__workctl" \
-    > "$out" || echo "run ${key} exited with $?"
+    < /dev/null > "$out" || echo "run ${key} exited with $?"
   node demo/agent-host/summarize-run.mjs "$out" > "$RUNS/${key}.summary.md"
   head -5 "$RUNS/${key}.summary.md"
 done

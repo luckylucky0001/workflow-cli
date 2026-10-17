@@ -17,9 +17,19 @@ for (const root of skillDirs) {
     if (!existsSync(f)) continue;
     const text = readFileSync(f, 'utf8');
     const used = new Set();
-    for (const m of text.matchAll(/workctl(?:\s+--json)?\s+([a-z][a-z -]*[a-z])/g)) {
-      const words = m[1].trim();
-      const c = byCommand.find((x) => words === x.command || words.startsWith(`${x.command} `));
+    // tokenise every "workctl ..." mention; skip global options (and their values) before the command words
+    const withValue = new Set(['--timeout', '--profile', '--config', '-o', '--output', '--request-id']);
+    for (const m of text.matchAll(/workctl\s+([^`\n|]+)/g)) {
+      const tokens = m[1].trim().split(/\s+/);
+      const words = [];
+      for (let k = 0; k < tokens.length; k++) {
+        if (withValue.has(tokens[k])) { k++; continue; }
+        if (tokens[k].startsWith('-')) { if (words.length) break; continue; }
+        if (!/^[a-z][a-z-]*$/.test(tokens[k])) break;
+        words.push(tokens[k]);
+      }
+      const phrase = words.join(' ');
+      const c = byCommand.find((x) => phrase === x.command || phrase.startsWith(`${x.command} `));
       if (c) used.add(c.name);
     }
     skills.push({ name: d, used });
@@ -42,5 +52,14 @@ for (const [cap, s] of usage) {
 lines.push('', `- Skill 数：${skills.length}；被引用能力数：${usage.size}；被 2 个及以上 Skill 复用的能力：${multi}`);
 lines.push('', '| 适配器 | 使用它的 Skill 数 |', '| --- | --- |');
 for (const [a, s] of [...adapters].sort((x, y) => y[1].size - x[1].size)) lines.push(`| ${a} | ${s.size} |`);
+// Capability composition in code: handlers that call other capabilities through ctx.call
+// (same engine and contract, no duplicated adapter code).
+const compositions = [];
+const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(join(dir, d.name)) : d.name.endsWith('.ts') ? [join(dir, d.name)] : []));
+for (const f of walk('src/domains')) {
+  const domain = f.split('/')[2];
+  for (const m of readFileSync(f, 'utf8').matchAll(/ctx\.call\('([a-z_.]+)'/g)) compositions.push(`| ${domain} (\`${f}\`) | \`${m[1]}\` | ${registry.get(m[1])?.adapter ?? '?'} |`);
+}
+lines.push('', '## 能力组合（代码层复用）', '', '能力实现通过 `ctx.call()` 调用其他能力：走同一执行引擎与契约，不复制适配器代码。', '', '| 调用方领域 | 被调用能力 | 被调用能力的适配器 |', '| --- | --- | --- |', ...[...new Set(compositions)]);
 writeFileSync('docs/reuse-matrix.md', lines.join('\n') + '\n');
 console.log(`skills=${skills.length} capabilities_referenced=${usage.size} reused_by_2plus=${multi}`);

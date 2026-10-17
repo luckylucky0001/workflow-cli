@@ -1,3 +1,4 @@
+import { StringDecoder } from 'node:string_decoder';
 import { WorkError } from '../../core/output';
 import type { Ctx } from '../../core/runtime';
 import { containerName, dockerTime, shortId, type ContainerInspect, type DockerClient } from '../container/docker';
@@ -31,16 +32,23 @@ export class FrameDemuxer {
   }
 }
 
-/** Splits a stream's text into complete lines, keeping a partial tail between pushes. */
+/**
+ * Splits a stream into complete lines, keeping a partial tail between pushes.
+ * Bytes are decoded with a StringDecoder so a multi-byte UTF-8 character split
+ * across HTTP chunks (TTY streams) or frames is not turned into U+FFFD.
+ */
 export class LineSplitter {
   private tail = '';
+  private readonly decoder = new StringDecoder('utf8');
   constructor(private readonly onLine: (line: string) => void) {}
-  push(text: string): void {
+  push(data: string | Buffer): void {
+    const text = typeof data === 'string' ? data : this.decoder.write(data);
     const parts = (this.tail + text).split('\n');
     this.tail = parts.pop() ?? '';
     for (const p of parts) if (p) this.onLine(p.replace(/\r$/, ''));
   }
   flush(): void {
+    this.tail += this.decoder.end();
     if (this.tail) this.onLine(this.tail);
     this.tail = '';
   }
@@ -194,8 +202,8 @@ export async function scanContainerLogs(
     onLine(line, stream, name);
   };
   const tty = !!inspect.Config?.Tty;
-  const demux = new FrameDemuxer((stream, payload) => splitters[stream].push(payload.toString('utf8')));
-  const r = await docker.stream(path, (chunk) => (tty ? splitters.stdout.push(chunk.toString('utf8')) : demux.push(chunk)));
+  const demux = new FrameDemuxer((stream, payload) => splitters[stream].push(payload));
+  const r = await docker.stream(path, (chunk) => (tty ? splitters.stdout.push(chunk) : demux.push(chunk)));
   if (r.status >= 400) {
     const body = r.errorBody ?? '';
     if (/does not support reading|configured logging driver/i.test(body)) {
@@ -221,19 +229,22 @@ export function tsKey(ts: string): string {
   return `${m[1]}.${(m[2] ?? '').padEnd(9, '0').slice(0, 9)}Z`;
 }
 
-/** Keeps at most `limit` entries: the newest (order=newest) or the oldest (order=oldest). */
+/**
+ * Keeps at most `limit` entries: the newest (order=newest) or the oldest (order=oldest).
+ * Entries arrive container by container (each in time order), so arrival order is not
+ * global time order: trimming always sorts by timestamp before discarding.
+ */
 export class BoundedCollector {
   private items: LogEntry[] = [];
   matched = 0;
   constructor(readonly limit: number, readonly keep: 'newest' | 'oldest') {}
   add(e: LogEntry): void {
     this.matched++;
-    if (this.keep === 'oldest') {
-      if (this.items.length < this.limit) this.items.push(e);
-      return;
-    }
     this.items.push(e);
-    if (this.items.length > this.limit * 2) this.items = this.items.slice(-this.limit);
+    if (this.items.length > this.limit * 2) {
+      const sorted = this.items.sort((a, b) => tsKey(a.ts).localeCompare(tsKey(b.ts)));
+      this.items = this.keep === 'newest' ? sorted.slice(-this.limit) : sorted.slice(0, this.limit);
+    }
   }
   /** Merge of per-container collectors happens on the caller side; this returns sorted chronological. */
   entries(): LogEntry[] {

@@ -101,6 +101,8 @@ export function renderQuery(template: string, resource: string): string {
 export interface SeriesSummary {
   points: number;
   nan_points: number;
+  /** +Inf / -Inf samples (e.g. histogram_quantile above the largest finite bucket); not NaN, not missing. */
+  inf_points: number;
   min: number | null;
   max: number | null;
   avg: number | null;
@@ -118,13 +120,17 @@ export function summarize(values: [number, string][]): { points: [string, number
   let sum = 0;
   let n = 0;
   let nan = 0;
+  let inf = 0;
   let last: number | null = null;
   let lastAt: string | null = null;
   for (const [t, v] of values) {
     const at = new Date(t * 1000).toISOString();
-    const num = Number(v);
+    // Prometheus encodes infinities as "+Inf" / "-Inf", which Number() parses as NaN
+    const num = v === '+Inf' || v === 'Inf' ? Infinity : v === '-Inf' ? -Infinity : Number(v);
     if (!Number.isFinite(num)) {
-      nan++;
+      // Prometheus encodes +Inf/-Inf as strings; they are real (unbounded) values, not missing data
+      if (num === Infinity || num === -Infinity) inf++;
+      else nan++;
       points.push([at, null]);
       continue;
     }
@@ -141,6 +147,7 @@ export function summarize(values: [number, string][]): { points: [string, number
     summary: {
       points: values.length,
       nan_points: nan,
+      inf_points: inf,
       min: n ? round6(min) : null,
       max: n ? round6(max) : null,
       avg: n ? round6(sum / n) : null,

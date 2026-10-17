@@ -40,6 +40,7 @@ description: 排查离线数据延迟或缺失：某个业务日期的表没按�
 
 5. **成功但分区缺失（写错分区）**
    - `data partition get --table <db.table> --partition dt=D` 看 `nearby_partitions`；D+1 存在而 D 缺失是写错分区的迹象。
+   - 对疑似被写入的分区做质量检查：`data quality check --dataset <catalog>.<table> --partition dt=D+1`，`partition_value_match` 类规则失败（业务日期列与 `dt` 不一致）即事实证据。
    - 用只读查询取证：`sql query submit --engine spark --file <按 dt 汇总 order_date 的 SQL>`，`dt` 与业务日期列不一致即事实证据。
    - `offline log get` 中 spark-submit 的 `--output` 路径、`run get` 的 `run.conf`（如 fault 参数）是原因线索。
 

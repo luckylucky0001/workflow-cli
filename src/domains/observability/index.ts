@@ -42,10 +42,11 @@ const metricQuery = defineCapability({
     series: z.array(
       z.object({
         labels: z.record(z.string(), z.string()),
-        points: z.array(z.tuple([z.string(), z.number().nullable()])).describe('[时间, 值]；null 表示 NaN/Inf（如分母为零）'),
+        points: z.array(z.tuple([z.string(), z.number().nullable()])).describe('[时间, 值]；null 表示 NaN 或 ±Inf，分别计入 nan_points / inf_points'),
         summary: z.object({
           points: z.number(),
           nan_points: z.number(),
+          inf_points: z.number().describe('+Inf/-Inf 点数（如分位数落在最大有限桶之上）；不计入 min/max/avg'),
           min: z.number().nullable(),
           max: z.number().nullable(),
           avg: z.number().nullable(),
@@ -126,6 +127,9 @@ const metricQuery = defineCapability({
     for (const s of series) {
       if (s.summary.points < expected) notes.push(`序列 ${JSON.stringify(s.labels)} 只有 ${s.summary.points}/${expected} 个点（抓取缺失或序列中途出现/消失）`);
       if (s.summary.nan_points) notes.push(`序列 ${JSON.stringify(s.labels)} 有 ${s.summary.nan_points} 个 NaN 点（通常是分母为零：窗口内无请求）`);
+      if (s.summary.inf_points) {
+        notes.push(`序列 ${JSON.stringify(s.labels)} 有 ${s.summary.inf_points} 个 ±Inf 点（输出为 null，不计入 min/max/avg）；histogram_quantile 返回 +Inf 表示分位数超过最大有限桶上界，是极高值而不是缺数据`);
+      }
     }
     return {
       data: {
@@ -386,6 +390,7 @@ const traceGet = defineCapability({
     services: z.array(z.string()),
     error_spans: z.number(),
     roots: z.array(z.string()),
+    cyclic_parents: z.array(z.string()).describe('父子关系成环的 span（日志数据异常），已提升为根以免丢失'),
     external_parent: z.string().nullable().describe('根 span 的父 span 不在日志中（来自外部调用方）'),
     spans: z.array(
       z.object({
@@ -474,11 +479,12 @@ const traceGet = defineCapability({
     const view = buildTrace(id, spans, logs);
     if (view.roots.length > 1) notes.push(`有 ${view.roots.length} 个根 span（部分父 span 不在已扫描日志中）`);
     if (view.external_parent) notes.push(`根 span 的父 span ${view.external_parent} 来自未记录日志的调用方`);
+    if (view.cyclic_parents.length) notes.push(`span 父子关系成环（${view.cyclic_parents.join(', ')}），日志中的 parent_span_id 不可信，相关层级仅供参考`);
     return {
       data: { ...view, scanned },
       sources: [await docker.source('GET /containers/{id}/logs（kind=span 记录重建）', 'derived')],
       coverage: {
-        complete: view.roots.length === 1,
+        complete: view.roots.length === 1 && view.cyclic_parents.length === 0,
         window: win,
         scope: `服务: ${services.join(', ')} 的容器日志`,
         notes: [...notes, '日志派生的调用链：只包含已记录且仍保留的 span'],

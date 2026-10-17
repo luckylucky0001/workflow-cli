@@ -53,6 +53,8 @@ export interface TraceView {
   services: string[];
   error_spans: number;
   roots: string[];
+  /** Spans whose parent chain loops back on itself; promoted to roots so they are not lost. */
+  cyclic_parents: string[];
   external_parent: string | null;
   spans: TraceSpanView[];
   breakdown: { name: string; count: number; total_ms: number; self_ms: number; pct_of_trace: number }[];
@@ -65,7 +67,9 @@ export function spanFromFields(fields: Record<string, unknown>, container: strin
   const { trace_id, span_id, name, start, duration_ms } = fields as Record<string, unknown>;
   if (typeof trace_id !== 'string' || typeof span_id !== 'string' || typeof name !== 'string' || typeof start !== 'string') return null;
   const d = Number(duration_ms);
-  if (!Number.isFinite(d)) return null;
+  if (!Number.isFinite(d) || d < 0) return null;
+  // an unparseable start would turn every offset into NaN (and toISOString() throws)
+  if (!Number.isFinite(Date.parse(start))) return null;
   return {
     trace_id,
     span_id,
@@ -90,7 +94,7 @@ export function buildTrace(traceId: string, spansIn: SpanRecord[], logs: SpanLog
   const children = new Map<string, SpanRecord[]>();
   const roots: SpanRecord[] = [];
   for (const s of spans) {
-    if (s.parent_span_id && byId.has(s.parent_span_id)) {
+    if (s.parent_span_id && s.parent_span_id !== s.span_id && byId.has(s.parent_span_id)) {
       const arr = children.get(s.parent_span_id) ?? [];
       arr.push(s);
       children.set(s.parent_span_id, arr);
@@ -113,8 +117,11 @@ export function buildTrace(traceId: string, spansIn: SpanRecord[], logs: SpanLog
   }
 
   const out: TraceSpanView[] = [];
+  const visited = new Set<string>();
   const walk = (s: SpanRecord, depth: number, orphan: boolean) => {
-    const kids = children.get(s.span_id) ?? [];
+    if (visited.has(s.span_id)) return;
+    visited.add(s.span_id);
+    const kids = (children.get(s.span_id) ?? []).filter((k) => !visited.has(k.span_id));
     // self time: span duration minus the union of its children's intervals
     const st = Date.parse(s.start);
     const intervals = kids
@@ -153,6 +160,15 @@ export function buildTrace(traceId: string, spansIn: SpanRecord[], logs: SpanLog
     for (const k of kids) walk(k, depth + 1, false);
   };
   for (const r of roots) walk(r, 0, roots.length > 1 && r.parent_span_id !== null);
+  // Spans in a parent cycle (a→b→a, or self-parent) are reachable from no root. Do not drop
+  // them silently: promote the earliest unvisited span of each cycle to an (orphan) root.
+  const cyclic: string[] = [];
+  for (const s of [...spans].sort(byStart)) {
+    if (visited.has(s.span_id)) continue;
+    cyclic.push(s.span_id);
+    roots.push(s);
+    walk(s, 0, true);
+  }
 
   const agg = new Map<string, { count: number; total: number; self: number }>();
   for (const s of out) {
@@ -162,7 +178,7 @@ export function buildTrace(traceId: string, spansIn: SpanRecord[], logs: SpanLog
     a.self += s.self_ms;
     agg.set(s.name, a);
   }
-  const externalParents = [...new Set(roots.map((r) => r.parent_span_id).filter((p): p is string => !!p))];
+  const externalParents = [...new Set(roots.map((r) => r.parent_span_id).filter((p): p is string => !!p && !byId.has(p)))];
   return {
     trace_id: traceId,
     start: new Date(startMs).toISOString(),
@@ -172,6 +188,7 @@ export function buildTrace(traceId: string, spansIn: SpanRecord[], logs: SpanLog
     services: [...new Set(spans.map((s) => s.service).filter((x): x is string => !!x))],
     error_spans: out.filter((s) => s.status === 'error').length,
     roots: roots.map((r) => r.span_id),
+    cyclic_parents: cyclic,
     external_parent: externalParents.length === 1 && roots.length === 1 ? externalParents[0] : null,
     spans: out,
     breakdown: [...agg.entries()]
