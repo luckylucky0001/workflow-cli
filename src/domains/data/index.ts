@@ -343,7 +343,7 @@ const partitionGet = defineCapability({
         ? `分区目录不存在；业务日期${businessDate!.day_ended ? '已结束但尚未到产出期限' : '尚未结束'}，可能只是还没到产出时间`
         : '分区目录不存在（未产出、产出到其他位置，或分区值/业务日期不对）',
       empty: '分区目录存在但没有数据记录',
-      incomplete: `有数据文件但缺少完成标记 ${meta.success_marker}，可能仍在写入或写入中断`,
+      incomplete: `${scan.files.length ? '有数据文件但' : '目录中还没有数据文件，且'}缺少完成标记 ${meta.success_marker}，可能仍在写入或写入中断`,
       unreadable: '数据文件存在但部分记录无法解析或文件无法打开',
       present: `分区存在、${scan.files.length} 个数据文件${scan.marker ? `、含 ${scan.marker.name}` : ''}，抽查记录可解析（质量规则未检查）`,
     };

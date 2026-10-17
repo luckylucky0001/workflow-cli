@@ -58,13 +58,42 @@ def render(sql: str, params: dict[str, str]) -> str:
     return re.sub(r"\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}", sub, sql)
 
 
-def strip_comments(sql: str) -> str:
-    sql = re.sub(r"/\*.*?\*/", " ", sql, flags=re.S)
-    return "\n".join(line.split("--", 1)[0] for line in sql.splitlines())
-
-
 def statements(sql: str) -> list[str]:
-    return [s.strip() for s in strip_comments(sql).split(";") if s.strip()]
+    """Split on top-level ';', dropping -- and /* */ comments, but never inside quotes or backticks."""
+    out, buf, i, n = [], [], 0, len(sql)
+    quote = None
+    while i < n:
+        c = sql[i]
+        if quote:
+            buf.append(c)
+            if c == "\\" and quote != "`" and i + 1 < n:
+                buf.append(sql[i + 1])
+                i += 2
+                continue
+            if c == quote:
+                quote = None
+            i += 1
+            continue
+        if c in ("'", '"', "`"):
+            quote = c
+            buf.append(c)
+        elif sql.startswith("--", i):
+            j = sql.find("\n", i)
+            i = n if j < 0 else j
+            continue
+        elif sql.startswith("/*", i):
+            j = sql.find("*/", i + 2)
+            buf.append(" ")
+            i = n if j < 0 else j + 2
+            continue
+        elif c == ";":
+            out.append("".join(buf))
+            buf = []
+        else:
+            buf.append(c)
+        i += 1
+    out.append("".join(buf))
+    return [s.strip() for s in out if s.strip()]
 
 
 def register_warehouse_views(spark, warehouse: str) -> list[str]:

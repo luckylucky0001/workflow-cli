@@ -47,6 +47,18 @@ describe('quality check on partitions without records', () => {
   });
 });
 
+describe('partition state without completion marker', () => {
+  it('an empty directory of a table with a success marker is incomplete, not empty', async () => {
+    mkdirSync(join(fx.warehouse, 'analytics/daily_orders/dt=2026-10-11/_temporary/0'), { recursive: true });
+    const env = await fx.call('data.partition.get', { catalog: 'demo', table: 'analytics.daily_orders', partition: 'dt=2026-10-11' });
+    const d = env.data as any;
+    expect(d.state).toBe('incomplete');
+    expect(d.explanation).toContain('还没有数据文件');
+    const q = await fx.call('data.quality.check', { dataset: 'demo.daily_orders', partition: 'dt=2026-10-11', ruleset: 'demo-daily-rules' });
+    expect((q.data as any).precondition).toMatchObject({ ok: false, partition_state: 'incomplete' });
+  });
+});
+
 describe('dataset resolution ambiguity', () => {
   function twoCatalogs(otherTables: string[]): Ctx {
     // second catalog named "ods" next to the default "demo" (which holds ods.orders)

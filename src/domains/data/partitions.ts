@@ -93,8 +93,10 @@ export function updatedAtMs(scan: PartitionScan): number | null {
 
 export function physicalState(scan: PartitionScan): Exclude<PartitionState, 'unreadable'> {
   if (!scan.exists || !scan.is_dir) return 'missing';
-  if (!scan.files.length || totalBytes(scan) === 0) return 'empty';
+  // a table that declares a success marker has not signalled completion without it:
+  // an empty directory then means "not finished", not "finished with no rows"
   if (scan.marker && !scan.marker.present) return 'incomplete';
+  if (!scan.files.length || totalBytes(scan) === 0) return 'empty';
   return 'present';
 }
 
