@@ -1,0 +1,38 @@
+# analytics.daily_orders: 按业务日期、订单状态聚合的日报表。
+name: analytics.daily_orders
+description: 每个业务日期按订单状态聚合的订单数、金额与客户数
+owner: team-data
+format: json
+location: analytics/daily_orders
+partition_keys:
+  - name: dt
+    type: date
+    format: YYYY-MM-DD
+    timezone: Asia/Shanghai
+    semantics: 业务日期，Asia/Shanghai 自然日；与 order_date 列一致，不是任务启动日期
+columns:
+  - { name: order_date, type: date, nullable: false, description: 业务日期（应等于分区 dt） }
+  - { name: status, type: string, nullable: false, description: 订单状态 }
+  - { name: order_count, type: bigint, nullable: false, description: 订单数 }
+  - { name: total_amount, type: "decimal(18,2)", nullable: false, description: 订单金额合计 }
+  - { name: avg_amount, type: "decimal(18,2)", nullable: false, description: 平均订单金额 }
+  - { name: customer_count, type: bigint, nullable: false, description: 去重客户数 }
+write_mode: overwrite_partition
+success_marker: _SUCCESS
+produced_by:
+  scheduler: demo-airflow
+  workflow: demo-daily-orders
+  task: aggregate_orders
+  sql_file: demo/offline-workflows/sql/daily_orders.sql
+  input_views:
+    ods_orders: ods.orders
+upstream:
+  - table: ods.orders
+    relation: explicit
+    columns: [status, amount, customer_id]
+consumers:
+  - { type: report, id: demo-daily-report, note: 订单日报 }
+quality_ruleset: demo-daily-rules
+freshness:
+  expected_by: "06:00"
+  day_offset: 1

@@ -1,0 +1,22 @@
+# Prometheus for the workctl demo environment.
+# demo-order emits a `service` label on its own metrics; honor_labels keeps it and the
+# target label below adds service="demo-order" to series Prometheus generates (up, scrape_*).
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: demo-order
+    honor_labels: true
+    scrape_interval: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["demo-order:8080"]
+        labels:
+          service: demo-order
+          env: sandbox
+
+  - job_name: prometheus
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["localhost:9090"]

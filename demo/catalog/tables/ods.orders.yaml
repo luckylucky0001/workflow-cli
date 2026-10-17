@@ -1,0 +1,37 @@
+# ods.orders: 订单原始抽取（贴源层），每个业务日期一个分区。
+name: ods.orders
+description: 订单贴源层，按业务日期（Asia/Shanghai）抽取当天创建的订单；演示环境中为合成数据
+owner: team-data
+format: json
+location: ods/orders
+partition_keys:
+  - name: dt
+    type: date
+    format: YYYY-MM-DD
+    timezone: Asia/Shanghai
+    semantics: 业务日期，Asia/Shanghai 自然日；分区内为 created_at 落在 [dt 00:00, dt+1 00:00) +08:00 的订单
+columns:
+  - { name: order_id, type: bigint, nullable: false, description: 订单 ID（源表 demo.orders.id） }
+  - { name: customer_id, type: bigint, nullable: false, sensitive: true, description: 客户 ID（按敏感列处理，输出样本中脱敏） }
+  - { name: status, type: string, nullable: false, description: 订单状态 PENDING/PAID/SHIPPED/DELIVERED/CANCELLED/REFUNDED }
+  - { name: amount, type: "decimal(10,2)", nullable: false, description: 订单金额 }
+  - { name: item_count, type: int, nullable: false, description: 商品件数 }
+  - { name: created_at, type: timestamp, nullable: false, description: 创建时间，ISO-8601 带 +08:00 偏移 }
+  - { name: updated_at, type: timestamp, nullable: false, description: 最后更新时间，可能晚于业务日期 }
+write_mode: overwrite_partition
+success_marker: _SUCCESS
+produced_by:
+  scheduler: demo-airflow
+  workflow: demo-ods-orders
+  task: extract_orders
+upstream:
+  - table: mysql://demo-mysql/demo.orders
+    relation: explicit
+    columns: [id, customer_id, status, amount, item_count, created_at, updated_at]
+    note: 平台声明的业务来源；演示环境中 extract_orders 调用 demo/synthetic-data/generate_orders.py 生成同结构合成数据，未实际读取 MySQL
+consumers:
+  - { type: workflow, id: demo-daily-orders, note: 传感器等待本表分区后聚合 }
+quality_ruleset: demo-ods-rules
+freshness:
+  expected_by: "02:00"
+  day_offset: 1

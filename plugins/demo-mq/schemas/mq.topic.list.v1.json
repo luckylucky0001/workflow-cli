@@ -1,0 +1,83 @@
+{
+  "$id": "demo-mq/mq.topic.list.v1",
+  "title": "mq.topic.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "cluster": {
+      "type": "string"
+    },
+    "cluster_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "include_internal": {
+      "type": "boolean"
+    },
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "partitions": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "internal": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "partitions",
+          "internal"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "count": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991,
+      "description": "本次返回的 topic 数"
+    },
+    "total_matched": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991,
+      "description": "过滤后（截断前）的 topic 数"
+    },
+    "internal_excluded": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "observed_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "cluster",
+    "cluster_id",
+    "include_internal",
+    "topics",
+    "count",
+    "total_matched",
+    "internal_excluded",
+    "observed_at"
+  ],
+  "additionalProperties": false
+}

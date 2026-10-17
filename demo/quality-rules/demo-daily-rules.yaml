@@ -1,0 +1,46 @@
+# Quality rules for analytics.daily_orders (one partition = one business date).
+# Run: workctl data quality check --dataset demo.daily_orders --partition 'dt=2026-10-16' --ruleset demo-daily-rules
+name: demo-daily-rules
+description: 订单日聚合表的分区质量规则
+table: analytics.daily_orders
+rules:
+  - id: partition_exists
+    type: partition_exists
+    require_success_marker: true
+  - id: has_rows
+    type: row_count_min
+    min: 1
+    description: 至少一个状态的聚合行
+  - id: bounded_rows
+    type: row_count_max
+    max: 20
+    description: 每个状态一行，状态种类有限
+  - id: keys_not_null
+    type: not_null
+    columns: [order_date, status, order_count, total_amount]
+  - id: one_row_per_status
+    type: unique
+    columns: [order_date, status]
+  - id: known_status
+    type: accepted_values
+    column: status
+    values: [PENDING, PAID, SHIPPED, DELIVERED, CANCELLED, REFUNDED]
+  - id: positive_count
+    type: value_range
+    column: order_count
+    min: 1
+  - id: non_negative_amount
+    type: value_range
+    column: total_amount
+    min: 0
+  - id: order_date_matches_dt
+    type: partition_value_match
+    column: order_date
+    key: dt
+    description: 数据内容的业务日期必须与分区 dt 一致（发现写错分区）
+  - id: schema
+    type: schema_match
+  - id: on_time
+    type: freshness
+    severity: warn
+    description: 业务日期次日 06:00 (Asia/Shanghai) 前产出；补数时通常不满足，只告警

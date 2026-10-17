@@ -1,0 +1,35 @@
+# Quality rules for ods.orders (raw extract of one business date).
+# Run: workctl data quality check --dataset demo.ods.orders --partition 'dt=2026-10-16' --ruleset demo-ods-rules
+name: demo-ods-rules
+description: 订单贴源层的分区质量规则
+table: ods.orders
+rules:
+  - id: partition_exists
+    type: partition_exists
+  - id: min_rows
+    type: row_count_min
+    min: 100
+  - id: order_id_unique
+    type: unique
+    columns: [order_id]
+  - id: required_not_null
+    type: not_null
+    columns: [order_id, customer_id, amount]
+  - id: known_status
+    type: accepted_values
+    column: status
+    values: [PENDING, PAID, SHIPPED, DELIVERED, CANCELLED, REFUNDED]
+  - id: non_negative_amount
+    type: value_range
+    column: amount
+    min: 0
+  - id: created_in_business_date
+    type: partition_value_match
+    column: created_at
+    key: dt
+    description: created_at 换算到 Asia/Shanghai 后应落在分区业务日期内
+  - id: schema
+    type: schema_match
+  - id: on_time
+    type: freshness
+    severity: warn

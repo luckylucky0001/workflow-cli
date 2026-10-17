@@ -1,0 +1,338 @@
+{
+  "$id": "demo-mq/mq.consumer.lag.v1",
+  "title": "mq.consumer.lag data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "cluster": {
+      "type": "string",
+      "description": "endpoint 名（profile.endpoints.kafka 下的键）"
+    },
+    "cluster_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "group": {
+      "type": "string"
+    },
+    "group_state": {
+      "type": "string",
+      "description": "DescribeGroups 返回的组状态：Stable / Empty / PreparingRebalance / CompletingRebalance / Dead"
+    },
+    "protocol_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "assignment_strategy": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "member_count": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "member_id": {
+            "type": "string"
+          },
+          "client_id": {
+            "type": "string"
+          },
+          "client_host": {
+            "type": "string"
+          },
+          "assignments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "topic": {
+                  "type": "string"
+                },
+                "partitions": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                }
+              },
+              "required": [
+                "topic",
+                "partitions"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "member_id",
+          "client_id",
+          "client_host",
+          "assignments"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "topic_filter": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string"
+          },
+          "partitions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "partition": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "committed_offset": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "消费组已提交位点（下一条待消费消息的位点）；无已提交位点时为 null"
+                },
+                "end_offset": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "分区结束位点（ListOffsets latest，read_committed 隔离级别，非事务写入时等于高水位）"
+                },
+                "log_start_offset": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "日志起始位点（更早的消息已被 retention/compaction 清理）"
+                },
+                "lag": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "end_offset - committed_offset，单位为位点数；无法计算时为 null"
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "no_committed_offset",
+                    "committed_before_log_start",
+                    "committed_ahead_of_end",
+                    "end_offset_unavailable"
+                  ]
+                },
+                "explanation": {
+                  "description": "state 不是 ok 时的解释",
+                  "type": "string"
+                },
+                "assigned_member": {
+                  "description": "当前分配到该分区的成员 client_id；组内无成员时为 null",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "partition",
+                "committed_offset",
+                "end_offset",
+                "log_start_offset",
+                "lag",
+                "state",
+                "assigned_member"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "total_lag": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991,
+            "description": "该 topic 下可计算 lag 的分区之和"
+          },
+          "partitions_with_commit": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "partitions_without_commit": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "topic",
+          "partitions",
+          "total_lag",
+          "partitions_with_commit",
+          "partitions_without_commit"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "totals": {
+      "type": "object",
+      "properties": {
+        "topics": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "partitions": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "partitions_with_commit": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "partitions_without_commit": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "partitions_lag_unknown": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "total_lag": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "max_partition_lag": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "topic": {
+                  "type": "string"
+                },
+                "partition": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "lag": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "topic",
+                "partition",
+                "lag"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "topics",
+        "partitions",
+        "partitions_with_commit",
+        "partitions_without_commit",
+        "partitions_lag_unknown",
+        "total_lag",
+        "max_partition_lag"
+      ],
+      "additionalProperties": false
+    },
+    "lag_unit": {
+      "type": "string",
+      "const": "offsets"
+    },
+    "lag_basis": {
+      "type": "string",
+      "const": "offset_difference",
+      "description": "lag 基于位点差，不是时间延迟"
+    },
+    "end_offset_isolation": {
+      "type": "string",
+      "const": "read_committed"
+    },
+    "observed_at": {
+      "type": "string",
+      "description": "位点读取完成时间（ISO 8601）；lag 是该时刻的快照"
+    }
+  },
+  "required": [
+    "cluster",
+    "cluster_id",
+    "group",
+    "group_state",
+    "protocol_type",
+    "assignment_strategy",
+    "member_count",
+    "members",
+    "topic_filter",
+    "topics",
+    "totals",
+    "lag_unit",
+    "lag_basis",
+    "end_offset_isolation",
+    "observed_at"
+  ],
+  "additionalProperties": false
+}

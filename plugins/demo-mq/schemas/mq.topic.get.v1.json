@@ -1,0 +1,221 @@
+{
+  "$id": "demo-mq/mq.topic.get.v1",
+  "title": "mq.topic.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "cluster": {
+      "type": "string"
+    },
+    "cluster_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "topic": {
+      "type": "string"
+    },
+    "internal": {
+      "type": "boolean"
+    },
+    "partition_count": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "replication_factor": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "取各分区副本数的最大值"
+    },
+    "partitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "partition": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "leader": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "leader broker id；-1/无 leader 时为 null"
+          },
+          "replicas": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "isr": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "offline_replicas": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "under_replicated": {
+            "type": "boolean",
+            "description": "ISR 数量少于副本数"
+          },
+          "log_start_offset": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "end_offset": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "offset_span": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "end_offset - log_start_offset；compaction/事务控制记录下不等于消息条数"
+          }
+        },
+        "required": [
+          "partition",
+          "leader",
+          "replicas",
+          "isr",
+          "offline_replicas",
+          "under_replicated",
+          "log_start_offset",
+          "end_offset",
+          "offset_span"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "configs": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "description": "敏感配置不输出取值",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "topic / broker-dynamic / broker-static / default 等"
+          },
+          "is_default": {
+            "type": "boolean"
+          },
+          "sensitive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "value",
+          "source",
+          "is_default",
+          "sensitive"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "totals": {
+      "type": "object",
+      "properties": {
+        "under_replicated_partitions": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "offline_partitions": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "offset_span": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "under_replicated_partitions",
+        "offline_partitions",
+        "offset_span"
+      ],
+      "additionalProperties": false
+    },
+    "observed_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "cluster",
+    "cluster_id",
+    "topic",
+    "internal",
+    "partition_count",
+    "replication_factor",
+    "partitions",
+    "configs",
+    "totals",
+    "observed_at"
+  ],
+  "additionalProperties": false
+}

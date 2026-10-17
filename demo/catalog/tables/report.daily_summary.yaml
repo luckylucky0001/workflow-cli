@@ -1,0 +1,32 @@
+# report.daily_summary: 日报汇总（下游影响分析示例）。产出流程尚未接入调度（planned）。
+name: report.daily_summary
+description: 面向日报的单日汇总（全部状态合计、取消率）；产出流程 demo-report-workflow 尚未接入 Airflow
+owner: team-bi
+format: json
+location: report/daily_summary
+partition_keys:
+  - name: dt
+    type: date
+    format: YYYY-MM-DD
+    timezone: Asia/Shanghai
+    semantics: 业务日期，Asia/Shanghai 自然日
+columns:
+  - { name: report_date, type: date, nullable: false, description: 业务日期 }
+  - { name: order_count, type: bigint, nullable: false, description: 订单总数 }
+  - { name: total_amount, type: "decimal(18,2)", nullable: false, description: 金额合计 }
+  - { name: cancel_rate, type: double, nullable: true, description: 取消与退款订单占比 }
+write_mode: overwrite_partition
+success_marker: _SUCCESS
+produced_by:
+  scheduler: demo-airflow
+  workflow: demo-report-workflow
+  status: planned
+upstream:
+  - table: analytics.daily_orders
+    relation: explicit
+    columns: [order_count, total_amount, status]
+consumers:
+  - { type: report, id: demo-daily-report, note: 订单日报页面 }
+freshness:
+  expected_by: "08:00"
+  day_offset: 1
