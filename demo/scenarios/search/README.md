@@ -12,7 +12,7 @@
 | 索引 `demo-orders-archive` | 1 主分片、**1 副本**（单节点无法分配 → 索引与集群 yellow）；旧映射：`amount` 为 keyword、**没有 `created_at`**；400 条 |
 | 别名 `demo-orders-current` | → `demo-orders`（write index） |
 | 别名 `demo-orders-all` | → `demo-orders` + `demo-orders-archive`（映射不一致，按 `created_at` 排序时 archive 分片失败 → partial） |
-| `dsl/*.json` | 受限 DSL 示例：`paid_by_city.json`（过滤 + 排序 + 聚合）、`latest_across_archive.json`（制造部分分片失败）、`script_score.json` / `size_too_large.json` / `disallowed_from.json`（应被拒绝） |
+| `dsl/*.json` | 受限 DSL 示例：`paid_by_city.json`（过滤 + 排序 + 聚合）、`latest_across_archive.json`（制造部分分片失败）、`script_score.json` / `size_too_large.json` / `disallowed_from.json` / `wrapper_script.json` / `top_hits_per_bucket.json`（应被拒绝） |
 
 ## 步骤（在仓库根目录执行）
 

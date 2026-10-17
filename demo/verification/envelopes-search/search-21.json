@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "search.query",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "聚合 aggs.per_order.aggs.doc.top_hits 会在聚合结果中返回文档，受限查询不允许",
+    "hint": "文档只通过命中列表返回（最多 100 条）；用 query 过滤 + sort + size 取样本",
+    "retryable": false,
+    "details": {
+      "forbidden_key": "top_hits",
+      "path": "aggs.per_order.aggs.doc.top_hits"
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcl5kut-14f92c",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:03:08.885Z",
+    "duration_ms": 110
+  }
+}

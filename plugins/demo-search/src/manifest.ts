@@ -84,7 +84,7 @@ export const CAPABILITIES: ManifestCapability[] = [
     command: 'search query',
     summary: '对 OpenSearch 执行受限只读查询（query_string 或受限 DSL），返回命中数、命中与聚合',
     description:
-      '只调用 POST /{index}/_search。--query 以 query_string 执行（禁止前导通配符）；--dsl-file 只允许 query / size / sort / _source / aggs，拒绝脚本（script、script_score、scripted_metric、_script 排序、runtime_mappings 等）和跨索引读取（terms lookup、indexed_shape）。size ≤ 100（--max-hits，默认 20），timeout 由时间预算设置，track_total_hits ≤ 10000（--track-total-hits）。',
+      '只调用 POST /{index}/_search。--query 以 query_string 执行（禁止前导通配符）；--dsl-file 只允许 query / size / sort / _source / aggs，拒绝脚本（script、script_score、scripted_metric、_script 排序、runtime_mappings、terms_set 的 minimum_should_match_script、base64 的 wrapper 查询等）、聚合中的 top_hits 和跨索引读取（terms lookup、indexed_shape）。size ≤ 100（--max-hits，默认 20），timeout 由时间预算设置，track_total_hits ≤ 10000（--track-total-hits）。',
     inputs: {
       cluster,
       index: { type: 'string', required: true, description: '索引、别名或带尾部 * 的前缀，可逗号分隔（≤10 个）；禁止 _all 与 . 开头的系统索引' },

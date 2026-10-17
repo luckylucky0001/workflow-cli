@@ -36,11 +36,12 @@
 | 只读 | 只调用 `POST /{index}/_search`；`_update_by_query`、`_delete_by_query`、`_bulk` 等端点永远不会被调用 |
 | query_string | `--query` 以 `query_string` 执行，`allow_leading_wildcard=false`，长度 ≤ 4096 |
 | 受限 DSL | `--dsl-file` 顶层只允许 `query`、`size`、`sort`、`_source`、`aggs`；`from`、`search_after`、`timeout`、`track_total_hits`、`script_fields`、`runtime_mappings` 等一律拒绝 |
-| 禁止脚本 | 任意层级出现 `script`、`script_score`、`scripted_metric`、`_script`（脚本排序）、`bucket_script`、`bucket_selector`、`stored_script` → `INVALID_ARGUMENT`，请求不发往集群 |
-| 禁止跨索引读取 | `terms` lookup（`{index,id,path}`）、`indexed_shape`、`more_like_this` 引用其他索引文档 → `INVALID_ARGUMENT` |
+| 禁止脚本 | 任意层级出现 `script`、`script_score`、`scripted_metric`、`_script`（脚本排序）、`bucket_script`、`bucket_selector`、`stored_script`、`minimum_should_match_script`（terms_set），以及无法检查内容的 `wrapper`（base64 查询）→ `INVALID_ARGUMENT`，请求不发往集群 |
+| 禁止跨索引读取 | `terms` lookup（`{index,id,path}`）、`indexed_shape`、`more_like_this`/`percolate` 引用其他索引文档 → `INVALID_ARGUMENT`（聚合里的 `filter`/`filters` 同样检查） |
 | 条数 | DSL `size` > 100 → `INVALID_ARGUMENT`；实际 `size = min(DSL size, --max-hits)` |
+| 分片 | `_shards.failed > 0`、`timed_out`，或 `successful < total`（red 索引中没有可用副本的分片不计入 failed）→ `status=partial` |
 | 计数 | `track_total_hits` = `--track-total-hits`（1–10000，默认 10000），DSL 中不可指定 |
-| 聚合 | 聚合内 `size`/`shard_size` ≤ 1000 |
+| 聚合 | 聚合内 `size`/`shard_size` ≤ 1000（数字字符串同样计入）；`top_hits` 会在聚合结果中返回文档，拒绝 |
 | 超时 | 请求体 `timeout` = 剩余时间预算 − 1.5s；HTTP 请求本身也受预算限制 |
 | 目标 | 索引/别名/尾部 `*` 前缀，≤10 个；禁止 `_all`、`*` 和 `.` 开头的系统索引；`expand_wildcards=open` |
 | `_source` | 字符串 > 512 字符、字段 > 50 个或单条 > 8 KiB 时截断，`source_truncated=true` |

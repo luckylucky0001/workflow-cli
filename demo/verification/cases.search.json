@@ -274,5 +274,35 @@
    "partial"
   ],
   "note": "相对路径的 --dsl-file：核心在校验时转为绝对路径再交给插件（插件在自己的安装目录运行）"
+ },
+ {
+  "id": "search-20",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--dsl-file",
+   "demo/scenarios/search/dsl/wrapper_script.json"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "wrapper 查询（base64 编码的 script 查询）→ 插件内拒绝；修复前会在集群上执行脚本"
+ },
+ {
+  "id": "search-21",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--dsl-file",
+   "demo/scenarios/search/dsl/top_hits_per_bucket.json"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "aggs 中的 top_hits 会在聚合结果里返回文档（修复前返回 1000 条未截断文档），绕过 100 条命中上限 → 拒绝"
  }
 ]

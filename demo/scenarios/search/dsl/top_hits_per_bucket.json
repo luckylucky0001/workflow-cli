@@ -1,0 +1,18 @@
+{
+  "size": 0,
+  "aggs": {
+    "per_order": {
+      "terms": {
+        "field": "order_id",
+        "size": 1000
+      },
+      "aggs": {
+        "doc": {
+          "top_hits": {
+            "size": 100
+          }
+        }
+      }
+    }
+  }
+}

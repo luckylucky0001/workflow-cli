@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "search.query",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "DSL 含有 wrapper 查询（位置 query.wrapper）：其内容为 base64 编码，无法检查",
+    "hint": "直接写出 query 结构，不要用 wrapper 包装",
+    "retryable": false,
+    "details": {
+      "forbidden_key": "wrapper",
+      "path": "query.wrapper"
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcl5kjs-d9d77b",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:03:08.488Z",
+    "duration_ms": 121
+  }
+}
