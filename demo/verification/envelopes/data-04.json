@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "data.lineage.get",
+  "data": {
+    "table": "analytics.daily_orders",
+    "direction": "upstream",
+    "depth": 2,
+    "nodes": [
+      {
+        "id": "analytics.daily_orders",
+        "type": "table",
+        "in_catalog": true,
+        "depth": 0
+      },
+      {
+        "id": "ods.orders",
+        "type": "table",
+        "in_catalog": true,
+        "depth": 1
+      },
+      {
+        "id": "mysql://demo-mysql/demo.orders",
+        "type": "external",
+        "in_catalog": false,
+        "depth": 2
+      }
+    ],
+    "edges": [
+      {
+        "from": "ods.orders",
+        "to": "analytics.daily_orders",
+        "relations": [
+          "explicit",
+          "inferred"
+        ],
+        "confirmed_by_both": true,
+        "evidence": [
+          {
+            "relation": "explicit",
+            "source": "catalog:tables/analytics.daily_orders.yaml",
+            "detail": "upstream"
+          },
+          {
+            "relation": "inferred",
+            "source": "sql:demo/offline-workflows/sql/daily_orders.sql",
+            "detail": "FROM/JOIN ods_orders @L11；视图 ods_orders → ods.orders（produced_by.input_views 声明）"
+          }
+        ],
+        "via": {
+          "workflow": "demo-daily-orders",
+          "task": "aggregate_orders",
+          "status": "active"
+        },
+        "columns": [
+          "status",
+          "amount",
+          "customer_id"
+        ]
+      },
+      {
+        "from": "mysql://demo-mysql/demo.orders",
+        "to": "ods.orders",
+        "relations": [
+          "explicit"
+        ],
+        "confirmed_by_both": false,
+        "evidence": [
+          {
+            "relation": "explicit",
+            "source": "catalog:tables/ods.orders.yaml",
+            "detail": "upstream: 平台声明的业务来源；演示环境中 extract_orders 调用 demo/synthetic-data/generate_orders.py 生成同结构合成数据，未实际读取 MySQL"
+          }
+        ],
+        "via": {
+          "workflow": "demo-ods-orders",
+          "task": "extract_orders",
+          "status": "active"
+        },
+        "columns": [
+          "id",
+          "customer_id",
+          "status",
+          "amount",
+          "item_count",
+          "created_at",
+          "updated_at"
+        ]
+      }
+    ],
+    "sql_scans": [
+      {
+        "table": "analytics.daily_orders",
+        "sql_file": "demo/offline-workflows/sql/daily_orders.sql",
+        "resolved_path": "/home/user/workflow-cli/demo/offline-workflows/sql/daily_orders.sql",
+        "status": "parsed",
+        "targets": [],
+        "sources": [
+          "ods_orders@L11"
+        ],
+        "path_sources": [],
+        "note": "SQL 中未发现 INSERT/CREATE TABLE AS 目标；写入目标只能取自元数据 produced_by（explicit）"
+      }
+    ],
+    "scanned": {
+      "metadata_files": 3,
+      "metadata_invalid": 0,
+      "sql_files_parsed": 1,
+      "sql_files_missing": 0
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "file-catalog",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:43.927Z",
+        "endpoint": "catalog/demo",
+        "method": "read 3 metadata files",
+        "relation": "explicit"
+      },
+      {
+        "system": "sql-file",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:43.927Z",
+        "method": "regex-parse demo/offline-workflows/sql/daily_orders.sql",
+        "relation": "inferred"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "scope": "analytics.daily_orders upstream depth 2",
+      "notes": [
+        "扫描了 3 个元数据文件、1 个 SQL 文件",
+        "inferred 边来自正则解析 SQL（INSERT/CREATE TABLE AS 目标，FROM/JOIN 来源），可能遗漏动态 SQL、程序内注册的临时视图和 DataFrame 读写",
+        "demo/offline-workflows/sql/daily_orders.sql: SQL 中未发现 INSERT/CREATE TABLE AS 目标；写入目标只能取自元数据 produced_by（explicit）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegk55-1c7321",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "file-catalog",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:43.865Z",
+    "duration_ms": 63
+  }
+}

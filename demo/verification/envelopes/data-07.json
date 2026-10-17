@@ -1,0 +1,337 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "data.quality.check",
+  "data": {
+    "dataset": {
+      "input": "demo.ods.orders",
+      "catalog": "demo",
+      "table": "ods.orders",
+      "method": "explicit <catalog>.<db>.<table>"
+    },
+    "partition": "dt=2026-10-16",
+    "ruleset": {
+      "name": "demo-ods-rules",
+      "file": "/home/user/workflow-cli/demo/quality-rules/demo-ods-rules.yaml",
+      "rules": 9
+    },
+    "quality_state": "pass",
+    "conclusive": true,
+    "precondition": {
+      "ok": true,
+      "partition_state": "present",
+      "path": "/home/user/workflow-cli/demo/environment/.runtime/warehouse/ods/orders/dt=2026-10-16"
+    },
+    "summary": {
+      "total": 10,
+      "pass": 9,
+      "fail": 1,
+      "error": 0,
+      "skipped": 0,
+      "warn_failures": 1
+    },
+    "results": [
+      {
+        "id": "partition_exists",
+        "type": "partition_exists",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "filesystem",
+        "conclusive": true,
+        "status": "pass",
+        "message": "分区存在，含完成标记 _SUCCESS",
+        "expected": {
+          "exists": true,
+          "success_marker": "_SUCCESS"
+        },
+        "observed": {
+          "partition_state": "present",
+          "path": "/home/user/workflow-cli/demo/environment/.runtime/warehouse/ods/orders/dt=2026-10-16",
+          "success_marker_present": true,
+          "data_files": 1
+        }
+      },
+      {
+        "id": "min_rows",
+        "type": "row_count_min",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "行数 5000 满足要求",
+        "expected": {
+          "min": 100
+        },
+        "observed": {
+          "rows": 5000,
+          "counting": "非空行数（含无法解析的行）"
+        }
+      },
+      {
+        "id": "order_id_unique",
+        "type": "unique",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "order_id 无重复",
+        "expected": {
+          "columns": [
+            "order_id"
+          ],
+          "duplicate_keys": 0
+        },
+        "observed": {
+          "rows_checked": 5000,
+          "distinct_keys": 5000,
+          "duplicate_keys": 0,
+          "extra_rows": 0,
+          "null_key_rows_skipped": 0
+        }
+      },
+      {
+        "id": "required_not_null",
+        "type": "not_null",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "order_id, customer_id, amount 均无空值",
+        "expected": {
+          "columns": [
+            "order_id",
+            "customer_id",
+            "amount"
+          ],
+          "null_count": 0
+        },
+        "observed": {
+          "rows_checked": 5000,
+          "null_counts": {
+            "order_id": 0,
+            "customer_id": 0,
+            "amount": 0
+          },
+          "null_semantics": "JSON null 或字段缺失均计为空"
+        }
+      },
+      {
+        "id": "known_status",
+        "type": "accepted_values",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "status 取值均在允许列表中",
+        "expected": {
+          "column": "status",
+          "values": [
+            "PENDING",
+            "PAID",
+            "SHIPPED",
+            "DELIVERED",
+            "CANCELLED",
+            "REFUNDED"
+          ]
+        },
+        "observed": {
+          "rows_checked": 5000,
+          "invalid_rows": 0,
+          "invalid_values": [],
+          "null_rows_skipped": 0
+        }
+      },
+      {
+        "id": "non_negative_amount",
+        "type": "value_range",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "amount 均在范围内",
+        "expected": {
+          "column": "amount",
+          "min": 0,
+          "inclusive": true
+        },
+        "observed": {
+          "rows_checked": 5000,
+          "below_min": 0,
+          "above_max": 0,
+          "non_numeric": 0,
+          "null_rows_skipped": 0,
+          "min_observed": 5.05,
+          "max_observed": 999.87
+        }
+      },
+      {
+        "id": "created_in_business_date",
+        "type": "partition_value_match",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "created_at 均与分区 dt=2026-10-16 一致",
+        "expected": {
+          "column": "created_at",
+          "partition_key": "dt",
+          "value": "2026-10-16",
+          "timezone": "Asia/Shanghai"
+        },
+        "observed": {
+          "rows_checked": 5000,
+          "mismatched": 0,
+          "values": [
+            {
+              "value": "2026-10-16",
+              "count": 5000
+            }
+          ]
+        }
+      },
+      {
+        "id": "schema",
+        "type": "schema_match",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "观测到的列与期望一致",
+        "expected": {
+          "columns": [
+            "order_id",
+            "customer_id",
+            "status",
+            "amount",
+            "item_count",
+            "created_at",
+            "updated_at"
+          ],
+          "allow_extra": false
+        },
+        "observed": {
+          "rows_checked": 5000,
+          "columns": [
+            "amount",
+            "created_at",
+            "customer_id",
+            "item_count",
+            "order_id",
+            "status",
+            "updated_at"
+          ],
+          "missing": [],
+          "absent_nullable": [],
+          "extra": []
+        }
+      },
+      {
+        "id": "on_time",
+        "type": "freshness",
+        "severity": "warn",
+        "implicit": false,
+        "evaluated_on": "filesystem",
+        "conclusive": true,
+        "status": "fail",
+        "message": "更新时间 2026-10-17T20:37:24+08:00 晚于期限 2026-10-17T02:00:00+08:00",
+        "expected": {
+          "deadline": "2026-10-17T02:00:00+08:00",
+          "rule": "业务日期 2026-10-16 + 1 天 02:00 (Asia/Shanghai) 前产出"
+        },
+        "observed": {
+          "updated_at": "2026-10-17T12:37:24.528Z",
+          "basis": "_SUCCESS 文件修改时间（本地文件系统 mtime）",
+          "updated_at_local": "2026-10-17T20:37:24+08:00"
+        }
+      },
+      {
+        "id": "records_parseable",
+        "type": "records_parseable",
+        "severity": "error",
+        "implicit": true,
+        "status": "pass",
+        "evaluated_on": "full",
+        "conclusive": true,
+        "message": "读取的 5000 行均可解析",
+        "observed": {
+          "rows_read": 5000,
+          "parse_errors": 0
+        }
+      }
+    ],
+    "scan": {
+      "mode": "full",
+      "rows_read": 5000,
+      "rows_total": 5000,
+      "files_read": 1,
+      "files_total": 1,
+      "parse_errors": 0
+    },
+    "checked_at": "2026-10-17T12:55:46.508Z",
+    "persisted_to": "/home/user/workflow-cli/demo/environment/.runtime/state/quality/ods.orders/dt=2026-10-16.json"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "file-catalog",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:46.508Z",
+        "endpoint": "catalog/demo",
+        "method": "read tables/ods.orders.yaml",
+        "relation": "explicit"
+      },
+      {
+        "system": "quality-ruleset",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:46.508Z",
+        "method": "read demo-ods-rules.yaml",
+        "relation": "explicit"
+      },
+      {
+        "system": "local-filesystem",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:46.508Z",
+        "endpoint": "catalog/demo:warehouse_root",
+        "method": "stat+readdir ods/orders/dt=2026-10-16",
+        "relation": "derived"
+      },
+      {
+        "system": "local-filesystem",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:46.508Z",
+        "endpoint": "catalog/demo:warehouse_root",
+        "method": "read 1/1 files, 5000 rows",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "sampled": false,
+      "scope": "ods.orders dt=2026-10-16",
+      "notes": [
+        "全量扫描 1 个文件 5000 行"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegl5b-7cc756",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "file-catalog",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:45.167Z",
+    "duration_ms": 1343
+  }
+}

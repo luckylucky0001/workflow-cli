@@ -1,0 +1,118 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "mysql.query.execute",
+  "data": {
+    "instance": "demo-mysql",
+    "database": "demo",
+    "statement_type": "SELECT",
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT",
+        "table": "orders",
+        "source_column": "id",
+        "masked": false
+      },
+      {
+        "name": "status",
+        "type": "VARCHAR",
+        "table": "orders",
+        "source_column": "status",
+        "masked": false
+      },
+      {
+        "name": "amount",
+        "type": "DECIMAL",
+        "table": "orders",
+        "source_column": "amount",
+        "masked": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME",
+        "table": "orders",
+        "source_column": "created_at",
+        "masked": false
+      }
+    ],
+    "rows": [
+      [
+        "299761",
+        "DELIVERED",
+        "220.40",
+        "2026-10-17 23:40:24"
+      ],
+      [
+        "298761",
+        "DELIVERED",
+        "665.40",
+        "2026-10-17 22:18:48"
+      ],
+      [
+        "297761",
+        "DELIVERED",
+        "115.40",
+        "2026-10-17 20:57:12"
+      ],
+      [
+        "296761",
+        "DELIVERED",
+        "560.40",
+        "2026-10-17 19:35:36"
+      ],
+      [
+        "295761",
+        "DELIVERED",
+        "10.40",
+        "2026-10-17 18:14:00"
+      ]
+    ],
+    "row_count": 5,
+    "max_rows": 5,
+    "truncated": true,
+    "masked_columns": [],
+    "guards": {
+      "static_check": "passed",
+      "read_only_transaction": true,
+      "max_execution_time_ms": 5000,
+      "sql_select_limit": 6
+    },
+    "elapsed_ms": 23
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "mysql",
+        "adapter": "mysql-driver",
+        "observed_at": "2026-10-17T12:55:22.733Z",
+        "endpoint": "mysql/demo-mysql",
+        "method": "START TRANSACTION READ ONLY; SELECT (guarded)",
+        "version": "8.4.11",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": false,
+      "truncated": true,
+      "limit": 5,
+      "notes": [
+        "结果超过 5 行，只返回前 5 行（已停止读取剩余行）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvceg3sb-38769b",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "mysql-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:22.667Z",
+    "duration_ms": 67
+  }
+}

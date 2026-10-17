@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "offline.backfill.get",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "计划 ID 格式不正确: <missing:plan_id>",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvceggwz-ae914a",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "airflow-rest-v1",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:39.683Z",
+    "duration_ms": 15
+  }
+}

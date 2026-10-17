@@ -1,0 +1,257 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "offline.backfill.plan",
+  "data": {
+    "plan_id": "op-20261017-b52d06",
+    "status": "planned",
+    "expires_at": "2026-10-17T14:55:39.337Z",
+    "executable": true,
+    "workflow": "demo-daily-orders",
+    "targets": [
+      {
+        "business_date": "2026-10-14",
+        "data_interval": {
+          "start_local": "2026-10-14T00:00:00+08:00",
+          "end_local": "2026-10-15T00:00:00+08:00",
+          "start_utc": "2026-10-13T16:00:00.000Z",
+          "end_utc": "2026-10-14T16:00:00.000Z"
+        },
+        "existing_runs": [
+          {
+            "run_id": "demo__2026-10-14__missing_upstream",
+            "state": "running",
+            "run_type": "manual",
+            "match": "exact",
+            "conf": {}
+          }
+        ],
+        "action": "skip_in_progress",
+        "run_id": "demo__2026-10-14__missing_upstream",
+        "reason": "已有在途 run（running），等待其结束后再评估",
+        "target_partition": "dt=2026-10-14",
+        "partition_state": "missing",
+        "upstream_inputs": [],
+        "not_due": false
+      },
+      {
+        "business_date": "2026-10-15",
+        "data_interval": {
+          "start_local": "2026-10-15T00:00:00+08:00",
+          "end_local": "2026-10-16T00:00:00+08:00",
+          "start_utc": "2026-10-14T16:00:00.000Z",
+          "end_utc": "2026-10-15T16:00:00.000Z"
+        },
+        "existing_runs": [
+          {
+            "run_id": "demo__2026-10-15__ok",
+            "state": "success",
+            "run_type": "manual",
+            "match": "exact",
+            "conf": {}
+          }
+        ],
+        "action": "skip_succeeded",
+        "run_id": "demo__2026-10-15__ok",
+        "reason": "已成功（调度层），默认跳过；如需重跑使用 --rerun-succeeded",
+        "target_partition": "dt=2026-10-15",
+        "partition_state": "present",
+        "upstream_inputs": [],
+        "not_due": false
+      },
+      {
+        "business_date": "2026-10-16",
+        "data_interval": {
+          "start_local": "2026-10-16T00:00:00+08:00",
+          "end_local": "2026-10-17T00:00:00+08:00",
+          "start_utc": "2026-10-15T16:00:00.000Z",
+          "end_utc": "2026-10-16T16:00:00.000Z"
+        },
+        "existing_runs": [
+          {
+            "run_id": "demo__2026-10-16__wrong_partition",
+            "state": "success",
+            "run_type": "manual",
+            "match": "exact",
+            "conf": {
+              "fault": "wrong_partition"
+            }
+          }
+        ],
+        "action": "skip_succeeded",
+        "run_id": "demo__2026-10-16__wrong_partition",
+        "reason": "已成功（调度层），默认跳过；如需重跑使用 --rerun-succeeded；注意：调度成功但目标分区 dt=2026-10-16 状态为 missing，重跑前先确认原因（同一 run 的 conf/代码会被沿用）",
+        "target_partition": "dt=2026-10-16",
+        "partition_state": "missing",
+        "upstream_inputs": [],
+        "not_due": false
+      }
+    ],
+    "impact": {
+      "workflow": "demo-daily-orders",
+      "business_dates": 3,
+      "actions": {
+        "skip_in_progress": 1,
+        "skip_succeeded": 2
+      },
+      "target_table": "analytics.daily_orders",
+      "write_mode": "overwrite_partition",
+      "idempotent_rewrite": true,
+      "downstream": [
+        {
+          "kind": "report",
+          "id": "demo-daily-report",
+          "edge_source": "catalog-metadata",
+          "note": "订单日报"
+        },
+        {
+          "kind": "table",
+          "id": "report.daily_summary",
+          "edge_source": "catalog-metadata",
+          "note": "上游含 analytics.daily_orders"
+        }
+      ],
+      "code_version": {
+        "source_sha256": "11501b7deba7b46586851c578bd6b8202e9210d2e053a20da5852f3fe3bc0317",
+        "file_token": ".eJw1ydEKgCAMBdB_8d3uJ4m0raTpYiPEvw-CzutJOK0znmDHNL9EbeZdG4i7wUS0Dc7_BKge8V2h2nQVc2KP7V7pBRP6HDQ.tCk-1c7r-D6qYsW3OWN4LBKZyY0",
+        "fileloc": "/home/user/workflow-cli/demo/offline-workflows/dags/demo_daily_orders.py",
+        "last_parsed_time": "2026-10-17T12:55:34.922314+00:00",
+        "basis": "source_sha256 = sha256(GET /api/v1/dagSources/{file_token})，即调度器当前解析到的 DAG 文件内容；file_token 只标识文件位置，不代表内容版本",
+        "note": "重跑与新触发的 run 使用调度器当前解析的 DAG 代码，而非原 run 当时的代码"
+      },
+      "concurrency": {
+        "planned_max_in_flight": 2,
+        "dag_max_active_runs": 3,
+        "currently_running": 1,
+        "currently_queued": 0,
+        "pools": [
+          {
+            "pool": "demo-batch-pool",
+            "slots": 2,
+            "open_slots": 2,
+            "running_slots": 0,
+            "queued_slots": 0
+          },
+          {
+            "pool": "default_pool",
+            "slots": 128,
+            "open_slots": 128,
+            "running_slots": 0,
+            "queued_slots": 0
+          }
+        ]
+      }
+    },
+    "preconditions": [
+      {
+        "check": "dag_importable",
+        "ok": true,
+        "detail": "DAG 可解析且处于活跃状态"
+      },
+      {
+        "check": "dag_not_paused",
+        "ok": false,
+        "detail": "DAG 已暂停：触发的 run 不会被调度，需先恢复（属于变更，需单独授权）"
+      },
+      {
+        "check": "write_mode_safe",
+        "ok": true,
+        "detail": "overwrite_partition：重跑覆盖目标分区，幂等"
+      },
+      {
+        "check": "upstream_inputs_present",
+        "ok": true,
+        "detail": "动作涉及的目录内上游输入分区均为 present（外部来源未检查）"
+      },
+      {
+        "check": "intervals_complete",
+        "ok": true,
+        "detail": "所有动作对应的数据区间均已结束"
+      },
+      {
+        "check": "has_actions",
+        "ok": false,
+        "detail": "没有需要执行的动作（全部跳过）"
+      },
+      {
+        "check": "max_active_runs_valid",
+        "ok": true,
+        "detail": "计划并发 2，DAG max_active_runs=3"
+      }
+    ],
+    "steps": [
+      {
+        "name": "throttle",
+        "detail": "同时在途的 run 不超过 2 个；超出时等待已提交的 run 结束"
+      }
+    ],
+    "next": "前置条件未满足（dag_not_paused），执行会被拒绝"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:38.585Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/demo-daily-orders/details",
+        "version": "2.10.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:38.585Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/demo-daily-orders/dagRuns",
+        "version": "2.10.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "catalog",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:38.594Z",
+        "endpoint": "catalog/demo",
+        "method": "produced_by.workflow=demo-daily-orders",
+        "relation": "explicit"
+      },
+      {
+        "system": "local-filesystem",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:38.693Z",
+        "endpoint": "catalog/demo:warehouse_root",
+        "method": "stat+readdir analytics/daily_orders/dt=2026-10-14",
+        "relation": "derived"
+      },
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:39.329Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/pools/{pool}",
+        "version": "2.10.5",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "demo-daily-orders 2026-10-14..2026-10-16"
+    },
+    "warnings": [
+      "2026-10-16: 调度层 success 但目标分区 missing"
+    ]
+  },
+  "context": {
+    "request_id": "req-mvcegfuc-486ed8",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "airflow-rest-v1",
+    "operation": "plan",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:38.292Z",
+    "duration_ms": 1046
+  }
+}

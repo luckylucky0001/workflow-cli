@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "mq.topic.get",
+  "data": {
+    "cluster": "demo-mq",
+    "cluster_id": "5L6g3nShT-eMCtK--X86sw",
+    "topic": "demo.order.events",
+    "internal": false,
+    "partition_count": 3,
+    "replication_factor": 1,
+    "partitions": [
+      {
+        "partition": 0,
+        "leader": 1,
+        "replicas": [
+          1
+        ],
+        "isr": [
+          1
+        ],
+        "offline_replicas": [],
+        "under_replicated": false,
+        "log_start_offset": 0,
+        "end_offset": 91,
+        "offset_span": 91
+      },
+      {
+        "partition": 1,
+        "leader": 1,
+        "replicas": [
+          1
+        ],
+        "isr": [
+          1
+        ],
+        "offline_replicas": [],
+        "under_replicated": false,
+        "log_start_offset": 0,
+        "end_offset": 107,
+        "offset_span": 107
+      },
+      {
+        "partition": 2,
+        "leader": 1,
+        "replicas": [
+          1
+        ],
+        "isr": [
+          1
+        ],
+        "offline_replicas": [],
+        "under_replicated": false,
+        "log_start_offset": 0,
+        "end_offset": 102,
+        "offset_span": 102
+      }
+    ],
+    "configs": {
+      "retention.ms": {
+        "value": "604800000",
+        "source": "default",
+        "is_default": true,
+        "sensitive": false
+      },
+      "retention.bytes": {
+        "value": "-1",
+        "source": "default",
+        "is_default": true,
+        "sensitive": false
+      },
+      "cleanup.policy": {
+        "value": "delete",
+        "source": "default",
+        "is_default": true,
+        "sensitive": false
+      },
+      "min.insync.replicas": {
+        "value": "1",
+        "source": "default",
+        "is_default": true,
+        "sensitive": false
+      },
+      "max.message.bytes": {
+        "value": "1048588",
+        "source": "default",
+        "is_default": true,
+        "sensitive": false
+      },
+      "segment.bytes": {
+        "value": "1073741824",
+        "source": "default",
+        "is_default": true,
+        "sensitive": false
+      }
+    },
+    "totals": {
+      "under_replicated_partitions": 0,
+      "offline_partitions": 0,
+      "offset_span": 300
+    },
+    "observed_at": "2026-10-17T12:55:31.470Z"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "kafka",
+        "adapter": "kafka-admin",
+        "endpoint": "kafka/demo-mq",
+        "method": "Metadata(topic=demo.order.events)",
+        "observed_at": "2026-10-17T12:55:31.463Z",
+        "version": "inter.broker.protocol.version=3.9-IV0",
+        "relation": "explicit"
+      },
+      {
+        "system": "kafka",
+        "adapter": "kafka-admin",
+        "endpoint": "kafka/demo-mq",
+        "method": "ListOffsets(latest+earliest, read_committed)",
+        "observed_at": "2026-10-17T12:55:31.470Z",
+        "version": "inter.broker.protocol.version=3.9-IV0",
+        "relation": "explicit"
+      },
+      {
+        "system": "kafka",
+        "adapter": "kafka-admin",
+        "endpoint": "kafka/demo-mq",
+        "method": "DescribeConfigs(topic=demo.order.events; retention.ms,retention.bytes,cleanup.policy,min.insync.replicas,max.message.bytes,segment.bytes)",
+        "observed_at": "2026-10-17T12:55:31.474Z",
+        "version": "inter.broker.protocol.version=3.9-IV0",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "topic demo.order.events 的全部分区；配置仅含 retention.ms、retention.bytes、cleanup.policy、min.insync.replicas、max.message.bytes、segment.bytes",
+      "notes": [
+        "offset_span = end_offset - log_start_offset，是位点跨度；compaction、事务控制记录会使其不等于消息条数",
+        "config source=topic 表示 topic 级覆盖，default/broker-* 表示继承自 broker"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegag8-3e3b07",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "kafka-admin",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:31.304Z",
+    "duration_ms": 178
+  }
+}

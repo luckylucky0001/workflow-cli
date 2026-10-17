@@ -1,0 +1,502 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "capability.list",
+  "data": {
+    "capabilities": [
+      {
+        "name": "analytics.query.get",
+        "command": "analytics query get",
+        "summary": "查看分析数据库查询的状态与资源使用",
+        "domain": "analytics",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "columnar-engine (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "analytics.table.get",
+        "command": "analytics table get",
+        "summary": "查看分析数据库表结构与分区",
+        "domain": "analytics",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "columnar-engine (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "compute.instance.get",
+        "command": "compute instance get",
+        "summary": "查看计算实例（VM / 节点）规格、状态与负载（待接入）",
+        "domain": "compute",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "cloud-compute-api",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "compute.yarn-queue.get",
+        "command": "compute yarn-queue get",
+        "summary": "查看 YARN 队列容量、已用资源与挂起应用（待接入）",
+        "domain": "compute",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "yarn-rm-rest",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "config.diff",
+        "command": "config diff",
+        "summary": "比较配置项两个版本的差异",
+        "domain": "config",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "config-center (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "config.get",
+        "command": "config get",
+        "summary": "读取配置中心配置项的当前值摘要",
+        "domain": "config",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "config-center (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "container.kubernetes.workload.get",
+        "command": "kubernetes workload get",
+        "summary": "查看 Kubernetes Deployment/StatefulSet/Pod 状态、事件与资源配额（规划中）",
+        "domain": "container",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "kubernetes-api (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "data.transfer.get",
+        "command": "data transfer get",
+        "summary": "查看数据同步/传输任务（如 DataX、CDC、跨集群拷贝）的状态、进度与位点",
+        "domain": "data",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "data-transfer (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "discovery.list",
+        "command": "discovery list",
+        "summary": "从服务注册中心列出服务实例",
+        "domain": "config",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "service-registry (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "document.collection.get",
+        "command": "document collection get",
+        "summary": "查看文档数据库集合与索引",
+        "domain": "document",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "document-db (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "kv.query",
+        "command": "kv query",
+        "summary": "对键值服务执行受限查询",
+        "domain": "document",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "kv-service (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "middleware.operation.plan",
+        "command": "middleware operation plan",
+        "summary": "托管中间件生命周期操作（创建、参数、备份、扩容、迁移）计划",
+        "domain": "middleware",
+        "status": "planned",
+        "operation": "plan",
+        "adapter": "managed-middleware-platform (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "mq.queue.get",
+        "command": "mq queue get",
+        "summary": "查看 RabbitMQ 队列深度（ready / unacked）与消费者数（待接入）",
+        "domain": "mq",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "rabbitmq-management",
+        "capability_version": "1.0.0",
+        "origin": "plugin:demo-mq@0.1.0"
+      },
+      {
+        "name": "mysql.deadlock.get",
+        "command": "mysql deadlock get",
+        "summary": "读取最近一次死锁信息（SHOW ENGINE INNODB STATUS 的 LATEST DETECTED DEADLOCK）",
+        "domain": "mysql",
+        "status": "planned",
+        "operation": "diagnose",
+        "adapter": "mysql-driver",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "mysql.replication.get",
+        "command": "mysql replication get",
+        "summary": "查看主从复制状态与延迟（replication_applier_status、SHOW REPLICA STATUS；需 REPLICATION CLIENT）",
+        "domain": "mysql",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "mysql-driver",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "network.loadbalancer.get",
+        "command": "network loadbalancer get",
+        "summary": "查看负载均衡/网关的监听、后端组与健康状态（规划中：Nginx、云 LB、Ingress）",
+        "domain": "network",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "loadbalancer-api (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "observability.quota.get",
+        "command": "quota get",
+        "summary": "查看命名空间/项目的资源配额与使用（规划中：Kubernetes ResourceQuota、云配额）",
+        "domain": "observability",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "quota-provider (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "redis.cluster.get",
+        "command": "redis cluster get",
+        "summary": "查看 Redis Cluster 节点、槽位分布与故障转移状态",
+        "domain": "redis",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "redis-client",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "redis.latency.get",
+        "command": "redis latency get",
+        "summary": "读取 LATENCY LATEST / HISTORY 事件延迟（需开启 latency-monitor-threshold）",
+        "domain": "redis",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "redis-client",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "search.index.get",
+        "command": "search index get",
+        "summary": "查看搜索引擎索引的分片、容量和状态",
+        "domain": "search",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "elasticsearch/opensearch (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "search.query",
+        "command": "search query",
+        "summary": "对搜索引擎执行受限查询",
+        "domain": "search",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "elasticsearch/opensearch (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "sql.query.submit-hive",
+        "command": "sql query submit-hive",
+        "summary": "向 HiveServer2 提交只读查询（待接入）",
+        "domain": "sql",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "hiveserver2-thrift",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "sql.query.submit-trino",
+        "command": "sql query submit-trino",
+        "summary": "向 Trino 提交只读查询（待接入）",
+        "domain": "sql",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "trino-rest",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "storage.hdfs.stat",
+        "command": "hdfs path stat",
+        "summary": "查看 HDFS 路径的大小、副本数、修改时间与配额（规划中：WebHDFS）",
+        "domain": "storage",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "webhdfs (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "storage.object.stat",
+        "command": "object stat",
+        "summary": "查看对象存储（S3 兼容）对象的大小、ETag、修改时间与存储类型（规划中）",
+        "domain": "storage",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "s3-api (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      }
+    ],
+    "domains": [
+      {
+        "name": "core",
+        "title": "核心",
+        "pillar": "core",
+        "summary": "能力发现、资源关系、身份与授权检查、操作计划与状态",
+        "guide": "docs/capability-catalog.md",
+        "skill": "skills/enterprise-infra",
+        "available": 13,
+        "planned": 0,
+        "origin": "builtin"
+      },
+      {
+        "name": "container",
+        "title": "容器与资源容量",
+        "pillar": "infrastructure",
+        "summary": "容器工作负载状态、事件、资源快照、容量汇总与受控重启（Docker Engine API；Kubernetes 规划中）",
+        "guide": "docs/guides/infrastructure.md",
+        "skill": "skills/infra-operations",
+        "available": 5,
+        "planned": 1,
+        "origin": "builtin"
+      },
+      {
+        "name": "network",
+        "title": "网络",
+        "pillar": "infrastructure",
+        "summary": "DNS 解析、服务后端探测与 TCP 连通性采样",
+        "guide": "docs/guides/infrastructure.md",
+        "skill": "skills/infra-operations",
+        "available": 3,
+        "planned": 1,
+        "origin": "builtin"
+      },
+      {
+        "name": "storage",
+        "title": "存储",
+        "pillar": "infrastructure",
+        "summary": "Docker 卷与本机文件系统元数据；对象存储与 HDFS 规划中",
+        "guide": "docs/guides/infrastructure.md",
+        "skill": "skills/resource-capacity-review",
+        "available": 2,
+        "planned": 2,
+        "origin": "builtin"
+      },
+      {
+        "name": "observability",
+        "title": "可观测性",
+        "pillar": "infrastructure",
+        "summary": "指标（Prometheus）、容器日志与日志派生调用链；Loki / Jaeger / Tempo 规划中",
+        "guide": "docs/guides/observability.md",
+        "skill": "skills/service-latency-investigation",
+        "available": 4,
+        "planned": 1,
+        "origin": "builtin"
+      },
+      {
+        "name": "mysql",
+        "title": "MySQL",
+        "pillar": "middleware",
+        "summary": "MySQL 实例、表结构、会话与锁、语句摘要、慢日志、执行计划、受限查询与索引变更计划",
+        "guide": "docs/guides/mysql.md",
+        "skill": "skills/mysql-operations",
+        "available": 11,
+        "planned": 2,
+        "origin": "builtin"
+      },
+      {
+        "name": "redis",
+        "title": "Redis",
+        "pillar": "middleware",
+        "summary": "Redis 实例概况、INFO、窗口统计采样、慢日志、键采样/大键/热键、单键检查与配置读取",
+        "guide": "docs/guides/redis.md",
+        "skill": "skills/redis-operations",
+        "available": 8,
+        "planned": 2,
+        "origin": "builtin"
+      },
+      {
+        "name": "offline",
+        "title": "离线调度",
+        "pillar": "offline",
+        "summary": "离线工作流（Airflow）：工作流/任务定义、按业务日期查找运行、分层状态、依赖、日志、补数计划与产出时效",
+        "guide": "docs/guides/offline.md",
+        "skill": "skills/offline-operations",
+        "available": 9,
+        "planned": 0,
+        "origin": "builtin"
+      },
+      {
+        "name": "compute",
+        "title": "计算作业",
+        "pillar": "offline",
+        "summary": "Spark 应用（history server REST）、阶段、driver 日志与计算资源池",
+        "guide": "docs/guides/compute.md",
+        "skill": "skills/offline-operations",
+        "available": 4,
+        "planned": 2,
+        "origin": "builtin"
+      },
+      {
+        "name": "sql",
+        "title": "SQL 提交",
+        "pillar": "offline",
+        "summary": "向计算引擎异步提交只读 SQL 查询并跟踪状态（Spark SQL）",
+        "guide": "docs/guides/compute.md",
+        "skill": "skills/offline-operations",
+        "available": 3,
+        "planned": 2,
+        "origin": "builtin"
+      },
+      {
+        "name": "data",
+        "title": "数据目录、分区、血缘与质量",
+        "pillar": "offline",
+        "summary": "表元数据与分区语义、分区产出检查、explicit/inferred 血缘、分区质量规则（file 目录 provider + 本地文件系统仓库）",
+        "guide": "docs/guides/data.md",
+        "skill": "skills/data-validation",
+        "available": 5,
+        "planned": 1,
+        "origin": "builtin"
+      },
+      {
+        "name": "config",
+        "title": "配置与服务发现",
+        "pillar": "infrastructure",
+        "summary": "配置中心与服务注册（待接入）",
+        "guide": "docs/guides/infrastructure.md",
+        "skill": null,
+        "available": 0,
+        "planned": 3,
+        "origin": "builtin"
+      },
+      {
+        "name": "search",
+        "title": "搜索引擎",
+        "pillar": "middleware",
+        "summary": "Elasticsearch / OpenSearch（待接入）",
+        "guide": "docs/provider-onboarding.md",
+        "skill": null,
+        "available": 0,
+        "planned": 2,
+        "origin": "builtin"
+      },
+      {
+        "name": "document",
+        "title": "文档与键值数据库",
+        "pillar": "middleware",
+        "summary": "文档库、KV 服务（待接入）",
+        "guide": "docs/provider-onboarding.md",
+        "skill": null,
+        "available": 0,
+        "planned": 2,
+        "origin": "builtin"
+      },
+      {
+        "name": "analytics",
+        "title": "分析数据库",
+        "pillar": "middleware",
+        "summary": "列式分析引擎（待接入）",
+        "guide": "docs/provider-onboarding.md",
+        "skill": null,
+        "available": 0,
+        "planned": 2,
+        "origin": "builtin"
+      },
+      {
+        "name": "middleware",
+        "title": "中间件生命周期",
+        "pillar": "middleware",
+        "summary": "托管平台操作入口（待接入）",
+        "guide": "docs/guides/operations.md",
+        "skill": null,
+        "available": 0,
+        "planned": 1,
+        "origin": "builtin"
+      },
+      {
+        "name": "mq",
+        "title": "消息队列",
+        "pillar": "middleware",
+        "summary": "Kafka 消费组 lag、topic 分区与配置；以插件形式接入，RabbitMQ 待接入",
+        "guide": "/root/.local/share/workctl/plugins/demo-mq/0.1.0/guides/mq.md",
+        "skill": "/root/.local/share/workctl/plugins/demo-mq/0.1.0/skills/mq-operations",
+        "available": 3,
+        "planned": 1,
+        "origin": "plugin:demo-mq@0.1.0"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "registry",
+        "observed_at": "2026-10-17T12:54:58.958Z",
+        "method": "builtin + installed plugins",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "内置能力与已安装插件"
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvceflhb-3fbf4e",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "registry",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:54:58.943Z",
+    "duration_ms": 15
+  }
+}

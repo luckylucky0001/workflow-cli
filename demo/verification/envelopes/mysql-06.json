@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "mysql.statement.summary",
+  "data": {
+    "instance": "demo-mysql",
+    "aggregation": "window_delta",
+    "window": {
+      "start": "2026-10-17T12:55:11.705Z",
+      "end": "2026-10-17T12:55:21.709Z",
+      "duration_ms": 10004
+    },
+    "cumulative_since": null,
+    "database": null,
+    "top": 10,
+    "digests": [],
+    "totals": {
+      "digests_with_activity": 0,
+      "statements": 0,
+      "total_latency_ms": 0
+    },
+    "excluded_self_digests": 1
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "mysql",
+        "adapter": "mysql-driver",
+        "observed_at": "2026-10-17T12:55:21.713Z",
+        "endpoint": "mysql/demo-mysql",
+        "method": "performance_schema.events_statements_summary_by_digest (t1 − t0)",
+        "version": "8.4.11",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "limit": 10,
+      "truncated": false,
+      "window": {
+        "start": "2026-10-17T12:55:11.705Z",
+        "end": "2026-10-17T12:55:21.709Z"
+      },
+      "notes": [
+        "digest_text 最长 1024 字节（max_digest_length），超出部分被截断",
+        "摘要表占用 72/10000 行（performance_schema_digests_size）；表满后新语句归入 DIGEST=NULL 行",
+        "已排除查询 events_statements_summary_by_digest 的语句（含 workctl 自身采样）；窗口内没有执行的摘要不出现"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefvah-ec098f",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "mysql-driver",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:11.657Z",
+    "duration_ms": 10057
+  }
+}

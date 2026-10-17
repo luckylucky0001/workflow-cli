@@ -1,0 +1,226 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "operation.list",
+  "data": {
+    "operations": [
+      {
+        "id": "op-20261017-7a75bc",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T12:55:46.930Z",
+        "expires_at": "2026-10-17T13:25:46.930Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-b52d06",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T12:55:39.337Z",
+        "expires_at": "2026-10-17T14:55:39.337Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-7a4784",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id_created_at(customer_id, created_at)",
+        "status": "planned",
+        "created_at": "2026-10-17T12:55:23.059Z",
+        "expires_at": "2026-10-17T13:55:23.059Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-d60591",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T12:55:09.617Z",
+        "expires_at": "2026-10-17T13:25:09.617Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-a8de24",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_created_at(created_at)",
+        "status": "planned",
+        "created_at": "2026-10-17T12:53:45.976Z",
+        "expires_at": "2026-10-17T13:53:45.976Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-69ca5d",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-17T12:53:45.961Z",
+        "expires_at": "2026-10-17T13:53:45.961Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-f1838f",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T12:53:29.610Z",
+        "expires_at": "2026-10-17T13:23:29.610Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-91108c",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_created_at(created_at)",
+        "status": "planned",
+        "created_at": "2026-10-17T12:53:28.401Z",
+        "expires_at": "2026-10-17T13:53:28.401Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-a7d970",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-17T12:53:28.386Z",
+        "expires_at": "2026-10-17T13:53:28.386Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-51f371",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id_created_at(customer_id, created_at)",
+        "status": "planned",
+        "created_at": "2026-10-17T12:51:44.627Z",
+        "expires_at": "2026-10-17T13:51:44.627Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-5ec627",
+        "kind": "offline.backfill",
+        "title": "补数 demo-ods-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T12:50:21.171Z",
+        "expires_at": "2026-10-17T14:50:21.171Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-77cb09",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "succeeded",
+        "created_at": "2026-10-17T12:49:49.755Z",
+        "expires_at": "2026-10-17T13:19:49.755Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-5ed192",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T12:49:11.369Z",
+        "expires_at": "2026-10-17T14:49:11.369Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-7d8f23",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_created_at(created_at)",
+        "status": "planned",
+        "created_at": "2026-10-17T12:46:31.352Z",
+        "expires_at": "2026-10-17T13:46:31.352Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-fca881",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-17T12:46:31.333Z",
+        "expires_at": "2026-10-17T13:46:31.333Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-355ccb",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T12:45:16.690Z",
+        "expires_at": "2026-10-17T13:15:16.690Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-9bebec",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-12..2026-10-13（Asia/Shanghai）",
+        "status": "succeeded",
+        "created_at": "2026-10-17T12:43:32.481Z",
+        "expires_at": "2026-10-17T14:43:32.481Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-e96ae7",
+        "kind": "offline.backfill",
+        "title": "补数 demo-ods-orders 2026-10-12..2026-10-13（Asia/Shanghai）",
+        "status": "succeeded",
+        "created_at": "2026-10-17T12:41:14.710Z",
+        "expires_at": "2026-10-17T14:41:14.710Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-6b4c38",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-12..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T12:40:35.432Z",
+        "expires_at": "2026-10-17T14:40:35.432Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-ad8e92",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-17T12:37:26.284Z",
+        "expires_at": "2026-10-17T13:37:26.284Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-5c63dd",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T12:30:18.775Z",
+        "expires_at": "2026-10-17T13:00:18.775Z",
+        "executable": true
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "plan-store",
+        "observed_at": "2026-10-17T12:55:47.950Z",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "profile demo 的本地计划存储"
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegn9v-c08190",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "plan-store",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:47.923Z",
+    "duration_ms": 28
+  }
+}

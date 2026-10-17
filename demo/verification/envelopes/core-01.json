@@ -1,0 +1,125 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "doctor.run",
+  "data": {
+    "healthy": true,
+    "checks": [
+      {
+        "area": "config",
+        "item": "file",
+        "ok": true,
+        "detail": "/home/user/workflow-cli/demo/environment/workctl.yaml"
+      },
+      {
+        "area": "config",
+        "item": "profile",
+        "ok": true,
+        "detail": "demo env=sandbox data_mode=live allow_execute=true"
+      },
+      {
+        "area": "resources",
+        "item": "bindings",
+        "ok": true,
+        "detail": "13 个资源，12 条关系"
+      },
+      {
+        "area": "endpoints",
+        "item": "docker/local",
+        "ok": true,
+        "detail": "/var/run/docker.sock"
+      },
+      {
+        "area": "credentials",
+        "item": "mysql/demo-mysql.password_ref",
+        "ok": true,
+        "detail": "file 引用可解析"
+      },
+      {
+        "area": "endpoints",
+        "item": "mysql/demo-mysql",
+        "ok": true,
+        "detail": "127.0.0.1:13306 可达 (5ms)"
+      },
+      {
+        "area": "endpoints",
+        "item": "redis/demo-redis",
+        "ok": true,
+        "detail": "127.0.0.1:16379 可达 (2ms)"
+      },
+      {
+        "area": "endpoints",
+        "item": "prometheus/demo-prometheus",
+        "ok": true,
+        "detail": "127.0.0.1:19090 可达 (0ms)"
+      },
+      {
+        "area": "credentials",
+        "item": "airflow/demo-airflow.password_ref",
+        "ok": true,
+        "detail": "file 引用可解析"
+      },
+      {
+        "area": "endpoints",
+        "item": "airflow/demo-airflow",
+        "ok": true,
+        "detail": "127.0.0.1:18080 可达 (1ms)"
+      },
+      {
+        "area": "endpoints",
+        "item": "spark/demo-spark",
+        "ok": true,
+        "detail": "127.0.0.1:18088 可达 (0ms)"
+      },
+      {
+        "area": "endpoints",
+        "item": "catalog/demo",
+        "ok": true,
+        "detail": "/home/user/workflow-cli/demo/catalog"
+      },
+      {
+        "area": "endpoints",
+        "item": "kafka/demo-mq",
+        "ok": true,
+        "detail": "127.0.0.1:19092 可达 (2ms)"
+      },
+      {
+        "area": "plugins",
+        "item": "demo-mq",
+        "ok": true,
+        "detail": "v0.1.0 backend_mode=live，4 个能力"
+      },
+      {
+        "area": "registry",
+        "item": "capabilities",
+        "ok": true,
+        "detail": "70 个可调用，25 个待接入"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "local",
+        "observed_at": "2026-10-17T12:54:58.625Z",
+        "relation": "derived"
+      }
+    ],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefl6j-00161e",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "local",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:54:58.554Z",
+    "duration_ms": 71
+  }
+}

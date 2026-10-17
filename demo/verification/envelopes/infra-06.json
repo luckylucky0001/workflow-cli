@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "network.backend.list",
+  "data": {
+    "service": "demo-order",
+    "env": "sandbox",
+    "health_path": "/healthz",
+    "backends": [
+      {
+        "address": "127.0.0.1:18081",
+        "host": "127.0.0.1",
+        "port": 18081,
+        "origins": [
+          {
+            "origin": "binding-file",
+            "evidence": "bindings: demo-order.attributes.http_port=18081（未给 host，按本机）"
+          },
+          {
+            "origin": "docker-published-port",
+            "evidence": "demo-order 0.0.0.0:18081->8080/tcp"
+          }
+        ],
+        "container": "demo-order",
+        "probe": {
+          "kind": "http",
+          "target": "http://127.0.0.1:18081/healthz",
+          "ok": true,
+          "status_code": 200,
+          "latency_ms": 3.3,
+          "body_excerpt": "{\"status\":\"ok\",\"service\":\"demo-order\",\"version\":\"1.0.0\",\"cache_mode\":\"normal\",\"redis\":\"ready\",\"uptime_s\":137}",
+          "error_code": null,
+          "at": "2026-10-17T12:55:06.223Z"
+        }
+      }
+    ],
+    "summary": {
+      "total": 1,
+      "healthy": 1,
+      "unhealthy": 0
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "resource-bindings",
+        "observed_at": "2026-10-17T12:55:06.179Z",
+        "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
+        "method": "resources[demo-order].attributes",
+        "relation": "explicit"
+      },
+      {
+        "system": "docker",
+        "adapter": "docker-engine-api",
+        "observed_at": "2026-10-17T12:55:06.223Z",
+        "endpoint": "docker/local (unix:/var/run/docker.sock)",
+        "method": "GET /containers/json?filters={label:workctl.service=demo-order}",
+        "relation": "explicit",
+        "version": "29.8.2 (API 1.56)"
+      },
+      {
+        "system": "http-probe",
+        "adapter": "workctl-probe",
+        "observed_at": "2026-10-17T12:55:06.227Z",
+        "method": "GET {backend}/healthz",
+        "relation": "sampled"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "探测（probe）于 2026-10-17T12:55:06.227Z 从 workctl 所在主机发起",
+      "notes": [
+        "容器选择器: label workctl.service=demo-order（bindings: demo-order.attributes.container_label=workctl.service=demo-order）",
+        "环境过滤: workctl.env=sandbox（无该标签的容器保留并标注）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefr17-637a2f",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "docker-engine-api + http-probe",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:06.139Z",
+    "duration_ms": 88
+  }
+}

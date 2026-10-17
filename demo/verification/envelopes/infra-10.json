@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "observability.metric.list",
+  "data": {
+    "endpoint": "prometheus/demo-prometheus",
+    "resource": "demo-order",
+    "metrics": [
+      {
+        "name": "request_latency",
+        "description": "请求延迟 p95（秒），按 service 聚合",
+        "unit": "seconds",
+        "query_template": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service=\"$service\"}[1m])))",
+        "query": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service=\"demo-order\"}[1m])))"
+      },
+      {
+        "name": "request_rate",
+        "description": "每秒请求数",
+        "unit": "req/s",
+        "query_template": "sum(rate(http_requests_total{service=\"$service\"}[1m]))",
+        "query": "sum(rate(http_requests_total{service=\"demo-order\"}[1m]))"
+      },
+      {
+        "name": "error_rate",
+        "description": "5xx 比例",
+        "unit": "ratio",
+        "query_template": "sum(rate(http_requests_total{service=\"$service\",code=~\"5..\"}[1m])) / sum(rate(http_requests_total{service=\"$service\"}[1m]))",
+        "query": "sum(rate(http_requests_total{service=\"demo-order\",code=~\"5..\"}[1m])) / sum(rate(http_requests_total{service=\"demo-order\"}[1m]))"
+      },
+      {
+        "name": "cache_hit_ratio",
+        "description": "应用侧缓存命中率",
+        "unit": "ratio",
+        "query_template": "sum(rate(cache_requests_total{service=\"$service\",result=\"hit\"}[1m])) / sum(rate(cache_requests_total{service=\"$service\"}[1m]))",
+        "query": "sum(rate(cache_requests_total{service=\"demo-order\",result=\"hit\"}[1m])) / sum(rate(cache_requests_total{service=\"demo-order\"}[1m]))"
+      },
+      {
+        "name": "db_query_rate",
+        "description": "应用侧数据库查询速率",
+        "unit": "req/s",
+        "query_template": "sum(rate(db_queries_total{service=\"$service\"}[1m]))",
+        "query": "sum(rate(db_queries_total{service=\"demo-order\"}[1m]))"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "metric-catalog",
+        "observed_at": "2026-10-17T12:55:08.137Z",
+        "endpoint": "prometheus/demo-prometheus",
+        "method": "profiles.demo.endpoints.prometheus.demo-prometheus.metrics",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "端点 prometheus/demo-prometheus 的指标目录"
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefsk9-5604ee",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "prometheus-http-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:08.121Z",
+    "duration_ms": 17
+  }
+}

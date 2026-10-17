@@ -1,0 +1,154 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "container.event.list",
+  "data": {
+    "service": "demo-order",
+    "env": "sandbox",
+    "selector": {
+      "label": "workctl.service=demo-order",
+      "origin": "binding-file",
+      "evidence": "bindings: demo-order.attributes.container_label=workctl.service=demo-order"
+    },
+    "window": {
+      "start": "2026-10-17T06:55:01.994Z",
+      "end": "2026-10-17T12:55:01.994Z"
+    },
+    "visible_since": "2026-10-17T12:52:03.084Z",
+    "daemon_buffer_full": true,
+    "events": [
+      {
+        "time": "2026-10-17T12:52:47.863Z",
+        "type": "container",
+        "action": "create",
+        "container_id": "0dd91c2d29da",
+        "container_name": "0aec0dfb247a_demo-order",
+        "image": "workctl-demo/demo-order:local",
+        "exit_code": null,
+        "signal": null,
+        "attributes": {}
+      },
+      {
+        "time": "2026-10-17T12:52:47.881Z",
+        "type": "container",
+        "action": "kill",
+        "container_id": "0aec0dfb247a",
+        "container_name": "demo-order",
+        "image": "workctl-demo/demo-order:local",
+        "exit_code": null,
+        "signal": "15",
+        "attributes": {}
+      },
+      {
+        "time": "2026-10-17T12:52:48.073Z",
+        "type": "container",
+        "action": "stop",
+        "container_id": "0aec0dfb247a",
+        "container_name": "demo-order",
+        "image": "workctl-demo/demo-order:local",
+        "exit_code": null,
+        "signal": null,
+        "attributes": {}
+      },
+      {
+        "time": "2026-10-17T12:52:48.075Z",
+        "type": "container",
+        "action": "die",
+        "container_id": "0aec0dfb247a",
+        "container_name": "demo-order",
+        "image": "workctl-demo/demo-order:local",
+        "exit_code": 0,
+        "signal": null,
+        "attributes": {
+          "execDuration": "134"
+        }
+      },
+      {
+        "time": "2026-10-17T12:52:48.107Z",
+        "type": "container",
+        "action": "destroy",
+        "container_id": "0aec0dfb247a",
+        "container_name": "demo-order",
+        "image": "workctl-demo/demo-order:local",
+        "exit_code": null,
+        "signal": null,
+        "attributes": {}
+      },
+      {
+        "time": "2026-10-17T12:52:48.111Z",
+        "type": "container",
+        "action": "rename",
+        "container_id": "0dd91c2d29da",
+        "container_name": "demo-order",
+        "image": "workctl-demo/demo-order:local",
+        "exit_code": null,
+        "signal": null,
+        "attributes": {
+          "oldName": "/0aec0dfb247a_demo-order"
+        }
+      },
+      {
+        "time": "2026-10-17T12:52:48.864Z",
+        "type": "container",
+        "action": "start",
+        "container_id": "0dd91c2d29da",
+        "container_name": "demo-order",
+        "image": "workctl-demo/demo-order:local",
+        "exit_code": null,
+        "signal": null,
+        "attributes": {}
+      }
+    ],
+    "counts_by_action": {
+      "create": 1,
+      "kill": 1,
+      "stop": 1,
+      "die": 1,
+      "destroy": 1,
+      "rename": 1,
+      "start": 1
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "docker",
+        "adapter": "docker-engine-api",
+        "observed_at": "2026-10-17T12:55:02.010Z",
+        "endpoint": "docker/local (unix:/var/run/docker.sock)",
+        "method": "GET /events?since=1792220101&until=1792241701（本地按标签 workctl.service=demo-order 过滤）",
+        "relation": "explicit",
+        "version": "29.8.2 (API 1.56)"
+      }
+    ],
+    "coverage": {
+      "complete": false,
+      "window": {
+        "start": "2026-10-17T06:55:01.994Z",
+        "end": "2026-10-17T12:55:01.994Z"
+      },
+      "truncated": true,
+      "scope": "窗口 6h 中仅 2026-10-17T12:52:03.084Z 之后的部分可见",
+      "notes": [
+        "容器选择器: label workctl.service=demo-order（bindings: demo-order.attributes.container_label=workctl.service=demo-order）",
+        "环境过滤: workctl.env=sandbox（无该标签的容器保留并标注）",
+        "Docker 守护进程只保留最近有限条事件，且重启后清空；窗口内事件不全时以容器 inspect 状态为准",
+        "守护进程事件缓冲已满（256 条，上限约 256），可见历史只从 2026-10-17T12:52:03.084Z 开始；更早的事件已被挤出（健康检查产生的 exec 事件会快速占满缓冲）。更长历史需要事件采集（如日志/事件转发）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefnsi-81e6fb",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "docker-engine-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:01.938Z",
+    "duration_ms": 72
+  }
+}

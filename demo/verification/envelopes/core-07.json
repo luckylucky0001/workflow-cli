@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "access.check",
+  "data": {
+    "capability": "mysql.query.execute",
+    "operation": "read",
+    "verdict": "unknown",
+    "checks": [
+      {
+        "check": "capability_status",
+        "ok": true,
+        "detail": "状态 available"
+      },
+      {
+        "check": "profile",
+        "ok": true,
+        "detail": "profile demo (env sandbox)"
+      },
+      {
+        "check": "endpoint:mysql",
+        "ok": true,
+        "detail": "mysql/demo-mysql"
+      },
+      {
+        "check": "credential:mysql/demo-mysql.password_ref",
+        "ok": true,
+        "detail": "file 引用可解析"
+      },
+      {
+        "check": "identity:mysql/demo-mysql",
+        "ok": true,
+        "detail": "身份 workctl_ro@%；版本 8.4.11"
+      },
+      {
+        "check": "privileges:mysql/demo-mysql",
+        "ok": null,
+        "detail": "GRANT PROCESS ON *.* TO `workctl_ro`@`%` | GRANT SELECT ON `demo`.* TO `workctl_ro`@`%` | GRANT SELECT ON `performance_schema`.* TO `workctl_ro`@`%` | GRANT SELECT ON `mysql`.`slow_log` TO `workctl_ro`@`%`"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "profile",
+        "observed_at": "2026-10-17T12:55:00.862Z",
+        "relation": "derived"
+      }
+    ],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefmxf-6619b7",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "profile",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:00.819Z",
+    "duration_ms": 44
+  }
+}

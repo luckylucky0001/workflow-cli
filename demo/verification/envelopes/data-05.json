@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "data.lineage.get",
+  "data": {
+    "table": "analytics.daily_orders",
+    "direction": "downstream",
+    "depth": 2,
+    "nodes": [
+      {
+        "id": "analytics.daily_orders",
+        "type": "table",
+        "in_catalog": true,
+        "depth": 0
+      },
+      {
+        "id": "demo-daily-report",
+        "type": "report",
+        "in_catalog": false,
+        "note": "订单日报",
+        "depth": 1
+      },
+      {
+        "id": "report.daily_summary",
+        "type": "table",
+        "in_catalog": true,
+        "depth": 1
+      }
+    ],
+    "edges": [
+      {
+        "from": "analytics.daily_orders",
+        "to": "report.daily_summary",
+        "relations": [
+          "explicit"
+        ],
+        "confirmed_by_both": false,
+        "evidence": [
+          {
+            "relation": "explicit",
+            "source": "catalog:tables/report.daily_summary.yaml",
+            "detail": "upstream"
+          }
+        ],
+        "via": {
+          "workflow": "demo-report-workflow",
+          "status": "planned"
+        },
+        "columns": [
+          "order_count",
+          "total_amount",
+          "status"
+        ]
+      },
+      {
+        "from": "analytics.daily_orders",
+        "to": "demo-daily-report",
+        "relations": [
+          "explicit"
+        ],
+        "confirmed_by_both": false,
+        "evidence": [
+          {
+            "relation": "explicit",
+            "source": "catalog:tables/analytics.daily_orders.yaml",
+            "detail": "consumers (report)"
+          }
+        ]
+      },
+      {
+        "from": "report.daily_summary",
+        "to": "demo-daily-report",
+        "relations": [
+          "explicit"
+        ],
+        "confirmed_by_both": false,
+        "evidence": [
+          {
+            "relation": "explicit",
+            "source": "catalog:tables/report.daily_summary.yaml",
+            "detail": "consumers (report)"
+          }
+        ]
+      }
+    ],
+    "sql_scans": [
+      {
+        "table": "analytics.daily_orders",
+        "sql_file": "demo/offline-workflows/sql/daily_orders.sql",
+        "resolved_path": "/home/user/workflow-cli/demo/offline-workflows/sql/daily_orders.sql",
+        "status": "parsed",
+        "targets": [],
+        "sources": [
+          "ods_orders@L11"
+        ],
+        "path_sources": [],
+        "note": "SQL 中未发现 INSERT/CREATE TABLE AS 目标；写入目标只能取自元数据 produced_by（explicit）"
+      }
+    ],
+    "scanned": {
+      "metadata_files": 3,
+      "metadata_invalid": 0,
+      "sql_files_parsed": 1,
+      "sql_files_missing": 0
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "file-catalog",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:44.404Z",
+        "endpoint": "catalog/demo",
+        "method": "read 3 metadata files",
+        "relation": "explicit"
+      },
+      {
+        "system": "sql-file",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:44.404Z",
+        "method": "regex-parse demo/offline-workflows/sql/daily_orders.sql",
+        "relation": "inferred"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "scope": "analytics.daily_orders downstream depth 2",
+      "notes": [
+        "扫描了 3 个元数据文件、1 个 SQL 文件",
+        "inferred 边来自正则解析 SQL（INSERT/CREATE TABLE AS 目标，FROM/JOIN 来源），可能遗漏动态 SQL、程序内注册的临时视图和 DataFrame 读写",
+        "demo/offline-workflows/sql/daily_orders.sql: SQL 中未发现 INSERT/CREATE TABLE AS 目标；写入目标只能取自元数据 produced_by（explicit）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegkid-bc1262",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "file-catalog",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:44.341Z",
+    "duration_ms": 63
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "mysql.lock.list",
+  "data": {
+    "instance": "demo-mysql",
+    "lock_waits": [],
+    "metadata_lock_waits": [],
+    "summary": {
+      "waiting_trx": 0,
+      "blocking_trx": 0,
+      "root_blockers": []
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "mysql",
+        "adapter": "mysql-driver",
+        "observed_at": "2026-10-17T12:55:11.371Z",
+        "endpoint": "mysql/demo-mysql",
+        "method": "performance_schema.data_lock_waits JOIN data_locks / information_schema.INNODB_TRX",
+        "version": "8.4.11",
+        "relation": "explicit"
+      },
+      {
+        "system": "mysql",
+        "adapter": "mysql-driver",
+        "observed_at": "2026-10-17T12:55:11.373Z",
+        "endpoint": "mysql/demo-mysql",
+        "method": "performance_schema.metadata_locks (LOCK_STATUS=PENDING)",
+        "version": "8.4.11",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "notes": [
+        "当前没有 InnoDB 行锁等待",
+        "瞬时快照；锁等待可能在毫秒内结束"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefv1m-c95e24",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "mysql-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:11.338Z",
+    "duration_ms": 36
+  }
+}

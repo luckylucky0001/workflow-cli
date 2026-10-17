@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { WorkError, type Source } from '../../core/output';
 import { defineCapability, type InputSpec } from '../../core/registry';
 import { sleep } from '../../core/runtime';
-import { ADAPTER, AUTH_PROVIDER, GUIDE, bindingFor, tryConfigGet, withRedis } from './client';
+import { ADAPTER, AUTH_PROVIDER, GUIDE, bindingFor, infoSections, tryConfigGet, withRedis } from './client';
 import { isSensitiveConfig, parseInfo, redactCommand, semanticsOf, snapshotFromInfo, windowDelta, WINDOW_COUNTERS, type InfoSections } from './info';
 
 export const INSTANCE: InputSpec = { type: 'string', description: 'Redis 端点名（profile 中 endpoints.redis 的键；缺省取 defaults.redis）' };
@@ -65,7 +65,7 @@ export const instanceGet = defineCapability({
   examples: ['workctl redis instance get --instance demo-redis'],
   handler: async (ctx, i) =>
     withRedis(ctx, i.instance, async (s) => {
-      const info = parseInfo(String(await s.cmd('INFO', 'server', 'replication', 'persistence', 'clients', 'memory', 'keyspace')));
+      const info = await infoSections(s, ['server', 'replication', 'persistence', 'clients', 'memory', 'keyspace']);
       const { binding, source: bsrc } = bindingFor(ctx, 'redis', s.ep.name);
       const uptime = n(info, 'server', 'uptime_in_seconds');
       const maxmem = n(info, 'memory', 'maxmemory');
@@ -212,19 +212,19 @@ export const statsSample = defineCapability({
     }
     return withRedis(ctx, i.instance, async (s) => {
       const t0 = Date.now();
-      const a = parseInfo(String(await s.cmd('INFO', 'server', 'stats', 'memory', 'clients')));
+      const a = await infoSections(s, ['server', 'stats', 'memory', 'clients']);
       await sleep(ms, ctx.signal);
       let t1 = Date.now();
       let reconnected = false;
       let b: InfoSections;
       try {
-        b = parseInfo(String(await s.cmd('INFO', 'server', 'stats', 'memory', 'clients')));
+        b = await infoSections(s, ['server', 'stats', 'memory', 'clients']);
       } catch (e) {
         // The connection may have been dropped by a restart/failover inside the window: take the
         // second sample on a fresh connection; run_id/uptime then tell whether it restarted.
         if (!(e instanceof WorkError && e.code === 'UPSTREAM_UNAVAILABLE')) throw e;
         reconnected = true;
-        b = await withRedis(ctx, i.instance, async (s2) => parseInfo(String(await s2.cmd('INFO', 'server', 'stats', 'memory', 'clients'))));
+        b = await withRedis(ctx, i.instance, async (s2) => infoSections(s2, ['server', 'stats', 'memory', 'clients']));
         t1 = Date.now();
       }
       const d = windowDelta(snapshotFromInfo(a, t0), snapshotFromInfo(b, t1));

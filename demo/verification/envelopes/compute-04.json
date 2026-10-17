@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "compute.queue.get",
+  "data": {
+    "id": "demo-batch-pool",
+    "provider": "airflow-pool",
+    "description": "demo batch pool (Spark aggregate tasks)",
+    "slots": 2,
+    "occupied_slots": 0,
+    "running_slots": 0,
+    "queued_slots": 0,
+    "scheduled_slots": 0,
+    "deferred_slots": 0,
+    "open_slots": 2,
+    "include_deferred": false,
+    "utilization": 0,
+    "waiting_slots": 0
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "airflow",
+        "adapter": "airflow-pool",
+        "observed_at": "2026-10-17T12:55:41.186Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/pools/demo-batch-pool",
+        "version": "2.10.5",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "pool demo-batch-pool",
+      "notes": [
+        "瞬时值（观测时刻），不是窗口统计"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvceghz3-144d8a",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "airflow-pool",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:41.055Z",
+    "duration_ms": 131
+  }
+}

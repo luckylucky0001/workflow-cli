@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "mysql.table.get",
+  "data": {
+    "instance": "demo-mysql",
+    "database": "demo",
+    "table": "orders",
+    "table_type": "BASE TABLE",
+    "engine": "InnoDB",
+    "row_format": "Dynamic",
+    "rows_estimate": 299145,
+    "avg_row_length": 68,
+    "data_length_bytes": 20496384,
+    "index_length_bytes": 5783552,
+    "data_free_bytes": 7340032,
+    "auto_increment": "300001",
+    "collation": "utf8mb4_0900_ai_ci",
+    "comment": "synthetic orders (workctl demo); customer_id intentionally not indexed",
+    "create_time": "2026-10-17T12:23:50Z",
+    "update_time": "2026-10-17T12:23:53Z",
+    "columns": [
+      {
+        "name": "id",
+        "position": 1,
+        "column_type": "bigint",
+        "data_type": "bigint",
+        "nullable": false,
+        "default": null,
+        "key": "PRI",
+        "extra": "auto_increment",
+        "charset": null,
+        "collation": null,
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "customer_id",
+        "position": 2,
+        "column_type": "bigint",
+        "data_type": "bigint",
+        "nullable": false,
+        "default": null,
+        "key": null,
+        "extra": null,
+        "charset": null,
+        "collation": null,
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "status",
+        "position": 3,
+        "column_type": "varchar(16)",
+        "data_type": "varchar",
+        "nullable": false,
+        "default": null,
+        "key": null,
+        "extra": null,
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_0900_ai_ci",
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "amount",
+        "position": 4,
+        "column_type": "decimal(10,2)",
+        "data_type": "decimal",
+        "nullable": false,
+        "default": null,
+        "key": null,
+        "extra": null,
+        "charset": null,
+        "collation": null,
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "item_count",
+        "position": 5,
+        "column_type": "int",
+        "data_type": "int",
+        "nullable": false,
+        "default": null,
+        "key": null,
+        "extra": null,
+        "charset": null,
+        "collation": null,
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "created_at",
+        "position": 6,
+        "column_type": "datetime",
+        "data_type": "datetime",
+        "nullable": false,
+        "default": null,
+        "key": "MUL",
+        "extra": null,
+        "charset": null,
+        "collation": null,
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "updated_at",
+        "position": 7,
+        "column_type": "datetime",
+        "data_type": "datetime",
+        "nullable": false,
+        "default": null,
+        "key": null,
+        "extra": null,
+        "charset": null,
+        "collation": null,
+        "comment": null,
+        "sensitive": false
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "mysql",
+        "adapter": "mysql-driver",
+        "observed_at": "2026-10-17T12:55:10.409Z",
+        "endpoint": "mysql/demo-mysql",
+        "method": "information_schema.TABLES + information_schema.COLUMNS",
+        "version": "8.4.11",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "notes": [
+        "rows_estimate / data_length 为 InnoDB 统计估计值（受 information_schema_stats_expiry 缓存影响），精确行数需 COUNT(*)"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefuaq-b8d324",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "mysql-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:10.370Z",
+    "duration_ms": 40
+  }
+}

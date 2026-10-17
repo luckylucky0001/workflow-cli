@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "redis.slowlog.list",
+  "data": {
+    "instance": "demo-redis",
+    "config": {
+      "slower_than_us": 1000,
+      "max_len": 256,
+      "config_readable": true
+    },
+    "retained_entries": 0,
+    "entries": []
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "redis",
+        "adapter": "redis-client",
+        "observed_at": "2026-10-17T12:55:29.356Z",
+        "endpoint": "redis/demo-redis",
+        "method": "SLOWLOG GET / SLOWLOG LEN / CONFIG GET slowlog-*",
+        "version": "7.4.11",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "limit": 5,
+      "notes": [
+        "慢日志当前为空（已开启）",
+        "只含命令执行时间，不含网络/排队/I/O",
+        "阈值 slowlog-log-slower-than=1000us，保留上限 slowlog-max-len=256"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvceg8x9-306732",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "redis-client",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:29.325Z",
+    "duration_ms": 32
+  }
+}

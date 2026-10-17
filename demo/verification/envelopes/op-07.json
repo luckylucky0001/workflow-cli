@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "operation.execute",
+  "data": null,
+  "error": {
+    "code": "CONFLICT",
+    "message": "计划状态为 succeeded，只能执行 planned 状态的计划",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegogj-8afbc8",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "plan-store",
+    "operation": "execute",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:49.459Z",
+    "duration_ms": 23
+  }
+}

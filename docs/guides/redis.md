@@ -2,7 +2,7 @@
 
 本指南覆盖 `redis` 领域的 8 个命令（适配器 `redis-client`/ioredis，认证 `redis-profile`）。结果信封与错误码见 `docs/design-principles.md`；Agent 使用流程见 `skills/redis-operations/SKILL.md`。
 
-> 已在隔离 Demo 环境验证：**Redis 7.4.11**（`redis:7.4` 镜像，standalone，`maxmemory 64mb`，`maxmemory-policy allkeys-lfu`，`slowlog-log-slower-than 1000`，`slowlog-max-len 256`，无口令）。Redis 6.x 预期可用（ACL WHOAMI 需要 6.0+，`INFO` 多分区参数需要 7.0+）；集群模式、Sentinel、托管 Redis 未验证。
+> 已在隔离 Demo 环境验证：**Redis 7.4.11**（`redis:7.4` 镜像，standalone，`maxmemory 64mb`，`maxmemory-policy allkeys-lfu`，`slowlog-log-slower-than 1000`，`slowlog-max-len 256`，无口令）。Redis 6.x 预期可用（ACL WHOAMI 需要 6.0+；`INFO` 多分区参数需要 7.0+，更低版本自动回退为 `INFO all`）；集群模式、Sentinel、托管 Redis 未验证。
 
 ## 对象模型
 

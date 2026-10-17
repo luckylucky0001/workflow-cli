@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "offline.task.get",
+  "data": {
+    "workflow_id": "demo-daily-orders",
+    "task_id": "aggregate_orders",
+    "operator": "BashOperator",
+    "operator_module": "airflow.operators.bash",
+    "owner": "team-data",
+    "retries": 0,
+    "retry_delay_seconds": 300,
+    "retry_exponential_backoff": false,
+    "pool": "demo-batch-pool",
+    "pool_slots": 1,
+    "queue": "default",
+    "priority_weight": 1,
+    "trigger_rule": "all_success",
+    "depends_on_past": false,
+    "execution_timeout_seconds": 1800,
+    "upstream_task_ids": [
+      "wait_for_ods_partition"
+    ],
+    "downstream_task_ids": [
+      "validate_output"
+    ],
+    "template_fields": [
+      "bash_command",
+      "env",
+      "cwd"
+    ],
+    "is_mapped": false,
+    "not_exposed": [
+      "sla"
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:33.068Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/demo-daily-orders/tasks/aggregate_orders",
+        "version": "2.10.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:33.068Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/demo-daily-orders/tasks",
+        "version": "2.10.5",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "demo-daily-orders.aggregate_orders"
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegbo0-de91bf",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "airflow-rest-v1",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:32.880Z",
+    "duration_ms": 188
+  }
+}

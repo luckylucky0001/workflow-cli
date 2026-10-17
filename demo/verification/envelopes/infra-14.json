@@ -1,0 +1,148 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "container.workload.restart_plan",
+  "data": {
+    "id": "op-20261017-d60591",
+    "kind": "container.restart",
+    "title": "重启服务 demo-order（sandbox）的 1 个容器",
+    "params": {
+      "service": "demo-order",
+      "env": "sandbox"
+    },
+    "targets": [
+      {
+        "container_id": "0dd91c2d29dafe7f78c19bf6b7e3d39fd45a2b248ef479b658e4de7a0dcfb2be",
+        "name": "demo-order",
+        "image": "workctl-demo/demo-order:local",
+        "state": "running",
+        "health": "none",
+        "started_at": "2026-10-17T12:52:48.700736369Z",
+        "restart_policy": "no",
+        "selector": "workctl.service=demo-order"
+      }
+    ],
+    "impact": {
+      "service": "demo-order",
+      "env": "sandbox",
+      "containers": 1,
+      "running_containers": 1,
+      "expected_interruption": "每个容器停止最多 10s（SIGTERM 后超时 SIGKILL）+ 启动时间；单副本服务在此期间不可用",
+      "dependents_of_service": [
+        {
+          "resource": "demo-prometheus",
+          "relation": "consumes",
+          "source": "binding-file",
+          "evidence": "prometheus scrape job demo-order"
+        }
+      ],
+      "service_dependencies": [
+        {
+          "resource": "demo-order-workload",
+          "relation": "runs_on",
+          "source": "binding-file",
+          "evidence": "container label workctl.service=demo-order"
+        },
+        {
+          "resource": "demo-mysql",
+          "relation": "depends_on",
+          "source": "service-config",
+          "evidence": "demo-order env MYSQL_HOST=mysql (docker-compose.yml)"
+        },
+        {
+          "resource": "demo-redis",
+          "relation": "depends_on",
+          "source": "service-config",
+          "evidence": "demo-order env REDIS_URL=redis://redis:6379 (docker-compose.yml)"
+        }
+      ],
+      "dependency_note": "来自资源绑定 /home/user/workflow-cli/demo/environment/bindings.yaml；被依赖方在重启期间会看到连接失败，服务依赖（数据库/缓存）的连接会重建",
+      "healthcheck_configured": false,
+      "cache_note": "进程内状态（如缓存模式、连接池）会丢失并按启动配置恢复"
+    },
+    "preconditions": [
+      {
+        "check": "containers_found",
+        "ok": true,
+        "detail": "selector workctl.service=demo-order 匹配 1 个容器"
+      },
+      {
+        "check": "profile_allow_execute",
+        "ok": true,
+        "detail": "profile demo 允许执行"
+      },
+      {
+        "check": "docker_reachable",
+        "ok": true,
+        "detail": "docker/local (unix:/var/run/docker.sock) 可访问（计划生成时）"
+      }
+    ],
+    "steps": [
+      {
+        "name": "restart demo-order",
+        "detail": "POST /containers/0dd91c2d29da/restart?t=10"
+      },
+      {
+        "name": "verify",
+        "detail": "轮询 /containers/{id}/json 直到 State.Running=true 且 StartedAt 晚于重启前（最多 60s）"
+      }
+    ],
+    "rollback": "不适用：重启不可回滚。失败时用 container event list / log query 查看原因，必要时人工介入",
+    "idempotent": true,
+    "cancellable": false,
+    "status": "planned",
+    "created_at": "2026-10-17T12:55:09.617Z",
+    "expires_at": "2026-10-17T13:25:09.617Z",
+    "profile": "demo",
+    "env": "sandbox",
+    "executable": true,
+    "history": [
+      {
+        "at": "2026-10-17T12:55:09.617Z",
+        "status": "planned",
+        "note": "计划已生成，未执行"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "docker",
+        "adapter": "docker-engine-api",
+        "observed_at": "2026-10-17T12:55:09.633Z",
+        "endpoint": "docker/local (unix:/var/run/docker.sock)",
+        "method": "GET /containers/json + /containers/{id}/json",
+        "relation": "explicit",
+        "version": "29.8.2 (API 1.56)"
+      },
+      {
+        "system": "workctl",
+        "adapter": "plan-store",
+        "observed_at": "2026-10-17T12:55:09.633Z",
+        "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/state/operations",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "计划生成时解析出的目标",
+      "notes": [
+        "执行: workctl operation execute --id op-20261017-d60591 --confirm op-20261017-d60591"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvceftnf-828f27",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "docker-engine-api",
+    "operation": "plan",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:09.531Z",
+    "duration_ms": 103
+  }
+}

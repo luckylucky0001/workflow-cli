@@ -1,0 +1,216 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "compute.job.get",
+  "data": {
+    "app_id": "local-1792240691874",
+    "name": "demo-daily-orders.aggregate_orders",
+    "status": "succeeded",
+    "status_basis": "应用已结束（attempt.completed=true）且没有失败作业；history server 不记录驱动进程退出码",
+    "spark_version": "3.5.5",
+    "user": "root",
+    "attempts": [
+      {
+        "attempt_id": null,
+        "start_time": "2026-10-17T12:38:11.170Z",
+        "end_time": "2026-10-17T12:38:19.699Z",
+        "last_updated": "2026-10-17T12:38:19.716Z",
+        "duration_ms": 8529,
+        "completed": true
+      }
+    ],
+    "start_time": "2026-10-17T12:38:11.170Z",
+    "end_time": "2026-10-17T12:38:19.699Z",
+    "duration_ms": 8529,
+    "jobs": {
+      "total": 9,
+      "succeeded": 9,
+      "failed": 0,
+      "running": 0,
+      "items": [
+        {
+          "job_id": 8,
+          "name": "count at NativeMethodAccessorImpl.java:0",
+          "status": "SUCCEEDED",
+          "stage_ids": [
+            16,
+            17
+          ],
+          "num_tasks": 2,
+          "num_failed_tasks": 0,
+          "submission_time": "2026-10-17T12:38:19.646Z",
+          "completion_time": "2026-10-17T12:38:19.691Z"
+        },
+        {
+          "job_id": 7,
+          "name": "count at NativeMethodAccessorImpl.java:0",
+          "status": "SUCCEEDED",
+          "stage_ids": [
+            15
+          ],
+          "num_tasks": 1,
+          "num_failed_tasks": 0,
+          "submission_time": "2026-10-17T12:38:19.540Z",
+          "completion_time": "2026-10-17T12:38:19.612Z"
+        },
+        {
+          "job_id": 6,
+          "name": "json at NativeMethodAccessorImpl.java:0",
+          "status": "SUCCEEDED",
+          "stage_ids": [
+            14
+          ],
+          "num_tasks": 1,
+          "num_failed_tasks": 0,
+          "submission_time": "2026-10-17T12:38:19.399Z",
+          "completion_time": "2026-10-17T12:38:19.441Z"
+        },
+        {
+          "job_id": 5,
+          "name": "json at NativeMethodAccessorImpl.java:0",
+          "status": "SUCCEEDED",
+          "stage_ids": [
+            12,
+            13,
+            10,
+            11
+          ],
+          "num_tasks": 4,
+          "num_failed_tasks": 0,
+          "submission_time": "2026-10-17T12:38:18.962Z",
+          "completion_time": "2026-10-17T12:38:19.240Z"
+        },
+        {
+          "job_id": 4,
+          "name": "json at NativeMethodAccessorImpl.java:0",
+          "status": "SUCCEEDED",
+          "stage_ids": [
+            9,
+            7,
+            8
+          ],
+          "num_tasks": 3,
+          "num_failed_tasks": 0,
+          "submission_time": "2026-10-17T12:38:18.748Z",
+          "completion_time": "2026-10-17T12:38:18.826Z"
+        },
+        {
+          "job_id": 3,
+          "name": "json at NativeMethodAccessorImpl.java:0",
+          "status": "SUCCEEDED",
+          "stage_ids": [
+            5,
+            6,
+            4
+          ],
+          "num_tasks": 3,
+          "num_failed_tasks": 0,
+          "submission_time": "2026-10-17T12:38:18.648Z",
+          "completion_time": "2026-10-17T12:38:18.727Z"
+        },
+        {
+          "job_id": 2,
+          "name": "json at NativeMethodAccessorImpl.java:0",
+          "status": "SUCCEEDED",
+          "stage_ids": [
+            2,
+            3
+          ],
+          "num_tasks": 2,
+          "num_failed_tasks": 0,
+          "submission_time": "2026-10-17T12:38:18.308Z",
+          "completion_time": "2026-10-17T12:38:18.529Z"
+        },
+        {
+          "job_id": 1,
+          "name": "json at NativeMethodAccessorImpl.java:0",
+          "status": "SUCCEEDED",
+          "stage_ids": [
+            1
+          ],
+          "num_tasks": 1,
+          "num_failed_tasks": 0,
+          "submission_time": "2026-10-17T12:38:17.658Z",
+          "completion_time": "2026-10-17T12:38:18.125Z"
+        },
+        {
+          "job_id": 0,
+          "name": "json at NativeMethodAccessorImpl.java:0",
+          "status": "SUCCEEDED",
+          "stage_ids": [
+            0
+          ],
+          "num_tasks": 1,
+          "num_failed_tasks": 0,
+          "submission_time": "2026-10-17T12:38:15.887Z",
+          "completion_time": "2026-10-17T12:38:16.684Z"
+        }
+      ]
+    },
+    "executors": {
+      "count": 1,
+      "total_cores": 2,
+      "failed_tasks": 0,
+      "completed_tasks": 9,
+      "max_memory_bytes": 455501414,
+      "total_gc_time_ms": 0
+    },
+    "driver_log": "/home/user/workflow-cli/demo/environment/.runtime/spark/driver-logs/local-1792240691874.log"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "spark",
+        "adapter": "spark-history-rest",
+        "observed_at": "2026-10-17T12:55:40.098Z",
+        "endpoint": "spark/demo-spark",
+        "method": "GET /api/v1/applications/local-1792240691874",
+        "version": "3.5.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "spark",
+        "adapter": "spark-history-rest",
+        "observed_at": "2026-10-17T12:55:40.098Z",
+        "endpoint": "spark/demo-spark",
+        "method": "GET /api/v1/applications/local-1792240691874/jobs",
+        "version": "3.5.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "spark",
+        "adapter": "spark-history-rest",
+        "observed_at": "2026-10-17T12:55:40.098Z",
+        "endpoint": "spark/demo-spark",
+        "method": "GET /api/v1/applications/local-1792240691874/allexecutors",
+        "version": "3.5.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "spark",
+        "adapter": "spark-history-rest",
+        "observed_at": "2026-10-17T12:55:40.098Z",
+        "method": "status = f(attempt.completed, job states)",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "local-1792240691874"
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegh6k-1a5f3f",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "spark-history-rest",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:40.028Z",
+    "duration_ms": 70
+  }
+}

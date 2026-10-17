@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "redis.key.hot",
+  "data": {
+    "instance": "demo-redis",
+    "maxmemory_policy": "allkeys-lfu",
+    "lfu": {
+      "log_factor": 10,
+      "decay_time_min": 1
+    },
+    "scan": {
+      "pattern": "demo:*",
+      "scan_count_hint": 100,
+      "scan_calls": 1,
+      "unique_keys": 100,
+      "duplicates_seen": 0,
+      "cursor_complete": false,
+      "stopped_by": "max_keys"
+    },
+    "hot_keys": [
+      {
+        "key": "demo:export:orders:2026-10-16T00",
+        "lfu_counter": 1
+      },
+      {
+        "key": "demo:order:869",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:order:1810",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:order:257",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:customer:435:profile",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:order:1484",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:order:1790",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:order:1192",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:order:1037",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:order:1772",
+        "lfu_counter": 0
+      }
+    ],
+    "counter_distribution": {
+      "p50": 0,
+      "p90": 0,
+      "max": 1
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "redis",
+        "adapter": "redis-client",
+        "observed_at": "2026-10-17T12:55:30.257Z",
+        "endpoint": "redis/demo-redis",
+        "method": "SCAN MATCH demo:* + OBJECT FREQ",
+        "version": "7.4.11",
+        "relation": "sampled"
+      }
+    ],
+    "coverage": {
+      "complete": false,
+      "sampled": true,
+      "scope": "pattern demo:*",
+      "notes": [
+        "lfu_counter 是对数概率计数器（0–255），不是 QPS；新写入的键初始值为 5",
+        "采样: SCAN 1 次，去重后 100 个键，停止原因 max_keys"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvceg9ly-8a97b2",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "redis-client",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:30.214Z",
+    "duration_ms": 44
+  }
+}

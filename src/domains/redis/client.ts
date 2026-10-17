@@ -1,7 +1,7 @@
 import Redis from 'ioredis';
 import { source, WorkError, type Source } from '../../core/output';
 import type { Ctx, Endpoint } from '../../core/runtime';
-import { parseInfo } from './info';
+import { parseInfo, type InfoSections } from './info';
 
 export const SYSTEM = 'redis';
 export const ADAPTER = 'redis-client';
@@ -184,4 +184,18 @@ export function bindingFor(ctx: Ctx, kind: string, name: string): { binding: Rec
     binding: { id: r.id, type: r.type, env: r.env ?? null, owner: r.owner ?? null, labels: r.labels, attributes: r.attributes },
     source: source('workctl', 'binding-file', { endpoint: store.path ?? undefined, method: `resources.forEndpoint(${kind}, ${name})`, relation: 'explicit' }),
   };
+}
+
+/**
+ * INFO for several sections in one call (Redis 7+). Older servers reject multiple section
+ * arguments with a syntax error; fall back to `INFO all` and keep the requested sections.
+ */
+export async function infoSections(s: RedisSession, sections: string[]): Promise<InfoSections> {
+  try {
+    return parseInfo(String(await s.cmd('INFO', ...sections)));
+  } catch (e) {
+    if (!(e instanceof WorkError && e.code === 'INVALID_ARGUMENT')) throw e;
+    const all = parseInfo(String(await s.cmd('INFO', 'all')));
+    return Object.fromEntries(Object.entries(all).filter(([k]) => sections.includes(k)));
+  }
 }

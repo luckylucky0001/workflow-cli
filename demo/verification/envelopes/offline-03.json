@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "offline.run.list",
+  "data": {
+    "workflow": "demo-daily-orders",
+    "mapping": {
+      "rule": "业务日期 D 映射为业务时区内的半开区间 [D 00:00, D+1 00:00)；DAG run 的 data_interval 与该区间相交即纳入：exact=区间完全相同（日调度），contained=run 区间落在当天内（小时级调度），covers=run 区间覆盖当天（周/月调度），overlaps=部分重叠。run 的业务日期取 data_interval_start 在业务时区的日期，而不是 run 的启动时间。",
+      "business_date": "2026-10-16",
+      "timezone": "Asia/Shanghai",
+      "business_interval": {
+        "start_local": "2026-10-16T00:00:00+08:00",
+        "end_local": "2026-10-17T00:00:00+08:00",
+        "start_utc": "2026-10-15T16:00:00.000Z",
+        "end_utc": "2026-10-16T16:00:00.000Z"
+      },
+      "query": {
+        "execution_date_gte": "2026-10-14T16:00:00.000Z",
+        "execution_date_lte": "2026-10-16T16:00:00.000Z",
+        "order_by": "-execution_date",
+        "limit": 100
+      }
+    },
+    "runs": [
+      {
+        "run_id": "demo__2026-10-16__wrong_partition",
+        "state": "success",
+        "run_type": "manual",
+        "external_trigger": true,
+        "business_date": "2026-10-16",
+        "match": "exact",
+        "logical_date": {
+          "utc": "2026-10-15T16:00:00.000Z",
+          "local": "2026-10-16T00:00:00+08:00"
+        },
+        "data_interval": {
+          "start": {
+            "utc": "2026-10-15T16:00:00.000Z",
+            "local": "2026-10-16T00:00:00+08:00"
+          },
+          "end": {
+            "utc": "2026-10-16T16:00:00.000Z",
+            "local": "2026-10-17T00:00:00+08:00"
+          }
+        },
+        "queued_at": null,
+        "start_date": {
+          "utc": "2026-10-17T12:37:14.816Z",
+          "local": "2026-10-17T20:37:14+08:00"
+        },
+        "end_date": {
+          "utc": "2026-10-17T12:38:27.701Z",
+          "local": "2026-10-17T20:38:27+08:00"
+        },
+        "duration_seconds": 73,
+        "last_scheduling_decision": {
+          "utc": "2026-10-17T12:38:27.700Z",
+          "local": "2026-10-17T20:38:27+08:00"
+        },
+        "conf": {
+          "fault": "wrong_partition"
+        },
+        "note": "workctl offline scenario"
+      }
+    ],
+    "total_matched": 1,
+    "notes": []
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:33.814Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/demo-daily-orders/dagRuns",
+        "version": "2.10.5",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "logical_date ∈ [2026-10-14T16:00:00.000Z, 2026-10-16T16:00:00.000Z]",
+      "limit": 20,
+      "window": {
+        "start": "2026-10-15T16:00:00.000Z",
+        "end": "2026-10-16T16:00:00.000Z"
+      },
+      "notes": [
+        "只检索 logical_date 在业务日期前后 1 天内的 run；周期长于 1 天的 DAG 可能遗漏覆盖该日期的 run"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegbzz-559b0d",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "airflow-rest-v1",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:33.311Z",
+    "duration_ms": 503
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "network.dns.get",
+  "data": {
+    "name": "localhost",
+    "resolver": "system",
+    "nameservers": [
+      "8.8.8.8",
+      "8.8.4.4"
+    ],
+    "lookup": {
+      "status": "ok",
+      "addresses": [
+        {
+          "address": "127.0.0.1",
+          "family": 4
+        }
+      ],
+      "error_code": null,
+      "duration_ms": 6.7
+    },
+    "records": {
+      "A": {
+        "status": "nxdomain",
+        "records": [],
+        "error_code": "ENOTFOUND",
+        "duration_ms": 1.5
+      },
+      "AAAA": {
+        "status": "nxdomain",
+        "records": [],
+        "error_code": "ENOTFOUND",
+        "duration_ms": 1.1
+      },
+      "CNAME": {
+        "status": "nxdomain",
+        "records": [],
+        "error_code": "ENOTFOUND",
+        "duration_ms": 1.1
+      }
+    },
+    "resolved": true
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "dns",
+        "adapter": "node-dns",
+        "observed_at": "2026-10-17T12:55:05.750Z",
+        "method": "getaddrinfo (dns.lookup all=true)",
+        "relation": "explicit",
+        "endpoint": "system resolver"
+      },
+      {
+        "system": "dns",
+        "adapter": "node-dns",
+        "observed_at": "2026-10-17T12:55:05.750Z",
+        "method": "resolve4/resolve6/resolveCname",
+        "relation": "explicit",
+        "endpoint": "nameservers 8.8.8.8,8.8.4.4"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "运行 workctl 的主机上的系统解析器",
+      "notes": [
+        "getaddrinfo 能解析但 DNS 无记录：结果可能来自 /etc/hosts 或本地解析配置"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefqpq-9454de",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "node-dns",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:05.726Z",
+    "duration_ms": 24
+  }
+}

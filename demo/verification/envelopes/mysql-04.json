@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "mysql.session.list",
+  "data": {
+    "instance": "demo-mysql",
+    "sessions": [],
+    "summary": {
+      "total_visible": 1,
+      "returned": 0,
+      "active": 0,
+      "with_open_trx": 0,
+      "idle_in_trx": 0,
+      "oldest_trx_age_s": null
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "mysql",
+        "adapter": "mysql-driver",
+        "observed_at": "2026-10-17T12:55:11.042Z",
+        "endpoint": "mysql/demo-mysql",
+        "method": "performance_schema.processlist LEFT JOIN information_schema.INNODB_TRX",
+        "version": "8.4.11",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "active sessions + sessions with open transactions",
+      "notes": [
+        "瞬时快照；SQL 字面量已替换为 ?，截断至 512 字符；已排除 workctl 自身连接"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefusb-b6bf53",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "mysql-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:11.003Z",
+    "duration_ms": 40
+  }
+}

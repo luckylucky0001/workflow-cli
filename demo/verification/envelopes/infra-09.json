@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "storage.file.stat",
+  "data": {
+    "path": "demo/environment/workctl.yaml",
+    "absolute_path": "/home/user/workflow-cli/demo/environment/workctl.yaml",
+    "type": "file",
+    "size_bytes": 3376,
+    "mode": "0644",
+    "uid": 0,
+    "gid": 0,
+    "mtime": "2026-10-17T12:51:54.004Z",
+    "ctime": "2026-10-17T12:51:54.004Z",
+    "readable": true,
+    "writable": true,
+    "symlink_target": null,
+    "target_type": null,
+    "directory": null
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "local-filesystem",
+        "adapter": "node-fs",
+        "observed_at": "2026-10-17T12:55:07.801Z",
+        "method": "lstat/stat/access",
+        "endpoint": "local-filesystem",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "storage: local-filesystem（运行 workctl 的主机）",
+      "notes": []
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefsau-6e5696",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "node-fs",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:07.782Z",
+    "duration_ms": 19
+  }
+}

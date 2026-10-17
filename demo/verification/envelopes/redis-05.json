@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "redis.key.sample",
+  "data": {
+    "instance": "demo-redis",
+    "db": 0,
+    "keys_in_db": 3811,
+    "scan": {
+      "pattern": "demo:*",
+      "scan_count_hint": 100,
+      "scan_calls": 1,
+      "unique_keys": 50,
+      "duplicates_seen": 0,
+      "cursor_complete": false,
+      "stopped_by": "max_keys"
+    },
+    "sampled_keys": 50,
+    "vanished_keys": 0,
+    "type_counts": {
+      "string": 45,
+      "hash": 5
+    },
+    "memory_bytes": {
+      "p50": 256,
+      "p90": 256,
+      "p99": 327760,
+      "max": 327760,
+      "mean": 6868,
+      "sum_sampled": 343408
+    },
+    "top_keys": [
+      {
+        "key": "demo:export:orders:2026-10-16T00",
+        "type": "string",
+        "memory_bytes": 327760
+      },
+      {
+        "key": "demo:customer:65:recent",
+        "type": "string",
+        "memory_bytes": 2120
+      },
+      {
+        "key": "demo:customer:26:recent",
+        "type": "string",
+        "memory_bytes": 2120
+      },
+      {
+        "key": "demo:order:1810",
+        "type": "string",
+        "memory_bytes": 256
+      },
+      {
+        "key": "demo:order:1484",
+        "type": "string",
+        "memory_bytes": 256
+      },
+      {
+        "key": "demo:order:1790",
+        "type": "string",
+        "memory_bytes": 256
+      },
+      {
+        "key": "demo:order:1192",
+        "type": "string",
+        "memory_bytes": 256
+      },
+      {
+        "key": "demo:order:1037",
+        "type": "string",
+        "memory_bytes": 256
+      },
+      {
+        "key": "demo:order:1772",
+        "type": "string",
+        "memory_bytes": 256
+      },
+      {
+        "key": "demo:order:1224",
+        "type": "string",
+        "memory_bytes": 256
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "redis",
+        "adapter": "redis-client",
+        "observed_at": "2026-10-17T12:55:29.681Z",
+        "endpoint": "redis/demo-redis",
+        "method": "SCAN MATCH demo:* COUNT 100 + TYPE + MEMORY USAGE SAMPLES 5",
+        "version": "7.4.11",
+        "relation": "sampled"
+      }
+    ],
+    "coverage": {
+      "complete": false,
+      "sampled": true,
+      "scope": "pattern demo:*",
+      "limit": 50,
+      "truncated": true,
+      "notes": [
+        "采样: SCAN 1 次，去重后 50 个键，重复返回 0 次，停止原因 max_keys",
+        "游标未回到 0：只覆盖了部分键空间，分布仅代表样本",
+        "MEMORY USAGE 为近似值（SAMPLES 5）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvceg967-ed6afb",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "redis-client",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:29.647Z",
+    "duration_ms": 35
+  }
+}

@@ -75,8 +75,8 @@
    "search",
    "query"
   ],
-  "expect": "exit 2",
-  "note": "待接入能力不生成命令"
+  "expect": "INVALID_ARGUMENT",
+  "note": "待接入能力不生成命令（unknown command）"
  },
  {
   "id": "infra-01",
@@ -657,7 +657,7 @@
    "Asia/Shanghai"
   ],
   "capture": {
-   "plan_id": "data.id"
+   "plan_id": "data.plan_id"
   },
   "note": "只生成计划"
  },

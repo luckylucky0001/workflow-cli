@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "offline.dependency.list",
+  "data": {
+    "workflow": "demo-daily-orders",
+    "run_id": "demo__2026-10-14__missing_upstream",
+    "direction": "upstream",
+    "business_date": "2026-10-14",
+    "task_edges": [
+      {
+        "from": "aggregate_orders",
+        "to": "validate_output",
+        "from_state": null,
+        "to_state": null,
+        "edge_source": "scheduler-metadata"
+      },
+      {
+        "from": "wait_for_ods_partition",
+        "to": "aggregate_orders",
+        "from_state": "up_for_reschedule",
+        "to_state": null,
+        "edge_source": "scheduler-metadata"
+      }
+    ],
+    "data_dependencies": [
+      {
+        "table": "ods.orders",
+        "partition": "dt=2026-10-14",
+        "role": "input",
+        "state": "missing",
+        "detail": "分区目录不存在（未产出、产出到其他位置，或分区值/业务日期不对）",
+        "edge_source": "catalog-metadata"
+      }
+    ],
+    "workflow_dependencies": [
+      {
+        "workflow": "demo-ods-orders",
+        "relation": "produces_input",
+        "via": "ods.orders",
+        "edge_source": "binding-file",
+        "evidence": "demo-ods-orders produces ods.orders",
+        "corroborated_by": [
+          "catalog-metadata"
+        ],
+        "run": null,
+        "run_lookup": "业务日期 2026-10-14 没有 run（未调度/未触发）"
+      }
+    ],
+    "notes": []
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:36.650Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/demo-daily-orders/tasks",
+        "version": "2.10.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:36.651Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-14__missing_upstream/taskInstances",
+        "version": "2.10.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "catalog",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:36.672Z",
+        "endpoint": "catalog/demo",
+        "method": "tables/*.yaml upstream/consumers/produced_by",
+        "relation": "explicit"
+      },
+      {
+        "system": "local-filesystem",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:36.688Z",
+        "endpoint": "catalog/demo:warehouse_root",
+        "method": "stat+readdir ods/orders/dt=2026-10-14",
+        "relation": "derived"
+      },
+      {
+        "system": "binding-file",
+        "adapter": "resources-file",
+        "observed_at": "2026-10-17T12:55:36.696Z",
+        "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
+        "method": "relations",
+        "relation": "explicit"
+      },
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:36.803Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/{dag}/dagRuns (related workflows)",
+        "version": "2.10.5",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "upstream of demo-daily-orders/demo__2026-10-14__missing_upstream",
+      "notes": [
+        "task_edges 为 DAG 内全部边（两个方向）；数据与跨工作流依赖按 direction 过滤"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcege6m-2a57b5",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "airflow-rest-v1",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:36.142Z",
+    "duration_ms": 661
+  }
+}

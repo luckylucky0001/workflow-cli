@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "resource.list",
+  "data": {
+    "resources": [
+      {
+        "id": "demo-order",
+        "type": "service",
+        "env": "sandbox",
+        "owner": "team-demo",
+        "labels": {
+          "tier": "online"
+        },
+        "attributes": {
+          "http_port": 18081,
+          "health_path": "/healthz",
+          "container_label": "workctl.service=demo-order"
+        }
+      },
+      {
+        "id": "demo-order-workload",
+        "type": "container.workload",
+        "env": "sandbox",
+        "endpoint": {
+          "kind": "docker",
+          "name": "local"
+        },
+        "labels": {
+          "workctl.service": "demo-order"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "demo-mysql",
+        "type": "mysql.instance",
+        "env": "sandbox",
+        "owner": "team-dba",
+        "endpoint": {
+          "kind": "mysql",
+          "name": "demo-mysql"
+        },
+        "labels": {},
+        "attributes": {
+          "engine": "mysql",
+          "major_version": "8.4",
+          "container": "demo-mysql"
+        }
+      },
+      {
+        "id": "demo-redis",
+        "type": "redis.instance",
+        "env": "sandbox",
+        "owner": "team-dba",
+        "endpoint": {
+          "kind": "redis",
+          "name": "demo-redis"
+        },
+        "labels": {},
+        "attributes": {
+          "engine": "redis",
+          "container": "demo-redis",
+          "topology": "standalone"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "from": "demo-order",
+        "to": "demo-order-workload",
+        "type": "runs_on",
+        "source": "binding-file",
+        "evidence": "container label workctl.service=demo-order"
+      },
+      {
+        "from": "demo-order",
+        "to": "demo-mysql",
+        "type": "depends_on",
+        "source": "service-config",
+        "evidence": "demo-order env MYSQL_HOST=mysql (docker-compose.yml)"
+      },
+      {
+        "from": "demo-order",
+        "to": "demo-redis",
+        "type": "depends_on",
+        "source": "service-config",
+        "evidence": "demo-order env REDIS_URL=redis://redis:6379 (docker-compose.yml)"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "resource-bindings",
+        "adapter": "binding-file",
+        "observed_at": "2026-10-17T12:54:59.691Z",
+        "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "绑定文件中从 demo-order 可达的资源"
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefm12-3ffbb0",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "binding-file",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:54:59.654Z",
+    "duration_ms": 38
+  }
+}

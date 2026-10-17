@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "mq.consumer.lag",
+  "data": null,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "消费组不存在: no-such-group",
+    "hint": "Kafka 对不存在的组返回 Dead 状态且无已提交位点；检查组名或在 details.known_groups 中选择",
+    "retryable": false,
+    "details": {
+      "cluster": "demo-mq",
+      "group": "no-such-group",
+      "group_state": "Dead",
+      "known_groups": [
+        "demo-consumer"
+      ]
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegasx-3fb6ec",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "kafka-admin",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:31.761Z",
+    "duration_ms": 182
+  }
+}

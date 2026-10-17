@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "offline.freshness.check",
+  "data": {
+    "dataset": "analytics.daily_orders",
+    "business_date": "2026-10-16",
+    "partition": "dt=2026-10-16",
+    "verdict": "missing",
+    "reason": "已超过产出时限 2026-10-17T06:00:00+08:00，分区状态 missing",
+    "expected_by": {
+      "local": "2026-10-17T06:00:00+08:00",
+      "utc": "2026-10-16T22:00:00.000Z",
+      "rule": "业务日期 + 1 天 06:00（Asia/Shanghai）"
+    },
+    "checked_at": {
+      "local": "2026-10-17T20:55:37+08:00",
+      "utc": "2026-10-17T12:55:37.926Z"
+    },
+    "partition_state": "missing",
+    "partition_updated_at": null,
+    "lateness_minutes": 896,
+    "producer": {
+      "workflow": "demo-daily-orders",
+      "runs": [
+        {
+          "run_id": "demo__2026-10-16__wrong_partition",
+          "state": "success",
+          "start_date": {
+            "utc": "2026-10-17T12:37:14.816Z",
+            "local": "2026-10-17T20:37:14+08:00"
+          },
+          "end_date": {
+            "utc": "2026-10-17T12:38:27.701Z",
+            "local": "2026-10-17T20:38:27+08:00"
+          }
+        }
+      ],
+      "lookup": "按业务日期 2026-10-16 匹配 1 个 run"
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "catalog",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:37.926Z",
+        "endpoint": "catalog/demo",
+        "method": "analytics.daily_orders.freshness",
+        "relation": "explicit"
+      },
+      {
+        "system": "local-filesystem",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:37.941Z",
+        "endpoint": "catalog/demo:warehouse_root",
+        "method": "stat+readdir analytics/daily_orders/dt=2026-10-16",
+        "relation": "derived"
+      },
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:38.032Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/demo-daily-orders/dagRuns",
+        "version": "2.10.5",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "analytics.daily_orders/dt=2026-10-16"
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegfj2-051b27",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "file-catalog+airflow-rest-v1",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:37.886Z",
+    "duration_ms": 147
+  }
+}

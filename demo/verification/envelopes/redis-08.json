@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "redis.config.get",
+  "data": {
+    "instance": "demo-redis",
+    "pattern": "maxmemory*",
+    "parameters": {
+      "maxmemory-eviction-tenacity": "10",
+      "maxmemory-samples": "5",
+      "maxmemory-policy": "allkeys-lfu",
+      "maxmemory": "67108864",
+      "maxmemory-clients": "0"
+    },
+    "redacted": []
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "redis",
+        "adapter": "redis-client",
+        "observed_at": "2026-10-17T12:55:30.546Z",
+        "endpoint": "redis/demo-redis",
+        "method": "CONFIG GET maxmemory*",
+        "version": "7.4.11",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "notes": []
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvceg9ue-08b7f9",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "redis-client",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:30.518Z",
+    "duration_ms": 29
+  }
+}

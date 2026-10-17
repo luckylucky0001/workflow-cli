@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "observability.trace.get",
+  "data": {
+    "trace_id": "34fd908994e4bdd82709957411032f19",
+    "start": "2026-10-17T12:54:15.529Z",
+    "end": "2026-10-17T12:54:15.529Z",
+    "duration_ms": 0.8,
+    "span_count": 1,
+    "services": [
+      "demo-order"
+    ],
+    "error_spans": 0,
+    "roots": [
+      "fce53c040d4ca393"
+    ],
+    "external_parent": null,
+    "spans": [
+      {
+        "span_id": "fce53c040d4ca393",
+        "parent_span_id": null,
+        "name": "http.request",
+        "service": "demo-order",
+        "container": "demo-order",
+        "depth": 0,
+        "start": "2026-10-17T12:54:15.529Z",
+        "offset_ms": 0,
+        "duration_ms": 0.8,
+        "self_ms": 0.8,
+        "pct_of_trace": 100,
+        "status": "ok",
+        "attributes": {
+          "http.method": "GET",
+          "http.route": "/admin/cache-mode",
+          "http.target": "/admin/cache-mode",
+          "http.status_code": 200
+        },
+        "children": [],
+        "logs": [
+          {
+            "ts": "2026-10-17T12:54:15.531016927Z",
+            "level": "info",
+            "msg": "request completed",
+            "fields": {
+              "service": "demo-order",
+              "method": "GET",
+              "route": "/admin/cache-mode",
+              "path": "/admin/cache-mode",
+              "status": 200,
+              "duration_ms": 0.297,
+              "cache_mode": "normal",
+              "parent_span_id": null,
+              "app_ts": "2026-10-17T12:54:15.530Z"
+            }
+          }
+        ],
+        "orphan": false
+      }
+    ],
+    "breakdown": [
+      {
+        "name": "http.request",
+        "count": 1,
+        "total_ms": 0.8,
+        "self_ms": 0.8,
+        "pct_of_trace": 100
+      }
+    ],
+    "unattached_logs": [],
+    "scanned": [
+      {
+        "service": "demo-order",
+        "containers": [
+          "demo-order"
+        ],
+        "lines_scanned": 231
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "docker",
+        "adapter": "docker-engine-api",
+        "observed_at": "2026-10-17T12:55:09.218Z",
+        "endpoint": "docker/local (unix:/var/run/docker.sock)",
+        "method": "GET /containers/{id}/logs（kind=span 记录重建）",
+        "relation": "derived",
+        "version": "29.8.2 (API 1.56)"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "window": {
+        "start": "2026-10-17T06:55:09.174Z",
+        "end": "2026-10-17T12:55:09.174Z"
+      },
+      "scope": "服务: demo-order 的容器日志",
+      "notes": [
+        "日志派生的调用链：只包含已记录且仍保留的 span"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvceftch-9c6471",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "docker-engine-api",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:09.137Z",
+    "duration_ms": 81
+  }
+}

@@ -1,0 +1,441 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "data.quality.check",
+  "data": {
+    "dataset": {
+      "input": "demo.daily_orders",
+      "catalog": "demo",
+      "table": "analytics.daily_orders",
+      "method": "目录 demo 中表名 daily_orders 唯一匹配"
+    },
+    "partition": "dt=2026-10-17",
+    "ruleset": {
+      "name": "demo-daily-rules",
+      "file": "/home/user/workflow-cli/demo/quality-rules/demo-daily-rules.yaml",
+      "rules": 11
+    },
+    "quality_state": "fail",
+    "conclusive": true,
+    "precondition": {
+      "ok": true,
+      "partition_state": "present",
+      "path": "/home/user/workflow-cli/demo/environment/.runtime/warehouse/analytics/daily_orders/dt=2026-10-17"
+    },
+    "summary": {
+      "total": 12,
+      "pass": 11,
+      "fail": 1,
+      "error": 0,
+      "skipped": 0,
+      "warn_failures": 0
+    },
+    "results": [
+      {
+        "id": "partition_exists",
+        "type": "partition_exists",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "filesystem",
+        "conclusive": true,
+        "status": "pass",
+        "message": "分区存在，含完成标记 _SUCCESS",
+        "expected": {
+          "exists": true,
+          "success_marker": "_SUCCESS"
+        },
+        "observed": {
+          "partition_state": "present",
+          "path": "/home/user/workflow-cli/demo/environment/.runtime/warehouse/analytics/daily_orders/dt=2026-10-17",
+          "success_marker_present": true,
+          "data_files": 1
+        }
+      },
+      {
+        "id": "has_rows",
+        "type": "row_count_min",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "行数 6 满足要求",
+        "expected": {
+          "min": 1
+        },
+        "observed": {
+          "rows": 6,
+          "counting": "非空行数（含无法解析的行）"
+        }
+      },
+      {
+        "id": "bounded_rows",
+        "type": "row_count_max",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "行数 6 满足要求",
+        "expected": {
+          "max": 20
+        },
+        "observed": {
+          "rows": 6,
+          "counting": "非空行数（含无法解析的行）"
+        }
+      },
+      {
+        "id": "keys_not_null",
+        "type": "not_null",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "order_date, status, order_count, total_amount 均无空值",
+        "expected": {
+          "columns": [
+            "order_date",
+            "status",
+            "order_count",
+            "total_amount"
+          ],
+          "null_count": 0
+        },
+        "observed": {
+          "rows_checked": 6,
+          "null_counts": {
+            "order_date": 0,
+            "status": 0,
+            "order_count": 0,
+            "total_amount": 0
+          },
+          "null_semantics": "JSON null 或字段缺失均计为空"
+        }
+      },
+      {
+        "id": "one_row_per_status",
+        "type": "unique",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "order_date, status 无重复",
+        "expected": {
+          "columns": [
+            "order_date",
+            "status"
+          ],
+          "duplicate_keys": 0
+        },
+        "observed": {
+          "rows_checked": 6,
+          "distinct_keys": 6,
+          "duplicate_keys": 0,
+          "extra_rows": 0,
+          "null_key_rows_skipped": 0
+        }
+      },
+      {
+        "id": "known_status",
+        "type": "accepted_values",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "status 取值均在允许列表中",
+        "expected": {
+          "column": "status",
+          "values": [
+            "PENDING",
+            "PAID",
+            "SHIPPED",
+            "DELIVERED",
+            "CANCELLED",
+            "REFUNDED"
+          ]
+        },
+        "observed": {
+          "rows_checked": 6,
+          "invalid_rows": 0,
+          "invalid_values": [],
+          "null_rows_skipped": 0
+        }
+      },
+      {
+        "id": "positive_count",
+        "type": "value_range",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "order_count 均在范围内",
+        "expected": {
+          "column": "order_count",
+          "min": 1,
+          "inclusive": true
+        },
+        "observed": {
+          "rows_checked": 6,
+          "below_min": 0,
+          "above_max": 0,
+          "non_numeric": 0,
+          "null_rows_skipped": 0,
+          "min_observed": 241,
+          "max_observed": 2001
+        }
+      },
+      {
+        "id": "non_negative_amount",
+        "type": "value_range",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "total_amount 均在范围内",
+        "expected": {
+          "column": "total_amount",
+          "min": 0,
+          "inclusive": true
+        },
+        "observed": {
+          "rows_checked": 6,
+          "below_min": 0,
+          "above_max": 0,
+          "non_numeric": 0,
+          "null_rows_skipped": 0,
+          "min_observed": 111788.26,
+          "max_observed": 991075.14
+        }
+      },
+      {
+        "id": "order_date_matches_dt",
+        "type": "partition_value_match",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "fail",
+        "message": "6 行的 order_date 与分区 dt=2026-10-17 不一致（分区路径与数据内容错位）",
+        "expected": {
+          "column": "order_date",
+          "partition_key": "dt",
+          "value": "2026-10-17",
+          "timezone": "Asia/Shanghai"
+        },
+        "observed": {
+          "rows_checked": 6,
+          "mismatched": 6,
+          "values": [
+            {
+              "value": "2026-10-16",
+              "count": 6
+            }
+          ]
+        },
+        "samples": [
+          {
+            "file": "part-00000-4d774f1c-0e88-4cdd-8fc3-d02e0602ffd4-c000.json",
+            "line": 1,
+            "row": {
+              "order_date": "2026-10-16",
+              "status": "CANCELLED",
+              "order_count": 241,
+              "total_amount": 111788.26,
+              "avg_amount": 463.85,
+              "customer_count": 238
+            }
+          },
+          {
+            "file": "part-00000-4d774f1c-0e88-4cdd-8fc3-d02e0602ffd4-c000.json",
+            "line": 2,
+            "row": {
+              "order_date": "2026-10-16",
+              "status": "DELIVERED",
+              "order_count": 2001,
+              "total_amount": 991075.14,
+              "avg_amount": 495.29,
+              "customer_count": 1797
+            }
+          },
+          {
+            "file": "part-00000-4d774f1c-0e88-4cdd-8fc3-d02e0602ffd4-c000.json",
+            "line": 3,
+            "row": {
+              "order_date": "2026-10-16",
+              "status": "PAID",
+              "order_count": 998,
+              "total_amount": 504919.63,
+              "avg_amount": 505.93,
+              "customer_count": 938
+            }
+          },
+          {
+            "file": "part-00000-4d774f1c-0e88-4cdd-8fc3-d02e0602ffd4-c000.json",
+            "line": 4,
+            "row": {
+              "order_date": "2026-10-16",
+              "status": "PENDING",
+              "order_count": 515,
+              "total_amount": 262936.7,
+              "avg_amount": 510.56,
+              "customer_count": 494
+            }
+          },
+          {
+            "file": "part-00000-4d774f1c-0e88-4cdd-8fc3-d02e0602ffd4-c000.json",
+            "line": 5,
+            "row": {
+              "order_date": "2026-10-16",
+              "status": "REFUNDED",
+              "order_count": 253,
+              "total_amount": 134273.05,
+              "avg_amount": 530.72,
+              "customer_count": 246
+            }
+          }
+        ]
+      },
+      {
+        "id": "schema",
+        "type": "schema_match",
+        "severity": "error",
+        "implicit": false,
+        "evaluated_on": "full",
+        "conclusive": true,
+        "status": "pass",
+        "message": "观测到的列与期望一致",
+        "expected": {
+          "columns": [
+            "order_date",
+            "status",
+            "order_count",
+            "total_amount",
+            "avg_amount",
+            "customer_count"
+          ],
+          "allow_extra": false
+        },
+        "observed": {
+          "rows_checked": 6,
+          "columns": [
+            "avg_amount",
+            "customer_count",
+            "order_count",
+            "order_date",
+            "status",
+            "total_amount"
+          ],
+          "missing": [],
+          "absent_nullable": [],
+          "extra": []
+        }
+      },
+      {
+        "id": "on_time",
+        "type": "freshness",
+        "severity": "warn",
+        "implicit": false,
+        "evaluated_on": "filesystem",
+        "conclusive": true,
+        "status": "pass",
+        "message": "分区在期限内产出",
+        "expected": {
+          "deadline": "2026-10-18T06:00:00+08:00",
+          "rule": "业务日期 2026-10-17 + 1 天 06:00 (Asia/Shanghai) 前产出"
+        },
+        "observed": {
+          "updated_at": "2026-10-17T12:38:19.268Z",
+          "basis": "_SUCCESS 文件修改时间（本地文件系统 mtime）",
+          "updated_at_local": "2026-10-17T20:38:19+08:00"
+        }
+      },
+      {
+        "id": "records_parseable",
+        "type": "records_parseable",
+        "severity": "error",
+        "implicit": true,
+        "status": "pass",
+        "evaluated_on": "full",
+        "conclusive": true,
+        "message": "读取的 6 行均可解析",
+        "observed": {
+          "rows_read": 6,
+          "parse_errors": 0
+        }
+      }
+    ],
+    "scan": {
+      "mode": "full",
+      "rows_read": 6,
+      "rows_total": 6,
+      "files_read": 1,
+      "files_total": 1,
+      "parse_errors": 0
+    },
+    "checked_at": "2026-10-17T12:55:44.813Z",
+    "persisted_to": "/home/user/workflow-cli/demo/environment/.runtime/state/quality/analytics.daily_orders/dt=2026-10-17.json"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "file-catalog",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:44.813Z",
+        "endpoint": "catalog/demo",
+        "method": "read tables/analytics.daily_orders.yaml",
+        "relation": "explicit"
+      },
+      {
+        "system": "quality-ruleset",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:44.813Z",
+        "method": "read demo-daily-rules.yaml",
+        "relation": "explicit"
+      },
+      {
+        "system": "local-filesystem",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:44.813Z",
+        "endpoint": "catalog/demo:warehouse_root",
+        "method": "stat+readdir analytics/daily_orders/dt=2026-10-17",
+        "relation": "derived"
+      },
+      {
+        "system": "local-filesystem",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:44.813Z",
+        "endpoint": "catalog/demo:warehouse_root",
+        "method": "read 1/1 files, 6 rows",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "sampled": false,
+      "scope": "analytics.daily_orders dt=2026-10-17",
+      "notes": [
+        "全量扫描 1 个文件 6 行"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegksx-bb2330",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "file-catalog",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:44.721Z",
+    "duration_ms": 94
+  }
+}

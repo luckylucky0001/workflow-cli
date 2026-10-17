@@ -1,0 +1,303 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "offline.run.get",
+  "data": {
+    "run": {
+      "run_id": "demo__2026-10-16__wrong_partition",
+      "state": "success",
+      "run_type": "manual",
+      "external_trigger": true,
+      "business_date": "2026-10-16",
+      "logical_date": {
+        "utc": "2026-10-15T16:00:00.000Z",
+        "local": "2026-10-16T00:00:00+08:00"
+      },
+      "data_interval": {
+        "start": {
+          "utc": "2026-10-15T16:00:00.000Z",
+          "local": "2026-10-16T00:00:00+08:00"
+        },
+        "end": {
+          "utc": "2026-10-16T16:00:00.000Z",
+          "local": "2026-10-17T00:00:00+08:00"
+        }
+      },
+      "queued_at": null,
+      "start_date": {
+        "utc": "2026-10-17T12:37:14.816Z",
+        "local": "2026-10-17T20:37:14+08:00"
+      },
+      "end_date": {
+        "utc": "2026-10-17T12:38:27.701Z",
+        "local": "2026-10-17T20:38:27+08:00"
+      },
+      "duration_seconds": 73,
+      "last_scheduling_decision": {
+        "utc": "2026-10-17T12:38:27.700Z",
+        "local": "2026-10-17T20:38:27+08:00"
+      },
+      "conf": {
+        "fault": "wrong_partition"
+      },
+      "note": "workctl offline scenario"
+    },
+    "tasks": [
+      {
+        "task_id": "wait_for_ods_partition",
+        "state": "success",
+        "try_number": 1,
+        "max_tries": 0,
+        "operator": "PythonSensor",
+        "pool": "default_pool",
+        "hostname": "vm",
+        "queued_when": {
+          "utc": "2026-10-17T12:37:51.825Z",
+          "local": "2026-10-17T20:37:51+08:00"
+        },
+        "start_date": {
+          "utc": "2026-10-17T12:37:53.192Z",
+          "local": "2026-10-17T20:37:53+08:00"
+        },
+        "end_date": {
+          "utc": "2026-10-17T12:37:53.331Z",
+          "local": "2026-10-17T20:37:53+08:00"
+        },
+        "duration_seconds": 0.139307,
+        "map_index": -1
+      },
+      {
+        "task_id": "aggregate_orders",
+        "state": "success",
+        "try_number": 1,
+        "max_tries": 0,
+        "operator": "BashOperator",
+        "pool": "demo-batch-pool",
+        "hostname": "vm",
+        "queued_when": {
+          "utc": "2026-10-17T12:38:07.186Z",
+          "local": "2026-10-17T20:38:07+08:00"
+        },
+        "start_date": {
+          "utc": "2026-10-17T12:38:08.806Z",
+          "local": "2026-10-17T20:38:08+08:00"
+        },
+        "end_date": {
+          "utc": "2026-10-17T12:38:20.154Z",
+          "local": "2026-10-17T20:38:20+08:00"
+        },
+        "duration_seconds": 11.3485,
+        "map_index": -1
+      },
+      {
+        "task_id": "validate_output",
+        "state": "success",
+        "try_number": 1,
+        "max_tries": 0,
+        "operator": "PythonOperator",
+        "pool": "default_pool",
+        "hostname": "vm",
+        "queued_when": {
+          "utc": "2026-10-17T12:38:23.031Z",
+          "local": "2026-10-17T20:38:23+08:00"
+        },
+        "start_date": {
+          "utc": "2026-10-17T12:38:26.693Z",
+          "local": "2026-10-17T20:38:26+08:00"
+        },
+        "end_date": {
+          "utc": "2026-10-17T12:38:26.845Z",
+          "local": "2026-10-17T20:38:26+08:00"
+        },
+        "duration_seconds": 0.15197,
+        "map_index": -1
+      }
+    ],
+    "summary": {
+      "workflow": "demo-daily-orders",
+      "run_id": "demo__2026-10-16__wrong_partition",
+      "business_date": "2026-10-16",
+      "data_interval": {
+        "start": {
+          "utc": "2026-10-15T16:00:00.000Z",
+          "local": "2026-10-16T00:00:00+08:00"
+        },
+        "end": {
+          "utc": "2026-10-16T16:00:00.000Z",
+          "local": "2026-10-17T00:00:00+08:00"
+        }
+      },
+      "target_partition": {
+        "table": "analytics.daily_orders",
+        "partition": "dt=2026-10-16",
+        "write_mode": "overwrite_partition"
+      },
+      "scheduler_state": "success",
+      "compute_state": "succeeded",
+      "output_state": "missing",
+      "quality_state": "fail",
+      "layers": {
+        "scheduler": {
+          "state": "success",
+          "source": {
+            "system": "airflow",
+            "adapter": "airflow-rest-v1",
+            "observed_at": "2026-10-17T12:55:34.503Z",
+            "endpoint": "airflow/demo-airflow",
+            "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition",
+            "version": "2.10.5",
+            "relation": "explicit"
+          },
+          "detail": "Airflow DAG run 状态；只代表调度层任务全部成功"
+        },
+        "compute": {
+          "state": "succeeded",
+          "app_id": "local-1792240691874",
+          "task_id": "aggregate_orders",
+          "app_id_via": "xcom:return_value",
+          "detail": "应用已结束（attempt.completed=true）且没有失败作业；history server 不记录驱动进程退出码",
+          "duration_ms": 8529,
+          "failed_jobs": 0,
+          "source": {
+            "system": "spark",
+            "adapter": "spark-history-rest",
+            "observed_at": "2026-10-17T12:55:34.817Z",
+            "endpoint": "spark/demo-spark",
+            "method": "GET /api/v1/applications/local-1792240691874",
+            "version": "3.5.5",
+            "relation": "explicit"
+          }
+        },
+        "output": {
+          "state": "missing",
+          "detail": "分区目录不存在（未产出、产出到其他位置，或分区值/业务日期不对）",
+          "table": "analytics.daily_orders",
+          "partition": "dt=2026-10-16",
+          "path": "/home/user/workflow-cli/demo/environment/.runtime/warehouse/analytics/daily_orders/dt=2026-10-16",
+          "via": "data.partition.get",
+          "source": {
+            "system": "local-filesystem",
+            "adapter": "file-catalog",
+            "observed_at": "2026-10-17T12:55:34.849Z",
+            "endpoint": "catalog/demo:warehouse_root",
+            "method": "stat+readdir analytics/daily_orders/dt=2026-10-16",
+            "relation": "derived"
+          }
+        },
+        "quality": {
+          "state": "fail",
+          "checked_at": "2026-10-17T12:39:33.026Z",
+          "conclusive": true,
+          "ruleset": "demo-daily-rules",
+          "summary": {
+            "total": 11,
+            "pass": 0,
+            "fail": 1,
+            "error": 0,
+            "skipped": 10,
+            "warn_failures": 0
+          },
+          "detail": "最近一次检查 2026-10-17T12:39:33.026Z；结果不会随分区重写自动失效，注意与分区更新时间比较",
+          "source": {
+            "system": "workctl-state",
+            "adapter": "data-quality-store",
+            "observed_at": "2026-10-17T12:39:33.026Z",
+            "method": "readLatestQualityResult",
+            "relation": "derived"
+          }
+        }
+      },
+      "findings": [
+        {
+          "kind": "inconsistency",
+          "message": "调度状态 success，但目标分区状态为 missing：调度成功不代表数据产出"
+        },
+        {
+          "kind": "inconsistency",
+          "message": "Spark 应用成功结束，但目标分区 missing：可能写到了其他分区或路径（需查看计算日志与输出路径确认）"
+        }
+      ]
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:34.503Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition",
+        "version": "2.10.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:34.503Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition/taskInstances",
+        "version": "2.10.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:34.792Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET .../taskInstances/{task}/xcomEntries/return_value | logs",
+        "version": "2.10.5",
+        "relation": "derived"
+      },
+      {
+        "system": "spark",
+        "adapter": "spark-history-rest",
+        "observed_at": "2026-10-17T12:55:34.817Z",
+        "endpoint": "spark/demo-spark",
+        "method": "GET /api/v1/applications/local-1792240691874",
+        "version": "3.5.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "catalog",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:34.826Z",
+        "endpoint": "catalog/demo",
+        "method": "tables/*.yaml produced_by.workflow=demo-daily-orders",
+        "relation": "explicit"
+      },
+      {
+        "system": "local-filesystem",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:34.849Z",
+        "endpoint": "catalog/demo:warehouse_root",
+        "method": "stat+readdir analytics/daily_orders/dt=2026-10-16",
+        "relation": "derived"
+      },
+      {
+        "system": "workctl-state",
+        "adapter": "data-quality-store",
+        "observed_at": "2026-10-17T12:39:33.026Z",
+        "method": "readLatestQualityResult",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "run demo__2026-10-16__wrong_partition of demo-daily-orders"
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegclt-54192c",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "airflow-rest-v1",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:34.097Z",
+    "duration_ms": 756
+  }
+}

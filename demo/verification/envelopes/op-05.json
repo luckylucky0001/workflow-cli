@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "operation.execute",
+  "data": {
+    "id": "op-20261017-7a75bc",
+    "kind": "container.restart",
+    "title": "重启服务 demo-order（sandbox）的 1 个容器",
+    "status": "succeeded",
+    "created_at": "2026-10-17T12:55:46.930Z",
+    "expires_at": "2026-10-17T13:25:46.930Z",
+    "profile": "demo",
+    "env": "sandbox",
+    "params": {
+      "service": "demo-order",
+      "env": "sandbox"
+    },
+    "targets": [
+      {
+        "container_id": "0dd91c2d29dafe7f78c19bf6b7e3d39fd45a2b248ef479b658e4de7a0dcfb2be",
+        "name": "demo-order",
+        "image": "workctl-demo/demo-order:local",
+        "state": "running",
+        "health": "none",
+        "started_at": "2026-10-17T12:52:48.700736369Z",
+        "restart_policy": "no",
+        "selector": "workctl.service=demo-order"
+      }
+    ],
+    "impact": {
+      "service": "demo-order",
+      "env": "sandbox",
+      "containers": 1,
+      "running_containers": 1,
+      "expected_interruption": "每个容器停止最多 10s（SIGTERM 后超时 SIGKILL）+ 启动时间；单副本服务在此期间不可用",
+      "dependents_of_service": [
+        {
+          "resource": "demo-prometheus",
+          "relation": "consumes",
+          "source": "binding-file",
+          "evidence": "prometheus scrape job demo-order"
+        }
+      ],
+      "service_dependencies": [
+        {
+          "resource": "demo-order-workload",
+          "relation": "runs_on",
+          "source": "binding-file",
+          "evidence": "container label workctl.service=demo-order"
+        },
+        {
+          "resource": "demo-mysql",
+          "relation": "depends_on",
+          "source": "service-config",
+          "evidence": "demo-order env MYSQL_HOST=mysql (docker-compose.yml)"
+        },
+        {
+          "resource": "demo-redis",
+          "relation": "depends_on",
+          "source": "service-config",
+          "evidence": "demo-order env REDIS_URL=redis://redis:6379 (docker-compose.yml)"
+        }
+      ],
+      "dependency_note": "来自资源绑定 /home/user/workflow-cli/demo/environment/bindings.yaml；被依赖方在重启期间会看到连接失败，服务依赖（数据库/缓存）的连接会重建",
+      "healthcheck_configured": false,
+      "cache_note": "进程内状态（如缓存模式、连接池）会丢失并按启动配置恢复"
+    },
+    "preconditions": [
+      {
+        "check": "containers_found",
+        "ok": true,
+        "detail": "selector workctl.service=demo-order 匹配 1 个容器"
+      },
+      {
+        "check": "profile_allow_execute",
+        "ok": true,
+        "detail": "profile demo 允许执行"
+      },
+      {
+        "check": "docker_reachable",
+        "ok": true,
+        "detail": "docker/local (unix:/var/run/docker.sock) 可访问（计划生成时）"
+      }
+    ],
+    "steps": [
+      {
+        "name": "restart demo-order",
+        "detail": "POST /containers/0dd91c2d29da/restart?t=10"
+      },
+      {
+        "name": "verify",
+        "detail": "轮询 /containers/{id}/json 直到 State.Running=true 且 StartedAt 晚于重启前（最多 60s）"
+      }
+    ],
+    "rollback": "不适用：重启不可回滚。失败时用 container event list / log query 查看原因，必要时人工介入",
+    "idempotent": true,
+    "cancellable": false,
+    "executable": true,
+    "history": [
+      {
+        "at": "2026-10-17T12:55:46.930Z",
+        "status": "planned",
+        "note": "计划已生成，未执行"
+      },
+      {
+        "at": "2026-10-17T12:55:48.287Z",
+        "status": "running",
+        "note": "由 req-mvcegnjj-570e2a 开始执行"
+      },
+      {
+        "at": "2026-10-17T12:55:48.308Z",
+        "status": "running",
+        "note": "restart demo-order (0dd91c2d29da)"
+      },
+      {
+        "at": "2026-10-17T12:55:48.804Z",
+        "status": "running",
+        "note": "demo-order: 已重新运行（未配置健康检查，仅校验进程运行）"
+      },
+      {
+        "at": "2026-10-17T12:55:48.817Z",
+        "status": "succeeded",
+        "note": "执行器返回成功"
+      }
+    ],
+    "result": {
+      "service": "demo-order",
+      "restarted": [
+        {
+          "container_id": "0dd91c2d29dafe7f78c19bf6b7e3d39fd45a2b248ef479b658e4de7a0dcfb2be",
+          "name": "demo-order",
+          "before": {
+            "state": "running",
+            "started_at": "2026-10-17T12:52:48.700736369Z"
+          },
+          "after": {
+            "state": "running",
+            "started_at": "2026-10-17T12:55:48.562377214Z",
+            "health": "none"
+          },
+          "verified": true,
+          "duration_ms": 497,
+          "detail": "已重新运行（未配置健康检查，仅校验进程运行）"
+        }
+      ],
+      "verified_all": true,
+      "docker_version": "29.8.2",
+      "note": "校验依据为 Docker inspect（进程运行、启动时间更新、健康检查状态）；业务可用性请再用 network backend list 探测"
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "plan-store",
+        "observed_at": "2026-10-17T12:55:48.818Z",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegnjj-570e2a",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "plan-store",
+    "operation": "execute",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:48.271Z",
+    "duration_ms": 547
+  }
+}

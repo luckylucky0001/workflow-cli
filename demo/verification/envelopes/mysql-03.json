@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "mysql.index.list",
+  "data": {
+    "instance": "demo-mysql",
+    "database": "demo",
+    "table": "orders",
+    "indexes": [
+      {
+        "name": "PRIMARY",
+        "unique": true,
+        "primary": true,
+        "type": "BTREE",
+        "visible": true,
+        "columns": [
+          {
+            "seq": 1,
+            "column": "id",
+            "expression": null,
+            "sub_part": null,
+            "cardinality_estimate": 299145,
+            "nullable": false
+          }
+        ],
+        "comment": null
+      },
+      {
+        "name": "idx_created_at",
+        "unique": false,
+        "primary": false,
+        "type": "BTREE",
+        "visible": true,
+        "columns": [
+          {
+            "seq": 1,
+            "column": "created_at",
+            "expression": null,
+            "sub_part": null,
+            "cardinality_estimate": 299145,
+            "nullable": false
+          }
+        ],
+        "comment": null
+      }
+    ],
+    "io_by_index": [
+      {
+        "index": "idx_created_at",
+        "count_star": 344948462,
+        "count_read": 344948462,
+        "count_fetch": 344948462
+      },
+      {
+        "index": null,
+        "count_star": 322313,
+        "count_read": 322313,
+        "count_fetch": 322313
+      },
+      {
+        "index": "PRIMARY",
+        "count_star": 7083,
+        "count_read": 7083,
+        "count_fetch": 7083
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "mysql",
+        "adapter": "mysql-driver",
+        "observed_at": "2026-10-17T12:55:10.760Z",
+        "endpoint": "mysql/demo-mysql",
+        "method": "information_schema.STATISTICS",
+        "version": "8.4.11",
+        "relation": "explicit"
+      },
+      {
+        "system": "mysql",
+        "adapter": "mysql-driver",
+        "observed_at": "2026-10-17T12:55:10.763Z",
+        "endpoint": "mysql/demo-mysql",
+        "method": "performance_schema.table_io_waits_summary_by_index_usage",
+        "version": "8.4.11",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "notes": [
+        "cardinality_estimate 为统计估计值；io_by_index 为累计值（非窗口）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcefuk2-0841a9",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "mysql-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:10.706Z",
+    "duration_ms": 57
+  }
+}

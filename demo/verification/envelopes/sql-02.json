@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "sql.query.get",
+  "data": {
+    "query_id": "q-20261017-aad233",
+    "engine": "spark",
+    "state": "submitted",
+    "state_basis": "状态文件由 Spark 运行器写入",
+    "submitted_at": "2026-10-17T12:55:41.515Z",
+    "started_at": null,
+    "finished_at": null,
+    "duration_ms": null,
+    "app_id": null,
+    "spark_version": null,
+    "sql_file": "/home/user/workflow-cli/demo/offline-workflows/sql/examples/daily_orders_by_date.sql",
+    "sql_sha256": "896905aaaf3124413d1931ed32f229b686e4f80fa1b14d44430b7ba5114ca293",
+    "row_count": null,
+    "columns": null,
+    "preview": [],
+    "preview_truncated": false,
+    "result_location": null,
+    "result_format": null,
+    "error": null,
+    "views": null
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl-state",
+        "adapter": "spark-submit-local",
+        "observed_at": "2026-10-17T12:55:41.522Z",
+        "endpoint": "spark/demo-spark:query_state_dir",
+        "method": "q-20261017-aad233.json",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "q-20261017-aad233"
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcegill-657b42",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "spark-submit-local",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:41.865Z",
+    "duration_ms": 21
+  }
+}

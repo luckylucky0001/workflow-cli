@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "offline.workflow.get",
+  "data": {
+    "workflow_id": "demo-daily-orders",
+    "description": "按业务日期聚合订单（Spark SQL）写入 analytics.daily_orders",
+    "schedule": {
+      "type": "CronExpression",
+      "value": "@daily",
+      "description": "At 00:00"
+    },
+    "timezone": "Asia/Shanghai",
+    "start_date": "2026-10-10T00:00:00+08:00",
+    "catchup": false,
+    "is_paused": true,
+    "is_active": true,
+    "has_import_errors": false,
+    "owners": [
+      "team-data"
+    ],
+    "tags": [
+      "demo",
+      "team-data",
+      "analytics"
+    ],
+    "max_active_runs": 3,
+    "max_active_tasks": 16,
+    "dagrun_timeout_seconds": null,
+    "params": {
+      "fault": {
+        "default": null,
+        "description": "演示故障注入：wrong_partition",
+        "schema": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    "code_version": {
+      "source_sha256": "11501b7deba7b46586851c578bd6b8202e9210d2e053a20da5852f3fe3bc0317",
+      "file_token": ".eJw1ydEKgCAMBdB_8d3uJ4m0raTpYiPEvw-CzutJOK0znmDHNL9EbeZdG4i7wUS0Dc7_BKge8V2h2nQVc2KP7V7pBRP6HDQ.tCk-1c7r-D6qYsW3OWN4LBKZyY0",
+      "fileloc": "/home/user/workflow-cli/demo/offline-workflows/dags/demo_daily_orders.py",
+      "last_parsed_time": "2026-10-17T12:55:19.700618+00:00",
+      "basis": "source_sha256 = sha256(GET /api/v1/dagSources/{file_token})，即调度器当前解析到的 DAG 文件内容；file_token 只标识文件位置，不代表内容版本"
+    },
+    "next_run": {
+      "logical_date": {
+        "utc": "2026-10-15T16:00:00.000Z",
+        "local": "2026-10-16T00:00:00+08:00"
+      },
+      "data_interval_start": {
+        "utc": "2026-10-15T16:00:00.000Z",
+        "local": "2026-10-16T00:00:00+08:00"
+      },
+      "data_interval_end": {
+        "utc": "2026-10-16T16:00:00.000Z",
+        "local": "2026-10-17T00:00:00+08:00"
+      },
+      "create_after": {
+        "utc": "2026-10-16T16:00:00.000Z",
+        "local": "2026-10-17T00:00:00+08:00"
+      }
+    },
+    "tasks": [
+      {
+        "task_id": "aggregate_orders",
+        "operator": "BashOperator",
+        "pool": "demo-batch-pool",
+        "downstream_task_ids": [
+          "validate_output"
+        ]
+      },
+      {
+        "task_id": "validate_output",
+        "operator": "PythonOperator",
+        "pool": "default_pool",
+        "downstream_task_ids": []
+      },
+      {
+        "task_id": "wait_for_ods_partition",
+        "operator": "PythonSensor",
+        "pool": "default_pool",
+        "downstream_task_ids": [
+          "aggregate_orders"
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "table": "analytics.daily_orders",
+        "write_mode": "overwrite_partition",
+        "source": "catalog-metadata"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:32.602Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/demo-daily-orders/details",
+        "version": "2.10.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:32.602Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dags/demo-daily-orders/tasks",
+        "version": "2.10.5",
+        "relation": "explicit"
+      },
+      {
+        "system": "airflow",
+        "adapter": "airflow-rest-v1",
+        "observed_at": "2026-10-17T12:55:32.602Z",
+        "endpoint": "airflow/demo-airflow",
+        "method": "GET /api/v1/dagSources/{file_token}",
+        "version": "2.10.5",
+        "relation": "derived"
+      },
+      {
+        "system": "catalog",
+        "adapter": "file-catalog",
+        "observed_at": "2026-10-17T12:55:32.612Z",
+        "endpoint": "catalog/demo",
+        "method": "tables/*.yaml produced_by.workflow",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "DAG demo-daily-orders"
+    },
+    "warnings": [
+      "DAG 处于暂停状态：调度器不会创建新的定时 run，已触发的 run 也不会被调度"
+    ]
+  },
+  "context": {
+    "request_id": "req-mvcegb5q-6a9e84",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "airflow-rest-v1",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:32.222Z",
+    "duration_ms": 397
+  }
+}

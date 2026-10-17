@@ -254,11 +254,13 @@ export const indexPlan = defineCapability({
     const planner = ctx.registry.planners.get(INDEX_CREATE_KIND) ?? indexCreatePlanner;
     const draft = await planner.plan(ctx, params);
     const plan = ctx.plans().create(draft, { profile: ctx.profileName, env: ctx.env, executable: ctx.registry.executors.has(draft.kind) });
+    const version = String((draft.targets[0] as Record<string, unknown> | undefined)?.engine_version ?? '') || undefined;
+    const endpoint = `mysql/${String(draft.params.instance)}`;
     return {
       data: plan,
       sources: [
-        source('mysql', ADAPTER, { endpoint: `mysql/${String(draft.params.instance)}`, method: 'information_schema.TABLES/COLUMNS/STATISTICS + INNODB_TRX', relation: 'explicit' }),
-        source('mysql', ADAPTER, { endpoint: `mysql/${String(draft.params.instance)}`, method: 'performance_schema.events_statements_summary_by_digest (cumulative, text match)', relation: 'inferred' }),
+        source('mysql', ADAPTER, { endpoint, version, method: 'information_schema.TABLES/COLUMNS/STATISTICS + INNODB_TRX', relation: 'explicit' }),
+        source('mysql', ADAPTER, { endpoint, version, method: 'performance_schema.events_statements_summary_by_digest (cumulative, text match)', relation: 'inferred' }),
         source('workctl', 'plan-store', { endpoint: ctx.plans().dir, relation: 'derived' }),
       ],
       coverage: {

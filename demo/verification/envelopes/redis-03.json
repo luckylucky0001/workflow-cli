@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "redis.stats.sample",
+  "data": {
+    "instance": "demo-redis",
+    "window": {
+      "start": "2026-10-17T12:55:24.027Z",
+      "end": "2026-10-17T12:55:29.029Z",
+      "duration_ms": 5002
+    },
+    "restart_detected": false,
+    "reset_counters": [],
+    "deltas": {
+      "keyspace_hits": 0,
+      "keyspace_misses": 0,
+      "total_commands_processed": 2,
+      "evicted_keys": 0,
+      "expired_keys": 0,
+      "rejected_connections": 0,
+      "total_connections_received": 1,
+      "total_net_input_bytes": 76,
+      "total_net_output_bytes": 4147,
+      "total_error_replies": 0
+    },
+    "rates_per_sec": {
+      "keyspace_hits": 0,
+      "keyspace_misses": 0,
+      "total_commands_processed": 0.4,
+      "evicted_keys": 0,
+      "expired_keys": 0,
+      "rejected_connections": 0,
+      "total_connections_received": 0.2,
+      "total_net_input_bytes": 15.19,
+      "total_net_output_bytes": 829.07,
+      "total_error_replies": 0
+    },
+    "hit_ratio": null,
+    "hit_ratio_note": "窗口内没有键查找（hits+misses=0），命中率无定义（null），不是 0",
+    "gauges_at_end": {
+      "used_memory": 6110120,
+      "maxmemory": 67108864,
+      "connected_clients": 2,
+      "mem_fragmentation_ratio": 2.67,
+      "instantaneous_ops_per_sec": 0
+    },
+    "self_commands_in_window": 1
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "redis",
+        "adapter": "redis-client",
+        "observed_at": "2026-10-17T12:55:29.033Z",
+        "endpoint": "redis/demo-redis",
+        "method": "INFO stats ×2 (Δ keyspace_hits, keyspace_misses, total_commands_processed, evicted_keys, expired_keys, rejected_connections, total_connections_received, total_net_input_bytes, total_net_output_bytes, total_error_replies)",
+        "version": "7.4.11",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "window": {
+        "start": "2026-10-17T12:55:24.027Z",
+        "end": "2026-10-17T12:55:29.029Z"
+      },
+      "notes": [
+        "窗口内没有键查找（hits+misses=0），命中率无定义（null），不是 0",
+        "total_commands_processed 增量包含 workctl 自身的 1 条 INFO 命令"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvceg4tf-fa300d",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "redis-client",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T12:55:24.003Z",
+    "duration_ms": 5032
+  }
+}
