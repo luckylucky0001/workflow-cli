@@ -10,8 +10,18 @@ const cases = JSON.parse(readFileSync(process.argv[2] ?? 'demo/verification/case
 const outDir = 'demo/verification/envelopes';
 mkdirSync(outDir, { recursive: true });
 const rows = [];
+const vars = {};
+// `capture: {name: "data.items[0].id"}` stores a value from an envelope for later `${name}` use.
+const pick = (obj, path) => path.split('.').reduce((o, part) => {
+  if (o == null) return undefined;
+  const m = /^([^[]*)((?:\[\d+\])*)$/.exec(part);
+  let v = m[1] ? o[m[1]] : o;
+  for (const idx of m[2].matchAll(/\[(\d+)\]/g)) v = v?.[Number(idx[1])];
+  return v;
+}, obj);
 for (const c of cases) {
   const t0 = Date.now();
+  c.args = c.args.map((a) => a.replace(/\$\{(\w+)\}/g, (_, k) => vars[k] ?? `<missing:${k}>`));
   const r = spawnSync(process.execPath, ['dist/workctl.js', '--json', ...c.args], { encoding: 'utf8', timeout: (c.timeout_s ?? 120) * 1000 });
   let env = null;
   try {
@@ -19,6 +29,7 @@ for (const c of cases) {
   } catch {
     /* non-JSON */
   }
+  for (const [k, path] of Object.entries(c.capture ?? {})) if (env) vars[k] = pick(env, path);
   const file = join(outDir, `${c.id}.json`);
   writeFileSync(file, r.stdout || r.stderr);
   const expect = c.expect ?? 'success';
