@@ -4,12 +4,12 @@
   "capability": "offline.backfill.get",
   "data": {
     "plan": {
-      "id": "op-20261017-0ba956",
+      "id": "op-20261017-8867b7",
       "kind": "offline.backfill",
       "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
       "status": "planned",
-      "created_at": "2026-10-17T14:25:36.075Z",
-      "expires_at": "2026-10-17T16:25:36.075Z",
+      "created_at": "2026-10-17T15:04:34.520Z",
+      "expires_at": "2026-10-17T17:04:34.520Z",
       "params": {
         "workflow": "demo-daily-orders",
         "from": "2026-10-14",
@@ -59,7 +59,7 @@
       ],
       "history": [
         {
-          "at": "2026-10-17T14:25:36.075Z",
+          "at": "2026-10-17T15:04:34.520Z",
           "status": "planned",
           "note": "计划已生成，未执行"
         }
@@ -155,19 +155,19 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "method": "operations/op-20261017-0ba956.json",
-        "observed_at": "2026-10-17T14:25:36.449Z",
+        "method": "operations/op-20261017-8867b7.json",
+        "observed_at": "2026-10-17T15:04:34.835Z",
         "relation": "explicit"
       }
     ],
     "coverage": {
       "complete": true,
-      "scope": "op-20261017-0ba956"
+      "scope": "op-20261017-8867b7"
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcho52f-f4c426",
+    "request_id": "req-mvcj29dt-5076fb",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -175,7 +175,7 @@
     "adapter": "airflow-rest-v1|v2",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:25:36.422Z",
-    "duration_ms": 27
+    "started_at": "2026-10-17T15:04:34.817Z",
+    "duration_ms": 19
   }
 }

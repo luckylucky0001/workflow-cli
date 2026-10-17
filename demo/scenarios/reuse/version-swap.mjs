@@ -96,6 +96,12 @@ function pathDiff(a, b) {
 }
 
 const clients = SIDES.map((s) => ({ ...s, client: createClient({ configPath: s.config, profile: s.profile, timeoutMs: 120_000 }) }));
+// Same inputs on both sides: the quality layer of `run get` reads each profile's stored quality
+// result, so check the target partition on both sides first (each against its own warehouse).
+for (const s of clients) {
+  await s.client.invoke('data.quality.check', { dataset: 'analytics.daily_orders', catalog: 'demo', partition: 'dt=2026-10-16' });
+}
+
 const rows = [];
 let mismatch = false;
 for (const c of CASES) {

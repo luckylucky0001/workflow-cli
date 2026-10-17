@@ -240,7 +240,7 @@
         },
         "samples": [
           {
-            "file": "part-00000-f23e8d8e-2668-4661-aa66-3038e6598cb8-c000.json",
+            "file": "part-00000-02bed67c-3dd0-4847-8061-7ef182ad6f9f-c000.json",
             "line": 1,
             "row": {
               "order_date": "2026-10-16",
@@ -252,7 +252,7 @@
             }
           },
           {
-            "file": "part-00000-f23e8d8e-2668-4661-aa66-3038e6598cb8-c000.json",
+            "file": "part-00000-02bed67c-3dd0-4847-8061-7ef182ad6f9f-c000.json",
             "line": 2,
             "row": {
               "order_date": "2026-10-16",
@@ -264,7 +264,7 @@
             }
           },
           {
-            "file": "part-00000-f23e8d8e-2668-4661-aa66-3038e6598cb8-c000.json",
+            "file": "part-00000-02bed67c-3dd0-4847-8061-7ef182ad6f9f-c000.json",
             "line": 3,
             "row": {
               "order_date": "2026-10-16",
@@ -276,7 +276,7 @@
             }
           },
           {
-            "file": "part-00000-f23e8d8e-2668-4661-aa66-3038e6598cb8-c000.json",
+            "file": "part-00000-02bed67c-3dd0-4847-8061-7ef182ad6f9f-c000.json",
             "line": 4,
             "row": {
               "order_date": "2026-10-16",
@@ -288,7 +288,7 @@
             }
           },
           {
-            "file": "part-00000-f23e8d8e-2668-4661-aa66-3038e6598cb8-c000.json",
+            "file": "part-00000-02bed67c-3dd0-4847-8061-7ef182ad6f9f-c000.json",
             "line": 5,
             "row": {
               "order_date": "2026-10-16",
@@ -350,9 +350,9 @@
           "rule": "业务日期 2026-10-17 + 1 天 06:00 (Asia/Shanghai) 前产出"
         },
         "observed": {
-          "updated_at": "2026-10-17T14:24:01.635Z",
+          "updated_at": "2026-10-17T14:58:27.282Z",
           "basis": "_SUCCESS 文件修改时间（本地文件系统 mtime）",
-          "updated_at_local": "2026-10-17T22:24:01+08:00"
+          "updated_at_local": "2026-10-17T22:58:27+08:00"
         }
       },
       {
@@ -378,7 +378,7 @@
       "files_total": 1,
       "parse_errors": 0
     },
-    "checked_at": "2026-10-17T14:25:41.717Z",
+    "checked_at": "2026-10-17T15:04:39.978Z",
     "persisted_to": "/home/user/workflow-cli/demo/environment/.runtime/state/quality/analytics.daily_orders/dt=2026-10-17.json"
   },
   "error": null,
@@ -387,7 +387,7 @@
       {
         "system": "file-catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T14:25:41.717Z",
+        "observed_at": "2026-10-17T15:04:39.979Z",
         "endpoint": "catalog/demo",
         "method": "read tables/analytics.daily_orders.yaml",
         "relation": "explicit"
@@ -395,14 +395,14 @@
       {
         "system": "quality-ruleset",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T14:25:41.717Z",
+        "observed_at": "2026-10-17T15:04:39.979Z",
         "method": "read demo-daily-rules.yaml",
         "relation": "explicit"
       },
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T14:25:41.717Z",
+        "observed_at": "2026-10-17T15:04:39.979Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "stat+readdir analytics/daily_orders/dt=2026-10-17",
         "relation": "derived"
@@ -410,7 +410,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T14:25:41.717Z",
+        "observed_at": "2026-10-17T15:04:39.979Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "read 1/1 files, 6 rows",
         "relation": "derived"
@@ -427,7 +427,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcho91n-5fb781",
+    "request_id": "req-mvcj2daz-2ba96a",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -435,7 +435,7 @@
     "adapter": "file-catalog",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:25:41.579Z",
-    "duration_ms": 140
+    "started_at": "2026-10-17T15:04:39.899Z",
+    "duration_ms": 81
   }
 }

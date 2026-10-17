@@ -32,6 +32,10 @@ describe.skipIf(process.env.WORKCTL_IT !== '1' || process.env.WORKCTL_AF3 !== '1
 
   it('wrong_partition: same layered states as on Airflow 2', async () => {
     const inputs = { workflow: 'demo-daily-orders', id: 'demo__2026-10-16__wrong_partition' };
+    // equal preconditions: the quality layer reads each profile's stored check of the target partition
+    const qc = { dataset: 'analytics.daily_orders', catalog: 'demo', partition: 'dt=2026-10-16' };
+    await v1('data.quality.check', qc);
+    await v2('data.quality.check', qc);
     const [a, b] = [await v1('offline.run.get', inputs), await v2('offline.run.get', inputs)];
     expect(b.meta.warnings).toEqual([]);
     const states = (e: any) => ['scheduler', 'compute', 'output', 'quality'].map((k) => e.data.summary[`${k}_state`]);

@@ -40,7 +40,7 @@
       {
         "check": "privileges:kubernetes/k3s",
         "ok": null,
-        "detail": "get,list nodes | get,list pods,events | get,list deployments,statefulsets [apps] | patch deployments,statefulsets [apps] | get,list pods [metrics.k8s.io]"
+        "detail": "get,list nodes | get,list pods,events | get,list deployments,statefulsets,replicasets [apps] | patch deployments,statefulsets [apps] | get,list pods [metrics.k8s.io]"
       }
     ]
   },
@@ -50,7 +50,7 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-17T14:06:53.042Z",
+        "observed_at": "2026-10-17T15:02:15.798Z",
         "relation": "derived"
       }
     ],
@@ -58,7 +58,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvch027k-688ea0",
+    "request_id": "req-mvciza2i-161708",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -66,7 +66,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:06:52.976Z",
-    "duration_ms": 67
+    "started_at": "2026-10-17T15:02:15.738Z",
+    "duration_ms": 60
   }
 }

@@ -746,11 +746,12 @@
    "query",
    "submit",
    "--engine",
-   "trino",
+   "hive",
    "--file",
    "demo/offline-workflows/sql/examples/daily_orders_by_date.sql"
   ],
-  "expect": "UNSUPPORTED"
+  "expect": "UNSUPPORTED",
+  "note": "Hive 引擎待接入（Trino 已接入，见 cases.trino.json）"
  },
  {
   "id": "data-01",

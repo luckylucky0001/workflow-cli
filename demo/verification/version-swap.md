@@ -1,6 +1,6 @@
 # 版本替换对照：Airflow 2（REST v1）↔ Airflow 3（REST v2）
 
-生成时间 2026-10-17T14:17:19.268Z，命令 `node demo/scenarios/reuse/version-swap.mjs`（真实调用，两个调度实例各自的真实运行）。
+生成时间 2026-10-17T15:03:46.691Z，命令 `node demo/scenarios/reuse/version-swap.mjs`（真实调用，两个调度实例各自的真实运行）。
 v1 = `demo/environment/workctl.yaml`（profile demo，Airflow 2 @ 127.0.0.1:18080），v2 = `demo/environment/workctl.af3.yaml`（profile demo-af3，Airflow 3 @ 127.0.0.1:18090）。
 两边场景相同（同 run_id、同业务日期、同 conf），但是两套独立的真实执行：运行时间、Spark application id、分区写入时间不同。
 

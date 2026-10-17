@@ -23,7 +23,7 @@
         "path": "/home/user/workflow-cli/demo/environment/.runtime/warehouse/analytics/daily_orders/dt=2026-10-17",
         "file_count": 1,
         "total_bytes": 790,
-        "last_modified": "2026-10-17T14:24:01.635Z",
+        "last_modified": "2026-10-17T14:58:27.282Z",
         "success_marker": true
       },
       {
@@ -34,7 +34,7 @@
         "path": "/home/user/workflow-cli/demo/environment/.runtime/warehouse/analytics/daily_orders/dt=2026-10-15",
         "file_count": 1,
         "total_bytes": 791,
-        "last_modified": "2026-10-17T14:23:48.604Z",
+        "last_modified": "2026-10-17T14:58:14.917Z",
         "success_marker": true
       }
     ],
@@ -48,7 +48,7 @@
       {
         "system": "file-catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T14:25:40.012Z",
+        "observed_at": "2026-10-17T15:04:38.387Z",
         "endpoint": "catalog/demo",
         "method": "read tables/analytics.daily_orders.yaml",
         "relation": "explicit"
@@ -56,7 +56,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T14:25:40.012Z",
+        "observed_at": "2026-10-17T15:04:38.387Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "readdir+stat analytics/daily_orders",
         "relation": "derived"
@@ -74,7 +74,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcho7sx-de29fe",
+    "request_id": "req-mvcj2c3g-b19842",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -82,7 +82,7 @@
     "adapter": "file-catalog",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:25:39.969Z",
-    "duration_ms": 43
+    "started_at": "2026-10-17T15:04:38.332Z",
+    "duration_ms": 55
   }
 }

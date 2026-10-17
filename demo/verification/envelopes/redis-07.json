@@ -20,50 +20,50 @@
     },
     "hot_keys": [
       {
-        "key": "demo:customer:83:recent",
-        "lfu_counter": 5
+        "key": "demo:order:160794",
+        "lfu_counter": 1
       },
       {
-        "key": "demo:order:1060",
-        "lfu_counter": 5
+        "key": "demo:order:140599",
+        "lfu_counter": 1
       },
       {
-        "key": "demo:order:194",
-        "lfu_counter": 5
+        "key": "demo:customer:64:recent",
+        "lfu_counter": 1
       },
       {
-        "key": "demo:order:1813",
-        "lfu_counter": 5
+        "key": "demo:order:2437",
+        "lfu_counter": 0
       },
       {
-        "key": "demo:customer:51:recent",
-        "lfu_counter": 5
+        "key": "demo:order:664",
+        "lfu_counter": 0
       },
       {
-        "key": "demo:order:403",
-        "lfu_counter": 5
+        "key": "demo:order:1163",
+        "lfu_counter": 0
       },
       {
-        "key": "demo:order:1551",
-        "lfu_counter": 5
+        "key": "demo:order:2571",
+        "lfu_counter": 0
       },
       {
-        "key": "demo:order:1978",
-        "lfu_counter": 5
+        "key": "demo:customer:223:profile",
+        "lfu_counter": 0
       },
       {
-        "key": "demo:customer:99:recent",
-        "lfu_counter": 5
+        "key": "demo:order:1393",
+        "lfu_counter": 0
       },
       {
-        "key": "demo:customer:148:recent",
-        "lfu_counter": 5
+        "key": "demo:customer:203:recent",
+        "lfu_counter": 0
       }
     ],
     "counter_distribution": {
-      "p50": 4,
-      "p90": 5,
-      "max": 5
+      "p50": 0,
+      "p90": 0,
+      "max": 1
     }
   },
   "error": null,
@@ -72,7 +72,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-17T14:25:25.395Z",
+        "observed_at": "2026-10-17T15:04:24.037Z",
         "endpoint": "redis/demo-redis",
         "method": "SCAN MATCH demo:* + OBJECT FREQ",
         "version": "7.4.11",
@@ -91,7 +91,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvchnwj1-1fcca5",
+    "request_id": "req-mvcj2118-975711",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -99,7 +99,7 @@
     "adapter": "redis-client",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:25:25.357Z",
-    "duration_ms": 39
+    "started_at": "2026-10-17T15:04:23.996Z",
+    "duration_ms": 42
   }
 }

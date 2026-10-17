@@ -5,8 +5,8 @@
   "data": null,
   "error": {
     "code": "UNSUPPORTED",
-    "message": "查询引擎 trino 尚未接入",
-    "hint": "当前只支持 --engine spark；Trino / Hive 适配器见 docs/guides/compute.md 待接入列表",
+    "message": "查询引擎 hive 尚未接入",
+    "hint": "当前支持 --engine spark / trino；Hive 适配器见 docs/guides/compute.md 待接入列表",
     "retryable": false
   },
   "meta": {
@@ -15,15 +15,15 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcho76c-bf57ef",
+    "request_id": "req-mvcj2bdc-dfc073",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
     "capability_version": "1.0.0",
-    "adapter": "spark-submit-local",
+    "adapter": "spark-submit-local|trino-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:25:39.156Z",
-    "duration_ms": 25
+    "started_at": "2026-10-17T15:04:37.392Z",
+    "duration_ms": 28
   }
 }

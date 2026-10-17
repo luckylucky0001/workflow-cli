@@ -4,35 +4,35 @@
   "capability": "container.stats.get",
   "data": {
     "kind": "snapshot",
-    "observed_at": "2026-10-17T14:06:54.167Z",
+    "observed_at": "2026-10-17T15:02:16.916Z",
     "service": "demo-order",
     "env": "sandbox",
     "matched_by": "label selector app=demo-order（binding demo-order-k8s.labels，namespace workctl-demo）",
     "containers": [
       {
-        "id": "9d41c7d8e008",
-        "name": "demo-order-78c648487c-2lfkh/nginx",
+        "id": "5760a460f32f",
+        "name": "demo-order-6fd6cc6545-7jcmp/nginx",
         "state": "running",
         "limits": {
           "cpus": 0.5,
           "memory_bytes": 134217728
         },
         "stats": {
-          "read_at": "2026-10-17T14:06:48Z",
-          "preread_at": "2026-10-17T14:06:36.798Z",
-          "sample_interval_ms": 11202,
+          "read_at": "2026-10-17T15:02:02Z",
+          "preread_at": "2026-10-17T15:01:45.150Z",
+          "sample_interval_ms": 16850,
           "cpu": {
             "cores_used": 0.0001,
             "percent": 0.01,
             "online_cpus": 4,
-            "percent_of_limit": 0.03
+            "percent_of_limit": 0.02
           },
           "memory": {
-            "usage_bytes": 5042176,
-            "working_set_bytes": 5042176,
+            "usage_bytes": 4751360,
+            "working_set_bytes": 4751360,
             "limit_bytes": 134217728,
             "limit_source": "container",
-            "percent_of_limit": 3.76
+            "percent_of_limit": 3.54
           },
           "pids": null,
           "network": null,
@@ -44,29 +44,29 @@
         "note": null
       },
       {
-        "id": "08576ad46e62",
-        "name": "demo-order-78c648487c-lrx95/nginx",
+        "id": "6962e0b84684",
+        "name": "demo-order-6fd6cc6545-ccbg4/nginx",
         "state": "running",
         "limits": {
           "cpus": 0.5,
           "memory_bytes": 134217728
         },
         "stats": {
-          "read_at": "2026-10-17T14:06:45Z",
-          "preread_at": "2026-10-17T14:06:34.185Z",
-          "sample_interval_ms": 10815,
+          "read_at": "2026-10-17T15:02:03Z",
+          "preread_at": "2026-10-17T15:01:44.855Z",
+          "sample_interval_ms": 18145,
           "cpu": {
-            "cores_used": 0.0037,
-            "percent": 0.37,
+            "cores_used": 0.0001,
+            "percent": 0.01,
             "online_cpus": 4,
-            "percent_of_limit": 0.74
+            "percent_of_limit": 0.02
           },
           "memory": {
-            "usage_bytes": 4767744,
-            "working_set_bytes": 4767744,
+            "usage_bytes": 4775936,
+            "working_set_bytes": 4775936,
             "limit_bytes": 134217728,
             "limit_source": "container",
-            "percent_of_limit": 3.55
+            "percent_of_limit": 3.56
           },
           "pids": null,
           "network": null,
@@ -86,7 +86,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T14:06:54.172Z",
+        "observed_at": "2026-10-17T15:02:16.920Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/deployments",
         "relation": "explicit",
@@ -95,7 +95,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T14:06:54.172Z",
+        "observed_at": "2026-10-17T15:02:16.920Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/statefulsets",
         "relation": "explicit",
@@ -104,7 +104,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T14:06:54.172Z",
+        "observed_at": "2026-10-17T15:02:16.920Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/namespaces/workctl-demo/pods?labelSelector=app=demo-order",
         "relation": "explicit",
@@ -113,7 +113,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T14:06:54.172Z",
+        "observed_at": "2026-10-17T15:02:16.920Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/metrics.k8s.io/v1beta1/namespaces/workctl-demo/pods?labelSelector=app=demo-order",
         "relation": "sampled",
@@ -122,7 +122,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T14:06:54.172Z",
+        "observed_at": "2026-10-17T15:02:16.920Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/nodes/{name}",
         "relation": "explicit",
@@ -131,7 +131,7 @@
       {
         "system": "workctl",
         "adapter": "resource-bindings",
-        "observed_at": "2026-10-17T14:06:54.172Z",
+        "observed_at": "2026-10-17T15:02:16.920Z",
         "method": "bindings: demo-order runs_on demo-order-k8s（endpoint kubernetes/k3s）",
         "relation": "explicit"
       }
@@ -147,7 +147,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvch032d-d4e26c",
+    "request_id": "req-mvcizawt-91e238",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -155,7 +155,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:06:54.085Z",
-    "duration_ms": 87
+    "started_at": "2026-10-17T15:02:16.829Z",
+    "duration_ms": 92
   }
 }

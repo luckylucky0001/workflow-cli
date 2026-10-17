@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.get",
   "data": {
-    "id": "op-20261017-c40ba9",
+    "id": "op-20261017-3f59dd",
     "kind": "container.restart",
     "title": "重启服务 demo-order（sandbox）的 1 个容器",
     "status": "planned",
-    "created_at": "2026-10-17T14:25:43.497Z",
-    "expires_at": "2026-10-17T14:55:43.497Z",
+    "created_at": "2026-10-17T15:04:41.832Z",
+    "expires_at": "2026-10-17T15:34:41.832Z",
     "profile": "demo",
     "env": "sandbox",
     "params": {
@@ -17,12 +17,12 @@
     },
     "targets": [
       {
-        "container_id": "f095b8e1d5e93b7ae0bf99180b0b7ffda1fe037f1918f0683778044d78158251",
+        "container_id": "15a77129623852f3633e8576d54873c526b737d2cb046fc66df88ff50621ce0e",
         "name": "demo-order",
         "image": "workctl-demo/demo-order:local",
         "state": "running",
         "health": "none",
-        "started_at": "2026-10-17T14:22:38.336131109Z",
+        "started_at": "2026-10-17T15:00:12.625838493Z",
         "restart_policy": "no",
         "selector": "workctl.service=demo-order",
         "selector_kind": "label",
@@ -87,7 +87,7 @@
     "steps": [
       {
         "name": "restart demo-order",
-        "detail": "POST /containers/f095b8e1d5e9/restart?t=10"
+        "detail": "POST /containers/15a771296238/restart?t=10"
       },
       {
         "name": "verify",
@@ -100,7 +100,7 @@
     "executable": true,
     "history": [
       {
-        "at": "2026-10-17T14:25:43.497Z",
+        "at": "2026-10-17T15:04:41.832Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
@@ -112,7 +112,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T14:25:43.796Z",
+        "observed_at": "2026-10-17T15:04:42.152Z",
         "relation": "explicit"
       }
     ],
@@ -120,7 +120,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvchoaqm-4e2f1b",
+    "request_id": "req-mvcj2f0x-80da21",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -128,7 +128,7 @@
     "adapter": "plan-store",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:25:43.774Z",
-    "duration_ms": 22
+    "started_at": "2026-10-17T15:04:42.129Z",
+    "duration_ms": 23
   }
 }

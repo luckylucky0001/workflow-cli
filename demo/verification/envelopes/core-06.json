@@ -69,6 +69,17 @@
         }
       },
       {
+        "kind": "loki",
+        "name": "demo-loki",
+        "auth_provider": "none | basic (tenant header optional)",
+        "credential_refs": [],
+        "probe": {
+          "ok": true,
+          "version": "3.5.5",
+          "detail": "/ready: ready"
+        }
+      },
+      {
         "kind": "airflow",
         "name": "demo-airflow",
         "auth_provider": "airflow-basic",
@@ -99,6 +110,18 @@
         }
       },
       {
+        "kind": "trino",
+        "name": "demo-trino",
+        "auth_provider": "trino-basic",
+        "credential_refs": [],
+        "probe": {
+          "ok": true,
+          "identity": "workctl（无密码，X-Trino-User 声明身份；/v1/info 不校验身份，授权由查询时的访问控制决定）",
+          "version": "476",
+          "detail": "http://127.0.0.1:18085/ GET /v1/info：environment=docker，coordinator=true，starting=false，uptime=7.94m；默认 catalog=tpch，schema=tiny"
+        }
+      },
+      {
         "kind": "catalog",
         "name": "demo",
         "auth_provider": "filesystem",
@@ -124,7 +147,7 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-17T14:24:55.840Z",
+        "observed_at": "2026-10-17T15:04:59.192Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/workctl.yaml",
         "relation": "explicit"
       }
@@ -136,7 +159,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvchn9kq-f11ea1",
+    "request_id": "req-mvcj2s0w-e6750c",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -144,7 +167,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:24:55.610Z",
-    "duration_ms": 230
+    "started_at": "2026-10-17T15:04:58.976Z",
+    "duration_ms": 216
   }
 }

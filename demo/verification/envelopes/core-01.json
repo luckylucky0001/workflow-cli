@@ -21,7 +21,7 @@
         "area": "resources",
         "item": "bindings",
         "ok": true,
-        "detail": "13 个资源，12 条关系"
+        "detail": "14 个资源，12 条关系"
       },
       {
         "area": "endpoints",
@@ -39,7 +39,7 @@
         "area": "endpoints",
         "item": "mysql/demo-mysql",
         "ok": true,
-        "detail": "127.0.0.1:13306 可达 (3ms)"
+        "detail": "127.0.0.1:13306 可达 (2ms)"
       },
       {
         "area": "endpoints",
@@ -51,7 +51,13 @@
         "area": "endpoints",
         "item": "prometheus/demo-prometheus",
         "ok": true,
-        "detail": "127.0.0.1:19090 可达 (1ms)"
+        "detail": "127.0.0.1:19090 可达 (0ms)"
+      },
+      {
+        "area": "endpoints",
+        "item": "loki/demo-loki",
+        "ok": true,
+        "detail": "127.0.0.1:13100 可达 (0ms)"
       },
       {
         "area": "credentials",
@@ -63,13 +69,19 @@
         "area": "endpoints",
         "item": "airflow/demo-airflow",
         "ok": true,
-        "detail": "127.0.0.1:18080 可达 (2ms)"
+        "detail": "127.0.0.1:18080 可达 (1ms)"
       },
       {
         "area": "endpoints",
         "item": "spark/demo-spark",
         "ok": true,
-        "detail": "127.0.0.1:18088 可达 (1ms)"
+        "detail": "127.0.0.1:18088 可达 (2ms)"
+      },
+      {
+        "area": "endpoints",
+        "item": "trino/demo-trino",
+        "ok": true,
+        "detail": "127.0.0.1:18085 可达 (1ms)"
       },
       {
         "area": "endpoints",
@@ -93,7 +105,7 @@
         "area": "registry",
         "item": "capabilities",
         "ok": true,
-        "detail": "70 个可调用，24 个待接入"
+        "detail": "70 个可调用，23 个待接入"
       }
     ]
   },
@@ -103,7 +115,7 @@
       {
         "system": "workctl",
         "adapter": "local",
-        "observed_at": "2026-10-17T14:24:53.927Z",
+        "observed_at": "2026-10-17T15:04:57.269Z",
         "relation": "derived"
       }
     ],
@@ -111,7 +123,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvchn88u-e3d3dc",
+    "request_id": "req-mvcj2qo5-3901a4",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -119,7 +131,7 @@
     "adapter": "local",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:24:53.886Z",
-    "duration_ms": 41
+    "started_at": "2026-10-17T15:04:57.221Z",
+    "duration_ms": 48
   }
 }

@@ -23,7 +23,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T14:25:38.138Z",
+        "observed_at": "2026-10-17T15:04:36.286Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/pools/demo-batch-pool",
         "version": "2.10.5",
@@ -40,7 +40,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcho6ao-b82b97",
+    "request_id": "req-mvcj2aej-52c513",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -48,7 +48,7 @@
     "adapter": "airflow-pool",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:25:38.016Z",
-    "duration_ms": 122
+    "started_at": "2026-10-17T15:04:36.139Z",
+    "duration_ms": 147
   }
 }

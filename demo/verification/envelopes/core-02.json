@@ -236,17 +236,6 @@
         "origin": "builtin"
       },
       {
-        "name": "sql.query.submit-trino",
-        "command": "sql query submit-trino",
-        "summary": "向 Trino 提交只读查询（待接入）",
-        "domain": "sql",
-        "status": "planned",
-        "operation": "read",
-        "adapter": "trino-rest",
-        "capability_version": "1.0.0",
-        "origin": "builtin"
-      },
-      {
         "name": "storage.hdfs.stat",
         "command": "hdfs path stat",
         "summary": "查看 HDFS 路径的大小、副本数、修改时间与配额（规划中：WebHDFS）",
@@ -318,7 +307,7 @@
         "name": "observability",
         "title": "可观测性",
         "pillar": "infrastructure",
-        "summary": "指标（Prometheus）、容器日志与日志派生调用链；Loki / Jaeger / Tempo 规划中",
+        "summary": "指标（Prometheus）、日志（Docker 容器日志 / Loki）与日志派生调用链；Jaeger / Tempo 规划中",
         "guide": "docs/guides/observability.md",
         "skill": "skills/service-latency-investigation",
         "available": 4,
@@ -373,11 +362,11 @@
         "name": "sql",
         "title": "SQL 提交",
         "pillar": "offline",
-        "summary": "向计算引擎异步提交只读 SQL 查询并跟踪状态（Spark SQL）",
+        "summary": "向计算引擎异步提交只读 SQL 查询并跟踪状态（Spark SQL / Trino）",
         "guide": "docs/guides/compute.md",
         "skill": "skills/offline-operations",
         "available": 3,
-        "planned": 2,
+        "planned": 1,
         "origin": "builtin"
       },
       {
@@ -465,7 +454,7 @@
       {
         "system": "workctl",
         "adapter": "registry",
-        "observed_at": "2026-10-17T14:24:54.326Z",
+        "observed_at": "2026-10-17T15:04:57.622Z",
         "method": "builtin + installed plugins",
         "relation": "explicit"
       }
@@ -477,7 +466,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvchn8km-eb8e38",
+    "request_id": "req-mvcj2qyq-1ffa36",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -485,7 +474,7 @@
     "adapter": "registry",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:24:54.310Z",
-    "duration_ms": 17
+    "started_at": "2026-10-17T15:04:57.602Z",
+    "duration_ms": 21
   }
 }
