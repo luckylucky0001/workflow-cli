@@ -11,3 +11,5 @@ demo/agent-host/runs/*.json
 demo/environment/workctl.agent.yaml
 demo/agent-host/runs/mcp.json
 demo/agent-host/runs/loadgen.log
+demo/environment/k8s/workctl.k8s.agent.yaml
+demo/agent-host/runs/mcp-k8s.json
