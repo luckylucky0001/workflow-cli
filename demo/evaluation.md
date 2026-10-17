@@ -82,6 +82,7 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 | 共享代码 | `scripts/maintenance-report.mjs`：共享运行时（core）约 1.3k 行、CLI+MCP 约 0.7k 行，被 10 个内置领域和插件共用；领域适配器 0.3k–2.4k 行 |
 | 新系统接入（插件） | demo-mq：约 1.1k 行插件代码 + 清单/指南/Skill，无需为消息队列修改核心（开发过程中修复了插件加载器 2 个通用缺陷：重装校验、Schema 路径）；安装后命令、帮助、目录、MCP 工具自动出现，真实 Kafka 结果与 `kafka-consumer-groups.sh` 一致 |
 | 文档一致性 | 契约测试在 CI 中强制：生成文档逐字一致、示例命令/参数存在、设计稿命令全覆盖 |
+| 接口版本替换（设计稿 §10.4） | `version-swap.mjs`：9 个离线/计算能力（10 次调用）分别对 Airflow 2.10.5（REST v1）与 Airflow 3.3.2（REST v2）真实调用，两侧 `data` 通过同一 zod 输出 schema、顶层字段与 `run get` 四层状态一致，差异只在 `meta.sources`（adapter/method/version）；适配器侧新增 `airflow-v2.ts` 约 250 行 + 客户端约 130 行改动，能力代码改动约 40 行、输出 schema 未改；v2 补数执行器真实执行成功。见 [version-swap.md](verification/version-swap.md) |
 | 分发 | `npm pack` 后全局安装，CLI 可运行并找到随包 Skill；包大小 1.8 MB（依赖已打包进单文件） |
 
 ## 5. 验收结论（设计稿 §12.3）

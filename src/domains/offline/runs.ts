@@ -55,12 +55,13 @@ export function normRun(run: any, tz: string, match?: IntervalMatch): RunView {
  * than one day may still be missed (stated in coverage).
  */
 export async function runsForBusinessDate(af: AirflowClient, dagId: string, iv: BusinessInterval, limit = 100) {
-  const query = {
-    execution_date_gte: new Date(iv.startMs - 86_400_000).toISOString(),
-    execution_date_lte: new Date(iv.endMs + 86_400_000).toISOString(),
-    order_by: '-execution_date',
-    limit,
-  };
+  const gte = new Date(iv.startMs - 86_400_000).toISOString();
+  const lte = new Date(iv.endMs + 86_400_000).toISOString();
+  // REST v1 filters on execution_date, v2 (Airflow 3) on logical_date; `query` is reported as actually sent
+  const query =
+    af.apiVersion === 'v2'
+      ? { logical_date_gte: gte, logical_date_lte: lte, order_by: '-logical_date', limit }
+      : { execution_date_gte: gte, execution_date_lte: lte, order_by: '-execution_date', limit };
   const r = await af.get<{ dag_runs: any[]; total_entries: number }>(`/dags/${encodeURIComponent(dagId)}/dagRuns`, query);
   const all = r.dag_runs ?? [];
   const matched: { run: any; match: IntervalMatch }[] = [];
@@ -70,7 +71,7 @@ export async function runsForBusinessDate(af: AirflowClient, dagId: string, iv: 
     const m = matchInterval(rs, re, iv.startMs, iv.endMs);
     if (m) matched.push({ run, match: m });
   }
-  return { matched, scanned: all.length, total: r.total_entries ?? all.length, query, truncated: (r.total_entries ?? all.length) > all.length };
+  return { matched, scanned: all.length, total: r.total_entries ?? all.length, query, window: { gte, lte }, truncated: (r.total_entries ?? all.length) > all.length };
 }
 
 // ---------------------------------------------------------------------------

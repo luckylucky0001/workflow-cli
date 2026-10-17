@@ -173,15 +173,15 @@ Elasticsearch / OpenSearch（待接入）。指南：[docs/provider-onboarding.m
 
 | 能力 | 命令 | 操作 | 状态 | 适配器 | 版本 |
 | --- | --- | --- | --- | --- | --- |
-| `offline.backfill.get` | `workctl offline backfill get` | read | 已支持 | airflow-rest-v1 | 1.0.0 |
-| `offline.backfill.plan` | `workctl offline backfill plan` | plan | 已支持 | airflow-rest-v1 | 1.0.0 |
-| `offline.dependency.list` | `workctl offline dependency list` | diagnose | 已支持 | airflow-rest-v1 | 1.0.0 |
-| `offline.freshness.check` | `workctl offline freshness check` | diagnose | 已支持 | file-catalog+airflow-rest-v1 | 1.0.0 |
-| `offline.log.get` | `workctl offline log get` | read | 已支持 | airflow-rest-v1 | 1.0.0 |
-| `offline.run.get` | `workctl offline run get` | diagnose | 已支持 | airflow-rest-v1 | 1.0.0 |
-| `offline.run.list` | `workctl offline run list` | read | 已支持 | airflow-rest-v1 | 1.0.0 |
-| `offline.task.get` | `workctl offline task get` | read | 已支持 | airflow-rest-v1 | 1.0.0 |
-| `offline.workflow.get` | `workctl offline workflow get` | read | 已支持 | airflow-rest-v1 | 1.0.0 |
+| `offline.backfill.get` | `workctl offline backfill get` | read | 已支持 | airflow-rest-v1\|v2 | 1.0.0 |
+| `offline.backfill.plan` | `workctl offline backfill plan` | plan | 已支持 | airflow-rest-v1\|v2 | 1.0.0 |
+| `offline.dependency.list` | `workctl offline dependency list` | diagnose | 已支持 | airflow-rest-v1\|v2 | 1.0.0 |
+| `offline.freshness.check` | `workctl offline freshness check` | diagnose | 已支持 | file-catalog+airflow-rest-v1\|v2 | 1.0.0 |
+| `offline.log.get` | `workctl offline log get` | read | 已支持 | airflow-rest-v1\|v2 | 1.0.0 |
+| `offline.run.get` | `workctl offline run get` | diagnose | 已支持 | airflow-rest-v1\|v2 | 1.0.0 |
+| `offline.run.list` | `workctl offline run list` | read | 已支持 | airflow-rest-v1\|v2 | 1.0.0 |
+| `offline.task.get` | `workctl offline task get` | read | 已支持 | airflow-rest-v1\|v2 | 1.0.0 |
+| `offline.workflow.get` | `workctl offline workflow get` | read | 已支持 | airflow-rest-v1\|v2 | 1.0.0 |
 
 ### 计算作业（`compute`）
 

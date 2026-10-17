@@ -60,7 +60,7 @@ YARN / Kubernetes 环境应改用日志聚合适配器（planned）。
 
 ## 3. 资源池（`compute queue get`）
 
-当前接入 Airflow pool：`slots`、`occupied/running/queued/scheduled/deferred/open` 槽位。pool 只限制并发槽，不代表 CPU/内存；
+当前接入 Airflow pool（Airflow 2 REST v1 或 Airflow 3 REST v2，由 airflow 端点的 `api_version` 决定，输出相同；来源中的 adapter/method 记录实际版本，见 [offline.md §7](offline.md)）：`slots`、`occupied/running/queued/scheduled/deferred/open` 槽位。pool 只限制并发槽，不代表 CPU/内存；
 reschedule 模式的传感器等待时不占槽。值为观测时刻的瞬时值，不是窗口统计。YARN 队列见 `compute.yarn-queue.get`（planned）。
 
 ## 4. SQL 提交（`sql query submit / get / cancel`）

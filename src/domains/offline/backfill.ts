@@ -228,8 +228,8 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
         name: `${r.action} ${r.business_date}`,
         detail:
           r.action === 'trigger_new'
-            ? `POST /api/v1/dags/${dagId}/dagRuns logical_date=${r.data_interval.start_utc} data_interval=[${r.data_interval.start_local}, ${r.data_interval.end_local})`
-            : `POST /api/v1/dags/${dagId}/clearTaskInstances dag_run_id=${r.run_id} only_failed=${r.action === 'clear_failed'} dry_run=false`,
+            ? `POST ${af.prefix}/dags/${dagId}/dagRuns logical_date=${r.data_interval.start_utc} data_interval=[${r.data_interval.start_local}, ${r.data_interval.end_local})`
+            : `POST ${af.prefix}/dags/${dagId}/clearTaskInstances dag_run_id=${r.run_id} only_failed=${r.action === 'clear_failed'} dry_run=false`,
       })),
       { name: 'throttle', detail: `同时在途的 run 不超过 ${requested} 个；超出时等待已提交的 run 结束` },
     ],

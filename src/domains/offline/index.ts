@@ -29,7 +29,10 @@ const common = {
   backend_modes: ['live' as const],
 };
 
-const PREREQ = ['profile 配置 airflow 端点（url、username、password_ref）', 'Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限'];
+const PREREQ = [
+  'profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）',
+  'Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限',
+];
 
 function tzOf(ctx: Ctx, af: AirflowClient, input?: string): string {
   return requireTimeZone(input ?? af.timezone ?? 'UTC');
@@ -90,7 +93,7 @@ const workflowGet = defineCapability({
   output: WorkflowOut,
   prerequisites: PREREQ,
   notes: [
-    '代码版本取 GET /api/v1/dagSources/{file_token} 内容的 sha256 与 last_parsed_time；file_token 只标识文件位置',
+    '代码版本取调度器保存的 DAG 源码（v1 GET /dagSources/{file_token}，v2 GET /dagSources/{dag_id}）内容的 sha256 与 last_parsed_time；file_token 只标识文件位置',
     'outputs 来自目录元数据 produced_by（catalog-metadata），不是调度器事实',
   ],
   examples: ['workctl offline workflow get --id demo-daily-orders'],
@@ -282,7 +285,7 @@ const runList = defineCapability({
       sources: [await af.source(`GET /api/v1/dags/${dagId}/dagRuns`)],
       coverage: {
         complete: !r.truncated && r.matched.length <= runs.length,
-        scope: `logical_date ∈ [${r.query.execution_date_gte}, ${r.query.execution_date_lte}]`,
+        scope: `logical_date ∈ [${r.window.gte}, ${r.window.lte}]`,
         ...(r.truncated || r.matched.length > runs.length ? { truncated: true } : {}),
         limit: inp.limit,
         window: { start: iv.start_utc, end: iv.end_utc },
@@ -658,7 +661,7 @@ const logGet = defineCapability({
     lines: z.array(z.string()),
   }),
   prerequisites: PREREQ,
-  notes: ['日志由 Airflow webserver 从任务日志存储读取；reschedule 模式的传感器每次 poke 都追加到同一 try 的日志', '日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述'],
+  notes: ['日志由 Airflow webserver 从任务日志存储读取；reschedule 模式的传感器每次 poke 都追加到同一 try 的日志', '日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述', 'Airflow 3（REST v2）的日志接口只返回结构化 JSON：每条消息转为一行“[时间] 级别 logger - 内容”'],
   examples: ['workctl offline log get --workflow demo-daily-orders --run-id demo__2026-10-16__wrong_partition --task aggregate_orders --limit-lines 50'],
   handler: async (ctx, inp) => {
     const af = new AirflowClient(ctx);
@@ -703,7 +706,7 @@ const logGet = defineCapability({
 
 const freshnessCheck = defineCapability({
   ...common,
-  adapter: 'file-catalog+airflow-rest-v1',
+  adapter: `file-catalog+${AIRFLOW_ADAPTER}`,
   name: 'offline.freshness.check',
   command: 'offline freshness check',
   summary: '按目录约定的产出时限检查数据集某业务日期是否准时：on_time / late / missing / not_due',
@@ -875,7 +878,7 @@ export default defineDomain({
         ok: true,
         identity: af.ep.str('username'),
         version,
-        detail: `basic auth 通过，可读取 DAG 列表（${dags.total_entries ?? 0} 个 DAG）；触发/清理等写权限只在执行时由 Airflow 校验`,
+        detail: `${af.apiVersion === 'v2' ? 'JWT 令牌（POST /auth/token）' : 'basic auth'} 通过，可读取 DAG 列表（${dags.total_entries ?? 0} 个 DAG）；触发/清理等写权限只在执行时由 Airflow 校验`,
       };
     },
   },

@@ -20,6 +20,7 @@
 | Kubernetes provider | 单节点 k3s v1.31.4 上 10/10（身份探测、Pod/Deployment 状态、事件、metrics-server 快照、容量、真实滚动重启）；Docker 与 Kubernetes 两种 provider 输出通过同一 Schema | [demo/verification/report.k8s.md](demo/verification/report.k8s.md) |
 | 环境可复位 | Docker 部分 `docker compose down -v` 后 `up.sh` 约 20 秒重建（含 30 万行合成数据）并重新验证 74/74 | `demo/environment/up.sh`、`reset.sh` |
 | 三种消费者同一契约 | CLI == 脚本 API == MCP（内置 Redis 能力与插件 Kafka 能力） | `demo/scenarios/reuse/same-contract.mjs` |
+| 接口版本替换 | 同一组离线/计算能力对 Airflow 2.10.5（REST v1）与 Airflow 3.3.2（REST v2）输出同一契约，只有适配器与来源不同（`WORKCTL_IT=1 WORKCTL_AF3=1` 离线/计算测试通过） | [demo/verification/version-swap.md](demo/verification/version-swap.md) |
 | Agent 宿主 | Claude Code 无头模式经 Skill + MCP 跑三条主线（只读 profile），三条均达到验收标准；另有仅 CLI 对照组 | [demo/agent-host/runs/](demo/agent-host/runs/)、[demo/evaluation.md](demo/evaluation.md) |
 | 复用 | Skill × 能力矩阵、能力组合 | [docs/reuse-matrix.md](docs/reuse-matrix.md) |
 

@@ -1,6 +1,6 @@
 # 离线调度（offline 领域）
 
-`offline` 领域把调度系统（当前接入 Airflow 2.x stable REST API v1）暴露为能力：工作流与任务定义、按**业务日期**查找运行、
+`offline` 领域把调度系统（当前接入 Airflow 2.x stable REST API v1 与 Airflow 3.x public REST API v2，输出契约相同，见第 7 节）暴露为能力：工作流与任务定义、按**业务日期**查找运行、
 一次运行的**分层状态**（调度 / 计算 / 数据产出 / 质量）、依赖、任务日志、补数计划与产出时效。
 Spark 作业、资源池见 [compute.md](compute.md)；分区与质量规则本身见 [data.md](data.md)。
 
@@ -23,13 +23,13 @@ endpoints:
   airflow:
     demo-airflow:
       url: http://127.0.0.1:18080
-      api_version: v1                 # 只接入 v1（Airflow 2.x）
+      api_version: v1                 # v1 = Airflow 2.x；v2 = Airflow 3.x（第 7 节）
       username: admin
       password_ref: file:.runtime/secrets/airflow_admin_password
       timezone: Asia/Shanghai         # 缺省业务时区
 ```
 
-Airflow 需要启用 `[api] auth_backends = airflow.api.auth.backend.basic_auth,...`。401 → `UNAUTHENTICATED`，403 → `PERMISSION_DENIED`，
+Airflow 2（v1）需要启用 `[api] auth_backends = airflow.api.auth.backend.basic_auth,...`；Airflow 3（v2）用 username/password 经 `POST /auth/token` 换取 JWT。401 → `UNAUTHENTICATED`，403 → `PERMISSION_DENIED`，
 404 → `NOT_FOUND`（DAG / run / 任务不存在）。
 
 ## 1. 语义：DAG、run、任务实例、数据区间
@@ -123,7 +123,7 @@ workctl offline backfill get --id op-20261017-xxxxxx                            
 
 `demo/environment/offline-up.sh`（由 `up.sh` 调用，幂等）启动 Airflow 2.10（SequentialExecutor + sqlite，127.0.0.1:18080，
 DAG 目录 `demo/offline-workflows/dags`，默认时区 Asia/Shanghai，pool `demo-batch-pool` 2 槽）和 Spark history server（127.0.0.1:18088）。
-`offline-down.sh` 停止它们。
+`offline-down.sh` 停止它们。用于接口版本对照的第二个调度实例（Airflow 3.3.2，127.0.0.1:18090）由 `offline3-up.sh` / `offline3-down.sh` 单独启停，见第 7 节。
 
 | DAG | 任务 | 说明 |
 |---|---|---|
@@ -139,9 +139,85 @@ DAG 目录 `demo/offline-workflows/dags`，默认时区 Asia/Shanghai，pool `de
 | daily 2026-10-16 + `{"fault":"wrong_partition"}` | 所有任务 success、Spark 成功，但写到 `dt=2026-10-17`；`dt=2026-10-16` missing |
 | daily 2026-10-14（ODS 未抽取） | 传感器 `up_for_reschedule` 持续等待；`dependency list` 显示输入分区 missing、上游工作流该日期没有 run |
 
-## 7. 限制
+## 7. Airflow 2（REST v1）与 Airflow 3（REST v2）
 
-- 只接入 Airflow stable REST API v1；Airflow 3（API v2）、DolphinScheduler 等调度器待接入。
+同一组能力同时适配 Airflow 2.x stable REST API v1 与 Airflow 3.x public REST API v2，由端点的 `api_version` 选择；
+**能力名、参数、输出 schema（`data` 字段名与语义）不变**，差异只出现在适配器与来源上：
+
+| 位置 | v1（Airflow 2） | v2（Airflow 3） |
+|---|---|---|
+| `context.adapter`（能力级，两者相同） | `airflow-rest-v1\|v2` | `airflow-rest-v1\|v2` |
+| `meta.sources[].adapter`（本次实际调用） | `airflow-rest-v1` | `airflow-rest-v2` |
+| `meta.sources[].method` | `GET /api/v1/...` | `GET /api/v2/...` |
+| `meta.sources[].version` | 实际版本，如 `2.10.5` | 实际版本，如 `3.3.2` |
+| 认证（`auth status` 的 `auth_provider`） | `airflow-basic`：basic auth | `airflow-jwt`：`POST /auth/token` 用 username/password 换 JWT，`Authorization: Bearer`；进程内缓存，401 时重新获取一次；也可配置 `token_ref` 直接给令牌 |
+
+```yaml
+endpoints:
+  airflow:
+    demo-airflow3:
+      url: http://127.0.0.1:18090
+      api_version: v2                 # Airflow 3.x
+      username: admin
+      password_ref: file:.runtime/secrets/airflow_admin_password
+      timezone: Asia/Shanghai
+```
+
+### 适配层做的映射（v2 → 能力已消费的形状）
+
+| 方面 | v1（Airflow 2.10） | v2（Airflow 3.x） | 适配层处理（输出字段不变） |
+|---|---|---|---|
+| 调度表达 | `schedule_interval: {__type, value}` | 无；`timetable_summary`（如 `0 0 * * *`） | `schedule.type` = `CronExpression`（cron 形式）/ `Timetable`，`schedule.value` = `timetable_summary`。注意 `@daily` 在 v2 显示为 `0 0 * * *` |
+| DAG 活跃 | `is_active` | `is_stale`（语义相反） | `is_active = !is_stale` |
+| 下一次运行 | `next_dagrun`、`next_dagrun_create_after` | `next_dagrun_logical_date`、`next_dagrun_run_after` | 对应映射到 `next_run.logical_date` / `create_after` |
+| `dag_run_timeout`、任务超时/重试间隔 | TimeDelta 对象 | DAG 级为 ISO 8601 时长；任务级仍为 TimeDelta | 统一换算为秒 |
+| `params` | `{__class, value, description, schema}` | `{value, schema, description, source}` | 同一 `{default, description, schema}` |
+| DAG 源码（代码版本） | `GET /dagSources/{file_token}`（text/plain） | `GET /dagSources/{dag_id}`（JSON `content`） | `source_sha256` 都是文件内容的 sha256：两个调度器解析同一 DAG 文件时哈希相同（演示环境实测相同）；`file_token` 两边不同，只标识位置 |
+| 任务 `retry_exponential_backoff` | 布尔 | 数值（0 = 关闭） | `> 0` → `true` |
+| DAG run | 有 `execution_date`、`external_trigger` | 无这两个字段；`logical_date` 可为 null；新增 `run_after`、`triggered_by` | `execution_date = logical_date`；`external_trigger` 由 `triggered_by` 推导（cli/operator/rest_api/ui/test → true，timetable/asset/backfill → false，缺省按 `run_type=manual`） |
+| 按业务日期查 run | `execution_date_gte/lte`、`order_by=-execution_date` | `logical_date_gte/lte`、`order_by=-logical_date` | `run list` 的 `mapping.query` 如实记录**实际发送**的参数名（与下方 `queued_at` 一起，是两版 `data` 中仅有的嵌套差异） |
+| DAG 列表（`run get` 未给 `--workflow` 时扫描） | `only_active=true` | `exclude_stale=true` | 同一扫描上限 |
+| 任务日志 | text/plain 原文 | 只返回 JSON / NDJSON（text/plain 为 406）：结构化消息数组 | 每条消息转为一行 `[时间] 级别 logger - 内容`（多行消息拆行）。Airflow 3 日志另有 `::group::` 分组行，行数与 v1 不可直接比较 |
+| XCom `return_value` | 字符串 | 反序列化后的 JSON 值 | 非字符串值转为 JSON 字符串（Spark application id 检索不变） |
+| 触发 run（补数执行） | `logical_date` 可省略 | `logical_date` 键必填（可为 null） | 执行器始终显式传 `logical_date` 与 `data_interval_start/end`，两版请求体相同 |
+| 清理任务实例 | `POST /dags/{id}/clearTaskInstances` | 同路径、同请求体 | 不变；计划 `steps` 中的路径随版本显示 `/api/v1` 或 `/api/v2` |
+| 资源池 | `GET /pools/{name}` | 同；多 `team_name` | 不变 |
+| `queued_at` | Airflow 2.10 的 DAGRun 响应没有该字段 | 有 | 原样输出：v1 为 null、v2 有值（schema 本就可空） |
+| 错误码 | 401/403/404/409/400/422 | 同 | 同一映射（`UNAUTHENTICATED` / `PERMISSION_DENIED` / `NOT_FOUND` …） |
+
+### 升级时需要人工确认的语义差异（适配层不替你决定）
+
+- **cron 调度的数据区间**：Airflow 3 默认 `[scheduler] create_cron_data_intervals = False`，cron 调度改用 `CronTriggerTimetable`：
+  定时 run 的 data_interval 长度为 0、`logical_date` = 触发时刻。按本领域“业务日期 = data_interval_start 在业务时区的日期”的规则，
+  定时 run 的业务日期会比 Airflow 2 晚一天（`run list` 把零长度区间按 `contained` 匹配到触发当天）。演示实例
+  （`offline3-up.sh`）设置 `AIRFLOW__SCHEDULER__CREATE_CRON_DATA_INTERVALS=True`，保持 DAG 按 Airflow 2 语义编写时的区间 `[D, D+1)`。
+  手动触发并显式传区间的 run（演示场景与补数执行器）不受影响。
+- **`logical_date` 为 null 的 run**（Airflow 3 允许不带 logical_date 触发）：按业务日期检索以 `logical_date` 过滤，这类 run 不会被 `run list` / 补数计划找到。
+- **DAG 版本**：Airflow 3 记录 DAG 版本（run 的 `dag_versions`）；`code_version.source_sha256` 取最新版本的源码。对可版本化的 DAG bundle，清理/重跑默认沿用原 bundle 版本（`[core] rerun_with_latest_version`，DAG 可覆盖），与 Airflow 2“总是当前文件”不同；演示使用的 `dags-folder` bundle 不保存历史版本（`bundle_version` 为 null），重跑仍使用当前文件。补数计划中 `impact.code_version` 的提示按 Airflow 2 语义书写，对版本化 bundle 需人工确认。
+
+### 演示：同一能力，两个接口版本
+
+```bash
+demo/environment/offline3-up.sh                  # Airflow 3.3.2 @127.0.0.1:18090（独立 AIRFLOW_HOME、sqlite、LocalExecutor）
+demo/scenarios/reuse/af3-produce.sh              # 同 run_id / 业务日期 / conf 的真实运行，写入 .runtime/warehouse-af3，结束后暂停 DAG；
+                                                 # 并对 demo-af3 profile 执行与 Airflow 2 侧相同的 data quality check
+node demo/scenarios/reuse/version-swap.mjs --out demo/verification/version-swap.md
+WORKCTL_CONFIG=demo/environment/workctl.af3.yaml workctl --json offline run get --workflow demo-daily-orders --id demo__2026-10-16__wrong_partition
+```
+
+两个实例使用同一 DAG 文件、同一 Spark 安装与 history server，但元数据库、日志与仓库目录各自独立
+（Airflow 3 的任务通过 `WORKCTL_WAREHOUSE_ROOT` 写 `.runtime/warehouse-af3`；profile `demo-af3` 的 catalog/state 也指向独立目录），
+因此 Airflow 2 的场景状态不受影响。对照结果见 [demo/verification/version-swap.md](../../demo/verification/version-swap.md)：
+10 个调用（9 个能力）两侧 `data` 均通过同一 zod 输出 schema、顶层字段相同、`run get` 四层状态相同，DAG 源码哈希相同；
+嵌套差异只有 `run list` 的 `mapping.query` 参数名（实际发送的查询）和 Airflow 2 REST v1 不提供的 `queued_at`（v1 为 null）。
+
+补数执行器也在 Airflow 3 上真实执行过：`offline backfill plan`（ODS / daily，2026-10-12..13，`trigger_new`）→
+`operation execute` → `offline backfill get` 全部 `success`，请求体与 v1 相同（显式 `logical_date` + `data_interval`），
+与 Airflow 2 侧此前的补数演示对应。执行前后需在 Airflow 3 上恢复/暂停 DAG（计划的 `dag_not_paused` 前置条件）。
+
+## 8. 限制
+
+- 接入 Airflow 2.x（REST v1，已验证 2.10.5）与 Airflow 3.x（REST v2，已验证 3.3.2）；DolphinScheduler 等调度器待接入。Airflow 3 的资产（asset）、DAG 版本、原生 backfill API、HITL 等新能力未暴露。
 - 传感器 mode/poke_interval/timeout、SLA 不在 REST 任务接口中（`task get` 的 `not_exposed`）。
 - `run get` 不指定 `--workflow` 时最多扫描 100 个活跃 DAG。
 - 质量层只读取已落盘的最近结果，不自动执行规则。

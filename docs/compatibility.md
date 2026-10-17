@@ -20,8 +20,8 @@ CLI、适配器、Skill、文档与目标系统版本的对应关系。**“已�
 | mysql | `mysql-driver`（mysql2） | 原生协议 + performance_schema / information_schema / mysql.slow_log | MySQL 8.4.11 | 需要 `performance_schema=ON`；慢日志 SQL 读取需要 `log_output` 含 TABLE；`EXPLAIN ANALYZE` 需 8.0.18+ |
 | redis | `redis-client`（ioredis） | RESP 命令 | Redis 7.4.11（standalone） | `key hot` 需要 LFU 淘汰策略；集群模式未验证 |
 | mq（插件 demo-mq 0.1.0） | `kafka-admin`（kafkajs） | Kafka Admin 协议 | Kafka 3.9.1（KRaft 单节点） | 端点偏移为 read_committed；Kafka 4.x、RabbitMQ 未验证/待接入 |
-| offline | `airflow-rest-v1` | Airflow REST API v1（basic auth） | Airflow 2.10.5 | Airflow 3.x（REST v2、JWT）未适配 |
-| compute | `spark-history-rest`、`spark-driver-log-dir`、`airflow-pool` | Spark History Server REST、driver 日志目录、Airflow 池 | Spark 3.5.5（local 模式 + event log） | YARN 队列为待接入 |
+| offline | `airflow-rest-v1`、`airflow-rest-v2`（能力级 `airflow-rest-v1\|v2`，按端点 `api_version` 选择） | Airflow stable REST API v1（basic auth）；Airflow public REST API v2（`POST /auth/token` → JWT Bearer） | Airflow 2.10.5（v1）；Airflow 3.3.2（v2，Python 3.12，SimpleAuthManager + LocalExecutor + sqlite） | 两个版本输出同一契约，逐能力对照见 [demo/verification/version-swap.md](../demo/verification/version-swap.md)；v2 补数执行器已真实执行。Airflow 3 默认 cron 调度为零长度数据区间（`create_cron_data_intervals=False`），会改变业务日期映射，演示实例设为 True，升级时需确认（见 [offline.md §7](guides/offline.md)）；其他 Airflow 3.x 小版本未验证 |
+| compute | `spark-history-rest`、`spark-driver-log-dir`、`airflow-pool` | Spark History Server REST、driver 日志目录、Airflow 池（经 REST v1 或 v2） | Spark 3.5.5（local 模式 + event log）；Airflow 池 2.10.5 / 3.3.2 | YARN 队列为待接入 |
 | sql | `spark-submit-local` | 本地 spark-submit 运行只读 SQL | Spark 3.5.5 | Trino / Hive 为待接入（返回 `UNSUPPORTED`） |
 | data | `file-catalog` | 文件目录元数据 + 本地文件系统仓库 | 本地文件系统，JSON Lines / CSV | Hive Metastore、表格式（Iceberg 等）、HDFS、对象存储为待接入；**未验证对象存储协议** |
 

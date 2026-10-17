@@ -281,7 +281,7 @@
       "output_schema": "docs/schemas/compute.queue.get.v1.json",
       "adapter": "airflow-pool",
       "operation": "read",
-      "auth_provider": "airflow-basic",
+      "auth_provider": "airflow-basic|airflow-jwt",
       "capability_version": "1.0.0",
       "guide": "docs/guides/compute.md",
       "prerequisites": [
@@ -1896,14 +1896,14 @@
         }
       },
       "output_schema": "docs/schemas/offline.backfill.get.v1.json",
-      "adapter": "airflow-rest-v1",
+      "adapter": "airflow-rest-v1|v2",
       "operation": "read",
-      "auth_provider": "airflow-basic",
+      "auth_provider": "airflow-basic|airflow-jwt",
       "capability_version": "1.0.0",
       "guide": "docs/guides/offline.md",
       "prerequisites": [
-        "profile 配置 airflow 端点（url、username、password_ref）",
-        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限"
+        "profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）",
+        "Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限"
       ],
       "backend_modes": [
         "live"
@@ -1959,16 +1959,16 @@
         }
       },
       "output_schema": "docs/schemas/offline.backfill.plan.v1.json",
-      "adapter": "airflow-rest-v1",
+      "adapter": "airflow-rest-v1|v2",
       "operation": "plan",
-      "auth_provider": "airflow-basic",
+      "auth_provider": "airflow-basic|airflow-jwt",
       "capability_version": "1.0.0",
       "guide": "docs/guides/offline.md",
       "idempotent": false,
       "cancellable": false,
       "prerequisites": [
-        "profile 配置 airflow 端点（url、username、password_ref）",
-        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限",
+        "profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）",
+        "Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限",
         "执行需要 profile allow_execute=true，并通过 workctl operation execute --id <plan> 确认"
       ],
       "backend_modes": [
@@ -2014,14 +2014,14 @@
         }
       },
       "output_schema": "docs/schemas/offline.dependency.list.v1.json",
-      "adapter": "airflow-rest-v1",
+      "adapter": "airflow-rest-v1|v2",
       "operation": "diagnose",
-      "auth_provider": "airflow-basic",
+      "auth_provider": "airflow-basic|airflow-jwt",
       "capability_version": "1.0.0",
       "guide": "docs/guides/offline.md",
       "prerequisites": [
-        "profile 配置 airflow 端点（url、username、password_ref）",
-        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限",
+        "profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）",
+        "Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限",
         "数据依赖需要 catalog 端点（upstream/consumers）；跨工作流关系来自 resources_file 绑定"
       ],
       "backend_modes": [
@@ -2059,9 +2059,9 @@
         }
       },
       "output_schema": "docs/schemas/offline.freshness.check.v1.json",
-      "adapter": "file-catalog+airflow-rest-v1",
+      "adapter": "file-catalog+airflow-rest-v1|v2",
       "operation": "diagnose",
-      "auth_provider": "airflow-basic",
+      "auth_provider": "airflow-basic|airflow-jwt",
       "capability_version": "1.0.0",
       "guide": "docs/guides/offline.md",
       "prerequisites": [
@@ -2116,21 +2116,22 @@
         }
       },
       "output_schema": "docs/schemas/offline.log.get.v1.json",
-      "adapter": "airflow-rest-v1",
+      "adapter": "airflow-rest-v1|v2",
       "operation": "read",
-      "auth_provider": "airflow-basic",
+      "auth_provider": "airflow-basic|airflow-jwt",
       "capability_version": "1.0.0",
       "guide": "docs/guides/offline.md",
       "prerequisites": [
-        "profile 配置 airflow 端点（url、username、password_ref）",
-        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限"
+        "profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）",
+        "Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限"
       ],
       "backend_modes": [
         "live"
       ],
       "notes": [
         "日志由 Airflow webserver 从任务日志存储读取；reschedule 模式的传感器每次 poke 都追加到同一 try 的日志",
-        "日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述"
+        "日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述",
+        "Airflow 3（REST v2）的日志接口只返回结构化 JSON：每条消息转为一行“[时间] 级别 logger - 内容”"
       ],
       "examples": [
         "workctl offline log get --workflow demo-daily-orders --run-id demo__2026-10-16__wrong_partition --task aggregate_orders --limit-lines 50"
@@ -2156,14 +2157,14 @@
         }
       },
       "output_schema": "docs/schemas/offline.run.get.v1.json",
-      "adapter": "airflow-rest-v1",
+      "adapter": "airflow-rest-v1|v2",
       "operation": "diagnose",
-      "auth_provider": "airflow-basic",
+      "auth_provider": "airflow-basic|airflow-jwt",
       "capability_version": "1.0.0",
       "guide": "docs/guides/offline.md",
       "prerequisites": [
-        "profile 配置 airflow 端点（url、username、password_ref）",
-        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限",
+        "profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）",
+        "Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限",
         "计算层需要 Spark history server 与事件日志；产出层需要 catalog 端点与 data 域；质量层读取 data quality check 的最近结果"
       ],
       "backend_modes": [
@@ -2208,14 +2209,14 @@
         }
       },
       "output_schema": "docs/schemas/offline.run.list.v1.json",
-      "adapter": "airflow-rest-v1",
+      "adapter": "airflow-rest-v1|v2",
       "operation": "read",
-      "auth_provider": "airflow-basic",
+      "auth_provider": "airflow-basic|airflow-jwt",
       "capability_version": "1.0.0",
       "guide": "docs/guides/offline.md",
       "prerequisites": [
-        "profile 配置 airflow 端点（url、username、password_ref）",
-        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限"
+        "profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）",
+        "Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限"
       ],
       "backend_modes": [
         "live"
@@ -2248,14 +2249,14 @@
         }
       },
       "output_schema": "docs/schemas/offline.task.get.v1.json",
-      "adapter": "airflow-rest-v1",
+      "adapter": "airflow-rest-v1|v2",
       "operation": "read",
-      "auth_provider": "airflow-basic",
+      "auth_provider": "airflow-basic|airflow-jwt",
       "capability_version": "1.0.0",
       "guide": "docs/guides/offline.md",
       "prerequisites": [
-        "profile 配置 airflow 端点（url、username、password_ref）",
-        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限"
+        "profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）",
+        "Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限"
       ],
       "backend_modes": [
         "live"
@@ -2283,20 +2284,20 @@
         }
       },
       "output_schema": "docs/schemas/offline.workflow.get.v1.json",
-      "adapter": "airflow-rest-v1",
+      "adapter": "airflow-rest-v1|v2",
       "operation": "read",
-      "auth_provider": "airflow-basic",
+      "auth_provider": "airflow-basic|airflow-jwt",
       "capability_version": "1.0.0",
       "guide": "docs/guides/offline.md",
       "prerequisites": [
-        "profile 配置 airflow 端点（url、username、password_ref）",
-        "Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限"
+        "profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）",
+        "Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限"
       ],
       "backend_modes": [
         "live"
       ],
       "notes": [
-        "代码版本取 GET /api/v1/dagSources/{file_token} 内容的 sha256 与 last_parsed_time；file_token 只标识文件位置",
+        "代码版本取调度器保存的 DAG 源码（v1 GET /dagSources/{file_token}，v2 GET /dagSources/{dag_id}）内容的 sha256 与 last_parsed_time；file_token 只标识文件位置",
         "outputs 来自目录元数据 produced_by（catalog-metadata），不是调度器事实"
       ],
       "examples": [

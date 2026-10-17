@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { z } from 'zod';
 import { source, WorkError } from '../../core/output';
 import { defineCapability, defineDomain } from '../../core/registry';
-import { AirflowClient, checkId } from '../offline/airflow';
+import { AIRFLOW_AUTH, AirflowClient, checkId } from '../offline/airflow';
 import { checkAppId, COMPUTE_GUIDE, deriveStatus, driverFailureSignal, driverLogPath, SPARK_HISTORY_ADAPTER, SPARK_LOG_ADAPTER, SparkHistory, tailFile } from './spark';
 
 const iso = (ms: unknown): string | null => (typeof ms === 'number' && ms > 0 ? new Date(ms).toISOString() : null);
@@ -305,7 +305,7 @@ const queueGet = defineCapability({
   summary: '查看计算资源队列/池的容量与占用（当前接入 Airflow pool）',
   domain: 'compute',
   adapter: 'airflow-pool',
-  auth_provider: 'airflow-basic',
+  auth_provider: AIRFLOW_AUTH,
   guide: COMPUTE_GUIDE,
   operation: 'read',
   backend_modes: ['live'],
@@ -356,7 +356,7 @@ const queueGet = defineCapability({
         utilization: slots > 0 ? Math.round((occupied / slots) * 1000) / 1000 : null,
         waiting_slots: Number(p.queued_slots ?? 0) + Number(p.scheduled_slots ?? 0),
       },
-      sources: [source('airflow', 'airflow-pool', { endpoint: af.ep.id, method: `GET /api/v1/pools/${id}`, version: await af.version(), relation: 'explicit' })],
+      sources: [await af.source(`GET /api/v1/pools/${id}`)],
       coverage: { complete: true, scope: `pool ${id}`, notes: ['瞬时值（观测时刻），不是窗口统计'] },
     };
   },

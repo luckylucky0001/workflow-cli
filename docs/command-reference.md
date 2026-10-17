@@ -1248,7 +1248,7 @@ workctl compute log get --job-id local-1792239950565 --limit-lines 100
 
 查看计算资源队列/池的容量与占用（当前接入 Airflow pool）
 
-- 能力：`compute.queue.get` v1.0.0；操作类型：**read**；适配器：airflow-pool；认证：airflow-basic
+- 能力：`compute.queue.get` v1.0.0；操作类型：**read**；适配器：airflow-pool；认证：airflow-basic|airflow-jwt
 - 输出 Schema：[docs/schemas/compute.queue.get.v1.json](../docs/schemas/compute.queue.get.v1.json)；指南：[docs/guides/compute.md](../docs/guides/compute.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -1426,7 +1426,7 @@ workctl data table get --catalog demo --table analytics.daily_orders
 
 查看补数计划及其已触发运行的实时状态
 
-- 能力：`offline.backfill.get` v1.0.0；操作类型：**read**；适配器：airflow-rest-v1；认证：airflow-basic
+- 能力：`offline.backfill.get` v1.0.0；操作类型：**read**；适配器：airflow-rest-v1|v2；认证：airflow-basic|airflow-jwt
 - 输出 Schema：[docs/schemas/offline.backfill.get.v1.json](../docs/schemas/offline.backfill.get.v1.json)；指南：[docs/guides/offline.md](../docs/guides/offline.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -1435,8 +1435,8 @@ workctl data table get --catalog demo --table analytics.daily_orders
 
 前置条件：
 
-- profile 配置 airflow 端点（url、username、password_ref）
-- Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限
+- profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）
+- Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限
 
 ```bash
 workctl offline backfill get --id op-20261017-abc123
@@ -1446,7 +1446,7 @@ workctl offline backfill get --id op-20261017-abc123
 
 生成补数计划：逐个业务日期给出现有运行、目标分区状态、动作、写入幂等性、下游影响、代码版本与并发预算（不执行）
 
-- 能力：`offline.backfill.plan` v1.0.0；操作类型：**plan**；适配器：airflow-rest-v1；认证：airflow-basic
+- 能力：`offline.backfill.plan` v1.0.0；操作类型：**plan**；适配器：airflow-rest-v1|v2；认证：airflow-basic|airflow-jwt
 - 输出 Schema：[docs/schemas/offline.backfill.plan.v1.json](../docs/schemas/offline.backfill.plan.v1.json)；指南：[docs/guides/offline.md](../docs/guides/offline.md)
 - 幂等：否；可取消：否
 
@@ -1462,8 +1462,8 @@ workctl offline backfill get --id op-20261017-abc123
 
 前置条件：
 
-- profile 配置 airflow 端点（url、username、password_ref）
-- Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限
+- profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）
+- Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限
 - 执行需要 profile allow_execute=true，并通过 workctl operation execute --id <plan> 确认
 
 口径说明：
@@ -1481,7 +1481,7 @@ workctl offline backfill plan --workflow demo-daily-orders --from 2026-10-14 --t
 
 列出一次运行的上游/下游依赖：DAG 内任务、输入/输出数据分区、跨工作流关系，并标注每条边的来源
 
-- 能力：`offline.dependency.list` v1.0.0；操作类型：**diagnose**；适配器：airflow-rest-v1；认证：airflow-basic
+- 能力：`offline.dependency.list` v1.0.0；操作类型：**diagnose**；适配器：airflow-rest-v1|v2；认证：airflow-basic|airflow-jwt
 - 输出 Schema：[docs/schemas/offline.dependency.list.v1.json](../docs/schemas/offline.dependency.list.v1.json)；指南：[docs/guides/offline.md](../docs/guides/offline.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -1492,8 +1492,8 @@ workctl offline backfill plan --workflow demo-daily-orders --from 2026-10-14 --t
 
 前置条件：
 
-- profile 配置 airflow 端点（url、username、password_ref）
-- Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限
+- profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）
+- Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限
 - 数据依赖需要 catalog 端点（upstream/consumers）；跨工作流关系来自 resources_file 绑定
 
 口径说明：
@@ -1508,7 +1508,7 @@ workctl offline dependency list --workflow demo-daily-orders --run-id demo__2026
 
 按目录约定的产出时限检查数据集某业务日期是否准时：on_time / late / missing / not_due
 
-- 能力：`offline.freshness.check` v1.0.0；操作类型：**diagnose**；适配器：file-catalog+airflow-rest-v1；认证：airflow-basic
+- 能力：`offline.freshness.check` v1.0.0；操作类型：**diagnose**；适配器：file-catalog+airflow-rest-v1|v2；认证：airflow-basic|airflow-jwt
 - 输出 Schema：[docs/schemas/offline.freshness.check.v1.json](../docs/schemas/offline.freshness.check.v1.json)；指南：[docs/guides/offline.md](../docs/guides/offline.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -1536,7 +1536,7 @@ workctl offline freshness check --dataset analytics.daily_orders --data-date 202
 
 读取任务某次尝试的日志尾部（Airflow 任务日志）
 
-- 能力：`offline.log.get` v1.0.0；操作类型：**read**；适配器：airflow-rest-v1；认证：airflow-basic
+- 能力：`offline.log.get` v1.0.0；操作类型：**read**；适配器：airflow-rest-v1|v2；认证：airflow-basic|airflow-jwt
 - 输出 Schema：[docs/schemas/offline.log.get.v1.json](../docs/schemas/offline.log.get.v1.json)；指南：[docs/guides/offline.md](../docs/guides/offline.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -1549,13 +1549,14 @@ workctl offline freshness check --dataset analytics.daily_orders --data-date 202
 
 前置条件：
 
-- profile 配置 airflow 端点（url、username、password_ref）
-- Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限
+- profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）
+- Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限
 
 口径说明：
 
 - 日志由 Airflow webserver 从任务日志存储读取；reschedule 模式的传感器每次 poke 都追加到同一 try 的日志
 - 日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述
+- Airflow 3（REST v2）的日志接口只返回结构化 JSON：每条消息转为一行“[时间] 级别 logger - 内容”
 
 ```bash
 workctl offline log get --workflow demo-daily-orders --run-id demo__2026-10-16__wrong_partition --task aggregate_orders --limit-lines 50
@@ -1565,7 +1566,7 @@ workctl offline log get --workflow demo-daily-orders --run-id demo__2026-10-16__
 
 查看一次运行：任务实例状态，并分层汇总调度、计算、数据产出、质量四个检查项
 
-- 能力：`offline.run.get` v1.0.0；操作类型：**diagnose**；适配器：airflow-rest-v1；认证：airflow-basic
+- 能力：`offline.run.get` v1.0.0；操作类型：**diagnose**；适配器：airflow-rest-v1|v2；认证：airflow-basic|airflow-jwt
 - 输出 Schema：[docs/schemas/offline.run.get.v1.json](../docs/schemas/offline.run.get.v1.json)；指南：[docs/guides/offline.md](../docs/guides/offline.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -1575,8 +1576,8 @@ workctl offline log get --workflow demo-daily-orders --run-id demo__2026-10-16__
 
 前置条件：
 
-- profile 配置 airflow 端点（url、username、password_ref）
-- Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限
+- profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）
+- Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限
 - 计算层需要 Spark history server 与事件日志；产出层需要 catalog 端点与 data 域；质量层读取 data quality check 的最近结果
 
 口径说明：
@@ -1592,7 +1593,7 @@ workctl offline run get --workflow demo-daily-orders --id demo__2026-10-16__wron
 
 按业务日期查找工作流的运行（DAG run）：业务日期映射为业务时区的数据区间并按 data_interval 匹配
 
-- 能力：`offline.run.list` v1.0.0；操作类型：**read**；适配器：airflow-rest-v1；认证：airflow-basic
+- 能力：`offline.run.list` v1.0.0；操作类型：**read**；适配器：airflow-rest-v1|v2；认证：airflow-basic|airflow-jwt
 - 输出 Schema：[docs/schemas/offline.run.list.v1.json](../docs/schemas/offline.run.list.v1.json)；指南：[docs/guides/offline.md](../docs/guides/offline.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -1604,8 +1605,8 @@ workctl offline run get --workflow demo-daily-orders --id demo__2026-10-16__wron
 
 前置条件：
 
-- profile 配置 airflow 端点（url、username、password_ref）
-- Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限
+- profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）
+- Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限
 
 口径说明：
 
@@ -1620,7 +1621,7 @@ workctl offline run list --workflow demo-daily-orders --data-date 2026-10-16 --t
 
 查看工作流中任务的定义：算子、重试、资源池、上下游、触发规则与超时
 
-- 能力：`offline.task.get` v1.0.0；操作类型：**read**；适配器：airflow-rest-v1；认证：airflow-basic
+- 能力：`offline.task.get` v1.0.0；操作类型：**read**；适配器：airflow-rest-v1|v2；认证：airflow-basic|airflow-jwt
 - 输出 Schema：[docs/schemas/offline.task.get.v1.json](../docs/schemas/offline.task.get.v1.json)；指南：[docs/guides/offline.md](../docs/guides/offline.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -1630,8 +1631,8 @@ workctl offline run list --workflow demo-daily-orders --data-date 2026-10-16 --t
 
 前置条件：
 
-- profile 配置 airflow 端点（url、username、password_ref）
-- Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限
+- profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）
+- Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限
 
 口径说明：
 
@@ -1646,7 +1647,7 @@ workctl offline task get --workflow demo-daily-orders --task aggregate_orders
 
 查看工作流（Airflow DAG）定义：调度、时区、负责人、暂停状态、代码版本、并发与参数
 
-- 能力：`offline.workflow.get` v1.0.0；操作类型：**read**；适配器：airflow-rest-v1；认证：airflow-basic
+- 能力：`offline.workflow.get` v1.0.0；操作类型：**read**；适配器：airflow-rest-v1|v2；认证：airflow-basic|airflow-jwt
 - 输出 Schema：[docs/schemas/offline.workflow.get.v1.json](../docs/schemas/offline.workflow.get.v1.json)；指南：[docs/guides/offline.md](../docs/guides/offline.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -1655,12 +1656,12 @@ workctl offline task get --workflow demo-daily-orders --task aggregate_orders
 
 前置条件：
 
-- profile 配置 airflow 端点（url、username、password_ref）
-- Airflow 启用 basic_auth API 后端，账号具备 DAG 读权限
+- profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）
+- Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限
 
 口径说明：
 
-- 代码版本取 GET /api/v1/dagSources/{file_token} 内容的 sha256 与 last_parsed_time；file_token 只标识文件位置
+- 代码版本取调度器保存的 DAG 源码（v1 GET /dagSources/{file_token}，v2 GET /dagSources/{dag_id}）内容的 sha256 与 last_parsed_time；file_token 只标识文件位置
 - outputs 来自目录元数据 produced_by（catalog-metadata），不是调度器事实
 
 ```bash
