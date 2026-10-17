@@ -429,7 +429,7 @@ function evalFreshness(rule: Extract<Rule, { type: 'freshness' }>, meta: TableMe
 async function countRecords(path: string, format: 'json' | 'csv'): Promise<number> {
   if (format === 'csv') {
     let n = 0;
-    for await (const item of readRecords(path, 'csv')) if (item.record || item.line > 1) n++;
+    for await (const item of readRecords(path, 'csv')) if (!item.header) n++;
     return n;
   }
   const stream = createReadStream(path);
@@ -511,12 +511,14 @@ export async function evaluateRuleset(inp: EvaluateInput): Promise<Evaluation> {
     let total = 0;
     for (const f of scan.files as DataFile[]) {
       let inFile = 0;
+      let headerErrors = 0;
       let exhausted = false;
       if (needsRows && budget > 0) {
         filesRead++;
         const before = budget;
         for await (const item of readRecords(f.path, meta.format, budget)) {
           inFile++;
+          if (item.header) headerErrors++;
           if (item.record) {
             rowsRead++;
             for (const a of accs.values()) a.observe(item.record, { file: f.name, line: item.line });
@@ -529,7 +531,7 @@ export async function evaluateRuleset(inp: EvaluateInput): Promise<Evaluation> {
         exhausted = inFile < before;
       }
       // row_count rules always use the full count, also in sample mode
-      total += exhausted ? inFile : await countRecords(f.path, meta.format);
+      total += exhausted ? inFile - headerErrors : await countRecords(f.path, meta.format);
     }
     rowsTotal = total;
   }

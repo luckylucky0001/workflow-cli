@@ -112,6 +112,34 @@ describe('data quality check', () => {
     expect((env.data as any).precondition.partition_state).toBe('unreadable');
   });
 
+  it('evaluates CSV tables (empty field = null, numeric strings in value_range)', async () => {
+    const tables = join(fx.root, 'demo/catalog/tables');
+    writeFileSync(
+      join(tables, 'ods.orders_csv.yaml'),
+      readFileSync(join(tables, 'ods.orders.yaml'), 'utf8')
+        .replace('name: ods.orders', 'name: ods.orders_csv')
+        .replace('format: json', 'format: csv')
+        .replace('location: ods/orders', 'location: ods/orders_csv')
+        .replace('quality_ruleset: demo-ods-rules', 'quality_ruleset: csv-rules'),
+    );
+    writeFileSync(
+      join(fx.root, 'demo/quality-rules/csv-rules.yaml'),
+      ['name: csv-rules', 'table: ods.orders_csv', 'rules:', '  - { id: rows, type: row_count_min, min: 5 }', '  - { id: nn, type: not_null, columns: [customer_id] }',
+        '  - { id: amt, type: value_range, column: amount, min: 0 }', '  - { id: uniq, type: unique, columns: [order_id] }', '  - { id: schema, type: schema_match }'].join('\n'),
+    );
+    const rows = odsRows('2026-10-16', 5);
+    rows[2].customer_id = null;
+    fx.writePartition('ods/orders_csv', '2026-10-16', rows, { format: 'csv', mtime: early });
+    const env = await check({ dataset: 'demo.ods.orders_csv', partition: 'dt=2026-10-16' });
+    expect(schemaWarnings(env)).toEqual([]);
+    expect(byId(env, 'rows').observed.rows).toBe(5);
+    expect(byId(env, 'nn').observed.null_counts.customer_id).toBe(1);
+    expect(byId(env, 'amt')).toMatchObject({ status: 'pass' });
+    expect(byId(env, 'amt').observed.min_observed).toBe(10);
+    expect(byId(env, 'schema').status).toBe('pass');
+    expect((env.data as any).quality_state).toBe('fail');
+  });
+
   it('dataset resolution and ruleset errors', async () => {
     expect((await check({ dataset: 'demo.nothing', partition: 'dt=2026-10-16' })).error?.code).toBe('NOT_FOUND');
     expect((await check({ dataset: 'a.b.c.d', partition: 'dt=2026-10-16' })).error?.code).toBe('INVALID_ARGUMENT');

@@ -83,8 +83,9 @@ export interface LayerState {
 
 export const LayerSchema = z.looseObject({ state: z.string(), detail: z.string().optional(), source: z.any().nullable() });
 
-function envSource(env: Envelope, fallback: string): Source {
-  return env.meta.sources[0] ?? source('workctl', fallback, { method: `ctx.call(${env.capability})`, relation: 'derived' });
+function envSource(env: Envelope, fallback: string, preferSystem?: string): Source {
+  const preferred = preferSystem ? env.meta.sources.find((s) => s.system === preferSystem) : undefined;
+  return preferred ?? env.meta.sources[0] ?? source('workctl', fallback, { method: `ctx.call(${env.capability})`, relation: 'derived' });
 }
 
 /** Partition state through `data.partition.get` (data domain). Never throws. */
@@ -97,16 +98,18 @@ export async function partitionLayer(ctx: Ctx, catalogName: string | undefined, 
     return { state: 'unknown', detail: `data.partition.get 失败: ${env.error?.code} ${env.error?.message}`, source: null, error_code: env.error?.code };
   }
   const d = (env.data ?? {}) as Record<string, any>;
-  const updated = d.updated_at ?? d.last_modified ?? d.physical?.updated_at ?? d.stats?.updated_at ?? null;
+  const pick = (v: any) => (v && typeof v === 'object' ? v.value ?? null : v ?? null);
+  const updated = pick(d.checks?.updated_at) ?? pick(d.updated_at) ?? d.last_modified ?? null;
+  const detail = d.explanation ?? d.reason ?? d.detail;
   return {
     state: String(d.state ?? 'unknown'),
-    ...(d.reason || d.detail ? { detail: String(d.reason ?? d.detail) } : {}),
+    ...(detail ? { detail: String(detail) } : {}),
     table,
     partition,
     ...(d.path ? { path: d.path } : {}),
     ...(updated ? { updated_at: updated } : {}),
     via: 'data.partition.get',
-    source: envSource(env, 'data.partition.get'),
+    source: envSource(env, 'data.partition.get', 'local-filesystem'),
   };
 }
 

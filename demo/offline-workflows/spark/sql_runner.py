@@ -38,6 +38,8 @@ def write_state(path: str | None, patch: dict) -> None:
                 state = json.load(f)
         except Exception:
             state = {}
+    if state.get("state") == "cancelled":
+        return  # cancelled by `workctl sql query cancel`: never overwrite with a later failure
     state.update(patch)
     state["updated_at"] = now_iso()
     tmp = f"{path}.tmp.{os.getpid()}"

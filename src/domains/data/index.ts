@@ -541,11 +541,11 @@ async function lineage(ctx: Ctx, i: Record<string, any>) {
     for (const cur of frontier) {
       const t = cat.tables.get(cur);
       if (!t) continue;
-      const found: string[] = [];
+      const found: { id: string; key: string }[] = [];
       if (direction === 'upstream') {
         for (const u of t.meta.upstream) {
           const n = classify(u.table);
-          found.push(n.id);
+          found.push({ id: n.id, key: `${n.id}\u0000${t.meta.name}` });
           if (d <= depth) {
             addNode(n, d);
             addEdge(n.id, t.meta.name, { relation: 'explicit', source: metaFile(t.meta), detail: `upstream${u.note ? `: ${u.note}` : ''}` }, { via: via(t.meta), ...(u.columns ? { columns: u.columns } : {}) });
@@ -553,7 +553,7 @@ async function lineage(ctx: Ctx, i: Record<string, any>) {
         }
         for (const s of inferredSources(t.meta)) {
           const n = classify(s.id);
-          found.push(n.id);
+          found.push({ id: n.id, key: `${n.id}\u0000${t.meta.name}` });
           if (d <= depth) {
             addNode(n, d);
             addEdge(n.id, t.meta.name, { relation: 'inferred', source: `sql:${s.sqlFile}`, detail: s.detail }, { via: via(t.meta) });
@@ -562,7 +562,7 @@ async function lineage(ctx: Ctx, i: Record<string, any>) {
       } else {
         for (const other of cat.tables.values()) {
           if (other.meta.upstream.some((u) => u.table.toLowerCase() === cur.toLowerCase())) {
-            found.push(other.meta.name);
+            found.push({ id: other.meta.name, key: `${cur}\u0000${other.meta.name}` });
             if (d <= depth) {
               addNode(classify(other.meta.name), d);
               const u = other.meta.upstream.find((x) => x.table.toLowerCase() === cur.toLowerCase())!;
@@ -571,7 +571,7 @@ async function lineage(ctx: Ctx, i: Record<string, any>) {
           }
           for (const s of inferredSources(other.meta)) {
             if (s.id.toLowerCase() !== cur.toLowerCase()) continue;
-            found.push(other.meta.name);
+            found.push({ id: other.meta.name, key: `${cur}\u0000${other.meta.name}` });
             if (d <= depth) {
               addNode(classify(other.meta.name), d);
               addEdge(cur, other.meta.name, { relation: 'inferred', source: `sql:${s.sqlFile}`, detail: s.detail }, { via: via(other.meta) });
@@ -579,7 +579,7 @@ async function lineage(ctx: Ctx, i: Record<string, any>) {
           }
         }
         for (const c of t.meta.consumers) {
-          found.push(c.id);
+          found.push({ id: c.id, key: `${cur}\u0000${c.id}` });
           if (d <= depth) {
             addNode({ id: c.id, type: c.type, in_catalog: false, ...(c.note ? { note: c.note } : {}) }, d);
             addEdge(cur, c.id, { relation: 'explicit', source: metaFile(t.meta), detail: `consumers (${c.type})` });
@@ -587,10 +587,11 @@ async function lineage(ctx: Ctx, i: Record<string, any>) {
         }
       }
       if (d > depth) {
-        if (found.length) truncated = true;
+        // relations beyond the requested depth: a node or an edge not yet in the result
+        if (found.some((f) => !nodes.has(f.id) || !edges.has(f.key))) truncated = true;
         continue;
       }
-      for (const f of found) if (cat.tables.has(f) && !next.includes(f) && nodes.get(f)?.depth === d) next.push(f);
+      for (const { id } of found) if (cat.tables.has(id) && !next.includes(id) && nodes.get(id)?.depth === d) next.push(id);
     }
     frontier = next;
   }
@@ -748,7 +749,7 @@ export default defineDomain({
   summary: '表元数据与分区语义、分区产出检查、explicit/inferred 血缘、分区质量规则（file 目录 provider + 本地文件系统仓库）',
   pillar: 'offline',
   guide: GUIDE,
-  skill: 'skills/data-validation/SKILL.md',
+  skill: 'skills/data-validation',
   capabilities: CAPABILITIES,
   probes: {
     catalog: async (ctx, name) => {

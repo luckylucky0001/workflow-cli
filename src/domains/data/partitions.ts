@@ -151,6 +151,8 @@ export interface RecordItem {
   line: number;
   record?: Record<string, unknown>;
   error?: string;
+  /** CSV header problem: an error item that is not a data row. */
+  header?: boolean;
 }
 
 function lineReader(path: string) {
@@ -234,7 +236,7 @@ export async function* readRecords(file: string, format: 'json' | 'csv', maxReco
       pending = '';
       if (!header) {
         if (!fields || !fields.length || fields.some((f) => !f.trim())) {
-          yield { line: startLine, error: 'CSV 表头无法解析或含空列名' };
+          yield { line: startLine, error: 'CSV 表头无法解析或含空列名', header: true };
           return;
         }
         header = fields.map((f) => f.trim());
@@ -247,8 +249,8 @@ export async function* readRecords(file: string, format: 'json' | 'csv', maxReco
       yield item;
       if (++emitted >= maxRecords) return;
     }
+    // a file without any non-blank line has no header and no rows: empty, not malformed
     if (pending) yield { line: startLine, error: 'CSV 记录在文件末尾未闭合（引号不匹配）' };
-    else if (!header) yield { line: 1, error: 'CSV 文件缺少表头' };
   } finally {
     close();
   }

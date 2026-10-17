@@ -478,6 +478,7 @@ const dependencyList = defineCapability({
       relation: z.string(),
       via: z.string().nullable(),
       edge_source: EdgeSource,
+      corroborated_by: z.array(EdgeSource).optional().describe('同一关系也出现在其他元数据来源中'),
       evidence: z.string().nullable(),
       run: z.object({ run_id: z.string(), state: z.string().nullable(), match: z.string().optional() }).nullable(),
       run_lookup: z.string(),
@@ -541,7 +542,12 @@ const dependencyList = defineCapability({
     const store = ctx.resources();
     const addWf = (workflow: string, relation: string, via: string | null, edgeSource: 'binding-file' | 'catalog-metadata', evidence: string | null) => {
       const key = `${workflow}|${relation}|${via}`;
-      if (seen.has(key) || workflow === dagId) return;
+      if (workflow === dagId) return;
+      if (seen.has(key)) {
+        const prev = wf.find((w) => `${w.workflow}|${w.relation}|${w.via}` === key);
+        if (prev && prev.edge_source !== edgeSource) (prev.corroborated_by ??= []).includes(edgeSource) || prev.corroborated_by.push(edgeSource);
+        return;
+      }
       seen.add(key);
       wf.push({ workflow, relation, via, edge_source: edgeSource, evidence });
     };

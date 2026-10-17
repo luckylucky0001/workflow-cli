@@ -29,7 +29,17 @@ function isRedisError(e: unknown): e is ReplyLike {
   return x.name === 'ReplyError' || x.name === 'MaxRetriesPerRequestError' || /^(NOPERM|NOAUTH|WRONGPASS|WRONGTYPE|ERR |LOADING|BUSY|READONLY|MOVED|ASK|CLUSTERDOWN|OOM)/.test(x.message ?? '') || x.message === 'Connection is closed.';
 }
 
-/** Map ioredis / Redis reply errors. Redis semantics are kept in details.reason. */
+/** Errors that certainly come from ioredis / a Redis reply (safe for the domain-wide mapper). */
+export function isRedisOriginError(e: unknown): boolean {
+  const name = (e as Error | undefined)?.name;
+  return name === 'ReplyError' || name === 'MaxRetriesPerRequestError';
+}
+
+/**
+ * Map ioredis / Redis reply errors. Redis semantics are kept in details.reason. Used inside
+ * withRedis (where every error is Redis-related); the domain-wide mapper only passes errors
+ * for which isRedisOriginError() is true.
+ */
 export function mapRedisError(e: unknown, ep?: Endpoint): WorkError | undefined {
   if (e instanceof WorkError) return e;
   const err = e as ReplyLike & { errno?: number; syscall?: string };
@@ -148,4 +158,21 @@ export async function tryConfigGet(s: RedisSession, pattern: string): Promise<{ 
   } catch (e) {
     return { values: null, reason: e instanceof Error ? e.message : String(e) };
   }
+}
+
+/** Binding metadata (platform side), kept separate from what the engine reports. */
+export function bindingFor(ctx: Ctx, kind: string, name: string): { binding: Record<string, unknown> | null; source: Source | null } {
+  let store;
+  try {
+    store = ctx.resources();
+  } catch (e) {
+    ctx.warn(`资源绑定不可读，跳过平台元数据: ${e instanceof Error ? e.message : String(e)}`);
+    return { binding: null, source: null };
+  }
+  const r = store.forEndpoint(kind, name);
+  if (!r) return { binding: null, source: null };
+  return {
+    binding: { id: r.id, type: r.type, env: r.env ?? null, owner: r.owner ?? null, labels: r.labels, attributes: r.attributes },
+    source: source('workctl', 'binding-file', { endpoint: store.path ?? undefined, method: `resources.forEndpoint(${kind}, ${name})`, relation: 'explicit' }),
+  };
 }

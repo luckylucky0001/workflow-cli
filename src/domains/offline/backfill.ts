@@ -4,7 +4,7 @@ import { WorkError, type Result, type Source } from '../../core/output';
 import type { Executor, Planner } from '../../core/registry';
 import { sleep, type Ctx } from '../../core/runtime';
 import { AirflowClient, checkId } from './airflow';
-import { catalogSource, downstreamTables, partitionSpec } from './catalog';
+import { catalogSource, downstreamTables, partitionSpec, tableByName } from './catalog';
 import { partitionLayer, runsForBusinessDate, targetsOf } from './runs';
 import { businessInterval, dateRange, requireDate, requireTimeZone, timePair } from './time';
 
@@ -58,6 +58,7 @@ export const BackfillTargetSchema = z.object({
   reason: z.string(),
   target_partition: z.string().nullable(),
   partition_state: z.string(),
+  upstream_inputs: z.array(z.object({ table: z.string(), partition: z.string().nullable(), state: z.string() })).describe('目录 upstream 中同业务日期的输入分区（外部来源标为 external，不检查）'),
   not_due: z.boolean(),
 });
 
@@ -106,15 +107,34 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
       pstate = l.state;
       if (l.source && rows.length === 0) sources.push(l.source);
     }
+    const inputs: { table: string; partition: string | null; state: string }[] = [];
+    if (table && targets.catalog && ['trigger_new', 'clear_failed', 'rerun'].includes(dec.action)) {
+      for (const up of table.upstream) {
+        const meta = tableByName(targets.catalog, up);
+        if (!meta) {
+          inputs.push({ table: up, partition: null, state: 'external' });
+          continue;
+        }
+        const uspec = partitionSpec(meta, d);
+        const l = uspec ? await partitionLayer(ctx, targets.catalog.name, up, uspec) : { state: 'unknown' };
+        inputs.push({ table: up, partition: uspec, state: l.state });
+      }
+    }
+    let reasonText = dec.reason;
+    if (dec.action === 'skip_succeeded' && table && pstate !== 'present' && pstate !== 'unknown') {
+      reasonText = `${dec.reason}；注意：调度成功但目标分区 ${spec} 状态为 ${pstate}，重跑前先确认原因（同一 run 的 conf/代码会被沿用）`;
+      warnings.push(`${d}: 调度层 success 但目标分区 ${pstate}`);
+    }
     rows.push({
       business_date: d,
       data_interval: { start_local: iv.start_local, end_local: iv.end_local, start_utc: iv.start_utc, end_utc: iv.end_utc },
       existing_runs: existing,
       action: dec.action,
       run_id: dec.run_id,
-      reason: dec.reason,
+      reason: reasonText,
       target_partition: spec,
       partition_state: pstate,
+      upstream_inputs: inputs,
       not_due: iv.endMs > now,
     });
   }
@@ -150,10 +170,18 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
   const actionable = rows.filter((r) => ['trigger_new', 'clear_failed', 'rerun'].includes(r.action));
   const wm = writeModeCheck(table?.write_mode ?? null, actionable.map((a) => ({ action: a.action, partition_state: a.partition_state })), allowAppend);
   const notDue = actionable.filter((r) => r.not_due);
+  const missingInputs = actionable.flatMap((r) => r.upstream_inputs.filter((u) => !['present', 'external'].includes(u.state)).map((u) => `${r.business_date}:${u.table}/${u.partition}=${u.state}`));
   const preconditions = [
     { check: 'dag_importable', ok: !dag.has_import_errors && dag.is_active !== false, detail: dag.has_import_errors ? 'DAG 有导入错误' : 'DAG 可解析且处于活跃状态' },
     { check: 'dag_not_paused', ok: !dag.is_paused, detail: dag.is_paused ? 'DAG 已暂停：触发的 run 不会被调度，需先恢复（属于变更，需单独授权）' : 'DAG 未暂停' },
     { check: 'write_mode_safe', ok: wm.ok, detail: wm.detail },
+    {
+      check: 'upstream_inputs_present',
+      ok: missingInputs.length === 0,
+      detail: missingInputs.length
+        ? `上游输入分区未就绪，运行会在传感器处等待或失败: ${missingInputs.join(', ')}；先补上游`
+        : '动作涉及的目录内上游输入分区均为 present（外部来源未检查）',
+    },
     { check: 'intervals_complete', ok: notDue.length === 0, detail: notDue.length ? `业务日期 ${notDue.map((r) => r.business_date).join(', ')} 的数据区间尚未结束` : '所有动作对应的数据区间均已结束' },
     { check: 'has_actions', ok: actionable.length > 0, detail: actionable.length ? `${actionable.length} 个业务日期需要动作` : '没有需要执行的动作（全部跳过）' },
     { check: 'max_active_runs_valid', ok: requested >= 1 && requested <= dagMax, detail: `计划并发 ${requested}，DAG max_active_runs=${dagMax}` },
