@@ -82,8 +82,8 @@ rules:
     resources: [pods, events]
     verbs: [get, list]
   - apiGroups: [apps]
-    resources: [deployments, statefulsets]
-    verbs: [get, list]
+    resources: [deployments, statefulsets, replicasets]
+    verbs: [get, list]          # replicasets: keep only pods owned by the bound workload
   - apiGroups: [apps]
     resources: [deployments, statefulsets]
     verbs: [patch]            # rollout restart (container.restart executor); drop for read-only use
