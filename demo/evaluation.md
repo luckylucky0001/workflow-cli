@@ -59,6 +59,8 @@
 
 新接入能力（`run-agent-demo.sh D-extend`：etcd 配置中心/服务发现 + demo-search 插件，只读 profile，无故障注入）：10 次 workctl 调用（MCP）、13 次工具调用、31.9 s、$0.19，合格——`config diff` 给出修订 30→41 的逐键新增/修改/删除，敏感值只说“已变更”；`discovery list` 指出 `order-2` 自报不健康、`order-legacy` 无租约可能是残留，并说明健康为自报而非探测；对 `demo-orders-all` 按 `created_at` 排序识别出 `status: partial`（archive 分片因映射缺少 `created_at` 失败，total 3000 而非 3400），用无排序查询排除别名/分片本身的问题，并区分 yellow（副本未分配）与本次不完整无关；未做变更（[D-extend.summary.md](agent-host/runs/D-extend.summary.md)）。这些能力是在主线 A/B/C 之后才加入的；这次运行中 Agent 没有读取 Skill，直接从 MCP 工具目录（由同一能力定义生成）找到 `config_*`、`discovery_list`、`search_*` 工具。
 
+部署系统 + PostgreSQL（`run-agent-demo.sh E-release-db`，完整复位后的环境，Jenkins provider，期间 PostgreSQL 有 2 并发合成负载；只读 profile）：9 次 workctl 调用（MCP）、13 次工具调用、54.1 s、$0.35，合格——先加载 `deploy-operations` 与 `postgres-operations` 两个 Skill；列出 5 个构建并指出失败的是 #3 v1.4.2-bad（控制台“health check failed after rollout”），说明“当前版本”只是最近成功构建、需用 `container workload get` 核对；生成回滚计划但指出 `allow_execute` 前置条件不满足、并质疑默认回滚目标是否合理；`pg statement summary` 20 s 窗口定位 `WHERE customer_id = $1 ORDER BY created_at` 占窗口总耗时约 98%，用 EXPLAIN（Seq Scan）与表统计（seq_scan 远多于 idx_scan、无 customer_id 索引）佐证，建议索引交 DBA 评审且未执行任何 DDL / ANALYZE（[E-release-db.summary.md](agent-host/runs/E-release-db.summary.md)）。
+
 同一任务两次运行的调用次数与成本有波动（LLM 非确定性），只能说明量级，不能作为精确对比。
 
 CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同一任务卡计时）。

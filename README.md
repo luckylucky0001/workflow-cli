@@ -27,7 +27,7 @@
 | 环境可复位 | `WITH_AF3=1 WITH_K8S=1 demo/verify-all.sh`：`reset.sh` 清空全部容器、卷、Airflow/Spark 运行时、数据与密钥后，`up.sh` 45 秒重建（含 Trino、Loki、etcd、Nacos、Consul、PostgreSQL、Jenkins、OpenSearch），场景重放 170 秒；随后 10 个逐能力套件 224 个用例（主 74、Trino 15、etcd 16、PostgreSQL 34、Nacos 13、Consul 12、Jenkins 15、搜索插件 21、Kubernetes 10、Kubernetes 发布 14 含真实回滚）、三种消费者同一契约、日志来源与 Airflow 版本替换、集成测试 731/731 全部通过，整轮约 10.5 分钟（ALL CHECKS PASSED，2026-10-17 17:04 UTC） | `demo/environment/up.sh`、`reset.sh`、`demo/verify-all.sh` |
 | 三种消费者同一契约 | CLI == 脚本 API == MCP（内置 Redis 能力、插件 Kafka 能力、插件实现的 `search.index.get`） | `demo/scenarios/reuse/same-contract.mjs` |
 | 接口版本替换 | 同一组离线/计算能力对 Airflow 2.10.5（REST v1）与 Airflow 3.3.2（REST v2）输出同一契约，只有适配器与来源不同（`WORKCTL_IT=1 WORKCTL_AF3=1` 离线/计算测试通过） | [demo/verification/version-swap.md](demo/verification/version-swap.md) |
-| Agent 宿主 | Claude Code 无头模式经 Skill + MCP 跑三条主线（只读 profile），三条均达到验收标准；另有仅 CLI 对照组；新接入的配置中心与搜索插件另跑一条（D-extend），合格 | [demo/agent-host/runs/](demo/agent-host/runs/)、[demo/evaluation.md](demo/evaluation.md) |
+| Agent 宿主 | Claude Code 无头模式经 Skill + MCP 跑三条主线（只读 profile），三条均达到验收标准；另有仅 CLI 对照组；新接入的配置中心与搜索插件（D-extend）、部署系统 + PostgreSQL（E-release-db，加载对应 Skill，定位失败发布与缺索引慢语句、只生成回滚计划）各跑一条，均合格 | [demo/agent-host/runs/](demo/agent-host/runs/)、[demo/evaluation.md](demo/evaluation.md) |
 | 复用 | Skill × 能力矩阵、能力组合 | [docs/reuse-matrix.md](docs/reuse-matrix.md) |
 
 没有客户环境验证；没有提效百分比（评估方法与已测数据见 [demo/evaluation.md](demo/evaluation.md)）。

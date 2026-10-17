@@ -37,7 +37,7 @@
 - 缺陷测评：非作者交叉审查与黑盒契约模糊测试累计修复 114 个缺陷（每个都有回归测试），见 `demo/evaluation.md` §4.4 与 `demo/verification/contract-fuzz.md`。
 - 各领域由非作者交叉审查，修复的缺陷均有回归测试（见 git 历史 “Cross-review fixes”）。
 - 完整复位：`reset.sh` 后 `up.sh` 约 45 秒重建，场景重放约 3 分钟，随后全部套件通过。
-- Agent 宿主：Claude Code 无头模式经 Skill + MCP 跑三条主线（只读 profile）均达到验收标准；新接入的配置中心与搜索插件（D-extend）同样合格；仅 CLI 对照组与回归运行记录见 `demo/evaluation.md`。
+- Agent 宿主：Claude Code 无头模式经 Skill + MCP 跑三条主线（只读 profile）均达到验收标准；新接入的配置中心与搜索插件（D-extend）、部署系统 + PostgreSQL（E-release-db）同样合格；仅 CLI 对照组与回归运行记录见 `demo/evaluation.md`。
 
 ## 已知限制
 

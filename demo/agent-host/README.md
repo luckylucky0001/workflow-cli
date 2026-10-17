@@ -13,6 +13,7 @@
 npm run build
 node dist/workctl.js skills install --dir .claude/skills      # 记录版本到 .claude/skills/.workctl-skills.json
 ./demo/agent-host/run-agent-demo.sh                            # 以无头模式运行三条主线，保存转录到 demo/agent-host/runs/
+./demo/agent-host/run-agent-demo.sh E-release-db               # 部署系统（Jenkins）+ PostgreSQL：失败发布、回滚计划、最耗时语句
 ./demo/agent-host/run-agent-demo.sh D-extend                   # 新接入能力：etcd 配置中心/服务发现 + demo-search 插件（需先安装插件并执行两个种子脚本）
 ```
 
