@@ -39,7 +39,7 @@
         "area": "endpoints",
         "item": "mysql/demo-mysql",
         "ok": true,
-        "detail": "127.0.0.1:13306 可达 (3ms)"
+        "detail": "127.0.0.1:13306 可达 (4ms)"
       },
       {
         "area": "credentials",
@@ -57,19 +57,19 @@
         "area": "endpoints",
         "item": "redis/demo-redis",
         "ok": true,
-        "detail": "127.0.0.1:16379 可达 (1ms)"
+        "detail": "127.0.0.1:16379 可达 (2ms)"
       },
       {
         "area": "endpoints",
         "item": "prometheus/demo-prometheus",
         "ok": true,
-        "detail": "127.0.0.1:19090 可达 (0ms)"
+        "detail": "127.0.0.1:19090 可达 (1ms)"
       },
       {
         "area": "endpoints",
         "item": "loki/demo-loki",
         "ok": true,
-        "detail": "127.0.0.1:13100 可达 (2ms)"
+        "detail": "127.0.0.1:13100 可达 (1ms)"
       },
       {
         "area": "credentials",
@@ -81,19 +81,19 @@
         "area": "endpoints",
         "item": "airflow/demo-airflow",
         "ok": true,
-        "detail": "127.0.0.1:18080 可达 (0ms)"
+        "detail": "127.0.0.1:18080 可达 (1ms)"
       },
       {
         "area": "endpoints",
         "item": "spark/demo-spark",
         "ok": true,
-        "detail": "127.0.0.1:18088 可达 (1ms)"
+        "detail": "127.0.0.1:18088 可达 (6ms)"
       },
       {
         "area": "endpoints",
         "item": "trino/demo-trino",
         "ok": true,
-        "detail": "127.0.0.1:18085 可达 (0ms)"
+        "detail": "127.0.0.1:18085 可达 (4ms)"
       },
       {
         "area": "endpoints",
@@ -105,13 +105,13 @@
         "area": "endpoints",
         "item": "kafka/demo-mq",
         "ok": true,
-        "detail": "127.0.0.1:19092 可达 (3ms)"
+        "detail": "127.0.0.1:19092 可达 (1ms)"
       },
       {
         "area": "endpoints",
         "item": "opensearch/demo-search",
         "ok": true,
-        "detail": "127.0.0.1:19200 可达 (3ms)"
+        "detail": "127.0.0.1:19200 可达 (0ms)"
       },
       {
         "area": "endpoints",
@@ -141,7 +141,7 @@
         "area": "endpoints",
         "item": "jenkins/demo-jenkins",
         "ok": true,
-        "detail": "127.0.0.1:18091 可达 (0ms)"
+        "detail": "127.0.0.1:18091 可达 (1ms)"
       },
       {
         "area": "plugins",
@@ -169,7 +169,7 @@
       {
         "system": "workctl",
         "adapter": "local",
-        "observed_at": "2026-10-17T16:57:39.681Z",
+        "observed_at": "2026-10-17T17:31:21.872Z",
         "relation": "derived"
       }
     ],
@@ -181,7 +181,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn3okg-808956",
+    "request_id": "req-mvcob0w8-5604b5",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -189,7 +189,7 @@
     "adapter": "local",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:57:39.616Z",
-    "duration_ms": 65
+    "started_at": "2026-10-17T17:31:21.800Z",
+    "duration_ms": 73
   }
 }

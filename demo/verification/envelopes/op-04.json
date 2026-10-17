@@ -5,10 +5,514 @@
   "data": {
     "operations": [
       {
-        "id": "op-20261017-93908d",
+        "id": "op-20261017-ed4610",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
         "status": "planned",
+        "created_at": "2026-10-17T17:32:13.948Z",
+        "expires_at": "2026-10-17T18:02:13.948Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-3347e6",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:32:05.926Z",
+        "expires_at": "2026-10-17T19:32:05.926Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-6f5daf",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id_created_at(customer_id, created_at)",
+        "status": "planned",
+        "created_at": "2026-10-17T17:31:47.941Z",
+        "expires_at": "2026-10-17T18:31:47.941Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-32871b",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:31:33.902Z",
+        "expires_at": "2026-10-17T18:01:33.902Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-bbc00b",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_created_at(created_at)",
+        "status": "planned",
+        "created_at": "2026-10-17T17:30:56.365Z",
+        "expires_at": "2026-10-17T18:30:56.365Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-9372da",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-17T17:30:56.344Z",
+        "expires_at": "2026-10-17T18:30:56.344Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-fda8cf",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #4（v1.4.1）",
+        "status": "cancelled",
+        "created_at": "2026-10-17T17:30:54.582Z",
+        "expires_at": "2026-10-17T18:00:54.582Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-994541",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:30:49.094Z",
+        "expires_at": "2026-10-17T18:00:49.094Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-e6cdd1",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #4（v1.4.1）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:19:38.541Z",
+        "expires_at": "2026-10-17T17:49:38.541Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-eca906",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #nonexistent-fuzz-xyz",
+        "status": "planned",
+        "created_at": "2026-10-17T17:19:38.159Z",
+        "expires_at": "2026-10-17T17:49:38.159Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-286c58",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #../../etc/passwd",
+        "status": "planned",
+        "created_at": "2026-10-17T17:19:37.702Z",
+        "expires_at": "2026-10-17T17:49:37.702Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-f6e58d",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #a'; DROP TABLE x; -- $(id) `id` | && >/tmp/p",
+        "status": "planned",
+        "created_at": "2026-10-17T17:19:37.333Z",
+        "expires_at": "2026-10-17T17:49:37.333Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-309591",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #订单-🙂-ü",
+        "status": "planned",
+        "created_at": "2026-10-17T17:19:37.236Z",
+        "expires_at": "2026-10-17T17:49:37.236Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-59f2b0",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #4（v1.4.1）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:19:36.719Z",
+        "expires_at": "2026-10-17T17:49:36.719Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-ffb060",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "status": "planned",
+        "created_at": "2026-10-17T17:19:36.446Z",
+        "expires_at": "2026-10-17T17:49:36.446Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-f77226",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #4（v1.4.1）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:19:34.877Z",
+        "expires_at": "2026-10-17T17:49:34.877Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-86e357",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #4（v1.4.1）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:19:32.770Z",
+        "expires_at": "2026-10-17T17:49:32.770Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-518ca9",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #4（v1.4.1）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:19:32.420Z",
+        "expires_at": "2026-10-17T17:49:32.420Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-361053",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #4（v1.4.1）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:19:31.002Z",
+        "expires_at": "2026-10-17T17:49:31.002Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-4a69ec",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #3（v1.4.2-bad）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:19:30.960Z",
+        "expires_at": "2026-10-17T17:49:30.960Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-2c982d",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:12:23.466Z",
+        "expires_at": "2026-10-17T19:12:23.466Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-dd65c1",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:10:50.355Z",
+        "expires_at": "2026-10-17T17:40:50.355Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-19e24e",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:10:48.538Z",
+        "expires_at": "2026-10-17T17:40:48.538Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-2a78dc",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:10:48.515Z",
+        "expires_at": "2026-10-17T17:40:48.515Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-b0af3b",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:10:47.690Z",
+        "expires_at": "2026-10-17T17:40:47.690Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-365625",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:10:14.408Z",
+        "expires_at": "2026-10-17T19:10:14.408Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-469c7e",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:10:12.913Z",
+        "expires_at": "2026-10-17T19:10:12.913Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-e83b77",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:10:12.889Z",
+        "expires_at": "2026-10-17T19:10:12.889Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-e12bd4",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:10:11.903Z",
+        "expires_at": "2026-10-17T19:10:11.903Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-ed5ca3",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:10:08.456Z",
+        "expires_at": "2026-10-17T19:10:08.456Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-f6f4dd",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:10:08.301Z",
+        "expires_at": "2026-10-17T19:10:08.301Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-7940c1",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:10:07.200Z",
+        "expires_at": "2026-10-17T19:10:07.200Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-bf09c6",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-17T17:08:34.613Z",
+        "expires_at": "2026-10-17T18:08:34.613Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-ee0890",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-17T17:08:33.800Z",
+        "expires_at": "2026-10-17T18:08:33.800Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-4337d9",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-17T17:08:31.244Z",
+        "expires_at": "2026-10-17T18:08:31.244Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-cb4b6d",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-17T17:08:30.983Z",
+        "expires_at": "2026-10-17T18:08:30.983Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-f2eacf",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-17T17:08:30.914Z",
+        "expires_at": "2026-10-17T18:08:30.914Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-15ba2d",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-17T17:08:30.410Z",
+        "expires_at": "2026-10-17T18:08:30.410Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-7a2ebc",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #4（v1.4.1）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:08:27.254Z",
+        "expires_at": "2026-10-17T17:38:27.254Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-266616",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:08:02.331Z",
+        "expires_at": "2026-10-17T17:38:02.331Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-68cc94",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:07:57.159Z",
+        "expires_at": "2026-10-17T19:07:57.159Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-14ae9b",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:07:02.278Z",
+        "expires_at": "2026-10-17T17:37:02.278Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-14b326",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:07:01.340Z",
+        "expires_at": "2026-10-17T17:37:01.340Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-5e0a5c",
+        "kind": "container.restart",
+        "title": "重启服务 nonexistent-fuzz-xyz（sandbox）的 0 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:07:00.723Z",
+        "expires_at": "2026-10-17T17:37:00.723Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-8b5fa1",
+        "kind": "container.restart",
+        "title": "重启服务 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx（sandbox）的 0 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:07:00.034Z",
+        "expires_at": "2026-10-17T17:37:00.034Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-d7a599",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:06:59.283Z",
+        "expires_at": "2026-10-17T17:36:59.283Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-54f716",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:06:59.090Z",
+        "expires_at": "2026-10-17T17:36:59.090Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-eeddfe",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:06:57.936Z",
+        "expires_at": "2026-10-17T17:36:57.936Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-24931f",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #4（v1.4.1）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:06:30.630Z",
+        "expires_at": "2026-10-17T17:36:30.630Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-e8ac5e",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_created_at(created_at)",
+        "status": "planned",
+        "created_at": "2026-10-17T17:03:37.715Z",
+        "expires_at": "2026-10-17T18:03:37.715Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-0b9d3b",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-17T17:03:37.694Z",
+        "expires_at": "2026-10-17T18:03:37.694Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261017-560414",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #4（v1.4.1）",
+        "status": "cancelled",
+        "created_at": "2026-10-17T17:03:35.634Z",
+        "expires_at": "2026-10-17T17:33:35.634Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-3170f7",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-17T17:03:34.970Z",
+        "expires_at": "2026-10-17T17:33:34.970Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-a0a221",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-17T17:02:00.324Z",
+        "expires_at": "2026-10-17T19:02:00.324Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-69ec46",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #1（v1.4.0）",
+        "status": "succeeded",
+        "created_at": "2026-10-17T16:59:44.683Z",
+        "expires_at": "2026-10-17T17:29:44.683Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-5e094a",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #3（v1.4.2-bad）",
+        "status": "expired",
+        "created_at": "2026-10-17T16:59:43.712Z",
+        "expires_at": "2026-10-17T17:29:43.712Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261017-93908d",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "succeeded",
         "created_at": "2026-10-17T16:58:33.352Z",
         "expires_at": "2026-10-17T17:28:33.352Z",
         "executable": true
@@ -35,7 +539,7 @@
         "id": "op-20261017-06a290",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-17T16:57:51.872Z",
         "expires_at": "2026-10-17T17:27:51.872Z",
         "executable": true
@@ -48,7 +552,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T16:58:34.666Z",
+        "observed_at": "2026-10-17T17:32:15.245Z",
         "relation": "explicit"
       }
     ],
@@ -59,7 +563,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn4v0u-310a80",
+    "request_id": "req-mvcoc63t-deaff9",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -67,7 +571,7 @@
     "adapter": "plan-store",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:58:34.638Z",
-    "duration_ms": 28
+    "started_at": "2026-10-17T17:32:15.209Z",
+    "duration_ms": 36
   }
 }

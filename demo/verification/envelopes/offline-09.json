@@ -3,9 +3,9 @@
   "status": "success",
   "capability": "offline.backfill.plan",
   "data": {
-    "plan_id": "op-20261017-eef4d1",
+    "plan_id": "op-20261017-3347e6",
     "status": "planned",
-    "expires_at": "2026-10-17T18:58:25.335Z",
+    "expires_at": "2026-10-17T19:32:05.926Z",
     "executable": true,
     "workflow": "demo-daily-orders",
     "targets": [
@@ -115,7 +115,7 @@
         "source_sha256": "11501b7deba7b46586851c578bd6b8202e9210d2e053a20da5852f3fe3bc0317",
         "file_token": ".eJw1ydEKgCAMBdB_8d3uJ4m0raTpYiPEvw-CzutJOK0znmDHNL9EbeZdG4i7wUS0Dc7_BKge8V2h2nQVc2KP7V7pBRP6HDQ.883vzQSPFsApVxxaNh8NK4JEmIk",
         "fileloc": "/home/user/workflow-cli/demo/offline-workflows/dags/demo_daily_orders.py",
-        "last_parsed_time": "2026-10-17T16:58:14.219727+00:00",
+        "last_parsed_time": "2026-10-17T17:32:04.277473+00:00",
         "basis": "source_sha256 = sha256(GET /api/v1/dagSources/{file_token})，即调度器当前解析到的 DAG 文件内容；file_token 只标识文件位置，不代表内容版本",
         "note": "重跑与新触发的 run 使用调度器当前解析的 DAG 代码，而非原 run 当时的代码"
       },
@@ -193,7 +193,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T16:58:24.468Z",
+        "observed_at": "2026-10-17T17:32:05.202Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/details",
         "version": "2.10.5",
@@ -202,7 +202,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T16:58:24.468Z",
+        "observed_at": "2026-10-17T17:32:05.202Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns",
         "version": "2.10.5",
@@ -211,7 +211,7 @@
       {
         "system": "catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T16:58:24.480Z",
+        "observed_at": "2026-10-17T17:32:05.210Z",
         "endpoint": "catalog/demo",
         "method": "produced_by.workflow=demo-daily-orders",
         "relation": "explicit"
@@ -219,7 +219,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T16:58:24.628Z",
+        "observed_at": "2026-10-17T17:32:05.311Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "stat+readdir analytics/daily_orders/dt=2026-10-14",
         "relation": "derived"
@@ -227,7 +227,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T16:58:25.319Z",
+        "observed_at": "2026-10-17T17:32:05.915Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/pools/{pool}",
         "version": "2.10.5",
@@ -243,7 +243,7 @@
     ]
   },
   "context": {
-    "request_id": "req-mvcn4mut-dce5d9",
+    "request_id": "req-mvcoby5g-dba11e",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -251,7 +251,7 @@
     "adapter": "airflow-rest-v1|v2",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:58:24.053Z",
-    "duration_ms": 1283
+    "started_at": "2026-10-17T17:32:04.900Z",
+    "duration_ms": 1027
   }
 }

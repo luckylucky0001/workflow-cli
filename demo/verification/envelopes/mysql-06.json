@@ -6,9 +6,9 @@
     "instance": "demo-mysql",
     "aggregation": "window_delta",
     "window": {
-      "start": "2026-10-17T16:57:54.237Z",
-      "end": "2026-10-17T16:58:04.242Z",
-      "duration_ms": 10005
+      "start": "2026-10-17T17:31:36.294Z",
+      "end": "2026-10-17T17:31:46.298Z",
+      "duration_ms": 10004
     },
     "cumulative_since": null,
     "database": null,
@@ -27,7 +27,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T16:58:04.246Z",
+        "observed_at": "2026-10-17T17:31:46.303Z",
         "endpoint": "mysql/demo-mysql",
         "method": "performance_schema.events_statements_summary_by_digest (t1 − t0)",
         "version": "8.4.11",
@@ -39,19 +39,19 @@
       "limit": 10,
       "truncated": false,
       "window": {
-        "start": "2026-10-17T16:57:54.237Z",
-        "end": "2026-10-17T16:58:04.242Z"
+        "start": "2026-10-17T17:31:36.294Z",
+        "end": "2026-10-17T17:31:46.298Z"
       },
       "notes": [
         "digest_text 最长 1024 字节（max_digest_length），超出部分被截断",
-        "摘要表占用 32/10000 行（performance_schema_digests_size）；表满后新语句归入 DIGEST=NULL 行",
+        "摘要表占用 64/10000 行（performance_schema_digests_size）；表满后新语句归入 DIGEST=NULL 行",
         "已排除查询 events_statements_summary_by_digest 的语句（含 workctl 自身采样）；窗口内没有执行的摘要不出现"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn3zsp-5cee6f",
+    "request_id": "req-mvcobc0z-6108c5",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -59,7 +59,7 @@
     "adapter": "mysql-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:57:54.169Z",
-    "duration_ms": 10079
+    "started_at": "2026-10-17T17:31:36.227Z",
+    "duration_ms": 10077
   }
 }

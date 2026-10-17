@@ -13,10 +13,10 @@
       "matched_by": "label workctl.service=demo-order（binding attribute container_label）"
     },
     "window": {
-      "start": "2026-10-17T10:57:43.719Z",
-      "end": "2026-10-17T16:57:43.719Z"
+      "start": "2026-10-17T11:31:25.791Z",
+      "end": "2026-10-17T17:31:25.791Z"
     },
-    "visible_since": "2026-10-17T10:57:43.719Z",
+    "visible_since": "2026-10-17T11:31:25.791Z",
     "daemon_buffer_full": false,
     "events": [],
     "counts_by_action": {}
@@ -27,9 +27,9 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T16:57:43.736Z",
+        "observed_at": "2026-10-17T17:31:25.812Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
-        "method": "GET /events?since=1792234663&until=1792256263（本地按标签 workctl.service=demo-order 过滤）",
+        "method": "GET /events?since=1792236685&until=1792258285（本地按标签 workctl.service=demo-order 过滤）",
         "relation": "explicit",
         "version": "29.8.2 (API 1.56)"
       }
@@ -37,8 +37,8 @@
     "coverage": {
       "complete": true,
       "window": {
-        "start": "2026-10-17T10:57:43.719Z",
-        "end": "2026-10-17T16:57:43.719Z"
+        "start": "2026-10-17T11:31:25.791Z",
+        "end": "2026-10-17T17:31:25.791Z"
       },
       "scope": "守护进程内存中保留的事件（窗口 6h）",
       "notes": [
@@ -50,7 +50,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn3rom-651624",
+    "request_id": "req-mvcob3x5-83a759",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -58,7 +58,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:57:43.654Z",
-    "duration_ms": 83
+    "started_at": "2026-10-17T17:31:25.721Z",
+    "duration_ms": 91
   }
 }

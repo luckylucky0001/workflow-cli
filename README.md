@@ -13,8 +13,8 @@
 
 | 项目 | 结果 | 证据 |
 | --- | --- | --- |
-| 单元 + 契约测试 | 639 个全部通过（`npm test`；契约测试检查：设计稿命令全覆盖、输出 Schema、指南/Skill 存在、示例命令有效、生成文档与定义一致、MCP 工具与能力一致） | `npm test` |
-| 真实环境集成测试 | `WORKCTL_IT=1 WORKCTL_AF3=1 WORKCTL_K8S=1 npm test`：731/731 通过 | MySQL 8.4.11、PostgreSQL 16.15、Redis 7.4.11、Kafka 3.9.1、OpenSearch 2.19.3、etcd 3.5.21、Nacos 2.4.3、Consul 1.20.6、Jenkins 2.541.3、Airflow 2.10.5 / 3.3.2、Spark 3.5.5、Trino 476、Docker 29.8.2、Prometheus 3.5.0、Loki 3.5.5、k3s v1.31.4 |
+| 单元 + 契约测试 | 641 个全部通过（`npm test`；契约测试检查：设计稿命令全覆盖、输出 Schema、指南/Skill 存在、示例命令有效、生成文档与定义一致、MCP 工具与能力一致） | `npm test` |
+| 真实环境集成测试 | `WORKCTL_IT=1 WORKCTL_AF3=1 WORKCTL_K8S=1 npm test`：733/733 通过（最终代码，17:31 UTC 复跑） | MySQL 8.4.11、PostgreSQL 16.15、Redis 7.4.11、Kafka 3.9.1、OpenSearch 2.19.3、etcd 3.5.21、Nacos 2.4.3、Consul 1.20.6、Jenkins 2.541.3、Airflow 2.10.5 / 3.3.2、Spark 3.5.5、Trino 476、Docker 29.8.2、Prometheus 3.5.0、Loki 3.5.5、k3s v1.31.4 |
 | 逐能力真实调用 | 74/74 用例通过（含插件、补数计划、隔离环境中真实执行重启并记录状态迁移、预期错误码） | [demo/verification/report.md](demo/verification/report.md) |
 | 交叉审查与契约测评 | 各领域与插件均由非作者复审，累计修复 115 个缺陷并补回归测试（最近一轮 57 个：etcd 5、搜索插件 8、Nacos/Consul 12、部署 14、PostgreSQL 5、契约模糊测试 10、核心复审 1、其他 2），如只读防护绕过（Spark SQL `reflect`、OpenSearch `wrapper`/`terms_set` 脚本、PostgreSQL `U&"..."` 标识符与 `ts_rewrite`）、凭据泄露（URL 中的用户名密码、Basic 头、未声明类型的 Nacos 配置、嵌套 JSON 字段）、覆盖不完整却报完整（截断、ACL 过滤、红色分片）、回滚竞态；契约模糊测试对 87 个能力跑 2366 个 CLI 用例 + 1179 次 MCP 调用，最终 0 违例；完整复位后复跑（含 postgres / deploy）仍 0 违例 | git 历史、[demo/verification/contract-fuzz.md](demo/verification/contract-fuzz.md) |
 | Kubernetes provider | 单节点 k3s v1.31.4 上 10/10（身份探测、Pod/Deployment 状态、事件、metrics-server 快照、容量、真实滚动重启）；Docker 与 Kubernetes 两种 provider 输出通过同一 Schema | [demo/verification/report.k8s.md](demo/verification/report.k8s.md) |

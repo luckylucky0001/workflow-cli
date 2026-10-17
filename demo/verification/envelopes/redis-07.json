@@ -20,50 +20,50 @@
     },
     "hot_keys": [
       {
-        "key": "demo:customer:174:recent",
-        "lfu_counter": 3
+        "key": "demo:order:271",
+        "lfu_counter": 5
       },
       {
-        "key": "demo:order:139",
-        "lfu_counter": 3
-      },
-      {
-        "key": "demo:order:1673",
-        "lfu_counter": 3
-      },
-      {
-        "key": "demo:order:1264",
-        "lfu_counter": 3
-      },
-      {
-        "key": "demo:customer:369:profile",
-        "lfu_counter": 2
+        "key": "demo:order:636",
+        "lfu_counter": 4
       },
       {
         "key": "demo:order:2160",
-        "lfu_counter": 2
+        "lfu_counter": 1
+      },
+      {
+        "key": "demo:customer:369:profile",
+        "lfu_counter": 0
       },
       {
         "key": "demo:order:1126",
-        "lfu_counter": 2
+        "lfu_counter": 0
       },
       {
         "key": "demo:customer:145:profile",
-        "lfu_counter": 2
+        "lfu_counter": 0
       },
       {
-        "key": "demo:order:2636",
-        "lfu_counter": 2
+        "key": "demo:order:2365",
+        "lfu_counter": 0
       },
       {
-        "key": "demo:order:2002",
-        "lfu_counter": 2
+        "key": "demo:order:2944",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:order:1768",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:order:440",
+        "lfu_counter": 0
       }
     ],
     "counter_distribution": {
-      "p50": 2,
-      "p90": 2,
-      "max": 3
+      "p50": 0,
+      "p90": 0,
+      "max": 5
     }
   },
   "error": null,
@@ -72,7 +72,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-17T16:58:13.714Z",
+        "observed_at": "2026-10-17T17:31:55.673Z",
         "endpoint": "redis/demo-redis",
         "method": "SCAN MATCH demo:* + OBJECT FREQ",
         "version": "7.4.11",
@@ -91,7 +91,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn4euo-b69a9f",
+    "request_id": "req-mvcobqzy-21d6bd",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -99,7 +99,7 @@
     "adapter": "redis-client",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:58:13.680Z",
-    "duration_ms": 35
+    "started_at": "2026-10-17T17:31:55.630Z",
+    "duration_ms": 45
   }
 }
