@@ -1,4 +1,4 @@
-# /home/user/workflow-cli/demo/agent-host/runs/B-latency.cli-only.json
+# demo/agent-host/runs/B-latency.cli-only.json
 
 - 工具调用次数：10；workctl 调用：9
 - 耗时：69431 ms；宿主报告成本：0.21206380000000002 USD；轮次：11；结束状态：success
@@ -11,7 +11,7 @@
 1. `Bash: for c in "redis instance get --help" "redis stats sample --help" "redis slowlog list --help" "mysql instance get --help" "mysql slowlog list --help" "mysql statement summary --help" "mysql session --h`
 1. `Bash: workctl redis instance get --help; workctl redis stats sample --help; workctl redis slowlog list --help; workctl mysql instance get --help; workctl mysql slowlog list --help; workctl mysql statement s`
 1. `Bash: workctl redis instance get --instance demo-redis; echo ----; workctl redis stats sample --instance demo-redis --duration 10s; echo ----; workctl redis slowlog list --instance demo-redis --limit 10; ec`
-1. `Bash: cd /tmp; workctl --json log query --service demo-order --window 30m --level info --limit 2000 > /tmp/claude-0/-tmp-tmp-46019j1ZT4/45bac8d8-3b18-5f38-993e-83a45105273d/scratchpad/info.json; python3 -I `
+1. `Bash: cd /tmp; workctl --json log query --service demo-order --window 30m --level info --limit 2000 > <host-scratch> python3 -I `
 1. `Bash: workctl --json log query --service demo-order --window 30m --level info --limit 3`
 1. `Bash: workctl --json log query --service demo-order --window 30m --level info --limit 2000 | python3 -I -c "`
 1. `Bash: workctl log query --service demo-order --window 30m --contains customer --limit 6 --order newest; workctl log query --service demo-order --window 30m --contains '"cache_mode":"normal"' --limit 4 --ord`

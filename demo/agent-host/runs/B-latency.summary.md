@@ -25,10 +25,10 @@
 1. `MCP: observability_log_query {"service":"demo-order","window":"3m","level":"info","limit":8}`
 1. `MCP: observability_log_query {"service":"demo-order","window":"2m","contains":"/customers/","limit":40}`
 1. `ToolSearch: {"query":"select:mcp__workctl__mysql_index_list,mcp__workctl__mysql_query_explain","max_results":5}`
-1. `Write: {"file_path":"/tmp/claude-0/-home-user-workflow-cli/45bac8d8-3b18-5f38-993e-83a45105273d/scratchpad/q.sql","content":"SELECT id, status, amount, created_at FROM`
+1. `Write: {"file_path":"<host-scratch>","content":"SELECT id, status, amount, created_at FROM`
 1. `MCP: mysql_index_list {"database":"demo","table":"orders"}`
 1. `MCP: observability_trace_get {"id":"5d648f8033c287a6655a62b14c4b19bc","service":"demo-order","window":"1h"}`
-1. `MCP: mysql_query_explain {"database":"demo","sql_file":"/tmp/claude-0/-home-user-workflow-cli/45bac8d8-3b18-5f38-993e-83a45105273d/scratchpad/q.sql"}`
+1. `MCP: mysql_query_explain {"database":"demo","sql_file":"<host-scratch>"}`
 
 ## 最终回答
 
