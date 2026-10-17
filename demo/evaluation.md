@@ -89,7 +89,7 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 | 验收项 | 结论 | 证据 |
 | --- | --- | --- |
 | 基础设施、中间件、离线链路均有实际演示路径 | ✅ | [walkthrough.md](walkthrough.md) 主线 A/B/C；Agent 宿主实跑 |
-| MySQL 与 Redis 作为独立领域被发现和调用 | ✅ | `capability list --domain mysql|redis`；verification mysql-*/redis-* |
+| MySQL 与 Redis 作为独立领域被发现和调用 | ✅ | `capability list --domain mysql`、`--domain redis`；verification mysql-*/redis-* |
 | 实例管理、原生访问、观测接口及权限前置条件清晰 | ✅ | 能力 `prerequisites`；`access check`；`auth status --probe` 显示实际身份与 SHOW GRANTS |
 | MySQL 计划估计、真实执行和采样统计语义正确 | ✅ | `query explain`（估计，不执行）/ `query analyze`（会执行，只读限时）/ `statement summary`（窗口差分，0 为累计并标注） |
 | Redis 命中统计、采样覆盖、大小和热度分别表达 | ✅ | `stats sample`（差分、重启检测、分母为 0 时为 null）、`key sample`（SCAN 预算与覆盖）、`key inspect`（MEMORY USAGE）、`key hot`（LFU 计数，非 QPS） |
