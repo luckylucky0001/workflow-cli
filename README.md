@@ -15,9 +15,11 @@
 | --- | --- | --- |
 | 单元 + 契约测试 | 全部通过（契约测试检查：设计稿命令全覆盖、输出 Schema、指南/Skill 存在、示例命令有效、生成文档与定义一致、MCP 工具与能力一致） | `npm test` |
 | 真实环境集成测试 | `WORKCTL_IT=1 npm test` 全部通过 | MySQL 8.4.11、Redis 7.4.11、Kafka 3.9.1、Airflow 2.10.5、Spark 3.5.5、Docker 29.8.2、Prometheus 3.5.0 |
-| 逐能力真实调用 | 见报告 | [demo/verification/report.md](demo/verification/report.md) |
+| 逐能力真实调用 | 74/74 用例通过（含插件、补数计划、隔离环境中真实执行重启并记录状态迁移、预期错误码） | [demo/verification/report.md](demo/verification/report.md) |
+| 交叉审查 | 各领域由非作者复审，修复 46 个缺陷并补回归测试（如优化器提示绕过执行时限、Spark SQL `reflect`/文件查询绕过只读防护、重启后 unhealthy 仍判成功、组合调用绕过执行授权） | git 历史 “Cross-review fixes” |
+| 环境可复位 | Docker 部分 `docker compose down -v` 后 `up.sh` 约 20 秒重建（含 30 万行合成数据）并重新验证 74/74 | `demo/environment/up.sh`、`reset.sh` |
 | 三种消费者同一契约 | CLI == 脚本 API == MCP（内置 Redis 能力与插件 Kafka 能力） | `demo/scenarios/reuse/same-contract.mjs` |
-| Agent 宿主 | Claude Code 无头模式经 Skill + MCP 跑三条主线（只读 profile） | [demo/agent-host/runs/](demo/agent-host/runs/) |
+| Agent 宿主 | Claude Code 无头模式经 Skill + MCP 跑三条主线（只读 profile），三条均达到验收标准；另有仅 CLI 对照组 | [demo/agent-host/runs/](demo/agent-host/runs/)、[demo/evaluation.md](demo/evaluation.md) |
 | 复用 | Skill × 能力矩阵、能力组合 | [docs/reuse-matrix.md](docs/reuse-matrix.md) |
 
 没有客户环境验证；没有提效百分比（评估方法与已测数据见 [demo/evaluation.md](demo/evaluation.md)）。
