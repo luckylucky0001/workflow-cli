@@ -1,6 +1,6 @@
-# /home/user/workflow-cli/demo/agent-host/runs/C-offline.json
+# demo/agent-host/runs/C-offline.json
 
-- 工具调用次数：13；workctl 调用：12
+- 工具调用次数：13；workctl 调用：11
 - 耗时：37276 ms；宿主报告成本：0.2494943 USD；轮次：15；结束状态：success
 
 ## 调用序列

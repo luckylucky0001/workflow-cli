@@ -22,7 +22,7 @@ for (const e of events) {
 }
 const result = events.find((e) => e.type === 'result') ?? {};
 console.log(`# ${process.argv[2]}\n`);
-console.log(`- 工具调用次数：${calls.length}；workctl 调用：${calls.filter((c) => /workctl|MCP:/.test(c)).length}`);
+console.log(`- 工具调用次数：${calls.length}；workctl 调用：${calls.filter((c) => c.startsWith("MCP:") || (c.startsWith("Bash:") && /workctl/.test(c))).length}`);
 console.log(`- 耗时：${result.duration_ms ?? '?'} ms；宿主报告成本：${result.total_cost_usd ?? '?'} USD；轮次：${result.num_turns ?? '?'}；结束状态：${result.subtype ?? '?'}`);
 console.log('\n## 调用序列\n');
 for (const c of calls) console.log(`1. \`${c.replace(/`/g, "'")}\``);

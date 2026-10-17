@@ -1,6 +1,6 @@
-# /home/user/workflow-cli/demo/agent-host/runs/B-latency.json
+# demo/agent-host/runs/B-latency.json
 
-- 工具调用次数：24；workctl 调用：22
+- 工具调用次数：24；workctl 调用：20
 - 耗时：58896 ms；宿主报告成本：0.3839908 USD；轮次：26；结束状态：success
 
 ## 调用序列

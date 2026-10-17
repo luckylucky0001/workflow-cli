@@ -1,6 +1,6 @@
-# /home/user/workflow-cli/demo/agent-host/runs/A-infra.json
+# demo/agent-host/runs/A-infra.json
 
-- 工具调用次数：10；workctl 调用：10
+- 工具调用次数：10；workctl 调用：9
 - 耗时：24282 ms；宿主报告成本：0.2553998 USD；轮次：11；结束状态：success
 
 ## 调用序列
