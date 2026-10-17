@@ -70,6 +70,16 @@ workctl network backend list --service <svc>            # 业务探测
 ```
 执行器的 `verified` 只基于 inspect（进程运行、启动时间更新、健康检查状态）；业务恢复以探测与指标为准。失败时用 `container event list` 和 `log query` 查看原因，不要自动重试。
 
+## Docker 与 Kubernetes
+
+同一组命令按资源绑定自动选择 provider（`data.provider`、`selector.matched_by` 说明依据）。Kubernetes 下注意：
+
+- 工作负载 = Deployment/StatefulSet + Pod；`containers[]` 每项为 `<pod>/<container>`，OOM 来自 `lastState.terminated.reason`。
+- `container event list` 受 apiserver `event-ttl`（默认 1h）限制，窗口更长时 `coverage.complete=false`，不能说“没有事件”。
+- `container stats get` / `capacity summary` 依赖 metrics-server；未部署返回 `COLLECTION_DISABLED`，刚启动无样本时为 partial。
+- 重启是滚动重启（`restartedAt` 注解），执行器等待 rollout 完成；`TIMEOUT` 表示 rollout 仍在进行，先 `operation get` / `container workload get` 复核，不要盲目重试。
+- 403 的 `details.rbac` 给出缺少的 verb/resource，按此申请最小权限。
+
 ## 报告格式
 
 - 状态结论（事实）+ 证据（命令、观测时间、来源版本）。
