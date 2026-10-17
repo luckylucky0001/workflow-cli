@@ -116,7 +116,7 @@ lines.push('');
 lines.push(`生成时间 ${new Date().toISOString()}，命令 \`node demo/scenarios/reuse/log-provider-swap.mjs\`（真实调用：同一个 demo-order 容器，同一批请求）。`);
 lines.push(`docker = \`${SIDES[0].config}\`（profile demo，默认 provider，Docker Engine API 读 json-file 日志）；loki = \`${SIDES[1].config}\`（profile demo，\`defaults.logs: loki\`，Loki @ 127.0.0.1:13100，Promtail docker_sd_configs 推送）。`);
 lines.push(`实际版本：${versions.join('；')}。`);
-lines.push(`流量：${traffic}。入库等待：Docker 最新 access 日志 ${target ?? '无'}，Loki 在 ${waitedMs}ms 内可见（Loki 最新 ${lokiNewest ?? '无'}）。两边每个用例同时调用，窗口同为“截至当前”。`);
+lines.push(`流量：${traffic}。入库等待：流量结束后 Docker 最新 access 日志 ${target ?? '无'}；开始等待后 ${waitedMs}ms（含查询耗时）Loki 最新 access 日志为 ${lokiNewest ?? '无'}${target && lokiNewest && lokiNewest >= target ? '，已追上' : '，未追上'}；之后再等 1.5s。两边每个用例同时调用，窗口同为“截至当前”。`);
 lines.push('');
 lines.push('| 用例 | 状态 docker / loki | 适配器 · 实际版本 | schema 均通过 | 顶层 data 键一致 | 条目数 docker / loki | 统计 docker/loki | 重合 | 截断/完整 docker / loki |');
 lines.push('|---|---|---|---|---|---|---|---|---|');

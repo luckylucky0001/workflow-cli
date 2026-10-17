@@ -9,7 +9,10 @@
     },
     "engine": {
       "type": "string",
-      "const": "spark"
+      "enum": [
+        "spark",
+        "trino"
+      ]
     },
     "state": {
       "type": "string",
@@ -19,7 +22,11 @@
       "type": "string"
     },
     "pid": {
-      "type": "number"
+      "description": "Spark 提交进程 pid；Trino 无本地进程，为 null",
+      "type": [
+        "number",
+        "null"
+      ]
     },
     "sql_sha256": {
       "type": "string"
@@ -35,6 +42,20 @@
     },
     "next": {
       "type": "string"
+    },
+    "engine_query_id": {
+      "description": "Trino query id（仅 Trino）",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "engine_state": {
+      "description": "提交返回时 Trino 报告的状态（仅 Trino）",
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [

@@ -9,7 +9,7 @@
 | 核心（发现、资源、身份、操作） | 13 | 0 |
 | 基础设施 | 14 | 7 |
 | 中间件 | 19 | 11 |
-| 离线链路 | 21 | 5 |
+| 离线链路 | 21 | 4 |
 
 ## 核心（发现、资源、身份、操作）
 
@@ -71,15 +71,15 @@ Docker 卷与本机文件系统元数据；对象存储与 HDFS 规划中。指�
 
 ### 可观测性（`observability`）
 
-指标（Prometheus）、容器日志与日志派生调用链；Loki / Jaeger / Tempo 规划中。指南：[docs/guides/observability.md](../docs/guides/observability.md)；Skill：`skills/service-latency-investigation`
+指标（Prometheus）、日志（Docker 容器日志 / Loki）与日志派生调用链；Jaeger / Tempo 规划中。指南：[docs/guides/observability.md](../docs/guides/observability.md)；Skill：`skills/service-latency-investigation`
 
 | 能力 | 命令 | 操作 | 状态 | 适配器 | 版本 |
 | --- | --- | --- | --- | --- | --- |
-| `observability.log.query` | `workctl log query` | read | 已支持 | docker-engine-api | 1.0.0 |
+| `observability.log.query` | `workctl log query` | read | 已支持 | docker-engine-api\|loki-http-api | 1.0.0 |
 | `observability.metric.list` | `workctl metric list` | read | 已支持 | prometheus-http-api | 1.0.0 |
 | `observability.metric.query` | `workctl metric query` | read | 已支持 | prometheus-http-api | 1.0.0 |
 | `observability.quota.get` | `workctl quota get` | read | 待接入 | quota-provider (待接入) | 1.0.0 |
-| `observability.trace.get` | `workctl trace get` | diagnose | 已支持 | docker-engine-api | 1.0.0 |
+| `observability.trace.get` | `workctl trace get` | diagnose | 已支持 | docker-engine-api\|loki-http-api | 1.0.0 |
 
 ### 配置与服务发现（`config`）
 
@@ -198,15 +198,14 @@ Spark 应用（history server REST）、阶段、driver 日志与计算资源池
 
 ### SQL 提交（`sql`）
 
-向计算引擎异步提交只读 SQL 查询并跟踪状态（Spark SQL）。指南：[docs/guides/compute.md](../docs/guides/compute.md)；Skill：`skills/offline-operations`
+向计算引擎异步提交只读 SQL 查询并跟踪状态（Spark SQL / Trino）。指南：[docs/guides/compute.md](../docs/guides/compute.md)；Skill：`skills/offline-operations`
 
 | 能力 | 命令 | 操作 | 状态 | 适配器 | 版本 |
 | --- | --- | --- | --- | --- | --- |
-| `sql.query.cancel` | `workctl sql query cancel` | execute | 已支持 | spark-submit-local | 1.0.0 |
-| `sql.query.get` | `workctl sql query get` | read | 已支持 | spark-submit-local | 1.0.0 |
-| `sql.query.submit` | `workctl sql query submit` | read | 已支持 | spark-submit-local | 1.0.0 |
+| `sql.query.cancel` | `workctl sql query cancel` | execute | 已支持 | spark-submit-local\|trino-http | 1.0.0 |
+| `sql.query.get` | `workctl sql query get` | read | 已支持 | spark-submit-local\|trino-http | 1.0.0 |
+| `sql.query.submit` | `workctl sql query submit` | read | 已支持 | spark-submit-local\|trino-http | 1.0.0 |
 | `sql.query.submit-hive` | `workctl sql query submit-hive` | read | 待接入 | hiveserver2-thrift | 1.0.0 |
-| `sql.query.submit-trino` | `workctl sql query submit-trino` | read | 待接入 | trino-rest | 1.0.0 |
 
 ### 数据目录、分区、血缘与质量（`data`）
 

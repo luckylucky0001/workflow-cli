@@ -7,6 +7,8 @@ server:
   grpc_listen_port: 0
   log_level: warn
 
+# positions live in the container filesystem: a recreated promtail container starts again
+# from the beginning of each container's retained json-file logs
 positions:
   filename: /tmp/positions.yaml
 

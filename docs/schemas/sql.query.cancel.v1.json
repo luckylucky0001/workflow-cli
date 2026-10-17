@@ -24,6 +24,24 @@
         "string",
         "null"
       ]
+    },
+    "engine_query_id": {
+      "description": "Trino query id（仅 Trino）",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "engine_state": {
+      "description": "取消后协调节点报告的状态（仅 Trino）",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "confirmed": {
+      "description": "仅 Trino：协调节点已确认 USER_CANCELED；false 时 state=cancel_requested",
+      "type": "boolean"
     }
   },
   "required": [

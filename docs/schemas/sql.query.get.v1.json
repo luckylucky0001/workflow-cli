@@ -9,7 +9,10 @@
     },
     "engine": {
       "type": "string",
-      "const": "spark"
+      "enum": [
+        "spark",
+        "trino"
+      ]
     },
     "state": {
       "type": "string",
@@ -127,6 +130,26 @@
             },
             "message": {
               "type": "string"
+            },
+            "error_type": {
+              "description": "Trino errorType: USER_ERROR / INTERNAL_ERROR / INSUFFICIENT_RESOURCES / EXTERNAL",
+              "type": "string"
+            },
+            "error_code": {
+              "type": "number"
+            },
+            "sql_state": {
+              "type": "string"
+            },
+            "line": {
+              "type": "number"
+            },
+            "column": {
+              "type": "number"
+            },
+            "code": {
+              "description": "对应的 workctl 错误码（仅 Trino）",
+              "type": "string"
             }
           },
           "required": [
@@ -147,6 +170,166 @@
           "items": {
             "type": "string"
           }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "engine_query_id": {
+      "description": "Trino query id",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "engine_state": {
+      "description": "引擎原始状态（Trino: QUEUED/PLANNING/STARTING/RUNNING/FINISHING/FINISHED/FAILED）",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "engine_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "column_types": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "catalog": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "schema": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "stats": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "elapsed_ms": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "queued_ms": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "cpu_ms": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "wall_ms": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "processed_rows": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "processed_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "physical_input_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "peak_memory_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "spilled_bytes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "completed_splits": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "total_splits": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "nodes": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "progress_pct": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "source": {
+              "type": "string",
+              "enum": [
+                "statement",
+                "query-info"
+              ],
+              "description": "statement=结果页 stats；query-info=GET /v1/query/{id}"
+            }
+          },
+          "required": [
+            "elapsed_ms",
+            "queued_ms",
+            "cpu_ms",
+            "wall_ms",
+            "processed_rows",
+            "processed_bytes",
+            "physical_input_bytes",
+            "peak_memory_bytes",
+            "spilled_bytes",
+            "completed_splits",
+            "total_splits",
+            "nodes",
+            "progress_pct",
+            "source"
+          ],
+          "additionalProperties": false
         },
         {
           "type": "null"

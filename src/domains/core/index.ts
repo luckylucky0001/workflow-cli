@@ -23,7 +23,7 @@ export const DOMAIN_ENDPOINT_KINDS: Record<string, string[]> = {
   container: ['docker', 'kubernetes'],
   network: ['docker'],
   storage: ['docker'],
-  observability: ['prometheus', 'docker'],
+  observability: ['prometheus', 'docker', 'loki'],
   mq: ['kafka'],
 };
 
@@ -35,6 +35,7 @@ export const ENDPOINT_AUTH_PROVIDERS: Record<string, string> = {
   docker: 'docker-socket',
   kubernetes: 'kubernetes-bearer',
   trino: 'trino-basic',
+  loki: 'none | basic (tenant header optional)',
   prometheus: 'none',
   catalog: 'filesystem',
   kafka: 'kafka-profile',

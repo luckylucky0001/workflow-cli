@@ -476,7 +476,7 @@ workctl network dns get --name localhost
 
 查询服务容器在时间窗口内的日志（解析结构化 JSON，按级别/关键字/trace_id 过滤）
 
-- 能力：`observability.log.query` v1.0.0；操作类型：**read**；适配器：docker-engine-api；认证：docker-socket
+- 能力：`observability.log.query` v1.0.0；操作类型：**read**；适配器：docker-engine-api|loki-http-api；认证：docker-socket
 - 输出 Schema：[docs/schemas/observability.log.query.v1.json](../docs/schemas/observability.log.query.v1.json)；指南：[docs/guides/observability.md](../docs/guides/observability.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -500,7 +500,7 @@ workctl network dns get --name localhost
 
 - 日志来自 Docker /containers/{id}/logs（stdout+stderr 多路复用流已解帧）；保留期取决于日志驱动与轮转配置，容器重建后旧日志不可见
 - 默认 order=newest：返回窗口内最新的 limit 条，按时间倒序；truncated=true 表示匹配条数超过 limit
-- Loki / 集中日志平台是规划中的 provider；当前只读 Docker 主机上的容器日志
+- provider 由资源绑定 attributes.log_provider 或 profile defaults.logs 决定（docker 默认 | loki）；Loki 经 LogQL query_range 查询，输出契约相同，差异（入库延迟、保留期、limit 口径）见指南
 
 ```bash
 workctl log query --service demo-order --window 15m --level error
@@ -567,7 +567,7 @@ workctl metric query --resource demo-order --promql 'sum by (route) (rate(http_r
 
 扫描资源绑定中服务的容器日志，收集 kind=span 记录与带 trace_id 的日志行，重建父子关系。这是日志派生视图，不是追踪后端。
 
-- 能力：`observability.trace.get` v1.0.0；操作类型：**diagnose**；适配器：docker-engine-api；认证：docker-socket
+- 能力：`observability.trace.get` v1.0.0；操作类型：**diagnose**；适配器：docker-engine-api|loki-http-api；认证：docker-socket
 - 输出 Schema：[docs/schemas/observability.trace.get.v1.json](../docs/schemas/observability.trace.get.v1.json)；指南：[docs/guides/observability.md](../docs/guides/observability.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -585,6 +585,7 @@ workctl metric query --resource demo-order --promql 'sum by (route) (rate(http_r
 
 - relation=derived：由日志重建，只包含被记录且仍保留的 span；未打点的耗时体现为父 span 的 self_ms
 - 找不到时返回 NOT_FOUND；可扩大 --window 或确认 trace_id
+- 日志来源按服务的日志 provider（docker 默认 | loki）；Loki 下以 |= "<trace_id>" 拉取后用同一逻辑重建
 - Jaeger / Tempo 等追踪后端是规划中的 provider
 
 ```bash
@@ -1670,12 +1671,12 @@ workctl offline workflow get --id demo-daily-orders
 
 ### `workctl sql query cancel`
 
-取消正在运行的查询（终止 spark-submit 进程组）
+取消正在运行的查询（Spark：终止 spark-submit 进程组；Trino：DELETE nextUri / /v1/query/{id}）
 
-- 能力：`sql.query.cancel` v1.0.0；操作类型：**execute**；适配器：spark-submit-local；认证：none
+- 能力：`sql.query.cancel` v1.0.0；操作类型：**execute**；适配器：spark-submit-local|trino-http；认证：none|trino-basic
 - 输出 Schema：[docs/schemas/sql.query.cancel.v1.json](../docs/schemas/sql.query.cancel.v1.json)；指南：[docs/guides/compute.md](../docs/guides/compute.md)
 - 幂等：是；可取消：是
-- 副作用：向查询的 spark-submit 进程组发送 SIGTERM（5 秒后 SIGKILL）
+- 副作用：Spark：向查询的 spark-submit 进程组发送 SIGTERM（5 秒后 SIGKILL）；Trino：取消协调节点上的查询
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
 | --- | --- | --- | --- | --- |
@@ -1688,6 +1689,7 @@ workctl offline workflow get --id demo-daily-orders
 口径说明：
 
 - 已结束的查询返回 CONFLICT；被终止的 Spark 应用在 history server 中显示为未完成（incomplete）
+- Trino：发送 DELETE 后查询 GET /v1/query/{id} 确认 USER_CANCELED；未确认时 state=cancel_requested，如查询已先结束则如实报告
 
 ```bash
 workctl sql query cancel --id q-20261017-1a2b3c
@@ -1695,9 +1697,9 @@ workctl sql query cancel --id q-20261017-1a2b3c
 
 ### `workctl sql query get`
 
-查看已提交查询的状态、Spark 应用 ID、结果预览（≤ 20 行）与结果位置
+查看已提交查询的状态、引擎侧 ID（Spark 应用 / Trino 查询）、统计、结果预览（≤ 20 行）与结果位置
 
-- 能力：`sql.query.get` v1.0.0；操作类型：**read**；适配器：spark-submit-local；认证：none
+- 能力：`sql.query.get` v1.0.0；操作类型：**read**；适配器：spark-submit-local|trino-http；认证：none|trino-basic
 - 输出 Schema：[docs/schemas/sql.query.get.v1.json](../docs/schemas/sql.query.get.v1.json)；指南：[docs/guides/compute.md](../docs/guides/compute.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -1707,12 +1709,13 @@ workctl sql query cancel --id q-20261017-1a2b3c
 
 前置条件：
 
-- spark 端点配置 query_state_dir
+- spark 端点配置 query_state_dir；trino 查询读取 trino 端点的状态目录
 
 口径说明：
 
-- state=lost 表示提交进程已退出但没有写入终态，与 failed（运行器捕获到错误）区分
+- state=lost 表示提交进程已退出但没有写入终态，与 failed（运行器捕获到错误）区分；Trino 下表示协调节点已不记得该查询或结果页未取完就失效
 - 结果预览只是前 N 行，完整结果在 result_location（JSON lines）
+- Trino：get 会继续跟随 nextUri 拉取结果页（每次最多 poll_budget_ms，默认 5 秒），succeeded 表示 Trino 报告 FINISHED 且全部结果页已取回；engine_state 为 Trino 原始状态，stats 为 Trino 统计
 
 ```bash
 workctl sql query get --id q-20261017-1a2b3c
@@ -1720,29 +1723,35 @@ workctl sql query get --id q-20261017-1a2b3c
 
 ### `workctl sql query submit`
 
-异步提交只读 SQL 查询到计算引擎（当前支持 Spark SQL，local 模式），返回查询 ID
+异步提交只读 SQL 查询到计算引擎（Spark SQL local 模式 / Trino），返回查询 ID
 
-- 能力：`sql.query.submit` v1.0.0；操作类型：**read**（异步）；适配器：spark-submit-local；认证：none
+- 能力：`sql.query.submit` v1.0.0；操作类型：**read**（异步）；适配器：spark-submit-local|trino-http；认证：none|trino-basic
 - 输出 Schema：[docs/schemas/sql.query.submit.v1.json](../docs/schemas/sql.query.submit.v1.json)；指南：[docs/guides/compute.md](../docs/guides/compute.md)
-- 副作用：启动一个 Spark 应用（消耗计算资源）；结果写入 query_state_dir 下的结果目录，不写入数仓表
+- 副作用：Spark：启动一个 Spark 应用；Trino：在协调节点创建一个查询（消耗集群资源）。结果写入本地结果目录，不写入数仓表
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
 | --- | --- | --- | --- | --- |
-| `--engine` | enum (spark/trino/hive) | 否 | `"spark"` | 查询引擎（trino / hive 待接入） |
+| `--engine` | enum (spark/trino/hive) | 否 | `"spark"` | 查询引擎（hive 待接入） |
 | `--file` | file | 是 |  | 只含一条 SELECT / WITH 查询的 SQL 文件 |
-| `--output` | string | 否 |  | 结果目录（须不存在，且不在 warehouse_root 内；默认 query_state_dir/<id>/result） |
+| `--output` | string | 否 |  | 结果目录（须不存在，且不在 warehouse_root 内；默认 <状态目录>/<id>/result） |
 | `--preview-rows` | int | 否 | `20` | 状态中保留的预览行数（上限 20） |
+| `--catalog` | string | 否 |  | 仅 trino：默认 catalog（X-Trino-Catalog，缺省取端点配置） |
+| `--schema` | string | 否 |  | 仅 trino：默认 schema（X-Trino-Schema，缺省取端点配置） |
 
 前置条件：
 
 - spark 端点配置 spark_home、python、query_state_dir、warehouse_root、event_log_dir、driver_log_dir
+- trino 端点配置 url、user（可选 password_ref、catalog、schema、source、query_state_dir）
 
 口径说明：
 
 - 只接受单条 SELECT/WITH；含 INSERT/CREATE/DROP/SET 等关键字的文件在提交前被拒绝（INVALID_ARGUMENT）
-- 演示环境中 warehouse_root 下每个 <db>/<table> 目录注册为临时视图 <db>_<table>（如 analytics_daily_orders），dt 分区目录成为 dt 列
-- 提交成功只代表进程已启动；用 sql query get 查看状态，running 表示仍在执行
+- Spark：演示环境中 warehouse_root 下每个 <db>/<table> 目录注册为临时视图 <db>_<table>（如 analytics_daily_orders），dt 分区目录成为 dt 列
+- Spark：提交成功只代表进程已启动；用 sql query get 查看状态，running 表示仍在执行
+- Trino：另外拒绝 EXECUTE/PREPARE/事务语句、WITH FUNCTION 内联函数和透传类表函数（如 system.query）；提交时在短时间窗口内跟随 nextUri，语法/语义错误直接返回 INVALID_ARGUMENT（表/schema/catalog 不存在为 NOT_FOUND，ACCESS_DENIED 为 PERMISSION_DENIED）
+- Trino：结果页由 sql query get 继续拉取；超过 query.client.timeout（默认 5 分钟）没有客户端拉取，Trino 会以 ABANDONED_QUERY 结束查询
 
 ```bash
 workctl sql query submit --engine spark --file demo/offline-workflows/sql/examples/daily_orders_by_status.sql
+workctl sql query submit --engine trino --file q.sql --catalog tpch --schema tiny
 ```
