@@ -6,8 +6,8 @@
     "instance": "demo-redis",
     "key": "demo:customer:64:recent",
     "type": "string",
-    "ttl_ms": 1455800,
-    "expires_at": "2026-10-17T15:28:39.481Z",
+    "ttl_ms": 1389385,
+    "expires_at": "2026-10-17T15:28:39.482Z",
     "encoding": "raw",
     "memory_bytes": 2120,
     "length": 1821,
@@ -21,7 +21,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-17T15:04:23.683Z",
+        "observed_at": "2026-10-17T15:05:30.098Z",
         "endpoint": "redis/demo-redis",
         "method": "TYPE / PTTL / OBJECT ENCODING / MEMORY USAGE SAMPLES 5 / STRLEN / OBJECT FREQ",
         "version": "7.4.11",
@@ -38,7 +38,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj20re-f170a9",
+    "request_id": "req-mvcj3g0f-a576f5",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -46,7 +46,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:04:23.642Z",
-    "duration_ms": 42
+    "started_at": "2026-10-17T15:05:30.063Z",
+    "duration_ms": 37
   }
 }

@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "mysql.index.plan",
   "data": {
-    "id": "op-20261017-d699e8",
+    "id": "op-20261017-f90078",
     "kind": "mysql.index.create",
     "title": "为 demo.orders 新增索引 idx_customer_id_created_at(customer_id, created_at)",
     "params": {
@@ -33,7 +33,7 @@
           "idx_created_at(created_at)",
           "PRIMARY(id)"
         ],
-        "observed_at": "2026-10-17T15:04:16.499Z"
+        "observed_at": "2026-10-17T15:05:22.993Z"
       }
     ],
     "impact": {
@@ -52,9 +52,9 @@
           "schema": "demo",
           "statement": "SELECT",
           "digest_text": "SELECT `id` , STATUS , `amount` , `created_at` FROM `orders` WHERE `customer_id` = ? ORDER BY `created_at` DESC LIMIT ?",
-          "count": 16,
-          "total_latency_ms": 4750,
-          "avg_rows_examined": 264780,
+          "count": 17,
+          "total_latency_ms": 4771,
+          "avg_rows_examined": 250278,
           "no_index_used_count": 0,
           "references_leading_column": true,
           "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
@@ -192,14 +192,14 @@
     "idempotent": false,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-17T15:04:16.501Z",
-    "expires_at": "2026-10-17T16:04:16.501Z",
+    "created_at": "2026-10-17T15:05:22.995Z",
+    "expires_at": "2026-10-17T16:05:22.995Z",
     "profile": "demo",
     "env": "sandbox",
     "executable": false,
     "history": [
       {
-        "at": "2026-10-17T15:04:16.501Z",
+        "at": "2026-10-17T15:05:22.995Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
@@ -211,7 +211,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T15:04:16.501Z",
+        "observed_at": "2026-10-17T15:05:22.995Z",
         "endpoint": "mysql/demo-mysql",
         "version": "8.4.11",
         "method": "information_schema.TABLES/COLUMNS/STATISTICS + INNODB_TRX",
@@ -220,7 +220,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T15:04:16.501Z",
+        "observed_at": "2026-10-17T15:05:22.995Z",
         "endpoint": "mysql/demo-mysql",
         "version": "8.4.11",
         "method": "performance_schema.events_statements_summary_by_digest (cumulative, text match)",
@@ -229,7 +229,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T15:04:16.501Z",
+        "observed_at": "2026-10-17T15:05:22.995Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/state/operations",
         "relation": "derived"
       }
@@ -244,7 +244,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj1v7e-b2029b",
+    "request_id": "req-mvcj3aij-e675be",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -252,7 +252,7 @@
     "adapter": "mysql-driver",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:04:16.442Z",
-    "duration_ms": 59
+    "started_at": "2026-10-17T15:05:22.939Z",
+    "duration_ms": 57
   }
 }

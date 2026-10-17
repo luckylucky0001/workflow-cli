@@ -20,8 +20,8 @@
       "redis_version": "7.4.11",
       "redis_mode": "standalone",
       "run_id": "47ca929894be754eb8d27b140c938e076208ee5b",
-      "uptime_s": 445,
-      "started_at": "2026-10-17T14:56:51.833Z",
+      "uptime_s": 512,
+      "started_at": "2026-10-17T14:56:51.333Z",
       "tcp_port": 6379
     },
     "replication": {
@@ -36,14 +36,14 @@
       "maxclients": 10000
     },
     "memory": {
-      "used_memory": 6204456,
-      "used_memory_human": "5.92M",
+      "used_memory": 6200784,
+      "used_memory_human": "5.91M",
       "used_memory_peak": 6234152,
       "maxmemory": 67108864,
       "maxmemory_human": "64.00M",
       "maxmemory_policy": "allkeys-lfu",
-      "usage_ratio": 0.0925,
-      "mem_fragmentation_ratio": 2.63
+      "usage_ratio": 0.0924,
+      "mem_fragmentation_ratio": 2.64
     },
     "persistence": {
       "loading": false,
@@ -55,9 +55,9 @@
     },
     "keyspace": {
       "db0": {
-        "keys": 3838,
-        "expires": 3017,
-        "avg_ttl": 1719672,
+        "keys": 3826,
+        "expires": 3005,
+        "avg_ttl": 1665595,
         "subexpiry": 0
       }
     }
@@ -68,7 +68,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-17T15:04:16.833Z",
+        "observed_at": "2026-10-17T15:05:23.333Z",
         "endpoint": "redis/demo-redis",
         "method": "INFO server replication persistence clients memory keyspace",
         "version": "7.4.11",
@@ -77,7 +77,7 @@
       {
         "system": "workctl",
         "adapter": "binding-file",
-        "observed_at": "2026-10-17T15:04:16.832Z",
+        "observed_at": "2026-10-17T15:05:23.331Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "method": "resources.forEndpoint(redis, demo-redis)",
         "relation": "explicit"
@@ -90,7 +90,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj1vh7-7027e5",
+    "request_id": "req-mvcj3as9-c79e84",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -98,7 +98,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:04:16.795Z",
-    "duration_ms": 42
+    "started_at": "2026-10-17T15:05:23.289Z",
+    "duration_ms": 49
   }
 }

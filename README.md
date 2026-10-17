@@ -13,14 +13,14 @@
 
 | 项目 | 结果 | 证据 |
 | --- | --- | --- |
-| 单元 + 契约测试 | 364 个全部通过（`npm test`；契约测试检查：设计稿命令全覆盖、输出 Schema、指南/Skill 存在、示例命令有效、生成文档与定义一致、MCP 工具与能力一致） | `npm test` |
-| 真实环境集成测试 | `WORKCTL_IT=1 npm test`：405 通过（Airflow 3 与 k3s 用例另需 `WORKCTL_AF3=1` / `WORKCTL_K8S=1`，已分别单独通过） | MySQL 8.4.11、Redis 7.4.11、Kafka 3.9.1、Airflow 2.10.5 / 3.3.2、Spark 3.5.5、Trino 476、Docker 29.8.2、Prometheus 3.5.0、Loki 3.5.5、k3s v1.31.4 |
+| 单元 + 契约测试 | 423 个全部通过（`npm test`；契约测试检查：设计稿命令全覆盖、输出 Schema、指南/Skill 存在、示例命令有效、生成文档与定义一致、MCP 工具与能力一致） | `npm test` |
+| 真实环境集成测试 | `WORKCTL_IT=1 WORKCTL_AF3=1 WORKCTL_K8S=1 npm test`：483/483 通过 | MySQL 8.4.11、Redis 7.4.11、Kafka 3.9.1、Airflow 2.10.5 / 3.3.2、Spark 3.5.5、Trino 476、Docker 29.8.2、Prometheus 3.5.0、Loki 3.5.5、k3s v1.31.4 |
 | 逐能力真实调用 | 74/74 用例通过（含插件、补数计划、隔离环境中真实执行重启并记录状态迁移、预期错误码） | [demo/verification/report.md](demo/verification/report.md) |
 | 交叉审查 | 各领域（含后加入的 Kubernetes、Airflow v2、Trino、Loki）由非作者复审，修复 58 个缺陷并补回归测试（如优化器提示绕过执行时限、Spark SQL `reflect`/文件查询绕过只读防护、重启后 unhealthy 仍判成功、组合调用绕过执行授权、Airflow 3 无 logical_date 的运行导致补数重复、同标签的其他 Pod 混入工作负载） | git 历史 “Cross-review fixes” |
 | Kubernetes provider | 单节点 k3s v1.31.4 上 10/10（身份探测、Pod/Deployment 状态、事件、metrics-server 快照、容量、真实滚动重启）；Docker 与 Kubernetes 两种 provider 输出通过同一 Schema | [demo/verification/report.k8s.md](demo/verification/report.k8s.md) |
 | SQL 引擎 | `sql query submit/get/cancel` 对 Spark 3.5.5 与 Trino 476 输出同一契约；Trino 用例 15/15（成功、语法错误、表不存在、只读防护、真实取消） | [demo/verification/report.trino.md](demo/verification/report.trino.md) |
 | 日志来源替换 | `log query` / `trace get` 在 Docker 日志与 Loki 3.5.5（Promtail 采集）间切换：同一批流量下条目、统计与调用树一致 | [demo/verification/log-provider-swap.md](demo/verification/log-provider-swap.md) |
-| 环境可复位 | `reset.sh` 清空全部容器、卷、Airflow/Spark 运行时、数据与密钥后：`up.sh` 54 秒重建，重放全部场景 117 秒，74/74 用例通过（合计 227 秒） | `demo/environment/up.sh`、`reset.sh` |
+| 环境可复位 | `demo/verify-all.sh`：`reset.sh` 清空全部容器、卷、Airflow/Spark 运行时、数据与密钥后，`up.sh` 约 35–55 秒重建（含 Trino、Loki），场景重放约 2 分钟；随后各验证套件与全量集成测试全部通过（ALL CHECKS PASSED） | `demo/environment/up.sh`、`reset.sh` |
 | 三种消费者同一契约 | CLI == 脚本 API == MCP（内置 Redis 能力与插件 Kafka 能力） | `demo/scenarios/reuse/same-contract.mjs` |
 | 接口版本替换 | 同一组离线/计算能力对 Airflow 2.10.5（REST v1）与 Airflow 3.3.2（REST v2）输出同一契约，只有适配器与来源不同（`WORKCTL_IT=1 WORKCTL_AF3=1` 离线/计算测试通过） | [demo/verification/version-swap.md](demo/verification/version-swap.md) |
 | Agent 宿主 | Claude Code 无头模式经 Skill + MCP 跑三条主线（只读 profile），三条均达到验收标准；另有仅 CLI 对照组 | [demo/agent-host/runs/](demo/agent-host/runs/)、[demo/evaluation.md](demo/evaluation.md) |

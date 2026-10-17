@@ -163,7 +163,7 @@
       {
         "system": "spark",
         "adapter": "spark-history-rest",
-        "observed_at": "2026-10-17T15:04:35.219Z",
+        "observed_at": "2026-10-17T15:05:40.765Z",
         "endpoint": "spark/demo-spark",
         "method": "GET /api/v1/applications/local-1792249100267",
         "version": "3.5.5",
@@ -172,7 +172,7 @@
       {
         "system": "spark",
         "adapter": "spark-history-rest",
-        "observed_at": "2026-10-17T15:04:35.219Z",
+        "observed_at": "2026-10-17T15:05:40.765Z",
         "endpoint": "spark/demo-spark",
         "method": "GET /api/v1/applications/local-1792249100267/jobs",
         "version": "3.5.5",
@@ -181,7 +181,7 @@
       {
         "system": "spark",
         "adapter": "spark-history-rest",
-        "observed_at": "2026-10-17T15:04:35.219Z",
+        "observed_at": "2026-10-17T15:05:40.765Z",
         "endpoint": "spark/demo-spark",
         "method": "GET /api/v1/applications/local-1792249100267/allexecutors",
         "version": "3.5.5",
@@ -190,7 +190,7 @@
       {
         "system": "spark",
         "adapter": "spark-history-rest",
-        "observed_at": "2026-10-17T15:04:35.219Z",
+        "observed_at": "2026-10-17T15:05:40.765Z",
         "method": "status = f(attempt.completed, job states, driver log tail)",
         "relation": "derived"
       }
@@ -202,7 +202,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj29nm-b943a1",
+    "request_id": "req-mvcj3o8c-3eabc7",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -210,7 +210,7 @@
     "adapter": "spark-history-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:04:35.170Z",
+    "started_at": "2026-10-17T15:05:40.716Z",
     "duration_ms": 49
   }
 }

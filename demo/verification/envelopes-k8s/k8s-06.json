@@ -4,7 +4,7 @@
   "capability": "container.capacity.summary",
   "data": {
     "kind": "snapshot",
-    "observed_at": "2026-10-17T15:02:17.246Z",
+    "observed_at": "2026-10-17T15:06:53.136Z",
     "env": "sandbox",
     "host": {
       "name": "kubernetes https://127.0.0.1:16443/",
@@ -30,7 +30,7 @@
       "memory_limit_sum_bytes": 268435456,
       "memory_unlimited": 0,
       "cpu_used_cores": 0.0002,
-      "memory_working_set_bytes": 9527296,
+      "memory_working_set_bytes": 9797632,
       "cpu_limit_to_host_ratio": 0.25,
       "memory_limit_to_host_ratio": 0.016,
       "cpu_request_sum": 0.2,
@@ -38,8 +38,8 @@
     },
     "containers": [
       {
-        "name": "demo-order-6fd6cc6545-7jcmp/nginx",
-        "id": "5760a460f32f",
+        "name": "demo-order-6bff5b4f4-58947/nginx",
+        "id": "6a5b4e76e0c3",
         "owner_label": "workctl.service=demo-order",
         "state": "running",
         "limits": {
@@ -49,8 +49,8 @@
         "usage": {
           "cpu_cores": 0.0001,
           "cpu_percent_of_limit": 0.02,
-          "memory_working_set_bytes": 4751360,
-          "memory_percent_of_limit": 3.54,
+          "memory_working_set_bytes": 4993024,
+          "memory_percent_of_limit": 3.72,
           "pids": null
         },
         "oom_killed": false,
@@ -58,15 +58,15 @@
         "flags": [],
         "namespace": "workctl-demo",
         "node": "vm",
-        "owner": "ReplicaSet/demo-order-6fd6cc6545",
+        "owner": "ReplicaSet/demo-order-6bff5b4f4",
         "requests": {
           "cpus": 0.1,
           "memory_bytes": 33554432
         }
       },
       {
-        "name": "demo-order-6fd6cc6545-ccbg4/nginx",
-        "id": "6962e0b84684",
+        "name": "demo-order-6bff5b4f4-72x5v/nginx",
+        "id": "66c7a0562293",
         "owner_label": "workctl.service=demo-order",
         "state": "running",
         "limits": {
@@ -76,8 +76,8 @@
         "usage": {
           "cpu_cores": 0.0001,
           "cpu_percent_of_limit": 0.02,
-          "memory_working_set_bytes": 4775936,
-          "memory_percent_of_limit": 3.56,
+          "memory_working_set_bytes": 4804608,
+          "memory_percent_of_limit": 3.58,
           "pids": null
         },
         "oom_killed": false,
@@ -85,7 +85,7 @@
         "flags": [],
         "namespace": "workctl-demo",
         "node": "vm",
-        "owner": "ReplicaSet/demo-order-6fd6cc6545",
+        "owner": "ReplicaSet/demo-order-6bff5b4f4",
         "requests": {
           "cpus": 0.1,
           "memory_bytes": 33554432
@@ -99,7 +99,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T15:02:17.223Z",
+        "observed_at": "2026-10-17T15:06:53.107Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /version",
         "relation": "explicit",
@@ -108,7 +108,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T15:02:17.231Z",
+        "observed_at": "2026-10-17T15:06:53.118Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/namespaces/workctl-demo/pods",
         "relation": "explicit",
@@ -117,7 +117,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T15:02:17.238Z",
+        "observed_at": "2026-10-17T15:06:53.126Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/metrics.k8s.io/v1beta1/namespaces/workctl-demo/pods",
         "relation": "sampled",
@@ -126,7 +126,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T15:02:17.245Z",
+        "observed_at": "2026-10-17T15:06:53.134Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/nodes",
         "relation": "explicit",
@@ -144,7 +144,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcizb6m-67cd83",
+    "request_id": "req-mvcj581i-67c764",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -152,7 +152,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:02:17.182Z",
-    "duration_ms": 64
+    "started_at": "2026-10-17T15:06:53.046Z",
+    "duration_ms": 90
   }
 }
