@@ -1,0 +1,129 @@
+# Isolated, resettable demo environment. All business data is synthetic.
+# Ports are offset (+10000) to avoid clashing with local services.
+name: workctl-demo
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: demo-mysql
+    labels:
+      workctl.resource: demo-mysql
+      workctl.env: sandbox
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
+      MYSQL_DATABASE: demo
+    command:
+      - --performance-schema=ON
+      - --slow-query-log=ON
+      - --long-query-time=0.2
+      - --log-output=TABLE
+      - --max-connections=200
+    volumes:
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+      - ./.runtime/secrets/mysql_root_password:/run/secrets/mysql_root_password:ro
+      - ./.runtime/secrets/mysql_ro_password:/run/secrets/mysql_ro_password:ro
+      - ./.runtime/secrets/mysql_app_password:/run/secrets/mysql_app_password:ro
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "13306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$(cat /run/secrets/mysql_root_password) --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:7.4
+    container_name: demo-redis
+    labels:
+      workctl.resource: demo-redis
+      workctl.env: sandbox
+    command:
+      - redis-server
+      - --maxmemory
+      - 64mb
+      - --maxmemory-policy
+      - allkeys-lfu
+      - --slowlog-log-slower-than
+      - "1000"
+      - --slowlog-max-len
+      - "256"
+    ports:
+      - "16379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 20
+
+  kafka:
+    image: apache/kafka:3.9.1
+    container_name: demo-kafka
+    labels:
+      workctl.resource: demo-mq
+      workctl.env: sandbox
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:19092,CONTROLLER://:9093,INTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:19092,INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+    ports:
+      - "19092:19092"
+
+  demo-order:
+    build: ../sample-service
+    image: workctl-demo/demo-order:local
+    container_name: demo-order
+    labels:
+      workctl.service: demo-order
+      workctl.env: sandbox
+      workctl.owner: team-demo
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: "3306"
+      MYSQL_USER: demo_app
+      MYSQL_PASSWORD_FILE: /run/secrets/mysql_app_password
+      MYSQL_DATABASE: demo
+      REDIS_URL: redis://redis:6379
+      CACHE_MODE: normal
+      CACHE_TTL_SECONDS: "300"
+      PORT: "8080"
+    volumes:
+      - ./.runtime/secrets/mysql_app_password:/run/secrets/mysql_app_password:ro
+    ports:
+      - "18081:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: demo-prometheus
+    labels:
+      workctl.resource: demo-prometheus
+      workctl.env: sandbox
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=2d
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "19090:9090"
+
+volumes:
+  mysql-data:

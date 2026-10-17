@@ -1,0 +1,280 @@
+import { spawn, spawnSync } from 'node:child_process';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { z } from 'zod';
+import { resolveSecretRef } from './config';
+import { WorkError, type Result } from './output';
+import type { CapabilityDef, DomainDef, Registry } from './registry';
+import type { Ctx } from './runtime';
+
+export const PLUGIN_API = 'workctl-plugin/1';
+
+const InputSpecSchema = z.object({
+  type: z.enum(['string', 'int', 'number', 'bool', 'duration', 'enum', 'file', 'list']),
+  description: z.string(),
+  required: z.boolean().optional(),
+  default: z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]).optional(),
+  enum: z.array(z.string()).optional(),
+});
+
+const PluginCapabilitySchema = z.object({
+  name: z.string().regex(/^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+$/),
+  command: z.string(),
+  summary: z.string(),
+  description: z.string().optional(),
+  inputs: z.record(z.string(), InputSpecSchema).default({}),
+  output_schema: z.string().optional(),
+  adapter: z.string(),
+  operation: z.enum(['read', 'diagnose', 'plan', 'execute']),
+  auth_provider: z.string(),
+  capability_version: z.string(),
+  guide: z.string(),
+  status: z.enum(['available', 'requires_auth', 'planned']).default('available'),
+  notes: z.array(z.string()).optional(),
+  examples: z.array(z.string()).optional(),
+  prerequisites: z.array(z.string()).optional(),
+});
+
+export const PluginManifestSchema = z.object({
+  plugin_api: z.literal(PLUGIN_API),
+  name: z.string().regex(/^[a-z][a-z0-9-]*$/),
+  version: z.string(),
+  description: z.string().optional(),
+  backend_mode: z.enum(['live', 'recorded', 'synthetic_fixture']),
+  entry: z.string(),
+  domain: z.object({
+    name: z.string(),
+    title: z.string(),
+    summary: z.string(),
+    pillar: z.enum(['infrastructure', 'middleware', 'offline', 'supporting']),
+    guide: z.string(),
+    skill: z.string().optional(),
+  }),
+  endpoint_kinds: z.array(z.string()).default([]),
+  compatibility: z.record(z.string(), z.unknown()).optional(),
+  capabilities: z.array(PluginCapabilitySchema).min(1),
+});
+export type PluginManifest = z.infer<typeof PluginManifestSchema>;
+
+export interface InstalledPlugin {
+  name: string;
+  version: string;
+  dir: string;
+  installed_at: string;
+  backend_mode: string;
+  source_file: string;
+}
+
+export function workctlHome(): string {
+  return process.env.WORKCTL_HOME ?? join(homedir(), '.local', 'share', 'workctl');
+}
+
+function pluginsDir(): string {
+  return join(workctlHome(), 'plugins');
+}
+
+function indexFile(): string {
+  return join(pluginsDir(), 'index.json');
+}
+
+export function listInstalled(): InstalledPlugin[] {
+  if (!existsSync(indexFile())) return [];
+  try {
+    return JSON.parse(readFileSync(indexFile(), 'utf8')) as InstalledPlugin[];
+  } catch {
+    return [];
+  }
+}
+
+function writeIndex(items: InstalledPlugin[]): void {
+  mkdirSync(pluginsDir(), { recursive: true });
+  writeFileSync(indexFile(), JSON.stringify(items, null, 2));
+}
+
+export function readManifest(dir: string): PluginManifest {
+  const f = join(dir, 'workctl-plugin.json');
+  if (!existsSync(f)) throw new WorkError('INVALID_ARGUMENT', '插件包缺少 workctl-plugin.json');
+  const parsed = PluginManifestSchema.safeParse(JSON.parse(readFileSync(f, 'utf8')));
+  if (!parsed.success) {
+    throw new WorkError('INVALID_ARGUMENT', '插件清单不合法', { details: { issues: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`) } });
+  }
+  return parsed.data;
+}
+
+/** Validate a plugin directory against the registry it will join. */
+export function validatePlugin(dir: string, registry: Registry, replacing?: string): { manifest: PluginManifest; problems: string[] } {
+  const manifest = readManifest(dir);
+  const problems: string[] = [];
+  if (!existsSync(join(dir, manifest.entry))) problems.push(`入口文件不存在: ${manifest.entry}`);
+  if (!existsSync(join(dir, manifest.domain.guide))) problems.push(`领域指南不存在: ${manifest.domain.guide}`);
+  const existingDomain = registry.domains.get(manifest.domain.name);
+  if (existingDomain && existingDomain.capabilities.some((c) => c.origin !== `plugin:${replacing}`) && manifest.domain.name !== replacing) {
+    if (!existingDomain.capabilities.every((c) => c.status === 'planned')) problems.push(`领域 ${manifest.domain.name} 已由内置能力提供`);
+  }
+  for (const c of manifest.capabilities) {
+    if (!c.name.startsWith(`${manifest.domain.name}.`)) problems.push(`能力 ${c.name} 不在领域 ${manifest.domain.name} 下`);
+    const clash = registry.get(c.name);
+    if (clash && clash.origin !== `plugin:${replacing}`) problems.push(`能力名冲突: ${c.name}`);
+    if (c.output_schema && !existsSync(join(dir, c.output_schema))) problems.push(`输出 Schema 不存在: ${c.output_schema}`);
+  }
+  return { manifest, problems };
+}
+
+export function installPlugin(file: string, registry: Registry): { plugin: InstalledPlugin; manifest: PluginManifest; replaced: string | null } {
+  const abs = resolve(file);
+  if (!existsSync(abs)) throw new WorkError('NOT_FOUND', `插件包不存在: ${file}`);
+  const staging = mkdtempSync(join(tmpdir(), 'workctl-plugin-'));
+  try {
+    const tar = spawnSync('tar', ['-xzf', abs, '-C', staging], { encoding: 'utf8' });
+    if (tar.status !== 0) throw new WorkError('INVALID_ARGUMENT', `插件包解压失败: ${tar.stderr.trim()}`);
+    const pre = readManifest(staging);
+    const previous = listInstalled().find((p) => p.name === pre.name) ?? null;
+    const { manifest, problems } = validatePlugin(staging, registry, previous ? pre.name : undefined);
+    if (problems.length) throw new WorkError('INVALID_ARGUMENT', `插件校验失败: ${problems.join('；')}`);
+    const dest = join(pluginsDir(), manifest.name, manifest.version);
+    rmSync(dest, { recursive: true, force: true });
+    mkdirSync(dest, { recursive: true });
+    cpSync(staging, dest, { recursive: true });
+    const plugin: InstalledPlugin = { name: manifest.name, version: manifest.version, dir: dest, installed_at: new Date().toISOString(), backend_mode: manifest.backend_mode, source_file: abs };
+    writeIndex([...listInstalled().filter((p) => p.name !== manifest.name), plugin]);
+    return { plugin, manifest, replaced: previous ? previous.version : null };
+  } finally {
+    rmSync(staging, { recursive: true, force: true });
+  }
+}
+
+export function removePlugin(name: string): InstalledPlugin {
+  const items = listInstalled();
+  const p = items.find((x) => x.name === name);
+  if (!p) throw new WorkError('NOT_FOUND', `插件未安装: ${name}`);
+  rmSync(join(pluginsDir(), name), { recursive: true, force: true });
+  writeIndex(items.filter((x) => x.name !== name));
+  return p;
+}
+
+/** Register installed plugins; a broken plugin is reported, never fatal for the CLI. */
+export function loadPlugins(registry: Registry): { loaded: string[]; errors: string[] } {
+  const loaded: string[] = [];
+  const errors: string[] = [];
+  for (const p of listInstalled()) {
+    try {
+      const manifest = readManifest(p.dir);
+      registry.addDomain(pluginDomain(p, manifest));
+      loaded.push(`${p.name}@${p.version}`);
+    } catch (e) {
+      errors.push(`${p.name}: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+  return { loaded, errors };
+}
+
+function pluginDomain(p: InstalledPlugin, m: PluginManifest): DomainDef {
+  const capabilities: CapabilityDef[] = m.capabilities.map((c) => {
+    const schemaFile = c.output_schema ? join(p.dir, c.output_schema) : undefined;
+    return {
+      name: c.name,
+      command: c.command,
+      summary: c.summary,
+      description: c.description,
+      domain: m.domain.name,
+      inputs: c.inputs,
+      adapter: c.adapter,
+      operation: c.operation,
+      auth_provider: c.auth_provider,
+      capability_version: c.capability_version,
+      guide: join(p.dir, c.guide),
+      status: c.status,
+      notes: c.notes,
+      examples: c.examples,
+      prerequisites: c.prerequisites,
+      backend_modes: [m.backend_mode],
+      origin: `plugin:${m.name}@${m.version}`,
+      output_json_schema: schemaFile && existsSync(schemaFile) ? JSON.parse(readFileSync(schemaFile, 'utf8')) : undefined,
+      handler: c.status === 'planned' ? undefined : (ctx: Ctx, inputs: Record<string, any>) => execPlugin(ctx, p, m, c.name, inputs),
+    };
+  });
+  return {
+    name: m.domain.name,
+    title: m.domain.title,
+    summary: m.domain.summary,
+    pillar: m.domain.pillar,
+    guide: join(p.dir, m.domain.guide),
+    skill: m.domain.skill ? join(p.dir, m.domain.skill) : undefined,
+    capabilities,
+  };
+}
+
+const PluginResponseSchema = z.object({
+  status: z.enum(['success', 'partial', 'error']),
+  data: z.unknown().optional(),
+  error: z.object({ code: z.string(), message: z.string(), hint: z.string().optional(), details: z.record(z.string(), z.unknown()).optional() }).nullable().optional(),
+  meta: z.object({ sources: z.array(z.any()).default([]), coverage: z.any().nullable().optional(), warnings: z.array(z.string()).default([]) }).default({ sources: [], warnings: [] }),
+});
+
+/** Endpoint configs for the plugin's kinds, with credential references resolved (passed only via stdin). */
+function pluginEndpoints(ctx: Ctx, kinds: string[]): Record<string, Record<string, Record<string, unknown>>> {
+  const out: Record<string, Record<string, Record<string, unknown>>> = {};
+  const profile = ctx.profile;
+  if (!profile) return out;
+  for (const kind of kinds) {
+    for (const [name, cfg] of Object.entries(profile.endpoints[kind] ?? {})) {
+      const resolved: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(cfg)) {
+        if (k.endsWith('_ref')) resolved[k.slice(0, -4)] = resolveSecretRef(String(v), ctx.loaded.baseDir);
+        else resolved[k] = v;
+      }
+      (out[kind] ??= {})[name] = resolved;
+    }
+  }
+  return out;
+}
+
+async function execPlugin(ctx: Ctx, p: InstalledPlugin, m: PluginManifest, capability: string, inputs: Record<string, unknown>): Promise<Result> {
+  const request = {
+    protocol: PLUGIN_API,
+    capability,
+    inputs,
+    endpoints: pluginEndpoints(ctx, m.endpoint_kinds),
+    defaults: Object.fromEntries(m.endpoint_kinds.map((k) => [k, ctx.profile?.defaults[k]]).filter(([, v]) => v)),
+    profile: ctx.profileName,
+    env: ctx.env,
+    request_id: ctx.requestId,
+    timeout_ms: ctx.remainingMs(),
+  };
+  const { stdout, stderr, code } = await new Promise<{ stdout: string; stderr: string; code: number | null }>((res, rej) => {
+    const child = spawn(process.execPath, [join(p.dir, m.entry)], { cwd: p.dir, stdio: ['pipe', 'pipe', 'pipe'] });
+    let out = '';
+    let err = '';
+    const timer = setTimeout(() => child.kill('SIGKILL'), ctx.remainingMs());
+    child.stdout.on('data', (d) => (out += d));
+    child.stderr.on('data', (d) => (err += d));
+    child.on('error', rej);
+    child.on('close', (c) => {
+      clearTimeout(timer);
+      res({ stdout: out, stderr: err, code: c });
+    });
+    child.stdin.end(JSON.stringify(request));
+  });
+  if (stderr.trim()) ctx.debug(`plugin ${p.name} stderr: ${stderr.trim().slice(0, 2000)}`);
+  let parsed: z.infer<typeof PluginResponseSchema>;
+  try {
+    parsed = PluginResponseSchema.parse(JSON.parse(stdout));
+  } catch {
+    throw new WorkError('INTERNAL', `插件 ${p.name} 返回了不符合协议的输出 (exit ${code})`, { details: { stdout: stdout.slice(0, 500), stderr: stderr.slice(-500) } });
+  }
+  if (parsed.status === 'error') {
+    const e = parsed.error ?? { code: 'INTERNAL', message: '插件返回错误但未提供详情' };
+    const known = ['INVALID_ARGUMENT', 'UNAUTHENTICATED', 'PERMISSION_DENIED', 'NOT_FOUND', 'UPSTREAM_UNAVAILABLE', 'TIMEOUT', 'COLLECTION_DISABLED', 'DATA_UNAVAILABLE', 'NOT_CONFIGURED', 'UNSUPPORTED', 'PRECONDITION_FAILED', 'CONFLICT', 'INTERNAL'];
+    throw new WorkError((known.includes(e.code) ? e.code : 'INTERNAL') as never, e.message, { hint: e.hint, details: e.details });
+  }
+  const warnings = [...parsed.meta.warnings];
+  if (m.backend_mode !== 'live') warnings.unshift(`插件后端模式为 ${m.backend_mode}，结果不是实时系统数据`);
+  return {
+    data: parsed.data ?? null,
+    status: parsed.status,
+    sources: parsed.meta.sources,
+    coverage: parsed.meta.coverage ?? undefined,
+    warnings,
+  };
+}

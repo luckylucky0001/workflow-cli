@@ -1,0 +1,45 @@
+{
+  "name": "workctl",
+  "version": "0.1.0",
+  "description": "Unified CLI, Skills and docs that expose enterprise infrastructure, middleware and offline data pipelines as agent capabilities",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "workctl": "dist/workctl.js"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "docs",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "docs": "node dist/workctl.js docs generate --out docs",
+    "check": "npm run typecheck && npm run build && npm test"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "ioredis": "^5.11.1",
+    "kafkajs": "^2.2.4",
+    "mysql2": "^3.24.6",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "esbuild": "^0.25.12",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
+  },
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  }
+}

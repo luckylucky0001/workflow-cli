@@ -1,0 +1,200 @@
+import { randomBytes } from 'node:crypto';
+import { existsSync, readFileSync } from 'node:fs';
+import { z } from 'zod';
+import { loadConfig, resolveProfileName, type LoadedConfig } from './config';
+import { ERROR_CODES, SCHEMA_VERSION, WorkError, type Envelope, type Result } from './output';
+import type { CapabilityDef, InputSpec, Registry } from './registry';
+import { Ctx, parseDuration } from './runtime';
+
+export const CLI_VERSION = '0.1.0';
+
+export interface InvokeOptions {
+  configPath?: string;
+  profile?: string;
+  timeoutMs?: number;
+  requestId?: string;
+  debug?: boolean;
+  /** MCP and other agent hosts pass false: execute operations are refused unless explicitly allowed. */
+  allowExecute?: boolean;
+  loaded?: LoadedConfig;
+}
+
+export function newRequestId(): string {
+  return `req-${Date.now().toString(36)}-${randomBytes(3).toString('hex')}`;
+}
+
+function inputZod(name: string, spec: InputSpec): z.ZodType {
+  let s: z.ZodType;
+  switch (spec.type) {
+    case 'int':
+      s = z.coerce.number().int();
+      break;
+    case 'number':
+      s = z.coerce.number();
+      break;
+    case 'bool':
+      s = z.union([z.boolean(), z.enum(['true', 'false']).transform((v) => v === 'true')]);
+      break;
+    case 'duration':
+      s = z.union([z.number().int().nonnegative(), z.string().transform((v, ctx) => {
+        try {
+          return parseDuration(v);
+        } catch {
+          ctx.addIssue({ code: 'custom', message: `无法解析时长 ${v}（示例: 30s、15m）` });
+          return z.NEVER;
+        }
+      })]);
+      break;
+    case 'enum':
+      s = z.enum(spec.enum as [string, ...string[]]);
+      break;
+    case 'list':
+      s = z.union([z.array(z.string()), z.string().transform((v) => v.split(',').map((x) => x.trim()).filter(Boolean))]);
+      break;
+    case 'file':
+      s = z.string().min(1).refine((p) => existsSync(p), { message: `文件不存在 (${name})` });
+      break;
+    default:
+      s = z.string().min(1);
+  }
+  return s;
+}
+
+export function validateInputs(cap: CapabilityDef, raw: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  const problems: string[] = [];
+  for (const [name, spec] of Object.entries(cap.inputs)) {
+    let v = raw[name];
+    if (v === undefined || v === null || v === '') {
+      if (spec.default !== undefined) v = spec.default;
+      else if (spec.required) {
+        problems.push(`缺少必填参数 --${kebab(name)}`);
+        continue;
+      } else continue;
+    }
+    const r = inputZod(name, spec).safeParse(v);
+    if (!r.success) problems.push(`--${kebab(name)}: ${r.error.issues.map((i) => i.message).join('; ')}`);
+    else out[name] = r.data;
+  }
+  const unknown = Object.keys(raw).filter((k) => !(k in cap.inputs) && raw[k] !== undefined);
+  if (unknown.length) problems.push(`未知参数: ${unknown.join(', ')}`);
+  if (problems.length) {
+    throw new WorkError('INVALID_ARGUMENT', problems.join('；'), { hint: `运行 workctl ${cap.command} --help 查看参数` });
+  }
+  return out;
+}
+
+export function kebab(s: string): string {
+  return s.replace(/_/g, '-');
+}
+
+/** Read a SQL/text file input; kept here so every adapter enforces the same size budget. */
+export function readInputFile(path: string, maxBytes = 256 * 1024): string {
+  const buf = readFileSync(path);
+  if (buf.length > maxBytes) throw new WorkError('INVALID_ARGUMENT', `文件超过 ${maxBytes} 字节上限: ${path}`);
+  return buf.toString('utf8');
+}
+
+function mapUnknownError(registry: Registry, e: unknown): WorkError {
+  if (e instanceof WorkError) return e;
+  for (const m of registry.errorMappers) {
+    const mapped = m(e);
+    if (mapped) return mapped;
+  }
+  const err = e as NodeJS.ErrnoException & { name?: string };
+  if (err?.name === 'TimeoutError' || err?.name === 'AbortError') {
+    return new WorkError('TIMEOUT', '调用超过时间预算', { hint: '增大 --timeout 或缩小查询范围' });
+  }
+  const code = err?.code ?? (err?.cause as NodeJS.ErrnoException | undefined)?.code;
+  if (code && ['ECONNREFUSED', 'ENOTFOUND', 'EHOSTUNREACH', 'ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'ENOENT_SOCKET'].includes(code)) {
+    return new WorkError('UPSTREAM_UNAVAILABLE', `目标系统不可达 (${code})`, { details: { reason: err.message } });
+  }
+  return new WorkError('INTERNAL', err?.message ?? String(e), { details: { name: err?.name } });
+}
+
+export async function invoke(registry: Registry, capName: string, rawInputs: Record<string, unknown>, opts: InvokeOptions = {}): Promise<Envelope> {
+  const started = Date.now();
+  const requestId = opts.requestId ?? newRequestId();
+  const cap = registry.get(capName);
+  let ctx: Ctx | undefined;
+  const base = (): Envelope['context'] => ({
+    request_id: requestId,
+    profile: ctx?.profileName ?? null,
+    env: ctx?.env ?? null,
+    data_mode: ctx?.dataMode ?? null,
+    capability_version: cap?.capability_version ?? null,
+    adapter: cap?.adapter ?? null,
+    operation: cap?.operation ?? null,
+    cli_version: CLI_VERSION,
+    started_at: new Date(started).toISOString(),
+    duration_ms: Date.now() - started,
+  });
+  try {
+    if (!cap) throw new WorkError('NOT_FOUND', `能力不存在: ${capName}`, { hint: '用 workctl capability list 查看可用能力' });
+    if (cap.status === 'planned' || !cap.handler) {
+      throw new WorkError('CAPABILITY_PLANNED', `能力 ${cap.name} 已列入目录，尚未接入`, { hint: `参考 ${cap.guide}` });
+    }
+    const loaded = opts.loaded ?? loadConfig(opts.configPath);
+    const profileName = resolveProfileName(loaded, opts.profile);
+    ctx = new Ctx({
+      registry,
+      loaded,
+      profileName,
+      requestId,
+      timeoutMs: opts.timeoutMs ?? 30_000,
+      capability: cap,
+      debug: opts.debug,
+    });
+    const inputs = validateInputs(cap, rawInputs);
+    if (cap.operation === 'execute') {
+      if (opts.allowExecute === false) {
+        throw new WorkError('PRECONDITION_FAILED', `${cap.name} 是执行类操作，当前入口未开放执行`, { hint: '在终端由授权人员执行，或以 --allow-execute 启动 MCP 服务' });
+      }
+      if (!ctx.profile?.allow_execute) {
+        throw new WorkError('PRECONDITION_FAILED', `profile ${profileName ?? '(无)'} 未开启 allow_execute，拒绝执行类操作`, {
+          hint: '执行操作只应在隔离或已授权环境中开启 allow_execute',
+        });
+      }
+    }
+    const result: Result = await Promise.race([
+      cap.handler(ctx, inputs),
+      new Promise<never>((_, rej) => {
+        const t = setTimeout(() => rej(new WorkError('TIMEOUT', `调用超过 ${ctx!.timeoutMs}ms 时间预算`, { hint: '增大 --timeout 或缩小查询范围' })), ctx!.timeoutMs);
+        t.unref?.();
+      }),
+    ]);
+    const warnings = [...ctx.warnings, ...(result.warnings ?? [])];
+    if (process.env.WORKCTL_VALIDATE_OUTPUT === '1' && cap.output) {
+      const check = cap.output.safeParse(result.data);
+      if (!check.success) {
+        warnings.push(`输出与 schema 不一致: ${check.error.issues.slice(0, 3).map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')}`);
+      }
+    }
+    return {
+      schema_version: SCHEMA_VERSION,
+      status: result.status ?? 'success',
+      capability: cap.name,
+      data: result.data ?? null,
+      error: null,
+      meta: { sources: result.sources ?? [], coverage: result.coverage ?? null, warnings },
+      context: base(),
+    };
+  } catch (e) {
+    const we = mapUnknownError(registry, e);
+    return {
+      schema_version: SCHEMA_VERSION,
+      status: 'error',
+      capability: cap?.name ?? capName,
+      data: null,
+      error: {
+        code: we.code,
+        message: we.message,
+        ...(we.hint ? { hint: we.hint } : {}),
+        retryable: ERROR_CODES[we.code].retryable,
+        ...(we.details ? { details: we.details } : {}),
+      },
+      meta: { sources: [], coverage: null, warnings: ctx?.warnings ?? [] },
+      context: base(),
+    };
+  }
+}

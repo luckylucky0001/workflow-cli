@@ -1,0 +1,79 @@
+# Resource bindings for the demo environment (source: binding-file).
+# In a customer environment this is replaced by the asset/service catalog adapter.
+schema_version: "1.0"
+resources:
+  - id: demo-order
+    type: service
+    env: sandbox
+    owner: team-demo
+    labels: { tier: online }
+    attributes: { http_port: 18081, health_path: /healthz, container_label: "workctl.service=demo-order" }
+  - id: demo-order-workload
+    type: container.workload
+    env: sandbox
+    endpoint: { kind: docker, name: local }
+    labels: { workctl.service: demo-order }
+  - id: demo-mysql
+    type: mysql.instance
+    env: sandbox
+    owner: team-dba
+    endpoint: { kind: mysql, name: demo-mysql }
+    attributes: { engine: mysql, major_version: "8.4", container: demo-mysql }
+  - id: demo-redis
+    type: redis.instance
+    env: sandbox
+    owner: team-dba
+    endpoint: { kind: redis, name: demo-redis }
+    attributes: { engine: redis, container: demo-redis, topology: standalone }
+  - id: demo-mq
+    type: mq.cluster
+    env: sandbox
+    endpoint: { kind: kafka, name: demo-mq }
+    attributes: { engine: kafka, container: demo-kafka }
+  - id: demo-prometheus
+    type: observability.metrics
+    env: sandbox
+    endpoint: { kind: prometheus, name: demo-prometheus }
+  - id: demo-airflow
+    type: offline.scheduler
+    env: sandbox
+    endpoint: { kind: airflow, name: demo-airflow }
+  - id: demo-spark
+    type: compute.engine
+    env: sandbox
+    endpoint: { kind: spark, name: demo-spark }
+  - id: demo-batch-pool
+    type: compute.pool
+    env: sandbox
+    attributes: { provider: airflow-pool, scheduler: demo-airflow }
+  - id: demo-daily-orders
+    type: offline.workflow
+    env: sandbox
+    owner: team-data
+    attributes: { scheduler: demo-airflow, output_table: analytics.daily_orders }
+  - id: demo-ods-orders
+    type: offline.workflow
+    env: sandbox
+    owner: team-data
+    attributes: { scheduler: demo-airflow, output_table: ods.orders }
+  - id: ods.orders
+    type: data.table
+    env: sandbox
+    attributes: { catalog: demo }
+  - id: analytics.daily_orders
+    type: data.table
+    env: sandbox
+    attributes: { catalog: demo }
+relations:
+  - { from: demo-order, to: demo-order-workload, type: runs_on, source: binding-file, evidence: "container label workctl.service=demo-order" }
+  - { from: demo-order, to: demo-mysql, type: depends_on, source: service-config, evidence: "demo-order env MYSQL_HOST=mysql (docker-compose.yml)" }
+  - { from: demo-order, to: demo-redis, type: depends_on, source: service-config, evidence: "demo-order env REDIS_URL=redis://redis:6379 (docker-compose.yml)" }
+  - { from: demo-prometheus, to: demo-order, type: consumes, source: binding-file, evidence: "prometheus scrape job demo-order" }
+  - { from: demo-ods-orders, to: demo-mysql, type: reads_from, source: scheduler-metadata, evidence: "extract task reads demo.orders" }
+  - { from: demo-ods-orders, to: ods.orders, type: produces, source: scheduler-metadata }
+  - { from: demo-daily-orders, to: ods.orders, type: reads_from, source: scheduler-metadata }
+  - { from: demo-daily-orders, to: analytics.daily_orders, type: produces, source: scheduler-metadata }
+  - { from: demo-daily-orders, to: demo-spark, type: runs_on, source: scheduler-metadata }
+  - { from: demo-daily-orders, to: demo-batch-pool, type: runs_on, source: scheduler-metadata }
+  - { from: demo-daily-orders, to: demo-airflow, type: scheduled_by, source: binding-file }
+  - { from: demo-ods-orders, to: demo-airflow, type: scheduled_by, source: binding-file }
