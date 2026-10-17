@@ -19,9 +19,9 @@
     "server": {
       "redis_version": "7.4.11",
       "redis_mode": "standalone",
-      "run_id": "47ca929894be754eb8d27b140c938e076208ee5b",
-      "uptime_s": 512,
-      "started_at": "2026-10-17T14:56:51.333Z",
+      "run_id": "1a7864f65111c0565d11c4ef90ae8c77d8a45eb0",
+      "uptime_s": 182,
+      "started_at": "2026-10-17T15:35:44.609Z",
       "tcp_port": 6379
     },
     "replication": {
@@ -36,19 +36,19 @@
       "maxclients": 10000
     },
     "memory": {
-      "used_memory": 6200784,
-      "used_memory_human": "5.91M",
-      "used_memory_peak": 6234152,
+      "used_memory": 5672296,
+      "used_memory_human": "5.41M",
+      "used_memory_peak": 6074280,
       "maxmemory": 67108864,
       "maxmemory_human": "64.00M",
       "maxmemory_policy": "allkeys-lfu",
-      "usage_ratio": 0.0924,
-      "mem_fragmentation_ratio": 2.64
+      "usage_ratio": 0.0845,
+      "mem_fragmentation_ratio": 2.85
     },
     "persistence": {
       "loading": false,
       "rdb_last_bgsave_status": "ok",
-      "rdb_last_save_at": "2026-10-17T15:03:40.000Z",
+      "rdb_last_save_at": "2026-10-17T15:38:39.000Z",
       "rdb_changes_since_last_save": 0,
       "aof_enabled": false,
       "aof_last_write_status": "ok"
@@ -57,7 +57,7 @@
       "db0": {
         "keys": 3826,
         "expires": 3005,
-        "avg_ttl": 1665595,
+        "avg_ttl": 1992124,
         "subexpiry": 0
       }
     }
@@ -68,7 +68,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-17T15:05:23.333Z",
+        "observed_at": "2026-10-17T15:38:46.609Z",
         "endpoint": "redis/demo-redis",
         "method": "INFO server replication persistence clients memory keyspace",
         "version": "7.4.11",
@@ -77,7 +77,7 @@
       {
         "system": "workctl",
         "adapter": "binding-file",
-        "observed_at": "2026-10-17T15:05:23.331Z",
+        "observed_at": "2026-10-17T15:38:46.608Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "method": "resources.forEndpoint(redis, demo-redis)",
         "relation": "explicit"
@@ -90,7 +90,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj3as9-c79e84",
+    "request_id": "req-mvcka8ip-e37c87",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -98,7 +98,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:05:23.289Z",
+    "started_at": "2026-10-17T15:38:46.561Z",
     "duration_ms": 49
   }
 }

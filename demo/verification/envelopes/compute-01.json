@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "compute.job.get",
   "data": {
-    "app_id": "local-1792249100267",
+    "app_id": "local-1792251437267",
     "name": "demo-daily-orders.aggregate_orders",
     "status": "succeeded",
     "status_basis": "应用已结束（attempt.completed=true）且没有失败作业；history server 不记录驱动进程退出码；driver 日志末尾没有未处理异常",
@@ -12,16 +12,16 @@
     "attempts": [
       {
         "attempt_id": null,
-        "start_time": "2026-10-17T14:58:19.639Z",
-        "end_time": "2026-10-17T14:58:27.765Z",
-        "last_updated": "2026-10-17T14:58:27.777Z",
-        "duration_ms": 8126,
+        "start_time": "2026-10-17T15:37:16.620Z",
+        "end_time": "2026-10-17T15:37:24.741Z",
+        "last_updated": "2026-10-17T15:37:24.752Z",
+        "duration_ms": 8121,
         "completed": true
       }
     ],
-    "start_time": "2026-10-17T14:58:19.639Z",
-    "end_time": "2026-10-17T14:58:27.765Z",
-    "duration_ms": 8126,
+    "start_time": "2026-10-17T15:37:16.620Z",
+    "end_time": "2026-10-17T15:37:24.741Z",
+    "duration_ms": 8121,
     "jobs": {
       "total": 9,
       "succeeded": 9,
@@ -38,8 +38,8 @@
           ],
           "num_tasks": 2,
           "num_failed_tasks": 0,
-          "submission_time": "2026-10-17T14:58:27.699Z",
-          "completion_time": "2026-10-17T14:58:27.748Z"
+          "submission_time": "2026-10-17T15:37:24.686Z",
+          "completion_time": "2026-10-17T15:37:24.735Z"
         },
         {
           "job_id": 7,
@@ -50,8 +50,8 @@
           ],
           "num_tasks": 1,
           "num_failed_tasks": 0,
-          "submission_time": "2026-10-17T14:58:27.597Z",
-          "completion_time": "2026-10-17T14:58:27.655Z"
+          "submission_time": "2026-10-17T15:37:24.578Z",
+          "completion_time": "2026-10-17T15:37:24.649Z"
         },
         {
           "job_id": 6,
@@ -62,8 +62,8 @@
           ],
           "num_tasks": 1,
           "num_failed_tasks": 0,
-          "submission_time": "2026-10-17T14:58:27.450Z",
-          "completion_time": "2026-10-17T14:58:27.496Z"
+          "submission_time": "2026-10-17T15:37:24.381Z",
+          "completion_time": "2026-10-17T15:37:24.433Z"
         },
         {
           "job_id": 5,
@@ -77,8 +77,8 @@
           ],
           "num_tasks": 4,
           "num_failed_tasks": 0,
-          "submission_time": "2026-10-17T14:58:27.034Z",
-          "completion_time": "2026-10-17T14:58:27.269Z"
+          "submission_time": "2026-10-17T15:37:24.034Z",
+          "completion_time": "2026-10-17T15:37:24.245Z"
         },
         {
           "job_id": 4,
@@ -91,8 +91,8 @@
           ],
           "num_tasks": 3,
           "num_failed_tasks": 0,
-          "submission_time": "2026-10-17T14:58:26.854Z",
-          "completion_time": "2026-10-17T14:58:26.924Z"
+          "submission_time": "2026-10-17T15:37:23.757Z",
+          "completion_time": "2026-10-17T15:37:23.889Z"
         },
         {
           "job_id": 3,
@@ -105,8 +105,8 @@
           ],
           "num_tasks": 3,
           "num_failed_tasks": 0,
-          "submission_time": "2026-10-17T14:58:26.756Z",
-          "completion_time": "2026-10-17T14:58:26.843Z"
+          "submission_time": "2026-10-17T15:37:23.631Z",
+          "completion_time": "2026-10-17T15:37:23.740Z"
         },
         {
           "job_id": 2,
@@ -118,8 +118,8 @@
           ],
           "num_tasks": 2,
           "num_failed_tasks": 0,
-          "submission_time": "2026-10-17T14:58:26.344Z",
-          "completion_time": "2026-10-17T14:58:26.580Z"
+          "submission_time": "2026-10-17T15:37:23.293Z",
+          "completion_time": "2026-10-17T15:37:23.497Z"
         },
         {
           "job_id": 1,
@@ -130,8 +130,8 @@
           ],
           "num_tasks": 1,
           "num_failed_tasks": 0,
-          "submission_time": "2026-10-17T14:58:25.739Z",
-          "completion_time": "2026-10-17T14:58:26.143Z"
+          "submission_time": "2026-10-17T15:37:22.655Z",
+          "completion_time": "2026-10-17T15:37:23.139Z"
         },
         {
           "job_id": 0,
@@ -142,8 +142,8 @@
           ],
           "num_tasks": 1,
           "num_failed_tasks": 0,
-          "submission_time": "2026-10-17T14:58:24.137Z",
-          "completion_time": "2026-10-17T14:58:24.874Z"
+          "submission_time": "2026-10-17T15:37:21.077Z",
+          "completion_time": "2026-10-17T15:37:21.764Z"
         }
       ]
     },
@@ -155,7 +155,7 @@
       "max_memory_bytes": 455501414,
       "total_gc_time_ms": 0
     },
-    "driver_log": "/home/user/workflow-cli/demo/environment/.runtime/spark/driver-logs/local-1792249100267.log"
+    "driver_log": "/home/user/workflow-cli/demo/environment/.runtime/spark/driver-logs/local-1792251437267.log"
   },
   "error": null,
   "meta": {
@@ -163,46 +163,46 @@
       {
         "system": "spark",
         "adapter": "spark-history-rest",
-        "observed_at": "2026-10-17T15:05:40.765Z",
+        "observed_at": "2026-10-17T15:39:04.916Z",
         "endpoint": "spark/demo-spark",
-        "method": "GET /api/v1/applications/local-1792249100267",
+        "method": "GET /api/v1/applications/local-1792251437267",
         "version": "3.5.5",
         "relation": "explicit"
       },
       {
         "system": "spark",
         "adapter": "spark-history-rest",
-        "observed_at": "2026-10-17T15:05:40.765Z",
+        "observed_at": "2026-10-17T15:39:04.916Z",
         "endpoint": "spark/demo-spark",
-        "method": "GET /api/v1/applications/local-1792249100267/jobs",
+        "method": "GET /api/v1/applications/local-1792251437267/jobs",
         "version": "3.5.5",
         "relation": "explicit"
       },
       {
         "system": "spark",
         "adapter": "spark-history-rest",
-        "observed_at": "2026-10-17T15:05:40.765Z",
+        "observed_at": "2026-10-17T15:39:04.916Z",
         "endpoint": "spark/demo-spark",
-        "method": "GET /api/v1/applications/local-1792249100267/allexecutors",
+        "method": "GET /api/v1/applications/local-1792251437267/allexecutors",
         "version": "3.5.5",
         "relation": "explicit"
       },
       {
         "system": "spark",
         "adapter": "spark-history-rest",
-        "observed_at": "2026-10-17T15:05:40.765Z",
+        "observed_at": "2026-10-17T15:39:04.916Z",
         "method": "status = f(attempt.completed, job states, driver log tail)",
         "relation": "derived"
       }
     ],
     "coverage": {
       "complete": true,
-      "scope": "local-1792249100267"
+      "scope": "local-1792251437267"
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj3o8c-3eabc7",
+    "request_id": "req-mvckamn6-e8d857",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -210,7 +210,7 @@
     "adapter": "spark-history-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:05:40.716Z",
-    "duration_ms": 49
+    "started_at": "2026-10-17T15:39:04.866Z",
+    "duration_ms": 50
   }
 }

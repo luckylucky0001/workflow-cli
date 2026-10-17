@@ -49,28 +49,6 @@
         "origin": "builtin"
       },
       {
-        "name": "config.diff",
-        "command": "config diff",
-        "summary": "比较配置项两个版本的差异",
-        "domain": "config",
-        "status": "planned",
-        "operation": "read",
-        "adapter": "config-center (待接入)",
-        "capability_version": "1.0.0",
-        "origin": "builtin"
-      },
-      {
-        "name": "config.get",
-        "command": "config get",
-        "summary": "读取配置中心配置项的当前值摘要",
-        "domain": "config",
-        "status": "planned",
-        "operation": "read",
-        "adapter": "config-center (待接入)",
-        "capability_version": "1.0.0",
-        "origin": "builtin"
-      },
-      {
         "name": "data.transfer.get",
         "command": "data transfer get",
         "summary": "查看数据同步/传输任务（如 DataX、CDC、跨集群拷贝）的状态、进度与位点",
@@ -78,17 +56,6 @@
         "status": "planned",
         "operation": "read",
         "adapter": "data-transfer (待接入)",
-        "capability_version": "1.0.0",
-        "origin": "builtin"
-      },
-      {
-        "name": "discovery.list",
-        "command": "discovery list",
-        "summary": "从服务注册中心列出服务实例",
-        "domain": "config",
-        "status": "planned",
-        "operation": "read",
-        "adapter": "service-registry (待接入)",
         "capability_version": "1.0.0",
         "origin": "builtin"
       },
@@ -203,26 +170,15 @@
         "origin": "builtin"
       },
       {
-        "name": "search.index.get",
-        "command": "search index get",
-        "summary": "查看搜索引擎索引的分片、容量和状态",
+        "name": "search.snapshot.list",
+        "command": "search snapshot list",
+        "summary": "列出 OpenSearch 快照仓库中的快照及状态（待接入）",
         "domain": "search",
         "status": "planned",
         "operation": "read",
-        "adapter": "elasticsearch/opensearch (待接入)",
+        "adapter": "opensearch-http",
         "capability_version": "1.0.0",
-        "origin": "builtin"
-      },
-      {
-        "name": "search.query",
-        "command": "search query",
-        "summary": "对搜索引擎执行受限查询",
-        "domain": "search",
-        "status": "planned",
-        "operation": "read",
-        "adapter": "elasticsearch/opensearch (待接入)",
-        "capability_version": "1.0.0",
-        "origin": "builtin"
+        "origin": "plugin:demo-search@0.1.0"
       },
       {
         "name": "sql.query.submit-hive",
@@ -384,23 +340,23 @@
         "name": "config",
         "title": "配置与服务发现",
         "pillar": "infrastructure",
-        "summary": "配置中心与服务注册（待接入）",
+        "summary": "配置中心与服务注册（etcd v3 JSON 网关）：配置读取、修订间差异、注册实例与租约",
         "guide": "docs/guides/infrastructure.md",
-        "skill": null,
-        "available": 0,
-        "planned": 3,
+        "skill": "skills/infra-operations",
+        "available": 3,
+        "planned": 0,
         "origin": "builtin"
       },
       {
         "name": "search",
         "title": "搜索引擎",
         "pillar": "middleware",
-        "summary": "Elasticsearch / OpenSearch（待接入）",
-        "guide": "docs/provider-onboarding.md",
-        "skill": null,
-        "available": 0,
-        "planned": 2,
-        "origin": "builtin"
+        "summary": "OpenSearch 集群健康、索引分片/容量/映射、受限只读查询；以插件形式接入",
+        "guide": "/root/.local/share/workctl/plugins/demo-search/0.1.0/guides/search.md",
+        "skill": "/root/.local/share/workctl/plugins/demo-search/0.1.0/skills/search-operations",
+        "available": 3,
+        "planned": 1,
+        "origin": "plugin:demo-search@0.1.0"
       },
       {
         "name": "document",
@@ -454,7 +410,7 @@
       {
         "system": "workctl",
         "adapter": "registry",
-        "observed_at": "2026-10-17T15:04:57.622Z",
+        "observed_at": "2026-10-17T15:38:21.893Z",
         "method": "builtin + installed plugins",
         "relation": "explicit"
       }
@@ -466,7 +422,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj2qyq-1ffa36",
+    "request_id": "req-mvck9pgu-1213ec",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -474,7 +430,7 @@
     "adapter": "registry",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:04:57.602Z",
-    "duration_ms": 21
+    "started_at": "2026-10-17T15:38:21.870Z",
+    "duration_ms": 24
   }
 }

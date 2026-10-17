@@ -6,7 +6,7 @@
     "instance": "demo-mysql",
     "sessions": [],
     "summary": {
-      "total_visible": 1,
+      "total_visible": 3,
       "returned": 0,
       "active": 0,
       "with_open_trx": 0,
@@ -20,7 +20,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T15:05:10.760Z",
+        "observed_at": "2026-10-17T15:38:33.953Z",
         "endpoint": "mysql/demo-mysql",
         "method": "performance_schema.processlist LEFT JOIN information_schema.INNODB_TRX",
         "version": "8.4.11",
@@ -37,7 +37,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj312u-b412ec",
+    "request_id": "req-mvck9yr2-ad746e",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -45,7 +45,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:05:10.710Z",
-    "duration_ms": 51
+    "started_at": "2026-10-17T15:38:33.902Z",
+    "duration_ms": 52
   }
 }

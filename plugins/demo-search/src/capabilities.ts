@@ -289,7 +289,7 @@ export function readDslFile(path: unknown): DslInput | null {
   if (typeof path !== 'string') throw new PluginError('INVALID_ARGUMENT', '--dsl-file 必须是文件路径');
   if (!isAbsolute(path) && !existsSync(path)) {
     throw new PluginError('INVALID_ARGUMENT', `--dsl-file 使用了相对路径且在插件工作目录下找不到: ${path}`, {
-      hint: '插件进程的工作目录是插件安装目录，相对路径无法按调用方目录解析；请传绝对路径，例如 --dsl-file "$PWD/query.json"',
+      hint: '经 workctl 调用时 core 会把相对路径转成绝对路径；直接按协议调用插件时请传绝对路径（插件工作目录是安装目录）',
     });
   }
   if (!existsSync(path) || !statSync(path).isFile()) throw new PluginError('INVALID_ARGUMENT', `--dsl-file 不存在或不是普通文件: ${path}`);

@@ -67,6 +67,8 @@ skills/*/SKILL.md        领域 Skill
 
 执行协议 `workctl-plugin/1`：核心通过 stdin 传入一个 JSON（capability、已校验的 inputs、该插件端点类型的配置——凭据引用已解析且只经 stdin 传递、profile、env、request_id、timeout_ms），插件向 stdout 写一个 JSON（status、data、error、meta）。核心负责参数校验、执行授权、超时、信封与 `context`；插件只实现系统语义。安装时校验清单、入口、Schema、领域指南和命名冲突；`backend_mode` 非 live 时结果自动带警告。示例：[plugins/demo-mq](../plugins/demo-mq)。
 
+**实现内置目录中的待接入能力**：内置目录里 `status: planned` 的能力（如 `search.index.get`、`search.query`）可以由插件实现——清单中声明同名能力即可，安装时它替换内置的 planned 条目（来源记为 `origin: plugin:<name>@<version>`）；整个领域都是 planned 时，插件的领域元数据（标题、指南）也替换内置的占位。已可调用的内置能力不能被插件覆盖（安装报命名冲突）。类型为 `file` 的参数由 core 按调用方目录转成绝对路径后再交给插件，插件不必关心自己的工作目录。示例：[plugins/demo-search](../plugins/demo-search)（OpenSearch）。
+
 ## 3. 结果契约检查清单
 
 - [ ] `data` 有 zod schema；`WORKCTL_VALIDATE_OUTPUT=1` 下无 schema 警告

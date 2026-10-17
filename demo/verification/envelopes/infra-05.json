@@ -18,26 +18,26 @@
         }
       ],
       "error_code": null,
-      "duration_ms": 3.4
+      "duration_ms": 4.2
     },
     "records": {
       "A": {
         "status": "nxdomain",
         "records": [],
         "error_code": "ENOTFOUND",
-        "duration_ms": 4
+        "duration_ms": 1.3
       },
       "AAAA": {
         "status": "nxdomain",
         "records": [],
         "error_code": "ENOTFOUND",
-        "duration_ms": 3.8
+        "duration_ms": 1
       },
       "CNAME": {
         "status": "nxdomain",
         "records": [],
         "error_code": "ENOTFOUND",
-        "duration_ms": 3.7
+        "duration_ms": 0.9
       }
     },
     "resolved": true
@@ -48,7 +48,7 @@
       {
         "system": "dns",
         "adapter": "node-dns",
-        "observed_at": "2026-10-17T15:05:04.610Z",
+        "observed_at": "2026-10-17T15:38:28.920Z",
         "method": "getaddrinfo (dns.lookup all=true)",
         "relation": "explicit",
         "endpoint": "system resolver"
@@ -56,7 +56,7 @@
       {
         "system": "dns",
         "adapter": "node-dns",
-        "observed_at": "2026-10-17T15:05:04.610Z",
+        "observed_at": "2026-10-17T15:38:28.920Z",
         "method": "resolve4/resolve6/resolveCname",
         "relation": "explicit",
         "endpoint": "nameservers 8.8.8.8,8.8.4.4"
@@ -72,7 +72,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj2wcs-cb48ed",
+    "request_id": "req-mvck9uw2-5eb9e7",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -80,7 +80,7 @@
     "adapter": "node-dns",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:05:04.588Z",
+    "started_at": "2026-10-17T15:38:28.898Z",
     "duration_ms": 22
   }
 }

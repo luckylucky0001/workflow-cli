@@ -53,7 +53,7 @@ node scripts/verify-demo.mjs demo/verification/cases.search.json # CLI 端到端
 ## 已知限制
 
 - 只读：不提供 reindex、副本数调整、快照等写操作；`search.snapshot.list` 为 planned。
-- `--dsl-file` 需要绝对路径（core 将文件参数原样传给插件，插件工作目录是安装目录）。
+- `--dsl-file` 可以是相对路径：core 在参数校验时按调用方目录把文件参数转成绝对路径再交给插件（插件工作目录是安装目录）；直接按协议调用插件时须传绝对路径。
 - 未验证：OpenSearch 1.x/3.x、Elasticsearch、启用安全插件（basic auth/TLS）的集群、多节点集群；basic auth 与 401/403 映射只在单元测试中覆盖。
 - 未提供基于时间窗口的查询速率；`cumulative_stats` 为累计值，需两次采样差分。
 - `search.index.get` 只描述单个索引；别名指向多个索引时返回 `INVALID_ARGUMENT` 并列出这些索引。

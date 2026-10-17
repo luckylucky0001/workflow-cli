@@ -89,7 +89,7 @@ export const CAPABILITIES: ManifestCapability[] = [
       cluster,
       index: { type: 'string', required: true, description: '索引、别名或带尾部 * 的前缀，可逗号分隔（≤10 个）；禁止 _all 与 . 开头的系统索引' },
       query: { type: 'string', description: 'query_string 查询，如 "status:paid AND city:shanghai"；与 DSL 中的 query 二选一' },
-      dsl_file: { type: 'file', description: '受限 DSL 的 JSON 文件（只允许 query、size、sort、_source、aggs），请使用绝对路径' },
+      dsl_file: { type: 'file', description: '受限 DSL 的 JSON 文件（只允许 query、size、sort、_source、aggs）；相对路径按调用方目录解析' },
       max_hits: { type: 'int', default: 20, description: '最多返回的命中条数（1-100）' },
       track_total_hits: { type: 'int', default: 10000, description: '精确计数上限（1-10000）；命中数超过它时 total.relation=gte' },
     },

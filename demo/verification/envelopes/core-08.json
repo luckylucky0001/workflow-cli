@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
   "status": "error",
-  "capability": "cli",
+  "capability": "search.query",
   "data": null,
   "error": {
     "code": "INVALID_ARGUMENT",
-    "message": "unknown command 'search'",
-    "hint": "运行 workctl <command> --help 查看用法",
+    "message": "缺少必填参数 --cluster；缺少必填参数 --index",
+    "hint": "运行 workctl search query --help 查看参数",
     "retryable": false
   },
   "meta": {
@@ -15,15 +15,15 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj2sps-01c091",
-    "profile": null,
-    "env": null,
-    "data_mode": null,
-    "capability_version": null,
-    "adapter": null,
-    "operation": null,
+    "request_id": "req-mvck9rb6-a81fe2",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:04:59.872Z",
-    "duration_ms": 1
+    "started_at": "2026-10-17T15:38:24.258Z",
+    "duration_ms": 28
   }
 }

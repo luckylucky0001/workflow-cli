@@ -14,7 +14,7 @@ description: 排查 OpenSearch 搜索引擎问题（集群 red/yellow、分片�
 | 集群健康、版本、索引数 | `workctl --json search cluster get --cluster <c>` |
 | 索引设置/映射/容量/分片 | `workctl --json search index get --cluster <c> --index <索引或单索引别名>` |
 | 受限查询 | `workctl --json search query --cluster <c> --index <i> --query '<query_string>' [--max-hits N]` |
-| 统计/排序 | `... search query --cluster <c> --index <i> --dsl-file /绝对路径/q.json`（只允许 query/size/sort/_source/aggs） |
+| 统计/排序 | `... search query --cluster <c> --index <i> --dsl-file q.json`（只允许 query/size/sort/_source/aggs） |
 | 快照列表 | `search.snapshot.list` 为 planned，如实告知未接入 |
 
 `--cluster` 是 profile 中 `endpoints.opensearch` 的名字（演示环境 `demo-search`）。

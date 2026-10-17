@@ -35,13 +35,15 @@ declare -A PROMPTS=(
   [A-infra]="看一下 demo-order（env sandbox）的运行资源和依赖，定位当前异常关联的实例、事件和资源情况。只做查询，不要执行任何变更。"
   [B-latency]="demo-order 最近变慢了，请检查 Redis 与 MySQL 的情况，并结合请求日志给出依据。区分已确认的事实与待验证的判断。只做查询。"
   [C-offline]="demo-daily-orders 对应业务日期 2026-10-16（Asia/Shanghai）的数据还没到，请沿依赖和计算链路检查，确认目标分区，并给出处理或补数计划（只生成计划，不执行）。"
+  [D-extend]="两件事：1) demo-order（env sandbox）的配置最近改了什么、现在注册了哪些实例？2) 搜索集群 demo-search 上，用别名 demo-orders-all 按 created_at 倒序查最近 5 条订单，结果完整吗？如果不完整，说明原因。只做查询，不要执行任何变更。"
 )
 ONLY="${1:-A-infra B-latency C-offline}"
 # MODE=skill-mcp (default): project Skills + MCP tools + CLI.  MODE=cli-only: no Skills, no MCP,
 # the agent only has the workctl CLI (comparison group for demo/evaluation.md).
 MODE="${MODE:-skill-mcp}"
 EMPTY_DIR="$(mktemp -d)"
-start_fault
+# the latency fault only matters for main lines A/B
+case " $ONLY " in *" A-infra "*|*" B-latency "*) start_fault ;; esac
 for key in $ONLY; do
   suffix=""; [ "$MODE" = "cli-only" ] && suffix=".cli-only"
   [ -n "${RUN_TAG:-}" ] && suffix="${suffix}.${RUN_TAG}"

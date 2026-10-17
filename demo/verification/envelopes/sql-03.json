@@ -15,7 +15,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj3q22-a418ca",
+    "request_id": "req-mvckaocv-9681d0",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -23,7 +23,7 @@
     "adapter": "spark-submit-local|trino-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:05:43.082Z",
-    "duration_ms": 22
+    "started_at": "2026-10-17T15:39:07.087Z",
+    "duration_ms": 35
   }
 }

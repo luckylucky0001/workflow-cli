@@ -3,9 +3,9 @@
   "status": "success",
   "capability": "offline.backfill.plan",
   "data": {
-    "plan_id": "op-20261017-670394",
+    "plan_id": "op-20261017-a846e8",
     "status": "planned",
-    "expires_at": "2026-10-17T17:05:40.060Z",
+    "expires_at": "2026-10-17T17:39:04.275Z",
     "executable": true,
     "workflow": "demo-daily-orders",
     "targets": [
@@ -113,9 +113,9 @@
       ],
       "code_version": {
         "source_sha256": "11501b7deba7b46586851c578bd6b8202e9210d2e053a20da5852f3fe3bc0317",
-        "file_token": ".eJw1ydEKgCAMBdB_8d3uJ4m0raTpYiPEvw-CzutJOK0znmDHNL9EbeZdG4i7wUS0Dc7_BKge8V2h2nQVc2KP7V7pBRP6HDQ.j8xZLEbFTR8TslIiUnKTWoh1jhU",
+        "file_token": ".eJw1ydEKgCAMBdB_8d3uJ4m0raTpYiPEvw-CzutJOK0znmDHNL9EbeZdG4i7wUS0Dc7_BKge8V2h2nQVc2KP7V7pBRP6HDQ.enSsd0FGbvIK_CSLukWb1c5fZio",
         "fileloc": "/home/user/workflow-cli/demo/offline-workflows/dags/demo_daily_orders.py",
-        "last_parsed_time": "2026-10-17T15:05:30.129801+00:00",
+        "last_parsed_time": "2026-10-17T15:38:49.062176+00:00",
         "basis": "source_sha256 = sha256(GET /api/v1/dagSources/{file_token})，即调度器当前解析到的 DAG 文件内容；file_token 只标识文件位置，不代表内容版本",
         "note": "重跑与新触发的 run 使用调度器当前解析的 DAG 代码，而非原 run 当时的代码"
       },
@@ -193,7 +193,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T15:05:39.229Z",
+        "observed_at": "2026-10-17T15:39:03.466Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/details",
         "version": "2.10.5",
@@ -202,7 +202,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T15:05:39.229Z",
+        "observed_at": "2026-10-17T15:39:03.466Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns",
         "version": "2.10.5",
@@ -211,7 +211,7 @@
       {
         "system": "catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T15:05:39.239Z",
+        "observed_at": "2026-10-17T15:39:03.476Z",
         "endpoint": "catalog/demo",
         "method": "produced_by.workflow=demo-daily-orders",
         "relation": "explicit"
@@ -219,7 +219,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T15:05:39.353Z",
+        "observed_at": "2026-10-17T15:39:03.596Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "stat+readdir analytics/daily_orders/dt=2026-10-14",
         "relation": "derived"
@@ -227,7 +227,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T15:05:40.051Z",
+        "observed_at": "2026-10-17T15:39:04.263Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/pools/{pool}",
         "version": "2.10.5",
@@ -243,7 +243,7 @@
     ]
   },
   "context": {
-    "request_id": "req-mvcj3ms4-d1d948",
+    "request_id": "req-mvckalbh-ab01c6",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -251,7 +251,7 @@
     "adapter": "airflow-rest-v1|v2",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:05:38.836Z",
-    "duration_ms": 1225
+    "started_at": "2026-10-17T15:39:03.149Z",
+    "duration_ms": 1126
   }
 }
