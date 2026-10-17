@@ -1,0 +1,932 @@
+[
+ {
+  "id": "core-01",
+  "args": [
+   "doctor"
+  ],
+  "note": "自身环境诊断"
+ },
+ {
+  "id": "core-02",
+  "args": [
+   "capability",
+   "list",
+   "--status",
+   "planned"
+  ],
+  "note": "待接入能力只在目录中"
+ },
+ {
+  "id": "core-03",
+  "args": [
+   "capability",
+   "get",
+   "--name",
+   "mysql.statement.summary"
+  ]
+ },
+ {
+  "id": "core-04",
+  "args": [
+   "resource",
+   "list",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ]
+ },
+ {
+  "id": "core-05",
+  "args": [
+   "service",
+   "dependency",
+   "list",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ]
+ },
+ {
+  "id": "core-06",
+  "args": [
+   "auth",
+   "status",
+   "--probe"
+  ],
+  "timeout_s": 60,
+  "note": "各端点身份与版本，不输出凭据"
+ },
+ {
+  "id": "core-07",
+  "args": [
+   "access",
+   "check",
+   "--capability",
+   "mysql.query.execute",
+   "--target",
+   "demo-mysql"
+  ]
+ },
+ {
+  "id": "core-08",
+  "args": [
+   "search",
+   "query"
+  ],
+  "expect": "exit 2",
+  "note": "待接入能力不生成命令"
+ },
+ {
+  "id": "infra-01",
+  "args": [
+   "container",
+   "workload",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ]
+ },
+ {
+  "id": "infra-02",
+  "args": [
+   "container",
+   "event",
+   "list",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--window",
+   "6h"
+  ]
+ },
+ {
+  "id": "infra-03",
+  "args": [
+   "container",
+   "stats",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "note": "快照，非窗口"
+ },
+ {
+  "id": "infra-04",
+  "args": [
+   "capacity",
+   "summary",
+   "--env",
+   "sandbox"
+  ]
+ },
+ {
+  "id": "infra-05",
+  "args": [
+   "network",
+   "dns",
+   "get",
+   "--name",
+   "localhost"
+  ]
+ },
+ {
+  "id": "infra-06",
+  "args": [
+   "network",
+   "backend",
+   "list",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ]
+ },
+ {
+  "id": "infra-07",
+  "args": [
+   "network",
+   "connectivity",
+   "check",
+   "--target",
+   "127.0.0.1:13306"
+  ]
+ },
+ {
+  "id": "infra-08",
+  "args": [
+   "storage",
+   "volume",
+   "get",
+   "--id",
+   "workctl-demo_mysql-data"
+  ]
+ },
+ {
+  "id": "infra-09",
+  "args": [
+   "storage",
+   "file",
+   "stat",
+   "--path",
+   "demo/environment/workctl.yaml"
+  ]
+ },
+ {
+  "id": "infra-10",
+  "args": [
+   "metric",
+   "list",
+   "--resource",
+   "demo-order"
+  ]
+ },
+ {
+  "id": "infra-11",
+  "args": [
+   "metric",
+   "query",
+   "--resource",
+   "demo-order",
+   "--metric",
+   "request_rate",
+   "--window",
+   "15m"
+  ],
+  "expect": [
+   "success",
+   "partial",
+   "DATA_UNAVAILABLE"
+  ]
+ },
+ {
+  "id": "infra-12",
+  "args": [
+   "log",
+   "query",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--window",
+   "6h",
+   "--limit",
+   "50"
+  ],
+  "capture": {
+   "trace_id": "data.entries[0].trace_id"
+  }
+ },
+ {
+  "id": "infra-13",
+  "args": [
+   "trace",
+   "get",
+   "--id",
+   "${trace_id}",
+   "--window",
+   "6h"
+  ],
+  "expect": [
+   "success",
+   "partial"
+  ]
+ },
+ {
+  "id": "infra-14",
+  "args": [
+   "container",
+   "workload",
+   "restart-plan",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "note": "只生成计划"
+ },
+ {
+  "id": "mysql-01",
+  "args": [
+   "mysql",
+   "instance",
+   "get",
+   "--instance",
+   "demo-mysql"
+  ]
+ },
+ {
+  "id": "mysql-02",
+  "args": [
+   "mysql",
+   "table",
+   "get",
+   "--instance",
+   "demo-mysql",
+   "--database",
+   "demo",
+   "--table",
+   "orders"
+  ]
+ },
+ {
+  "id": "mysql-03",
+  "args": [
+   "mysql",
+   "index",
+   "list",
+   "--instance",
+   "demo-mysql",
+   "--database",
+   "demo",
+   "--table",
+   "orders"
+  ]
+ },
+ {
+  "id": "mysql-04",
+  "args": [
+   "mysql",
+   "session",
+   "list",
+   "--instance",
+   "demo-mysql"
+  ]
+ },
+ {
+  "id": "mysql-05",
+  "args": [
+   "mysql",
+   "lock",
+   "list",
+   "--instance",
+   "demo-mysql"
+  ]
+ },
+ {
+  "id": "mysql-06",
+  "args": [
+   "--timeout",
+   "40s",
+   "mysql",
+   "statement",
+   "summary",
+   "--instance",
+   "demo-mysql",
+   "--sample-window",
+   "10s"
+  ],
+  "timeout_s": 60
+ },
+ {
+  "id": "mysql-07",
+  "args": [
+   "mysql",
+   "slowlog",
+   "list",
+   "--instance",
+   "demo-mysql",
+   "--since",
+   "24h"
+  ]
+ },
+ {
+  "id": "mysql-08",
+  "args": [
+   "mysql",
+   "query",
+   "explain",
+   "--instance",
+   "demo-mysql",
+   "--database",
+   "demo",
+   "--sql-file",
+   "demo/scenarios/latency/customer_recent.sql"
+  ]
+ },
+ {
+  "id": "mysql-09",
+  "args": [
+   "mysql",
+   "query",
+   "execute",
+   "--instance",
+   "demo-mysql",
+   "--database",
+   "demo",
+   "--sql-file",
+   "demo/scenarios/latency/customer_recent.sql",
+   "--max-rows",
+   "5"
+  ]
+ },
+ {
+  "id": "mysql-10",
+  "args": [
+   "mysql",
+   "index",
+   "plan",
+   "--instance",
+   "demo-mysql",
+   "--database",
+   "demo",
+   "--table",
+   "orders",
+   "--columns",
+   "customer_id,created_at"
+  ]
+ },
+ {
+  "id": "redis-01",
+  "args": [
+   "redis",
+   "instance",
+   "get",
+   "--instance",
+   "demo-redis"
+  ]
+ },
+ {
+  "id": "redis-02",
+  "args": [
+   "redis",
+   "info",
+   "get",
+   "--instance",
+   "demo-redis",
+   "--section",
+   "memory"
+  ]
+ },
+ {
+  "id": "redis-03",
+  "args": [
+   "--timeout",
+   "30s",
+   "redis",
+   "stats",
+   "sample",
+   "--instance",
+   "demo-redis",
+   "--duration",
+   "5s"
+  ],
+  "timeout_s": 60
+ },
+ {
+  "id": "redis-04",
+  "args": [
+   "redis",
+   "slowlog",
+   "list",
+   "--instance",
+   "demo-redis",
+   "--limit",
+   "5"
+  ]
+ },
+ {
+  "id": "redis-05",
+  "args": [
+   "redis",
+   "key",
+   "sample",
+   "--instance",
+   "demo-redis",
+   "--pattern",
+   "demo:*",
+   "--max-keys",
+   "50"
+  ],
+  "capture": {
+   "key": "data.top_keys[0].key"
+  }
+ },
+ {
+  "id": "redis-06",
+  "args": [
+   "redis",
+   "key",
+   "inspect",
+   "--instance",
+   "demo-redis",
+   "--key",
+   "${key}"
+  ]
+ },
+ {
+  "id": "redis-07",
+  "args": [
+   "redis",
+   "key",
+   "hot",
+   "--instance",
+   "demo-redis",
+   "--pattern",
+   "demo:*"
+  ]
+ },
+ {
+  "id": "redis-08",
+  "args": [
+   "redis",
+   "config",
+   "get",
+   "--instance",
+   "demo-redis",
+   "--pattern",
+   "maxmemory*"
+  ]
+ },
+ {
+  "id": "mq-01",
+  "args": [
+   "mq",
+   "consumer",
+   "lag",
+   "--cluster",
+   "demo-mq",
+   "--group",
+   "demo-consumer"
+  ],
+  "note": "插件能力（demo-mq）"
+ },
+ {
+  "id": "mq-02",
+  "args": [
+   "mq",
+   "topic",
+   "get",
+   "--cluster",
+   "demo-mq",
+   "--topic",
+   "demo.order.events"
+  ]
+ },
+ {
+  "id": "mq-03",
+  "args": [
+   "mq",
+   "consumer",
+   "lag",
+   "--cluster",
+   "demo-mq",
+   "--group",
+   "no-such-group"
+  ],
+  "expect": "NOT_FOUND"
+ },
+ {
+  "id": "offline-01",
+  "args": [
+   "offline",
+   "workflow",
+   "get",
+   "--id",
+   "demo-daily-orders"
+  ]
+ },
+ {
+  "id": "offline-02",
+  "args": [
+   "offline",
+   "task",
+   "get",
+   "--workflow",
+   "demo-daily-orders",
+   "--task",
+   "aggregate_orders"
+  ]
+ },
+ {
+  "id": "offline-03",
+  "args": [
+   "offline",
+   "run",
+   "list",
+   "--workflow",
+   "demo-daily-orders",
+   "--data-date",
+   "2026-10-16",
+   "--timezone",
+   "Asia/Shanghai"
+  ]
+ },
+ {
+  "id": "offline-04",
+  "args": [
+   "--timeout",
+   "60s",
+   "offline",
+   "run",
+   "get",
+   "--id",
+   "demo__2026-10-16__wrong_partition",
+   "--workflow",
+   "demo-daily-orders"
+  ],
+  "capture": {
+   "app_id": "data.summary.layers.compute.app_id"
+  },
+  "note": "调度成功 / 计算成功 / 分区缺失"
+ },
+ {
+  "id": "offline-05",
+  "args": [
+   "--timeout",
+   "60s",
+   "offline",
+   "run",
+   "get",
+   "--id",
+   "demo__2026-10-15__ok",
+   "--workflow",
+   "demo-daily-orders"
+  ]
+ },
+ {
+  "id": "offline-06",
+  "args": [
+   "--timeout",
+   "60s",
+   "offline",
+   "dependency",
+   "list",
+   "--run-id",
+   "demo__2026-10-14__missing_upstream",
+   "--workflow",
+   "demo-daily-orders",
+   "--direction",
+   "upstream"
+  ],
+  "note": "上游分区缺失"
+ },
+ {
+  "id": "offline-07",
+  "args": [
+   "offline",
+   "log",
+   "get",
+   "--run-id",
+   "demo__2026-10-16__wrong_partition",
+   "--workflow",
+   "demo-daily-orders",
+   "--task",
+   "aggregate_orders",
+   "--limit-lines",
+   "50"
+  ]
+ },
+ {
+  "id": "offline-08",
+  "args": [
+   "offline",
+   "freshness",
+   "check",
+   "--dataset",
+   "analytics.daily_orders",
+   "--data-date",
+   "2026-10-16",
+   "--timezone",
+   "Asia/Shanghai"
+  ]
+ },
+ {
+  "id": "offline-09",
+  "args": [
+   "--timeout",
+   "60s",
+   "offline",
+   "backfill",
+   "plan",
+   "--workflow",
+   "demo-daily-orders",
+   "--from",
+   "2026-10-14",
+   "--to",
+   "2026-10-16",
+   "--timezone",
+   "Asia/Shanghai"
+  ],
+  "capture": {
+   "plan_id": "data.id"
+  },
+  "note": "只生成计划"
+ },
+ {
+  "id": "offline-10",
+  "args": [
+   "offline",
+   "backfill",
+   "get",
+   "--id",
+   "${plan_id}"
+  ]
+ },
+ {
+  "id": "compute-01",
+  "args": [
+   "compute",
+   "job",
+   "get",
+   "--id",
+   "${app_id}"
+  ]
+ },
+ {
+  "id": "compute-02",
+  "args": [
+   "compute",
+   "stage",
+   "list",
+   "--job-id",
+   "${app_id}"
+  ]
+ },
+ {
+  "id": "compute-03",
+  "args": [
+   "compute",
+   "log",
+   "get",
+   "--job-id",
+   "${app_id}",
+   "--limit-lines",
+   "30"
+  ]
+ },
+ {
+  "id": "compute-04",
+  "args": [
+   "compute",
+   "queue",
+   "get",
+   "--id",
+   "demo-batch-pool"
+  ]
+ },
+ {
+  "id": "sql-01",
+  "args": [
+   "sql",
+   "query",
+   "submit",
+   "--engine",
+   "spark",
+   "--file",
+   "demo/offline-workflows/sql/examples/daily_orders_by_date.sql"
+  ],
+  "capture": {
+   "query_id": "data.query_id"
+  }
+ },
+ {
+  "id": "sql-02",
+  "args": [
+   "sql",
+   "query",
+   "get",
+   "--id",
+   "${query_id}"
+  ],
+  "note": "异步：状态以 data.state 为准"
+ },
+ {
+  "id": "sql-03",
+  "args": [
+   "sql",
+   "query",
+   "submit",
+   "--engine",
+   "trino",
+   "--file",
+   "demo/offline-workflows/sql/examples/daily_orders_by_date.sql"
+  ],
+  "expect": "UNSUPPORTED"
+ },
+ {
+  "id": "data-01",
+  "args": [
+   "data",
+   "table",
+   "get",
+   "--catalog",
+   "demo",
+   "--table",
+   "analytics.daily_orders"
+  ]
+ },
+ {
+  "id": "data-02",
+  "args": [
+   "data",
+   "partition",
+   "list",
+   "--catalog",
+   "demo",
+   "--table",
+   "analytics.daily_orders"
+  ]
+ },
+ {
+  "id": "data-03",
+  "args": [
+   "data",
+   "partition",
+   "get",
+   "--catalog",
+   "demo",
+   "--table",
+   "analytics.daily_orders",
+   "--partition",
+   "dt=2026-10-16"
+  ],
+  "note": "state=missing 是结果，不是错误"
+ },
+ {
+  "id": "data-04",
+  "args": [
+   "data",
+   "lineage",
+   "get",
+   "--catalog",
+   "demo",
+   "--table",
+   "analytics.daily_orders",
+   "--direction",
+   "upstream"
+  ]
+ },
+ {
+  "id": "data-05",
+  "args": [
+   "data",
+   "lineage",
+   "get",
+   "--catalog",
+   "demo",
+   "--table",
+   "analytics.daily_orders",
+   "--direction",
+   "downstream"
+  ]
+ },
+ {
+  "id": "data-06",
+  "args": [
+   "data",
+   "quality",
+   "check",
+   "--dataset",
+   "demo.daily_orders",
+   "--partition",
+   "dt=2026-10-17",
+   "--ruleset",
+   "demo-daily-rules"
+  ],
+  "note": "捕获错误分区：order_date 与 dt 不一致"
+ },
+ {
+  "id": "data-07",
+  "args": [
+   "data",
+   "quality",
+   "check",
+   "--dataset",
+   "demo.ods.orders",
+   "--partition",
+   "dt=2026-10-16",
+   "--ruleset",
+   "demo-ods-rules"
+  ]
+ },
+ {
+  "id": "op-01",
+  "args": [
+   "operation",
+   "plan",
+   "--action",
+   "container.restart",
+   "--param",
+   "service=demo-order",
+   "--param",
+   "env=sandbox"
+  ],
+  "capture": {
+   "restart_plan": "data.id"
+  }
+ },
+ {
+  "id": "op-02",
+  "args": [
+   "operation",
+   "get",
+   "--id",
+   "${restart_plan}"
+  ]
+ },
+ {
+  "id": "op-03",
+  "args": [
+   "operation",
+   "execute",
+   "--id",
+   "${restart_plan}",
+   "--confirm",
+   "wrong"
+  ],
+  "expect": "PRECONDITION_FAILED",
+  "note": "确认不一致拒绝执行"
+ },
+ {
+  "id": "op-04",
+  "args": [
+   "operation",
+   "list"
+  ]
+ },
+ {
+  "id": "op-05",
+  "args": [
+   "--timeout",
+   "90s",
+   "operation",
+   "execute",
+   "--id",
+   "${restart_plan}",
+   "--confirm",
+   "${restart_plan}"
+  ],
+  "timeout_s": 120,
+  "note": "隔离环境中真实执行重启（allow_execute=true）"
+ },
+ {
+  "id": "op-06",
+  "args": [
+   "operation",
+   "get",
+   "--id",
+   "${restart_plan}"
+  ],
+  "note": "状态与历史：planned → running → succeeded"
+ },
+ {
+  "id": "op-07",
+  "args": [
+   "operation",
+   "execute",
+   "--id",
+   "${restart_plan}",
+   "--confirm",
+   "${restart_plan}"
+  ],
+  "expect": "CONFLICT",
+  "note": "已执行的计划不能再次执行"
+ }
+]

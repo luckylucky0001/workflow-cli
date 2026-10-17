@@ -43,12 +43,12 @@ profile.endpoints.mysql.<instance>  ──(资源绑定 forEndpoint)──▶ my
 - 每个摘要输出 `count`、`total_latency_ms`/`avg_latency_ms`（皮秒换算为毫秒）、`rows_examined`、`rows_sent`、`no_index_used_count`、`digest_text`（字面量为 `?`，最长 `max_digest_length` 字节）。累计模式另有 `max_latency_ms`（窗口模式没有：`MAX_TIMER_WAIT` 不可差分）。
 - 部分结果（`status=partial`）：窗口内有摘要消失（表被 TRUNCATE/重置）、计数回退（只计入重置后部分，`reset_detected=true`）、`Performance_schema_digest_lost` 增加或活动被归入 `DIGEST=NULL` 行（摘要表满，容量见 `performance_schema_digests_size`）。
 - 查询 `events_statements_summary_by_digest` 的语句（含 workctl 自身采样）会被排除，数量见 `excluded_self_digests`。
-- `no_index_used_count=0` 不代表扫描少：例如 Demo 中 `WHERE customer_id=? ORDER BY created_at DESC LIMIT 20` 走 `idx_created_at` 反向全索引扫描，`avg_rows_examined` 约 22 万行。要同时看 `avg_rows_examined / rows_sent`。
+- `no_index_used_count=0` 不代表扫描少：例如 Demo 中 `WHERE customer_id=? ORDER BY created_at DESC LIMIT 20` 走 `idx_created_at` 反向全索引扫描，Demo 中 `avg_rows_examined` 约 22 万～30 万行、每次只返回不到 20 行。要同时看 `avg_rows_examined / rows_sent`。
 
 ### 估计 vs 实际（explain / analyze）
 
 - `explain` 不执行语句，`rows_examined_per_scan`、`filtered`、`cost` 都是估计；`full_scans` 是 `access_type=ALL`，`full_index_scans` 是 `access_type=index`（遍历整个索引）。
-- `analyze` 执行一次语句：`actual time` 为毫秒（每次 loop 的平均值），`rows` 也是每 loop 平均值；结果受 buffer pool 命中影响。Demo 实测：估计 `rows=20`，实际 `rows=18590`（客户 4242 的订单分布导致 LIMIT 提前结束失败）。
+- `analyze` 执行一次语句：`actual time` 为毫秒（每次 loop 的平均值），`rows` 也是每 loop 平均值；结果受 buffer pool 命中影响。Demo 实测（`WHERE customer_id=4242 ORDER BY created_at DESC LIMIT 20`）：`explain` 估计 `Index scan … idx_created_at (reverse)` 只读 20 行；`analyze` 实际读了 300000 行、耗时约 300ms，只返回 15 行——该客户订单不足 20 条，LIMIT 无法提前结束，整条索引被反向扫完。
 - EXPLAIN 需要与执行该语句相同的权限：只读账号 `EXPLAIN UPDATE ...` 返回 `PERMISSION_DENIED`。
 
 ### 受限查询（query execute）
