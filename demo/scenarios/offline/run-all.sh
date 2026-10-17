@@ -15,3 +15,7 @@ unpause demo-daily-orders
 ./02-daily-ok.sh
 ./03-wrong-partition.sh
 ./04-missing-upstream.sh
+# Freeze the scenario state: otherwise the scheduler creates the next business day's run at
+# 00:00 Asia/Shanghai and overwrites the wrong-partition evidence. Unpause to resume scheduling.
+pause demo-ods-orders
+pause demo-daily-orders

@@ -33,6 +33,7 @@ trigger() {
 }
 
 unpause() { af PATCH "/dags/$1?update_mask=is_paused" '{"is_paused": false}' >/dev/null && echo "unpaused $1"; }
+pause() { af PATCH "/dags/$1?update_mask=is_paused" '{"is_paused": true}' >/dev/null && echo "paused $1"; }
 
 run_state() { af GET "/dags/$1/dagRuns/$2" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("state"))'; }
 ti_state() { af GET "/dags/$1/dagRuns/$2/taskInstances/$3" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("state"))'; }
