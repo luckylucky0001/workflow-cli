@@ -141,6 +141,34 @@ describe('incomplete commands', () => {
     const { exit } = await parseError(['fake', '--help']);
     expect(exit).toBe(0);
   });
+
+  it('a bare `workctl` (no arguments) shows the overview and exits 0, as before', async () => {
+    const { main } = await import('../../src/cli/main');
+    let out = '';
+    let err = '';
+    const spy = vi.spyOn(process.stdout, 'write').mockImplementation((chunk: any) => {
+      out += String(chunk);
+      return true;
+    });
+    const errSpy = vi.spyOn(process.stderr, 'write').mockImplementation((chunk: any) => {
+      err += String(chunk);
+      return true;
+    });
+    try {
+      process.exitCode = 0;
+      await main(['node', 'workctl']);
+      expect(process.exitCode).toBe(0);
+      expect(err).toContain('Usage: workctl');
+      expect(out).toBe('');
+      // only global options and no command is still an incomplete command
+      await main(['node', 'workctl', '--json']);
+      expect(process.exitCode).toBe(2);
+      expect(JSON.parse(out).error.code).toBe('INVALID_ARGUMENT');
+    } finally {
+      spy.mockRestore();
+      errSpy.mockRestore();
+    }
+  });
 });
 
 describe('core capabilities fill meta.coverage on success', () => {
@@ -198,5 +226,22 @@ describe('error mapping attribution', () => {
     // the owning domain still names its own system
     const own = await invoke(reg, 'pgx.get', {}, { configPath });
     expect(own.error?.message).toBe('PGX 不可达');
+  });
+
+  it('an error raised by a callee reached through ctx.call keeps the callee domain mapping', async () => {
+    const { Registry, defineCapability, defineDomain } = await import('../../src/core/registry');
+    const { WorkError } = await import('../../src/core/output');
+    const { z } = await import('zod');
+    const base = { summary: 's', output: z.object({}), adapter: 'x', operation: 'read' as const, auth_provider: 'none', guide: 'docs/x.md' };
+    const reg = new Registry();
+    const calleeErr = () => Object.assign(new Error('boom'), { code: 'X_DENIED' });
+    reg.addDomain(defineDomain({ name: 'callee', title: 'c', summary: 's', pillar: 'middleware', guide: 'docs/x.md', capabilities: [defineCapability({ ...base, name: 'callee.get', command: 'callee get', domain: 'callee', handler: async () => { throw calleeErr(); } })], mapError: (e: any) => (e?.code === 'X_DENIED' ? new WorkError('PERMISSION_DENIED', 'CALLEE 拒绝') : undefined) }));
+    // the caller's own mapper claims every errno-style error; it must not re-label the callee's
+    reg.addDomain(defineDomain({ name: 'caller', title: 'c', summary: 's', pillar: 'offline', guide: 'docs/x.md', capabilities: [defineCapability({ ...base, name: 'caller.get', command: 'caller get', domain: 'caller', handler: async (ctx) => {
+      const env = await ctx.call('callee.get', {});
+      return { data: { callee_code: env.error?.code, callee_message: env.error?.message } };
+    } })], mapError: (e: any) => (e?.code ? new WorkError('UPSTREAM_UNAVAILABLE', 'CALLER 不可达') : undefined) }));
+    const env = await invoke(reg, 'caller.get', {}, { configPath: writeConfig(tempDir()) });
+    expect(env.data).toEqual({ callee_code: 'PERMISSION_DENIED', callee_message: 'CALLEE 拒绝' });
   });
 });

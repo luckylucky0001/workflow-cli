@@ -59,3 +59,15 @@ Reported, not fixed here (owned elsewhere): `mapPgError` (src/domains/postgres/c
 "PostgreSQL 不可达" when used as the domain-wide mapper — now contained by the engine ordering (#10) but the mapper
 should only claim pg-driver errors; demo-search `search query --dsl-file <non-JSON file>` echoes the first bytes of
 the file in the INVALID_ARGUMENT message (`"root:x:0:0"...`).
+
+## 完整复位后的回归复跑（2026-10-17 17:12–17:29 UTC）
+
+所有修复合入、`verify-all.sh` 从完整复位通过之后再跑一遍（只读，不调用 execute）：
+
+| 范围 | CLI 用例 | MCP 调用 | 违例 |
+| --- | --- | --- | --- |
+| 除 postgres / deploy 外的 74 个能力 | 2011 | 含（87 个工具，含跨入口同形对照） | 0 |
+| postgres（9 个能力） | 254 | 127 | 0 |
+| deploy（4 个能力） | 143 | 66 | 0 |
+
+同期对核心修复做了非作者复审：发现 1 个回归（不带参数的 `workctl` 退出码由 0 变成 2），已修复并补测试（`test/core/contract-fuzz.test.ts`）；`--timeout` 各种写法、MCP、跨领域错误映射、`--help/--version` 退出码均确认无回归。

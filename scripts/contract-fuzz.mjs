@@ -10,7 +10,7 @@
  * stack traces / internal paths / secret values, text and yaml modes do not crash, timeouts are
  * honoured, planned capabilities are not callable; then the same over MCP stdio.
  *
- * Never calls `execute` capabilities. Skips domains that are being built elsewhere (SKIP_DOMAINS).
+ * Never calls `execute` capabilities. `--skip-domains a,b` leaves domains out (default: none).
  * Writes demo/verification/contract-fuzz.json and demo/verification/contract-fuzz.md (no secret values).
  */
 import { spawn } from 'node:child_process';
@@ -31,7 +31,7 @@ const NO_MCP = args.includes('--no-mcp');
 const REPORT = resolve(ROOT, argOf('--report', 'demo/verification/contract-fuzz'));
 const OUT_JSON = `${REPORT}.json`;
 const OUT_MD = `${REPORT}.md`;
-const SKIP_DOMAINS = new Set((argOf('--skip-domains', 'postgres,deploy') || '').split(',').filter(Boolean));
+const SKIP_DOMAINS = new Set((argOf('--skip-domains', '') || '').split(',').filter(Boolean));
 
 const { createClient, ERROR_CODES } = await import(join(ROOT, 'dist/index.js'));
 const registry = createClient().registry;
