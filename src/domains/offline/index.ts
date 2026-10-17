@@ -350,7 +350,7 @@ function findings(s: { scheduler: string; compute: string; output: string; quali
   if (s.compute === 'succeeded' && ['missing', 'empty'].includes(s.output)) {
     out.push({ kind: 'inconsistency', message: `Spark 应用成功结束，但目标分区 ${s.output}：可能写到了其他分区或路径（需查看计算日志与输出路径确认）` });
   }
-  if (s.scheduler === 'success' && s.compute === 'failed') out.push({ kind: 'inconsistency', message: '调度成功但关联 Spark 应用有失败作业' });
+  if (s.scheduler === 'success' && s.compute === 'failed') out.push({ kind: 'inconsistency', message: '调度成功但关联 Spark 应用失败（失败作业或 driver 未处理异常，见 compute 层 detail）' });
   const waiting = tasks.filter((t) => t.state === 'up_for_reschedule' || t.state === 'deferred');
   for (const t of waiting) out.push({ kind: 'fact', message: `任务 ${t.task_id} 处于 ${t.state}（传感器等待上游条件，未占用执行槽）` });
   const failed = tasks.filter((t) => t.state === 'failed' || t.state === 'upstream_failed');

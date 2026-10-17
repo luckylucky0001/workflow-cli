@@ -53,6 +53,9 @@ export function stripSqlLiterals(sql: string): string {
 
 const FORBIDDEN = ['INSERT', 'UPDATE', 'DELETE', 'MERGE', 'CREATE', 'DROP', 'ALTER', 'TRUNCATE', 'REPLACE', 'LOAD', 'GRANT', 'REVOKE', 'MSCK', 'REFRESH', 'CACHE', 'UNCACHE', 'SET', 'RESET', 'ADD', 'USE', 'ANALYZE', 'CALL', 'EXPORT', 'IMPORT', 'OVERWRITE', 'DIRECTORY'];
 
+/** Spark data source short names usable as `<format>.\`<path>\`` (direct file query, spark.sql.runSQLOnFiles). */
+const FILE_SOURCES = ['json', 'parquet', 'csv', 'text', 'orc', 'avro', 'binaryfile', 'delta', 'jdbc', 'libsvm', 'image', 'xml', 'hive', 'iceberg', 'hudi'];
+
 export function checkReadOnlySql(sql: string): { ok: true; statement: string } | { ok: false; reason: string } {
   const bare = stripSqlLiterals(sql);
   const stmts = bare.split(';').map((s) => s.trim()).filter(Boolean);
@@ -63,6 +66,14 @@ export function checkReadOnlySql(sql: string): { ok: true; statement: string } |
   const words = new Set((stmts[0].toUpperCase().match(/[A-Z_]+/g) ?? []));
   const bad = FORBIDDEN.filter((k) => words.has(k));
   if (bad.length) return { ok: false, reason: `查询中包含写入/DDL/会话关键字: ${bad.join(', ')}` };
+  // SELECT TRANSFORM/MAP/REDUCE (...) USING 'script' runs an external command on the driver/executors
+  if (/\bUSING\s+_lit_/i.test(stmts[0])) return { ok: false, reason: '不允许脚本转换（TRANSFORM/MAP/REDUCE ... USING \'<命令>\'），它会执行外部命令' };
+  // reflect / java_method call arbitrary static Java methods (e.g. System.getenv)
+  const fn = /\b(reflect|java_method|try_reflect)\s*\(/i.exec(stmts[0]);
+  if (fn) return { ok: false, reason: `不允许调用 ${fn[1]}()（可调用任意 Java 静态方法）` };
+  // <format>.`/path` (or <format>.name) reads arbitrary files instead of registered views
+  const file = new RegExp(`\\b(${FILE_SOURCES.join('|')})\\s*\\.\\s*(_ident_|[A-Za-z_/])`, 'i').exec(stmts[0]);
+  if (file) return { ok: false, reason: `不允许直接查询文件（${file[1]}.\`<路径>\`），只能查询已注册的视图` };
   return { ok: true, statement: stmts[0] };
 }
 
