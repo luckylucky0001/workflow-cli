@@ -9,6 +9,19 @@
 
 > 状态标注：本仓库区分 **已实现并在隔离环境验证**、**已实现未验证**、**待接入（planned）**。所有业务数据均为合成数据；没有客户环境验证结果，也不预设提效百分比。详见 [docs/compatibility.md](docs/compatibility.md) 与 [demo/evaluation.md](demo/evaluation.md)。
 
+## 验证状态（隔离演示环境，2026-10-17）
+
+| 项目 | 结果 | 证据 |
+| --- | --- | --- |
+| 单元 + 契约测试 | 全部通过（契约测试检查：设计稿命令全覆盖、输出 Schema、指南/Skill 存在、示例命令有效、生成文档与定义一致、MCP 工具与能力一致） | `npm test` |
+| 真实环境集成测试 | `WORKCTL_IT=1 npm test` 全部通过 | MySQL 8.4.11、Redis 7.4.11、Kafka 3.9.1、Airflow 2.10.5、Spark 3.5.5、Docker 29.8.2、Prometheus 3.5.0 |
+| 逐能力真实调用 | 见报告 | [demo/verification/report.md](demo/verification/report.md) |
+| 三种消费者同一契约 | CLI == 脚本 API == MCP（内置 Redis 能力与插件 Kafka 能力） | `demo/scenarios/reuse/same-contract.mjs` |
+| Agent 宿主 | Claude Code 无头模式经 Skill + MCP 跑三条主线（只读 profile） | [demo/agent-host/runs/](demo/agent-host/runs/) |
+| 复用 | Skill × 能力矩阵、能力组合 | [docs/reuse-matrix.md](docs/reuse-matrix.md) |
+
+没有客户环境验证；没有提效百分比（评估方法与已测数据见 [demo/evaluation.md](demo/evaluation.md)）。
+
 ## 能力全景
 
 ```bash

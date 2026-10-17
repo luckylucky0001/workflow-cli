@@ -98,3 +98,18 @@ export function errorResponse(e: PluginError, sources: Source[] = []): PluginRes
     meta: { sources, coverage: null, warnings: [] },
   };
 }
+
+/**
+ * Serialize a response for stdout. Never throws: if the payload cannot be encoded as JSON
+ * (BigInt, circular structure), an INTERNAL error response is produced instead, so the
+ * protocol guarantee "exactly one JSON document on stdout" holds.
+ */
+export function serializeResponse(res: PluginResponse): string {
+  try {
+    return JSON.stringify(res);
+  } catch (e) {
+    return JSON.stringify(
+      errorResponse(new PluginError('INTERNAL', `插件响应无法序列化为 JSON: ${e instanceof Error ? e.message : String(e)}`), res.meta?.sources ?? []),
+    );
+  }
+}

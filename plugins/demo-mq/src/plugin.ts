@@ -5,7 +5,7 @@
  */
 import { HANDLERS } from './capabilities';
 import { CAPABILITIES, PLUGIN_NAME, PLUGIN_VERSION } from './manifest';
-import { PROTOCOL, PluginError, RequestSchema, errorResponse, successResponse, type PluginResponse } from './protocol';
+import { PROTOCOL, PluginError, RequestSchema, errorResponse, serializeResponse, successResponse, type PluginResponse } from './protocol';
 
 // stdout is reserved for the protocol response: route any stray console output to stderr.
 const toStderr = (...args: unknown[]) => process.stderr.write(`${args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')}\n`);
@@ -17,8 +17,10 @@ console.warn = toStderr;
 let responded = false;
 function respond(res: PluginResponse): void {
   if (responded) return;
+  // serialize first: a throwing JSON.stringify after setting `responded` would leave stdout empty
+  const line = serializeResponse(res);
   responded = true;
-  process.stdout.write(`${JSON.stringify(res)}\n`, () => process.exit(0));
+  process.stdout.write(`${line}\n`, () => process.exit(0));
 }
 
 function fail(e: unknown): void {

@@ -8,6 +8,12 @@ import { listServiceContainers, resolveEnv } from './workload';
 export const RESTART_KIND = 'container.restart';
 const STOP_TIMEOUT_S = 10;
 const VERIFY_BUDGET_MS = 60_000;
+/**
+ * After the container first looks healthy it must stay up (same StartedAt, still running)
+ * for this long; otherwise a process that crashes right after start would be reported as
+ * recovered. Mutable only for tests.
+ */
+export const restartTiming = { stableMs: 3_000, pollMs: 500 };
 
 export async function planRestart(ctx: Ctx, params: Record<string, string>): Promise<PlanDraft> {
   const service = params.service;
@@ -79,7 +85,7 @@ export async function planRestart(ctx: Ctx, params: Record<string, string>): Pro
       })),
       {
         name: 'verify',
-        detail: `轮询 /containers/{id}/json 直到 State.Running=true 且 StartedAt 晚于重启前${anyHealthcheck ? '、健康检查非 starting' : ''}（最多 ${VERIFY_BUDGET_MS / 1000}s）`,
+        detail: `轮询 /containers/{id}/json 直到 State.Running=true 且 StartedAt 晚于重启前${anyHealthcheck ? '、健康状态为 healthy' : ''}，并在同一 StartedAt 下持续 ${restartTiming.stableMs / 1000}s（最多 ${VERIFY_BUDGET_MS / 1000}s）`,
       },
     ],
     rollback: '不适用：重启不可回滚。失败时用 container event list / log query 查看原因，必要时人工介入',
@@ -125,13 +131,24 @@ export const restartExecutor: Executor = async (ctx: Ctx, plan: Plan, report) =>
     let after = await docker.getJson<ContainerInspect>(`/containers/${id}/json`);
     const beforeStart = Date.parse(before.State.StartedAt) || 0;
     const hasHc = !!after.Config?.Healthcheck?.Test?.length && after.Config.Healthcheck.Test[0] !== 'NONE';
+    // with a healthcheck only `healthy` counts; `unhealthy` is a failed restart, not a recovered one
     const ok = (i: ContainerInspect) =>
-      i.State.Running && !i.State.Restarting && (Date.parse(i.State.StartedAt) || 0) > beforeStart && (!hasHc || i.State.Health?.Status !== 'starting');
-    while (!ok(after) && Date.now() < deadline) {
-      await sleep(500, ctx.signal);
+      i.State.Running && !i.State.Restarting && (Date.parse(i.State.StartedAt) || 0) > beforeStart && (!hasHc || i.State.Health?.Status === 'healthy');
+    let verified = false;
+    let stableSince: { startedAt: string; at: number } | null = null;
+    for (;;) {
+      if (ok(after)) {
+        // same process instance (StartedAt unchanged) must stay up for the stabilisation window
+        if (!stableSince || stableSince.startedAt !== after.State.StartedAt) stableSince = { startedAt: after.State.StartedAt, at: Date.now() };
+        if (Date.now() - stableSince.at >= restartTiming.stableMs) {
+          verified = true;
+          break;
+        }
+      } else stableSince = null;
+      if (Date.now() >= deadline) break;
+      await sleep(restartTiming.pollMs, ctx.signal);
       after = await docker.getJson<ContainerInspect>(`/containers/${id}/json`);
     }
-    const verified = ok(after);
     const outcome: RestartOutcome = {
       container_id: id,
       name: containerName(after),
@@ -140,8 +157,8 @@ export const restartExecutor: Executor = async (ctx: Ctx, plan: Plan, report) =>
       verified,
       duration_ms: Date.now() - t0,
       detail: verified
-        ? `已重新运行${hasHc ? `，健康状态 ${after.State.Health?.Status}` : '（未配置健康检查，仅校验进程运行）'}`
-        : `在 ${VERIFY_BUDGET_MS / 1000}s 内未确认恢复：state=${after.State.Status} exit=${after.State.ExitCode}`,
+        ? `已重新运行并稳定 ${restartTiming.stableMs / 1000}s${hasHc ? `，健康状态 ${after.State.Health?.Status}` : '（未配置健康检查，仅校验进程持续运行）'}`
+        : `在 ${VERIFY_BUDGET_MS / 1000}s 内未确认恢复：state=${after.State.Status} exit=${after.State.ExitCode}${hasHc ? ` health=${after.State.Health?.Status ?? 'none'}` : ''} restart_count=${after.RestartCount}`,
     };
     outcomes.push(outcome);
     report(`${outcome.name}: ${outcome.detail}`);
