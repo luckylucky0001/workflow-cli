@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "container.workload.restart_plan",
+  "data": {
+    "id": "op-20261017-5e4269",
+    "kind": "container.restart",
+    "title": "滚动重启服务 demo-order（sandbox）的 1 个 Kubernetes 工作负载",
+    "params": {
+      "service": "demo-order",
+      "env": "sandbox",
+      "provider": "kubernetes",
+      "endpoint": "k3s",
+      "namespace": "workctl-demo"
+    },
+    "targets": [
+      {
+        "provider": "kubernetes",
+        "endpoint": "k3s",
+        "kind": "Deployment",
+        "namespace": "workctl-demo",
+        "name": "demo-order",
+        "uid": "e32abd5e-1d03-4697-a778-107a8fc6df2b",
+        "generation": 2,
+        "observed_generation": 2,
+        "replicas": 2,
+        "ready_replicas": 2,
+        "updated_replicas": 2,
+        "available_replicas": 2,
+        "strategy": "RollingUpdate",
+        "pods": 2,
+        "workload_selector": "app=demo-order",
+        "rollout_complete": true,
+        "selector": "app=demo-order",
+        "selector_kind": "label",
+        "matched_by": "label selector app=demo-order（binding demo-order-k8s.labels，namespace workctl-demo）"
+      }
+    ],
+    "impact": {
+      "service": "demo-order",
+      "env": "sandbox",
+      "provider": "kubernetes",
+      "namespace": "workctl-demo",
+      "workloads": 1,
+      "pods": 2,
+      "expected_interruption": "等价于 kubectl rollout restart：修改 Pod 模板注解触发滚动更新，按 maxUnavailable/maxSurge 逐个替换 Pod",
+      "dependents_of_service": [],
+      "service_dependencies": [
+        {
+          "resource": "demo-order-k8s",
+          "relation": "runs_on",
+          "source": "binding-file",
+          "evidence": "Deployment workctl-demo/demo-order (labels app=demo-order)"
+        }
+      ],
+      "dependency_note": "来自资源绑定 /home/user/workflow-cli/demo/environment/k8s/bindings.k8s.yaml；被依赖方在 Pod 替换期间可能看到连接重置，服务依赖（数据库/缓存）的连接会重建",
+      "cache_note": "每个 Pod 是新进程：进程内状态（缓存、连接池）丢失并按启动配置恢复；Pod IP 会变化",
+      "side_effect": "在 spec.template.metadata.annotations 写入 kubectl.kubernetes.io/restartedAt，Deployment 会产生新的 ReplicaSet/修订版本"
+    },
+    "preconditions": [
+      {
+        "check": "workloads_found",
+        "ok": true,
+        "detail": "selector app=demo-order 对应 1 个工作负载、2 个 Pod"
+      },
+      {
+        "check": "profile_allow_execute",
+        "ok": true,
+        "detail": "profile k8s-demo 允许执行"
+      },
+      {
+        "check": "kubernetes_reachable",
+        "ok": true,
+        "detail": "kubernetes/k3s (https://127.0.0.1:16443/) 可访问（计划生成时）"
+      },
+      {
+        "check": "no_rollout_in_progress",
+        "ok": true,
+        "detail": "计划生成时没有进行中的 rollout"
+      }
+    ],
+    "steps": [
+      {
+        "name": "rollout restart deployment/demo-order",
+        "detail": "PATCH /apis/apps/v1/namespaces/workctl-demo/deployments/demo-order（strategic merge patch：spec.template.metadata.annotations.kubectl.kubernetes.io/restartedAt=<执行时间>）"
+      },
+      {
+        "name": "verify",
+        "detail": "轮询 GET 工作负载直到 observedGeneration ≥ 新 generation、updatedReplicas = replicas、旧副本已终止且 availableReplicas（StatefulSet 为 readyReplicas）= replicas；Progressing=ProgressDeadlineExceeded 视为失败（最多 300s，且不超过调用的 --timeout）"
+      }
+    ],
+    "rollback": "不适用：重启只改注解，没有可回滚的配置变化（rollout undo 会回到上一个模板并再次替换 Pod）。失败时用 container event list / container workload get 查看原因",
+    "idempotent": false,
+    "cancellable": false,
+    "status": "planned",
+    "created_at": "2026-10-17T14:06:54.846Z",
+    "expires_at": "2026-10-17T14:36:54.846Z",
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "executable": true,
+    "history": [
+      {
+        "at": "2026-10-17T14:06:54.846Z",
+        "status": "planned",
+        "note": "计划已生成，未执行"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "kubernetes",
+        "adapter": "kubernetes-api",
+        "observed_at": "2026-10-17T14:06:54.853Z",
+        "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
+        "method": "GET /apis/apps/v1/namespaces/workctl-demo/{deployments|statefulsets} + /api/v1/namespaces/workctl-demo/pods",
+        "relation": "explicit",
+        "version": "v1.31.4+k3s1"
+      },
+      {
+        "system": "workctl",
+        "adapter": "plan-store",
+        "observed_at": "2026-10-17T14:06:54.853Z",
+        "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/k8s/state/operations",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "计划生成时解析出的目标",
+      "notes": [
+        "执行: workctl operation execute --id op-20261017-5e4269 --confirm op-20261017-5e4269"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvch03la-7d38c2",
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "docker-engine-api | kubernetes-api",
+    "operation": "plan",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T14:06:54.766Z",
+    "duration_ms": 87
+  }
+}

@@ -1,0 +1,134 @@
+[
+ {
+  "id": "k8s-01",
+  "args": [
+   "auth",
+   "status",
+   "--probe"
+  ],
+  "note": "Kubernetes 身份：ServiceAccount token（最小权限 Role）"
+ },
+ {
+  "id": "k8s-02",
+  "args": [
+   "access",
+   "check",
+   "--capability",
+   "container.workload.get",
+   "--target",
+   "k3s"
+  ]
+ },
+ {
+  "id": "k8s-03",
+  "args": [
+   "container",
+   "workload",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "note": "按绑定的 label selector 匹配 Pod"
+ },
+ {
+  "id": "k8s-04",
+  "args": [
+   "container",
+   "event",
+   "list",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--window",
+   "30m"
+  ],
+  "note": "core/v1 events；event-ttl 覆盖说明"
+ },
+ {
+  "id": "k8s-05",
+  "args": [
+   "container",
+   "stats",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "expect": [
+   "success",
+   "partial"
+  ],
+  "note": "metrics-server 快照"
+ },
+ {
+  "id": "k8s-06",
+  "args": [
+   "capacity",
+   "summary",
+   "--env",
+   "sandbox"
+  ],
+  "expect": [
+   "success",
+   "partial"
+  ],
+  "note": "requests/limits 与使用量"
+ },
+ {
+  "id": "k8s-07",
+  "args": [
+   "container",
+   "workload",
+   "restart-plan",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "capture": {
+   "plan": "data.id"
+  }
+ },
+ {
+  "id": "k8s-08",
+  "args": [
+   "--timeout",
+   "240s",
+   "operation",
+   "execute",
+   "--id",
+   "${plan}",
+   "--confirm",
+   "${plan}"
+  ],
+  "timeout_s": 300,
+  "note": "真实滚动重启（restartedAt 注解）并等待 rollout 完成"
+ },
+ {
+  "id": "k8s-09",
+  "args": [
+   "operation",
+   "get",
+   "--id",
+   "${plan}"
+  ]
+ },
+ {
+  "id": "k8s-10",
+  "args": [
+   "container",
+   "workload",
+   "get",
+   "--service",
+   "no-such-service",
+   "--env",
+   "sandbox"
+  ],
+  "expect": "NOT_CONFIGURED",
+  "note": "服务不在绑定中，且该 profile 无 Docker 端点可按标签约定查询"
+ }
+]

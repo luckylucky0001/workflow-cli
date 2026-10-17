@@ -75,7 +75,7 @@ workctl network backend list --service demo-order     # 业务探测
 
 `container workload get`、`container event list`、`container stats get`、`capacity summary` 和 `container.restart` 计划/执行器也可以作用于 Kubernetes，**命令与输出契约不变**（同一 zod schema，Kubernetes 特有信息只放在可选字段 `kubernetes` / `retention` / `provider` / `requests` 中）。实现直接调用 Kubernetes REST API（适配器 `kubernetes-api`，不依赖 client 库）。
 
-> 状态：已实现，仅在模拟 API（`test/container/fake-k8s.ts`，按 v1.31 回包结构）上做了单元测试，**未经真实集群验证**。真实集群测试见 `test/container/k8s-live.test.ts`（`WORKCTL_IT=1 WORKCTL_K8S=1 WORKCTL_K8S_KUBECONFIG=...`），演示集群脚本见 `demo/environment/k8s/`。
+> 状态：已实现；除模拟 API 单元测试（`test/container/fake-k8s.ts`）外，已在单节点 k3s v1.31.4 上真实验证（`demo/verification/report.k8s.md`、`test/container/k8s-live.test.ts`，含真实滚动重启）。尚未在多节点或托管集群验证。演示集群：`K3S_EXTRA_CA=... K3S_OOM_WORKAROUND=1 demo/environment/k8s/k3s-up.sh`（后者仅用于不允许调低 oom_score_adj 的沙箱内核）。
 
 ### 如何选择 provider
 
@@ -161,7 +161,7 @@ endpoints:
 
 | 能力 | 当前 | 规划 |
 |---|---|---|
-| 容器工作负载 | Docker Engine API；Kubernetes API（按资源绑定选择，见上节；未经真实集群验证） | — |
+| 容器工作负载 | Docker Engine API；Kubernetes API（按资源绑定选择，见上节；k3s v1.31.4 实测） | — |
 | 负载均衡/网关后端 | 绑定 + 发布端口 + 探测 | Nginx / 云 LB / Ingress（`network loadbalancer get`，planned） |
 | 存储 | Docker 卷、本机文件系统 | S3 兼容对象存储（`object stat`）、HDFS（`hdfs path stat`），planned |
 | 配额 | — | `quota get`（Kubernetes ResourceQuota / 云配额，planned） |

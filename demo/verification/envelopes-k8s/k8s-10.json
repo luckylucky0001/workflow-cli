@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "container.workload.get",
+  "data": null,
+  "error": {
+    "code": "NOT_CONFIGURED",
+    "message": "profile k8s-demo 未配置 docker 端点",
+    "hint": "在 profiles.k8s-demo.endpoints.docker 中添加端点",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvch07jz-e802c8",
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "docker-engine-api | kubernetes-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T14:06:59.903Z",
+    "duration_ms": 17
+  }
+}

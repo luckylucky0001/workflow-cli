@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "auth.status",
+  "data": {
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "config_path": "/home/user/workflow-cli/demo/environment/k8s/workctl.k8s.yaml",
+    "allow_execute": true,
+    "endpoints": [
+      {
+        "kind": "kubernetes",
+        "name": "k3s",
+        "auth_provider": "kubernetes-bearer",
+        "credential_refs": [
+          {
+            "key": "token_ref",
+            "ref_type": "file",
+            "resolvable": true
+          }
+        ],
+        "probe": {
+          "ok": true,
+          "identity": "system:serviceaccount:workctl-demo:workctl (groups: system:serviceaccounts,system:serviceaccounts:workctl-demo,system:authenticated)",
+          "version": "v1.31.4+k3s1",
+          "detail": "auth=bearer-token；namespace=workctl-demo",
+          "privileges": [
+            "get,list nodes",
+            "get,list pods,events",
+            "get,list deployments,statefulsets [apps]",
+            "patch deployments,statefulsets [apps]",
+            "get,list pods [metrics.k8s.io]"
+          ]
+        }
+      },
+      {
+        "kind": "kubernetes",
+        "name": "k3s-admin",
+        "auth_provider": "kubernetes-bearer",
+        "credential_refs": [],
+        "probe": {
+          "ok": true,
+          "identity": "system:admin (groups: system:masters,system:authenticated)",
+          "version": "v1.31.4+k3s1",
+          "detail": "auth=client-certificate；namespace=workctl-demo",
+          "privileges": [
+            "* * [*]"
+          ]
+        }
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "profile",
+        "observed_at": "2026-10-17T14:06:52.685Z",
+        "endpoint": "/home/user/workflow-cli/demo/environment/k8s/workctl.k8s.yaml",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "notes": []
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvch01xd-285431",
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "profile",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T14:06:52.609Z",
+    "duration_ms": 76
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "container.stats.get",
+  "data": {
+    "kind": "snapshot",
+    "observed_at": "2026-10-17T14:06:54.167Z",
+    "service": "demo-order",
+    "env": "sandbox",
+    "matched_by": "label selector app=demo-order（binding demo-order-k8s.labels，namespace workctl-demo）",
+    "containers": [
+      {
+        "id": "9d41c7d8e008",
+        "name": "demo-order-78c648487c-2lfkh/nginx",
+        "state": "running",
+        "limits": {
+          "cpus": 0.5,
+          "memory_bytes": 134217728
+        },
+        "stats": {
+          "read_at": "2026-10-17T14:06:48Z",
+          "preread_at": "2026-10-17T14:06:36.798Z",
+          "sample_interval_ms": 11202,
+          "cpu": {
+            "cores_used": 0.0001,
+            "percent": 0.01,
+            "online_cpus": 4,
+            "percent_of_limit": 0.03
+          },
+          "memory": {
+            "usage_bytes": 5042176,
+            "working_set_bytes": 5042176,
+            "limit_bytes": 134217728,
+            "limit_source": "container",
+            "percent_of_limit": 3.76
+          },
+          "pids": null,
+          "network": null,
+          "block_io": null,
+          "notes": [
+            "memory 为 metrics-server 的工作集（working set），没有 usage 含页缓存的口径；pids、网络与块 I/O 不由 metrics.k8s.io 提供"
+          ]
+        },
+        "note": null
+      },
+      {
+        "id": "08576ad46e62",
+        "name": "demo-order-78c648487c-lrx95/nginx",
+        "state": "running",
+        "limits": {
+          "cpus": 0.5,
+          "memory_bytes": 134217728
+        },
+        "stats": {
+          "read_at": "2026-10-17T14:06:45Z",
+          "preread_at": "2026-10-17T14:06:34.185Z",
+          "sample_interval_ms": 10815,
+          "cpu": {
+            "cores_used": 0.0037,
+            "percent": 0.37,
+            "online_cpus": 4,
+            "percent_of_limit": 0.74
+          },
+          "memory": {
+            "usage_bytes": 4767744,
+            "working_set_bytes": 4767744,
+            "limit_bytes": 134217728,
+            "limit_source": "container",
+            "percent_of_limit": 3.55
+          },
+          "pids": null,
+          "network": null,
+          "block_io": null,
+          "notes": [
+            "memory 为 metrics-server 的工作集（working set），没有 usage 含页缓存的口径；pids、网络与块 I/O 不由 metrics.k8s.io 提供"
+          ]
+        },
+        "note": null
+      }
+    ],
+    "provider": "kubernetes"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "kubernetes",
+        "adapter": "kubernetes-api",
+        "observed_at": "2026-10-17T14:06:54.172Z",
+        "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
+        "method": "GET /apis/apps/v1/namespaces/workctl-demo/deployments",
+        "relation": "explicit",
+        "version": "v1.31.4+k3s1"
+      },
+      {
+        "system": "kubernetes",
+        "adapter": "kubernetes-api",
+        "observed_at": "2026-10-17T14:06:54.172Z",
+        "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
+        "method": "GET /apis/apps/v1/namespaces/workctl-demo/statefulsets",
+        "relation": "explicit",
+        "version": "v1.31.4+k3s1"
+      },
+      {
+        "system": "kubernetes",
+        "adapter": "kubernetes-api",
+        "observed_at": "2026-10-17T14:06:54.172Z",
+        "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
+        "method": "GET /api/v1/namespaces/workctl-demo/pods?labelSelector=app=demo-order",
+        "relation": "explicit",
+        "version": "v1.31.4+k3s1"
+      },
+      {
+        "system": "kubernetes",
+        "adapter": "kubernetes-api",
+        "observed_at": "2026-10-17T14:06:54.172Z",
+        "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
+        "method": "GET /apis/metrics.k8s.io/v1beta1/namespaces/workctl-demo/pods?labelSelector=app=demo-order",
+        "relation": "sampled",
+        "version": "v1.31.4+k3s1"
+      },
+      {
+        "system": "kubernetes",
+        "adapter": "kubernetes-api",
+        "observed_at": "2026-10-17T14:06:54.172Z",
+        "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
+        "method": "GET /api/v1/nodes/{name}",
+        "relation": "explicit",
+        "version": "v1.31.4+k3s1"
+      },
+      {
+        "system": "workctl",
+        "adapter": "resource-bindings",
+        "observed_at": "2026-10-17T14:06:54.172Z",
+        "method": "bindings: demo-order runs_on demo-order-k8s（endpoint kubernetes/k3s）",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "snapshot：metrics-server 最近一次采样，不代表时间窗口",
+      "notes": [
+        "Pod 选择器: label selector app=demo-order（binding demo-order-k8s.labels，namespace workctl-demo）（bindings: demo-order runs_on demo-order-k8s（endpoint kubernetes/k3s））；不按名称相似度匹配",
+        "CPU 为 metrics-server 在 sample_interval_ms（metrics window）内的平均速率；内存为工作集"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvch032d-d4e26c",
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "docker-engine-api | kubernetes-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T14:06:54.085Z",
+    "duration_ms": 87
+  }
+}

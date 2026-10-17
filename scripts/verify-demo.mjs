@@ -6,8 +6,12 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const cases = JSON.parse(readFileSync(process.argv[2] ?? 'demo/verification/cases.json', 'utf8'));
-const outDir = 'demo/verification/envelopes';
+const casesFile = process.argv[2] ?? 'demo/verification/cases.json';
+const cases = JSON.parse(readFileSync(casesFile, 'utf8'));
+// cases.json -> report.md / envelopes/; cases.<name>.json -> report.<name>.md / envelopes-<name>/
+const suite = /cases\.([a-z0-9-]+)\.json$/.exec(casesFile)?.[1];
+const outDir = suite ? `demo/verification/envelopes-${suite}` : 'demo/verification/envelopes';
+const reportFile = suite ? `demo/verification/report.${suite}.md` : 'demo/verification/report.md';
 mkdirSync(outDir, { recursive: true });
 const rows = [];
 const vars = {};
@@ -49,9 +53,9 @@ for (const c of cases) {
   process.stderr.write(`${ok ? 'ok  ' : 'FAIL'} ${c.id} -> ${actual} (${Date.now() - t0}ms)\n`);
 }
 const lines = [
-  '# 隔离演示环境验证记录',
+  `# 隔离演示环境验证记录${suite ? `（${suite}）` : ''}`,
   '',
-  `> 由 \`node scripts/verify-demo.mjs\` 生成于 ${new Date().toISOString()}；原始结果信封见 \`demo/verification/envelopes/\`。全部为合成数据。`,
+  `> 由 \`node scripts/verify-demo.mjs ${casesFile}\` 生成于 ${new Date().toISOString()}；原始结果信封见 \`${outDir}/\`。全部为合成数据。`,
   '',
   `通过 ${rows.filter((r) => r.ok).length} / ${rows.length}`,
   '',
@@ -59,6 +63,6 @@ const lines = [
   '| --- | --- | --- | --- | --- | --- | --- | --- |',
   ...rows.map((r) => `| ${r.ok ? '✅' : '❌'} ${r.id} | \`${r.command.replace(/\|/g, '\\|')}\` | ${r.expect} | ${r.actual} | ${r.exit} | ${r.ms} | ${r.sources} | ${r.note} |`),
 ];
-writeFileSync('demo/verification/report.md', lines.join('\n') + '\n');
+writeFileSync(reportFile, lines.join('\n') + '\n');
 console.log(`passed ${rows.filter((r) => r.ok).length}/${rows.length}`);
 process.exitCode = rows.every((r) => r.ok) ? 0 : 1;
