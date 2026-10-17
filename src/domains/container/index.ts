@@ -7,7 +7,7 @@ import { ContainerInfoSchema, describeContainer } from './describe';
 import { containerName, cpuLimit, DOCKER_ADAPTER, dockerClient, filtersParam, shortId, type ContainerInspect, type ContainerSummary } from './docker';
 import { planRestart, restartExecutor, restartPlanner, RESTART_KIND } from './restart';
 import { parseStats, round, type DockerStats } from './stats';
-import { ENV_LABEL, listServiceContainers, resolveEnv, selectionNotes } from './workload';
+import { ENV_LABEL, listServiceContainers, resolveEnv, selectionNotes, selectorMatches } from './workload';
 
 const GUIDE = 'docs/guides/infrastructure.md';
 const AUTH = 'docker-socket';
@@ -18,7 +18,13 @@ const serviceInputs = {
   env: { type: 'string' as const, description: '环境（容器标签 workctl.env）；默认取 profile 的 env' },
 };
 
-const SelectorSchema = z.object({ label: z.string(), origin: z.enum(['binding-file', 'label-convention']), evidence: z.string() });
+const SelectorSchema = z.object({
+  kind: z.enum(['label', 'name']).describe('label=按 Docker 标签；name=按资源绑定中声明的精确容器名'),
+  label: z.string(),
+  origin: z.enum(['binding-file', 'label-convention']),
+  evidence: z.string(),
+  matched_by: z.string().describe('实际匹配到容器的选择器，如 label workctl.resource=demo-mysql 或 binding attribute container=demo-mysql'),
+});
 
 // ---------------------------------------------------------------------------
 // container workload get
@@ -176,8 +182,8 @@ const eventList = defineCapability({
     const r = await docker.get<string>(`/events?since=${since}&until=${until}`);
     const all = parseEventStream(r.text);
     const horizon = eventHorizon(all, Date.parse(win.start));
-    const [selKey, selVal] = sc.selector.label.split('=');
-    const raw = all.filter((e) => e.Type === 'container' && e.Actor?.Attributes?.[selKey] === selVal);
+    // container events carry the container's labels and `name` as attributes
+    const raw = all.filter((e) => e.Type === 'container' && selectorMatches(sc.selector, { labels: e.Actor?.Attributes ?? {}, name: e.Actor?.Attributes?.name ?? '' }));
     let execSkipped = 0;
     let envSkipped = 0;
     const events: z.infer<typeof EventSchema>[] = [];
@@ -322,7 +328,7 @@ const statsGet = defineCapability({
     }
     const observed = new Date().toISOString();
     return {
-      data: { kind: 'snapshot', observed_at: observed, service: i.service, env, containers },
+      data: { kind: 'snapshot', observed_at: observed, service: i.service, env, matched_by: sc.selector.matched_by, containers },
       sources: [await docker.source('GET /containers/{id}/stats?stream=false', 'sampled'), await docker.source('GET /containers/{id}/json')],
       coverage: {
         complete: true,

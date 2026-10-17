@@ -1,7 +1,7 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import { z } from 'zod';
 import { resolveSecretRef } from './config';
 import { WorkError, type Result } from './output';
@@ -39,7 +39,8 @@ const PluginCapabilitySchema = z.object({
 export const PluginManifestSchema = z.object({
   plugin_api: z.literal(PLUGIN_API),
   name: z.string().regex(/^[a-z][a-z0-9-]*$/),
-  version: z.string(),
+  // used as a directory name under the plugins dir: no separators, no '..'
+  version: z.string().regex(/^[0-9A-Za-z][0-9A-Za-z.+_-]*$/),
   description: z.string().optional(),
   backend_mode: z.enum(['live', 'recorded', 'synthetic_fixture']),
   entry: z.string(),
@@ -106,6 +107,16 @@ export function readManifest(dir: string): PluginManifest {
 export function validatePlugin(dir: string, registry: Registry, replacing?: string): { manifest: PluginManifest; problems: string[] } {
   const manifest = readManifest(dir);
   const problems: string[] = [];
+  // every path in the manifest must stay inside the plugin directory
+  const paths: [string, string | undefined][] = [
+    ['entry', manifest.entry],
+    ['domain.guide', manifest.domain.guide],
+    ['domain.skill', manifest.domain.skill],
+    ...manifest.capabilities.flatMap((c) => [[`${c.name}.guide`, c.guide], [`${c.name}.output_schema`, c.output_schema]] as [string, string | undefined][]),
+  ];
+  for (const [field, rel] of paths) {
+    if (rel !== undefined && !isInside(dir, rel)) problems.push(`${field} 路径超出插件目录: ${rel}`);
+  }
   if (!existsSync(join(dir, manifest.entry))) problems.push(`入口文件不存在: ${manifest.entry}`);
   if (!existsSync(join(dir, manifest.domain.guide))) problems.push(`领域指南不存在: ${manifest.domain.guide}`);
   const ownedBySelf = (origin?: string) => !!replacing && !!origin?.startsWith(`plugin:${replacing}@`);
@@ -117,18 +128,68 @@ export function validatePlugin(dir: string, registry: Registry, replacing?: stri
     if (!c.name.startsWith(`${manifest.domain.name}.`)) problems.push(`能力 ${c.name} 不在领域 ${manifest.domain.name} 下`);
     const clash = registry.get(c.name);
     if (clash && !ownedBySelf(clash.origin)) problems.push(`能力名冲突: ${c.name}`);
+    if (c.status !== 'planned') {
+      const cmdClash = [...registry.capabilities.values()].find((o) => o.status !== 'planned' && o.command === c.command && o.name !== c.name && !ownedBySelf(o.origin));
+      if (cmdClash) problems.push(`命令冲突: ${c.command}（已由 ${cmdClash.name} 使用）`);
+    }
     if (c.output_schema && !existsSync(join(dir, c.output_schema))) problems.push(`输出 Schema 不存在: ${c.output_schema}`);
   }
   return { manifest, problems };
 }
 
+/** True when `rel` resolves to a path inside `dir` (no absolute paths, no `..` escapes). */
+export function isInside(dir: string, rel: string): boolean {
+  const root = resolve(dir);
+  const full = resolve(root, rel);
+  return full === root || full.startsWith(root + sep);
+}
+
+/**
+ * Inspect the archive before extracting: only regular files and directories with
+ * relative paths that stay inside the extraction directory are accepted (no
+ * symlinks, hard links, devices, absolute paths or `..` segments).
+ */
+export function checkArchiveEntries(archive: string): void {
+  const names = spawnSync('tar', ['-tzf', archive], { encoding: 'utf8', timeout: 60_000, maxBuffer: 64 * 1024 * 1024 });
+  if (names.status !== 0) throw new WorkError('INVALID_ARGUMENT', `插件包无法读取: ${(names.stderr ?? '').trim() || names.error?.message || 'unknown'}`);
+  const verbose = spawnSync('tar', ['-tvzf', archive], { encoding: 'utf8', timeout: 60_000, maxBuffer: 64 * 1024 * 1024 });
+  if (verbose.status !== 0) throw new WorkError('INVALID_ARGUMENT', `插件包无法读取: ${(verbose.stderr ?? '').trim()}`);
+  const bad: string[] = [];
+  for (const name of names.stdout.split('\n').filter(Boolean)) {
+    const segs = name.split('/');
+    if (name.startsWith('/') || /^[A-Za-z]:/.test(name) || segs.includes('..')) bad.push(name);
+  }
+  for (const line of verbose.stdout.split('\n').filter(Boolean)) {
+    const type = line[0];
+    // GNU tar: l = symlink, h = hard link; bsdtar marks hard links with "link to"
+    if ((type !== '-' && type !== 'd') || / link to /.test(line)) bad.push(line.trim());
+  }
+  if (bad.length) {
+    throw new WorkError('INVALID_ARGUMENT', '插件包含有不允许的条目（链接、设备文件、绝对路径或 ..）', { details: { entries: bad.slice(0, 10) } });
+  }
+}
+
+/** Defense in depth after extraction: refuse any symlink or special file in the tree. */
+function rejectLinks(dir: string): void {
+  for (const name of readdirSync(dir)) {
+    const full = join(dir, name);
+    const st = lstatSync(full);
+    if (st.isSymbolicLink() || (!st.isFile() && !st.isDirectory())) {
+      throw new WorkError('INVALID_ARGUMENT', `插件包含有链接或特殊文件: ${name}`);
+    }
+    if (st.isDirectory()) rejectLinks(full);
+  }
+}
+
 export function installPlugin(file: string, registry: Registry): { plugin: InstalledPlugin; manifest: PluginManifest; replaced: string | null } {
   const abs = resolve(file);
   if (!existsSync(abs)) throw new WorkError('NOT_FOUND', `插件包不存在: ${file}`);
+  checkArchiveEntries(abs);
   const staging = mkdtempSync(join(tmpdir(), 'workctl-plugin-'));
   try {
-    const tar = spawnSync('tar', ['-xzf', abs, '-C', staging], { encoding: 'utf8' });
-    if (tar.status !== 0) throw new WorkError('INVALID_ARGUMENT', `插件包解压失败: ${tar.stderr.trim()}`);
+    const tar = spawnSync('tar', ['-xzf', abs, '-C', staging, '--no-same-owner'], { encoding: 'utf8', timeout: 60_000 });
+    if (tar.status !== 0) throw new WorkError('INVALID_ARGUMENT', `插件包解压失败: ${(tar.stderr ?? '').trim() || tar.error?.message || 'unknown'}`);
+    rejectLinks(staging);
     const pre = readManifest(staging);
     const previous = listInstalled().find((p) => p.name === pre.name) ?? null;
     const { manifest, problems } = validatePlugin(staging, registry, previous ? pre.name : undefined);
@@ -214,6 +275,16 @@ const PluginResponseSchema = z.object({
   meta: z.object({ sources: z.array(z.any()).default([]), coverage: z.any().nullable().optional(), warnings: z.array(z.string()).default([]) }).default({ sources: [], warnings: [] }),
 });
 
+const MAX_PLUGIN_OUTPUT = 32 * 1024 * 1024;
+const PLUGIN_ENV_KEYS = ['PATH', 'HOME', 'LANG', 'LC_ALL', 'TZ', 'TMPDIR', 'SYSTEMROOT', 'NODE_EXTRA_CA_CERTS', 'HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY', 'http_proxy', 'https_proxy', 'no_proxy', 'WORKCTL_DEBUG'];
+
+/** Minimal environment for plugin processes (no inherited secrets). */
+export function pluginEnv(): Record<string, string> {
+  const env: Record<string, string> = {};
+  for (const k of PLUGIN_ENV_KEYS) if (process.env[k] !== undefined) env[k] = process.env[k] as string;
+  return env;
+}
+
 /** Endpoint configs for the plugin's kinds, with credential references resolved (passed only via stdin). */
 function pluginEndpoints(ctx: Ctx, kinds: string[]): Record<string, Record<string, Record<string, unknown>>> {
   const out: Record<string, Record<string, Record<string, unknown>>> = {};
@@ -244,21 +315,43 @@ async function execPlugin(ctx: Ctx, p: InstalledPlugin, m: PluginManifest, capab
     request_id: ctx.requestId,
     timeout_ms: ctx.remainingMs(),
   };
-  const { stdout, stderr, code } = await new Promise<{ stdout: string; stderr: string; code: number | null }>((res, rej) => {
-    const child = spawn(process.execPath, [join(p.dir, m.entry)], { cwd: p.dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  const { stdout, stderr, code, timedOut, overflow } = await new Promise<{ stdout: string; stderr: string; code: number | null; timedOut: boolean; overflow: boolean }>((res, rej) => {
+    // Credentials travel only in the stdin request: the child does not inherit
+    // workctl's environment (which may hold env:-referenced secrets of other endpoints).
+    const child = spawn(process.execPath, [join(p.dir, m.entry)], { cwd: p.dir, stdio: ['pipe', 'pipe', 'pipe'], env: pluginEnv() });
     let out = '';
     let err = '';
-    const timer = setTimeout(() => child.kill('SIGKILL'), ctx.remainingMs());
-    child.stdout.on('data', (d) => (out += d));
-    child.stderr.on('data', (d) => (err += d));
-    child.on('error', rej);
+    let timedOut = false;
+    let overflow = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGKILL');
+    }, ctx.remainingMs());
+    child.stdout.on('data', (d) => {
+      out += d;
+      if (out.length > MAX_PLUGIN_OUTPUT && !overflow) {
+        overflow = true;
+        child.kill('SIGKILL');
+      }
+    });
+    child.stderr.on('data', (d) => {
+      if (err.length < 64 * 1024) err += d;
+    });
+    // a plugin that exits without reading stdin must not crash workctl with EPIPE
+    child.stdin.on('error', () => undefined);
+    child.on('error', (e) => {
+      clearTimeout(timer);
+      rej(e);
+    });
     child.on('close', (c) => {
       clearTimeout(timer);
-      res({ stdout: out, stderr: err, code: c });
+      res({ stdout: out, stderr: err, code: c, timedOut, overflow });
     });
     child.stdin.end(JSON.stringify(request));
   });
   if (stderr.trim()) ctx.debug(`plugin ${p.name} stderr: ${stderr.trim().slice(0, 2000)}`);
+  if (timedOut) throw new WorkError('TIMEOUT', `插件 ${p.name} 超过时间预算被终止`, { hint: '增大 --timeout 或缩小查询范围' });
+  if (overflow) throw new WorkError('INTERNAL', `插件 ${p.name} 输出超过 ${MAX_PLUGIN_OUTPUT} 字节上限`);
   let parsed: z.infer<typeof PluginResponseSchema>;
   try {
     parsed = PluginResponseSchema.parse(JSON.parse(stdout));

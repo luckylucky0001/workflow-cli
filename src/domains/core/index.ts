@@ -457,7 +457,21 @@ const operationExecute = defineCapability({
   handler: async (ctx, i) => {
     if (i.confirm !== i.id) throw new WorkError('PRECONDITION_FAILED', '--confirm 必须与计划 ID 一致');
     const store = ctx.plans();
-    const plan = store.get(i.id);
+    store.get(i.id); // NOT_FOUND / id format before taking the lock
+    const release = store.lock(i.id);
+    try {
+      return await executePlan(ctx, store, i.id);
+    } finally {
+      release();
+    }
+  },
+});
+
+async function executePlan(ctx: Ctx, store: ReturnType<Ctx['plans']>, id: string) {
+  {
+    // re-read under the lock: another process may have run it in the meantime
+    const plan = store.get(id);
+    if (plan.status === 'expired') throw new WorkError('PRECONDITION_FAILED', `计划 ${plan.id} 已过期（${plan.expires_at}），请重新生成计划`);
     if (plan.status !== 'planned') throw new WorkError('CONFLICT', `计划状态为 ${plan.status}，只能执行 planned 状态的计划`);
     if (plan.profile !== ctx.profileName || plan.env !== ctx.env) {
       throw new WorkError('PRECONDITION_FAILED', `计划生成于 profile ${plan.profile}/env ${plan.env}，与当前 ${ctx.profileName}/${ctx.env} 不一致`);
@@ -480,8 +494,8 @@ const operationExecute = defineCapability({
       store.transition(plan.id, 'failed', we.message, { error: { code: we.code, message: we.message } });
       throw we;
     }
-  },
-});
+  }
+}
 
 const operationCancel = defineCapability({
   name: 'operation.cancel',
@@ -495,9 +509,16 @@ const operationCancel = defineCapability({
   auth_provider: 'none',
   guide: 'docs/guides/operations.md',
   handler: async (ctx, i) => {
-    const p = ctx.plans().get(i.id);
-    if (p.status !== 'planned') throw new WorkError('CONFLICT', `计划状态为 ${p.status}，无法取消`);
-    return { data: ctx.plans().transition(i.id, 'cancelled', '用户取消'), sources: [source('workctl', 'plan-store', { relation: 'explicit' })] };
+    const store = ctx.plans();
+    store.get(i.id);
+    const release = store.lock(i.id); // not while an execution holds the plan
+    try {
+      const p = store.get(i.id);
+      if (p.status !== 'planned') throw new WorkError('CONFLICT', `计划状态为 ${p.status}，无法取消`);
+      return { data: store.transition(i.id, 'cancelled', '用户取消'), sources: [source('workctl', 'plan-store', { relation: 'explicit' })] };
+    } finally {
+      release();
+    }
   },
 });
 

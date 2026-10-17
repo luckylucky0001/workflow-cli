@@ -37,16 +37,28 @@ declare -A PROMPTS=(
   [C-offline]="demo-daily-orders 对应业务日期 2026-10-16（Asia/Shanghai）的数据还没到，请沿依赖和计算链路检查，确认目标分区，并给出处理或补数计划（只生成计划，不执行）。"
 )
 ONLY="${1:-A-infra B-latency C-offline}"
+# MODE=skill-mcp (default): project Skills + MCP tools + CLI.  MODE=cli-only: no Skills, no MCP,
+# the agent only has the workctl CLI (comparison group for demo/evaluation.md).
+MODE="${MODE:-skill-mcp}"
+EMPTY_DIR="$(mktemp -d)"
 start_fault
 for key in $ONLY; do
-  out="$RUNS/${key}.json"
-  echo "== ${key}"
+  suffix=""; [ "$MODE" = "cli-only" ] && suffix=".cli-only"
+  out="$RUNS/${key}${suffix}.json"
+  echo "== ${key} (${MODE})"
   # Independent session: do not inherit the caller's session id.
-  env -u CLAUDE_CODE_SESSION_ID -u CLAUDE_CODE_CHILD_SESSION timeout 1200 claude -p "${PROMPTS[$key]}" \
-    --output-format stream-json --verbose \
-    --mcp-config "$RUNS/mcp.json" \
-    --allowedTools "Bash(workctl:*)" "Bash(node dist/workctl.js:*)" "Read" "Glob" "Grep" "Skill" "mcp__workctl" \
-    < /dev/null > "$out" || echo "run ${key} exited with $?"
-  node demo/agent-host/summarize-run.mjs "$out" > "$RUNS/${key}.summary.md"
-  head -5 "$RUNS/${key}.summary.md"
+  if [ "$MODE" = "cli-only" ]; then
+    (cd "$EMPTY_DIR" && env -u CLAUDE_CODE_SESSION_ID -u CLAUDE_CODE_CHILD_SESSION timeout 1200 claude -p "${PROMPTS[$key]} 可以使用 workctl 命令行（workctl --help）。" \
+      --output-format stream-json --verbose --strict-mcp-config \
+      --allowedTools "Bash(workctl:*)" \
+      < /dev/null > "$out") || echo "run ${key} exited with $?"
+  else
+    env -u CLAUDE_CODE_SESSION_ID -u CLAUDE_CODE_CHILD_SESSION timeout 1200 claude -p "${PROMPTS[$key]}" \
+      --output-format stream-json --verbose \
+      --mcp-config "$RUNS/mcp.json" \
+      --allowedTools "Bash(workctl:*)" "Bash(node dist/workctl.js:*)" "Read" "Glob" "Grep" "Skill" "mcp__workctl" \
+      < /dev/null > "$out" || echo "run ${key} exited with $?"
+  fi
+  node demo/agent-host/summarize-run.mjs "$out" > "$RUNS/${key}${suffix}.summary.md"
+  head -5 "$RUNS/${key}${suffix}.summary.md"
 done

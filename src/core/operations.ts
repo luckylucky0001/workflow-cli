@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { closeSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
 import { WorkError } from './output';
@@ -92,11 +92,50 @@ export class PlanStore {
     return plan;
   }
 
+  /**
+   * Exclusive claim on a plan for execution (O_EXCL lock file), so two processes
+   * (two terminals, concurrent MCP calls) cannot both run the same plan.
+   * Returns a release function.
+   */
+  lock(id: string): () => void {
+    const lockFile = `${this.file(id)}.lock`;
+    mkdirSync(this.dir, { recursive: true });
+    let fd: number;
+    try {
+      fd = openSync(lockFile, 'wx');
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code === 'EEXIST') {
+        throw new WorkError('CONFLICT', `计划 ${id} 正在被另一个执行请求处理`, {
+          hint: `用 workctl operation get --id ${id} 查看状态；若确认没有进程在执行，删除锁文件 ${lockFile}`,
+        });
+      }
+      throw e;
+    }
+    writeFileSync(fd, JSON.stringify({ pid: process.pid, at: new Date().toISOString() }));
+    closeSync(fd);
+    let released = false;
+    return () => {
+      if (released) return;
+      released = true;
+      try {
+        unlinkSync(lockFile);
+      } catch {
+        /* already gone */
+      }
+    };
+  }
+
   list(filter: { kind?: string; status?: string } = {}): Plan[] {
     if (!existsSync(this.dir)) return [];
     return readdirSync(this.dir)
-      .filter((f) => f.endsWith('.json'))
-      .map((f) => this.get(f.slice(0, -5)))
+      .filter((f) => /^op-[0-9]{8}-[a-z0-9]{6}\.json$/.test(f))
+      .flatMap((f) => {
+        try {
+          return [this.get(f.slice(0, -5))];
+        } catch {
+          return [];
+        }
+      })
       .filter((p) => (!filter.kind || p.kind === filter.kind) && (!filter.status || p.status === filter.status))
       .sort((a, b) => b.created_at.localeCompare(a.created_at));
   }
