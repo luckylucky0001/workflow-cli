@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "config.diff",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "--from-rev 99999999 大于 etcd 当前修订 85",
+    "retryable": false,
+    "details": {
+      "requested_revision": 99999999,
+      "current_revision": 85
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcjy7y0-646c3f",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:29:25.944Z",
+    "duration_ms": 43
+  }
+}

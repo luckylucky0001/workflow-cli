@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "config.get",
+  "data": {
+    "endpoint": "etcd/demo-etcd",
+    "service": "demo-order",
+    "env": "sandbox",
+    "prefix": "/config/sandbox/demo-order/",
+    "key": null,
+    "observed_revision": 85,
+    "count": 7,
+    "truncated": false,
+    "items": [
+      {
+        "key": "/config/sandbox/demo-order/cache.max_entries",
+        "name": "cache.max_entries",
+        "value": 10000,
+        "value_format": "json",
+        "value_bytes": 5,
+        "masked": false,
+        "masked_paths": [],
+        "create_revision": 79,
+        "mod_revision": 79,
+        "version": 1,
+        "lease": null
+      },
+      {
+        "key": "/config/sandbox/demo-order/cache.mode",
+        "name": "cache.mode",
+        "value": "read-through",
+        "value_format": "text",
+        "value_bytes": 12,
+        "masked": false,
+        "masked_paths": [],
+        "create_revision": 68,
+        "mod_revision": 82,
+        "version": 2,
+        "lease": null
+      },
+      {
+        "key": "/config/sandbox/demo-order/cache.ttl_seconds",
+        "name": "cache.ttl_seconds",
+        "value": 60,
+        "value_format": "json",
+        "value_bytes": 2,
+        "masked": false,
+        "masked_paths": [],
+        "create_revision": 69,
+        "mod_revision": 78,
+        "version": 2,
+        "lease": null
+      },
+      {
+        "key": "/config/sandbox/demo-order/db.password",
+        "name": "db.password",
+        "value": "***",
+        "value_format": "text",
+        "value_bytes": 26,
+        "masked": true,
+        "masked_paths": [
+          "$"
+        ],
+        "create_revision": 71,
+        "mod_revision": 80,
+        "version": 2,
+        "lease": null
+      },
+      {
+        "key": "/config/sandbox/demo-order/db.pool_size",
+        "name": "db.pool_size",
+        "value": 20,
+        "value_format": "json",
+        "value_bytes": 2,
+        "masked": false,
+        "masked_paths": [],
+        "create_revision": 70,
+        "mod_revision": 76,
+        "version": 2,
+        "lease": null
+      },
+      {
+        "key": "/config/sandbox/demo-order/feature.flags",
+        "name": "feature.flags",
+        "value": {
+          "new_checkout": true,
+          "async_audit": true,
+          "rollout_percent": 20
+        },
+        "value_format": "json",
+        "value_bytes": 61,
+        "masked": false,
+        "masked_paths": [],
+        "create_revision": 72,
+        "mod_revision": 75,
+        "version": 2,
+        "lease": null
+      },
+      {
+        "key": "/config/sandbox/demo-order/upstream.payment",
+        "name": "upstream.payment",
+        "value": {
+          "url": "http://payment.sandbox.invalid",
+          "timeout_ms": 1500,
+          "token": "***"
+        },
+        "value_format": "json",
+        "value_bytes": 87,
+        "masked": true,
+        "masked_paths": [
+          "$.token"
+        ],
+        "create_revision": 74,
+        "mod_revision": 81,
+        "version": 2,
+        "lease": null
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "etcd",
+        "adapter": "etcd-v3-gateway",
+        "observed_at": "2026-10-17T15:29:22.774Z",
+        "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
+        "method": "POST /v3/kv/range prefix=/config/sandbox/demo-order/",
+        "relation": "explicit",
+        "version": "3.5.21"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "limit": 200,
+      "scope": "etcd etcd/demo-etcd 键前缀 /config/sandbox/demo-order/，修订 85",
+      "notes": [
+        "2 个配置项的值或字段已遮蔽（按名称匹配敏感模式）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcjy5g4-715b18",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:29:22.708Z",
+    "duration_ms": 66
+  }
+}

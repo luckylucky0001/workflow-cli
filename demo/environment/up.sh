@@ -7,7 +7,7 @@ for s in mysql_root_password mysql_ro_password mysql_app_password airflow_admin_
   [ -s ".runtime/secrets/$s" ] || head -c 18 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 20 > ".runtime/secrets/$s"
 done
 chmod 600 .runtime/secrets/*
-services="${*:-mysql redis kafka demo-order prometheus trino loki promtail}"
+services="${*:-mysql redis kafka demo-order prometheus trino loki promtail etcd}"
 # demo-order image copies a prebuilt bundle (needs root `npm ci` first)
 node ../sample-service/build.mjs
 docker compose up -d --build $services

@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "config.get",
+  "data": {
+    "endpoint": "etcd/demo-etcd",
+    "service": "demo-order",
+    "env": "prod",
+    "prefix": "/config/prod/demo-order/",
+    "key": null,
+    "observed_revision": 85,
+    "count": 0,
+    "truncated": false,
+    "items": []
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "etcd",
+        "adapter": "etcd-v3-gateway",
+        "observed_at": "2026-10-17T15:29:25.632Z",
+        "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
+        "method": "POST /v3/kv/range prefix=/config/prod/demo-order/",
+        "relation": "explicit",
+        "version": "3.5.21"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "limit": 200,
+      "scope": "etcd etcd/demo-etcd 键前缀 /config/prod/demo-order/，修订 85",
+      "notes": [
+        "前缀 /config/prod/demo-order/ 下没有配置项（修订 85）；不同环境/服务的键前缀不同，检查 --env / --service"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcjy7o7-132dcc",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:29:25.591Z",
+    "duration_ms": 42
+  }
+}

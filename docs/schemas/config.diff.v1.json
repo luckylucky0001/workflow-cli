@@ -1,0 +1,236 @@
+{
+  "$id": "docs/schemas/config.diff.v1.json",
+  "title": "config.diff data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "endpoint": {
+      "type": "string"
+    },
+    "service": {
+      "type": "string"
+    },
+    "env": {
+      "type": "string"
+    },
+    "prefix": {
+      "type": "string"
+    },
+    "key": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "revisions",
+        "previous_version"
+      ]
+    },
+    "from_revision": {
+      "type": "number"
+    },
+    "to_revision": {
+      "type": "number"
+    },
+    "current_revision": {
+      "type": "number"
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "change": {
+            "type": "string",
+            "enum": [
+              "added",
+              "removed",
+              "changed"
+            ]
+          },
+          "masked": {
+            "type": "boolean",
+            "description": "任一侧的值被遮蔽；遮蔽时 changed 仍按原始字节判断"
+          },
+          "old": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "description": "JSON 可解析时为解析后的值，否则为文本；binary_base64 时为 base64；被遮蔽时为 \"***\""
+                  },
+                  "value_format": {
+                    "type": "string",
+                    "enum": [
+                      "json",
+                      "text",
+                      "binary_base64",
+                      "empty"
+                    ]
+                  },
+                  "value_bytes": {
+                    "type": "number",
+                    "description": "原始值字节数（遮蔽前）"
+                  },
+                  "masked": {
+                    "type": "boolean"
+                  },
+                  "masked_paths": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "被遮蔽的位置：\"$\" 为整个值，\"$.a.b\" 为 JSON 字段"
+                  },
+                  "mod_revision": {
+                    "type": "number"
+                  },
+                  "version": {
+                    "type": "number"
+                  },
+                  "create_revision": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "value",
+                  "value_format",
+                  "value_bytes",
+                  "masked",
+                  "masked_paths",
+                  "mod_revision",
+                  "version",
+                  "create_revision"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "new": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "description": "JSON 可解析时为解析后的值，否则为文本；binary_base64 时为 base64；被遮蔽时为 \"***\""
+                  },
+                  "value_format": {
+                    "type": "string",
+                    "enum": [
+                      "json",
+                      "text",
+                      "binary_base64",
+                      "empty"
+                    ]
+                  },
+                  "value_bytes": {
+                    "type": "number",
+                    "description": "原始值字节数（遮蔽前）"
+                  },
+                  "masked": {
+                    "type": "boolean"
+                  },
+                  "masked_paths": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "被遮蔽的位置：\"$\" 为整个值，\"$.a.b\" 为 JSON 字段"
+                  },
+                  "mod_revision": {
+                    "type": "number"
+                  },
+                  "version": {
+                    "type": "number"
+                  },
+                  "create_revision": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "value",
+                  "value_format",
+                  "value_bytes",
+                  "masked",
+                  "masked_paths",
+                  "mod_revision",
+                  "version",
+                  "create_revision"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "key",
+          "change",
+          "masked",
+          "old",
+          "new"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "added": {
+          "type": "number"
+        },
+        "removed": {
+          "type": "number"
+        },
+        "changed": {
+          "type": "number"
+        },
+        "unchanged": {
+          "type": "number"
+        },
+        "rewritten_same_value": {
+          "type": "number",
+          "description": "值相同但在区间内被重新写入（mod_revision 变化）"
+        }
+      },
+      "required": [
+        "added",
+        "removed",
+        "changed",
+        "unchanged",
+        "rewritten_same_value"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "endpoint",
+    "service",
+    "env",
+    "prefix",
+    "key",
+    "mode",
+    "from_revision",
+    "to_revision",
+    "current_revision",
+    "changes",
+    "summary"
+  ],
+  "additionalProperties": false
+}

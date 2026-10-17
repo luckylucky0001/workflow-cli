@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "discovery.list",
+  "data": {
+    "endpoint": "etcd/demo-etcd",
+    "service": "demo-payment",
+    "env": null,
+    "prefix": "/services/demo-payment/",
+    "observed_revision": 85,
+    "instances": [],
+    "summary": {
+      "registered": 0,
+      "returned": 0,
+      "healthy": 0,
+      "unhealthy": 0,
+      "health_unknown": 0,
+      "without_lease": 0,
+      "excluded": {
+        "env_mismatch": 0,
+        "env_missing": 0,
+        "not_healthy": 0
+      }
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "etcd",
+        "adapter": "etcd-v3-gateway",
+        "observed_at": "2026-10-17T15:29:27.867Z",
+        "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
+        "method": "POST /v3/kv/range prefix=/services/demo-payment/",
+        "relation": "explicit",
+        "version": "3.5.21"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "scope": "etcd etcd/demo-etcd 键前缀 /services/demo-payment/，修订 85",
+      "notes": [
+        "前缀 /services/demo-payment/ 下没有注册（修订 85）：服务未注册、已全部下线（租约过期）或前缀不同"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcjy9e6-124529",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:29:27.822Z",
+    "duration_ms": 46
+  }
+}

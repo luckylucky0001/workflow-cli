@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "config.get",
+  "data": null,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "配置项不存在: /config/sandbox/demo-order/cache.not_exist（修订 85）",
+    "hint": "该前缀下的键（前 20 个）: cache.max_entries, cache.mode, cache.ttl_seconds, db.password, db.pool_size, feature.flags, upstream.payment",
+    "retryable": false,
+    "details": {
+      "observed_revision": 85
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcjy7ec-369fd1",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:29:25.236Z",
+    "duration_ms": 38
+  }
+}

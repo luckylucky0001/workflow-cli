@@ -1,0 +1,147 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "discovery.list",
+  "data": {
+    "endpoint": "etcd/demo-etcd",
+    "service": "demo-order",
+    "env": null,
+    "prefix": "/services/demo-order/",
+    "observed_revision": 85,
+    "instances": [
+      {
+        "instance_id": "order-1",
+        "key": "/services/demo-order/order-1",
+        "payload": {
+          "address": "10.88.0.11",
+          "port": 8080,
+          "version": "1.4.2",
+          "healthy": true,
+          "env": "sandbox",
+          "registered_at": "2026-10-17T15:26:15.552Z"
+        },
+        "payload_error": null,
+        "address": "10.88.0.11",
+        "port": 8080,
+        "version": "1.4.2",
+        "env": "sandbox",
+        "healthy": true,
+        "registered_at": "2026-10-17T15:26:15.552Z",
+        "create_revision": 83,
+        "mod_revision": 83,
+        "lease": {
+          "id": "7587898288280331852",
+          "granted_ttl_s": 86400,
+          "remaining_ttl_s": 86208,
+          "error": null
+        }
+      },
+      {
+        "instance_id": "order-2",
+        "key": "/services/demo-order/order-2",
+        "payload": {
+          "address": "10.88.0.12",
+          "port": 8080,
+          "version": "1.4.2",
+          "healthy": false,
+          "env": "sandbox",
+          "registered_at": "2026-10-17T15:26:15.552Z"
+        },
+        "payload_error": null,
+        "address": "10.88.0.12",
+        "port": 8080,
+        "version": "1.4.2",
+        "env": "sandbox",
+        "healthy": false,
+        "registered_at": "2026-10-17T15:26:15.552Z",
+        "create_revision": 84,
+        "mod_revision": 84,
+        "lease": {
+          "id": "7587898288280331854",
+          "granted_ttl_s": 86400,
+          "remaining_ttl_s": 86208,
+          "error": null
+        }
+      },
+      {
+        "instance_id": "order-legacy",
+        "key": "/services/demo-order/order-legacy",
+        "payload": {
+          "address": "10.88.0.9",
+          "port": 8080,
+          "version": "1.3.0",
+          "healthy": true,
+          "env": "sandbox",
+          "registered_at": "2026-01-05T08:00:00Z"
+        },
+        "payload_error": null,
+        "address": "10.88.0.9",
+        "port": 8080,
+        "version": "1.3.0",
+        "env": "sandbox",
+        "healthy": true,
+        "registered_at": "2026-01-05T08:00:00Z",
+        "create_revision": 85,
+        "mod_revision": 85,
+        "lease": null
+      }
+    ],
+    "summary": {
+      "registered": 3,
+      "returned": 3,
+      "healthy": 2,
+      "unhealthy": 1,
+      "health_unknown": 0,
+      "without_lease": 1,
+      "excluded": {
+        "env_mismatch": 0,
+        "env_missing": 0,
+        "not_healthy": 0
+      }
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "etcd",
+        "adapter": "etcd-v3-gateway",
+        "observed_at": "2026-10-17T15:29:27.085Z",
+        "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
+        "method": "POST /v3/kv/range prefix=/services/demo-order/",
+        "relation": "explicit",
+        "version": "3.5.21"
+      },
+      {
+        "system": "etcd",
+        "adapter": "etcd-v3-gateway",
+        "observed_at": "2026-10-17T15:29:27.096Z",
+        "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
+        "method": "POST /v3/lease/timetolive",
+        "relation": "sampled",
+        "version": "3.5.21"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "scope": "etcd etcd/demo-etcd 键前缀 /services/demo-order/，修订 85",
+      "notes": [
+        "1 个实例的注册没有租约，不会因实例下线而自动过期"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcjy8sp-93c61e",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:29:27.049Z",
+    "duration_ms": 47
+  }
+}

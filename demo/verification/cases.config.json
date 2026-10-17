@@ -1,0 +1,196 @@
+[
+ {
+  "id": "config-01",
+  "args": [
+   "auth",
+   "status",
+   "--probe"
+  ],
+  "note": "etcd 端点探测：GET /version + POST /v3/maintenance/status（leader、db 大小）+ /v3/auth/status"
+ },
+ {
+  "id": "config-02",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "note": "前缀 /config/sandbox/demo-order/ 全部键：JSON 解析、db.password 与 upstream.payment.token 遮蔽、create/mod_revision、version"
+ },
+ {
+  "id": "config-03",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "demo-order",
+   "--key",
+   "upstream.payment"
+  ],
+  "capture": {
+   "v1": "data.items[0].create_revision",
+   "v3": "data.items[0].mod_revision"
+  },
+  "note": "单键读取；捕获 v1（种子第 1 步末修订）与 v3（第 3 步末修订）"
+ },
+ {
+  "id": "config-04",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-order",
+   "--from-rev",
+   "${v1}",
+   "--to-rev",
+   "${v3}"
+  ],
+  "note": "真实修订间差异：added cache.max_entries、removed feature.legacy_mode、changed ×5（含遮蔽值）"
+ },
+ {
+  "id": "config-05",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--from-rev",
+   "${v1}"
+  ],
+  "note": "v1 → current：含 cache.mode 同值重写（rewritten_same_value=1，不计为变化）"
+ },
+ {
+  "id": "config-06",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-order",
+   "--key",
+   "cache.ttl_seconds"
+  ],
+  "note": "省略 --from-rev：与该键上一版本（mod_revision-1）比较，300 → 60"
+ },
+ {
+  "id": "config-07",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-order",
+   "--key",
+   "cache.mode"
+  ],
+  "note": "上一版本同值重写：changes 为空，summary.rewritten_same_value=1"
+ },
+ {
+  "id": "config-08",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "demo-order",
+   "--key",
+   "cache.not_exist"
+  ],
+  "expect": "NOT_FOUND",
+  "note": "单键不存在：NOT_FOUND，hint 列出前缀下已有键"
+ },
+ {
+  "id": "config-09",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "prod"
+  ],
+  "note": "空前缀：success + 空 items + coverage 说明（不是错误）"
+ },
+ {
+  "id": "config-10",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-order",
+   "--from-rev",
+   "99999999"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "未来修订：INVALID_ARGUMENT，details.current_revision"
+ },
+ {
+  "id": "config-11",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-order",
+   "--from-rev",
+   "abc"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "修订号格式错误"
+ },
+ {
+  "id": "config-12",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-order"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "既无 --from-rev 也无 --key"
+ },
+ {
+  "id": "config-13",
+  "args": [
+   "discovery",
+   "list",
+   "--service",
+   "demo-order"
+  ],
+  "note": "3 个注册：2 个带租约（POST /v3/lease/timetolive 剩余 TTL）、1 个无租约（不会自动过期）"
+ },
+ {
+  "id": "config-14",
+  "args": [
+   "discovery",
+   "list",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--healthy-only"
+  ],
+  "note": "按注册内容 env 与自报 healthy 过滤，excluded 计数"
+ },
+ {
+  "id": "config-15",
+  "args": [
+   "discovery",
+   "list",
+   "--service",
+   "demo-payment"
+  ],
+  "note": "未注册的服务：success + 空 instances + 说明"
+ },
+ {
+  "id": "config-16",
+  "args": [
+   "access",
+   "check",
+   "--capability",
+   "config.diff"
+  ],
+  "note": "前置条件检查：endpoint:etcd + identity 探测"
+ }
+]

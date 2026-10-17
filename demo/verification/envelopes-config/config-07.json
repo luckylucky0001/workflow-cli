@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "config.diff",
+  "data": {
+    "endpoint": "etcd/demo-etcd",
+    "service": "demo-order",
+    "env": "sandbox",
+    "prefix": "/config/sandbox/demo-order/",
+    "key": "cache.mode",
+    "mode": "previous_version",
+    "from_revision": 81,
+    "to_revision": 85,
+    "current_revision": 85,
+    "changes": [],
+    "summary": {
+      "added": 0,
+      "removed": 0,
+      "changed": 0,
+      "unchanged": 1,
+      "rewritten_same_value": 1
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "etcd",
+        "adapter": "etcd-v3-gateway",
+        "observed_at": "2026-10-17T15:29:24.774Z",
+        "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
+        "method": "POST /v3/kv/range key=/config/sandbox/demo-order/cache.mode revision=81 / revision=85",
+        "relation": "explicit",
+        "version": "3.5.21"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "scope": "etcd etcd/demo-etcd 键 /config/sandbox/demo-order/cache.mode，修订 81 → 85",
+      "notes": [
+        "只比较两个修订的快照；区间内的中间值不可见。历史只保留到最近一次压缩"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcjy70b-78c6ef",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:29:24.731Z",
+    "duration_ms": 44
+  }
+}

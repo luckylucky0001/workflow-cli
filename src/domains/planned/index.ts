@@ -20,9 +20,6 @@ function planned(name: string, command: string, summary: string, domain: string,
 }
 
 const PLANNED: CapabilityDef[] = [
-  planned('config.get', 'config get', '读取配置中心配置项的当前值摘要', 'config', 'config-center (待接入)', 'docs/guides/infrastructure.md'),
-  planned('config.diff', 'config diff', '比较配置项两个版本的差异', 'config', 'config-center (待接入)', 'docs/guides/infrastructure.md'),
-  planned('discovery.list', 'discovery list', '从服务注册中心列出服务实例', 'config', 'service-registry (待接入)', 'docs/guides/infrastructure.md'),
   planned('search.index.get', 'search index get', '查看搜索引擎索引的分片、容量和状态', 'search', 'elasticsearch/opensearch (待接入)', 'docs/provider-onboarding.md'),
   planned('search.query', 'search query', '对搜索引擎执行受限查询', 'search', 'elasticsearch/opensearch (待接入)', 'docs/provider-onboarding.md'),
   planned('document.collection.get', 'document collection get', '查看文档数据库集合与索引', 'document', 'document-db (待接入)', 'docs/provider-onboarding.md'),
@@ -33,7 +30,6 @@ const PLANNED: CapabilityDef[] = [
 ];
 
 const domains: DomainDef[] = [
-  { name: 'config', title: '配置与服务发现', summary: '配置中心与服务注册（待接入）', pillar: 'infrastructure', guide: 'docs/guides/infrastructure.md', capabilities: [] },
   { name: 'search', title: '搜索引擎', summary: 'Elasticsearch / OpenSearch（待接入）', pillar: 'middleware', guide: 'docs/provider-onboarding.md', capabilities: [] },
   { name: 'document', title: '文档与键值数据库', summary: '文档库、KV 服务（待接入）', pillar: 'middleware', guide: 'docs/provider-onboarding.md', capabilities: [] },
   { name: 'analytics', title: '分析数据库', summary: '列式分析引擎（待接入）', pillar: 'middleware', guide: 'docs/provider-onboarding.md', capabilities: [] },

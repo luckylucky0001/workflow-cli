@@ -10,9 +10,10 @@ import offline from './offline';
 import compute from './compute';
 import sql from './sql';
 import data from './data';
+import config from './config';
 import planned, { PLANNED_DOMAINS } from './planned';
 
-export const BUILTIN_DOMAINS = [coreDomain, container, network, storage, observability, mysql, redis, offline, compute, sql, data, planned];
+export const BUILTIN_DOMAINS = [coreDomain, container, network, storage, observability, mysql, redis, offline, compute, sql, data, config, planned];
 
 export function builtinRegistry(): Registry {
   const r = new Registry();

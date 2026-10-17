@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "access.check",
+  "data": {
+    "capability": "config.diff",
+    "operation": "read",
+    "verdict": "allowed",
+    "checks": [
+      {
+        "check": "capability_status",
+        "ok": true,
+        "detail": "状态 available"
+      },
+      {
+        "check": "profile",
+        "ok": true,
+        "detail": "profile demo (env sandbox)"
+      },
+      {
+        "check": "endpoint:etcd",
+        "ok": true,
+        "detail": "etcd/demo-etcd"
+      },
+      {
+        "check": "identity:etcd/demo-etcd",
+        "ok": true,
+        "detail": "身份 anonymous；版本 3.5.21；leader 10276657743932975437（即本成员）；db 40960 字节（使用中 40960）；集群版本 3.5.0；认证未开启"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "profile",
+        "observed_at": "2026-10-17T15:29:28.249Z",
+        "relation": "derived"
+      }
+    ],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcjy9ot-52fd08",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "profile",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:29:28.205Z",
+    "duration_ms": 44
+  }
+}

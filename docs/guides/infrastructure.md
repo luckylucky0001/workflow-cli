@@ -1,6 +1,6 @@
 # 基础设施能力指南：容器、网络、存储
 
-本指南覆盖 `container`、`network`、`storage` 三个领域。命令结构、结果信封和错误码见 `docs/design-principles.md`；每条命令的参数与输出 schema 以 `workctl capability get <name>` 为准。
+本指南覆盖 `container`、`network`、`storage` 三个领域，以及 `config`（配置中心与服务发现，见“配置中心与服务发现”一节）。命令结构、结果信封和错误码见 `docs/design-principles.md`；每条命令的参数与输出 schema 以 `workctl capability get <name>` 为准。
 
 ## 对象模型
 
@@ -157,6 +157,69 @@ endpoints:
 - 执行的时间预算取 `min(300s, 调用 --timeout)`；rollout 较慢时用 `operation execute ... --timeout 5m`。
 - `network backend list`、`log query` 等其他领域仍只走 Docker（按容器标签），对 Kubernetes 绑定的服务不适用。
 
+## 配置中心与服务发现
+
+`config` 领域（`config get`、`config diff`、`discovery list`）通过 etcd v3 的 HTTP/JSON 网关只读访问配置中心与服务注册（适配器 `etcd-v3-gateway`，认证 `etcd-profile`）。演示环境：容器 `demo-etcd`（etcd 3.5.21），种子与演示命令见 `demo/scenarios/config/README.md`。
+
+### etcd 模型与键约定
+
+```
+<config_prefix><env>/<service>/<name>        → 配置项值（文本或 JSON）   默认 /config/sandbox/demo-order/cache.ttl_seconds
+<discovery_prefix><service>/<instance-id>    → 注册内容 JSON              默认 /services/demo-order/order-1
+```
+
+- 每个键带 `create_revision`（创建时的集群修订）、`mod_revision`（最后修改的集群修订）、`version`（创建以来的修改次数，删除后重建从 1 开始）、`lease`（租约 ID，十进制字符串；无租约为 `null`）。
+- 键和值在网关上是 base64；workctl 解码为 UTF-8，能解析为 JSON 的返回解析后的值（`value_format=json`），否则为文本；非 UTF-8 字节以 base64 返回（`binary_base64`）。
+- 前缀与服务/环境由端点 `config_prefix`、`discovery_prefix` 决定；不同的组织约定（如 `/<app>/<env>/`）通过配置调整，不靠名称猜测。
+- 结果中的 `observed_revision` 是读取时刻的集群修订：说明“etcd 在这个修订上的值是什么”，**不代表应用进程已经加载了这个值**。
+
+### 修订与压缩（revision / compaction）
+
+- 修订是**集群级**全局计数：任何键的写入都会让它加 1，所以两个修订之间的差值不是某个配置项的修改次数。
+- `config diff --from-rev A [--to-rev B|current]` 在修订 A 和 B 各读一次前缀快照（range 请求带 `revision`）后比较：`added` / `removed` / `changed`，旧值新值各自带 `mod_revision`、`version`。只比较两个时刻：区间内改了又改回的值显示为未变化，以相同值重写的键计入 `summary.rewritten_same_value`。
+- 只给 `--key` 不给 `--from-rev`：与该键的上一版本比较（起点为 `mod_revision - 1`）；`version=1` 时没有更早版本，结果为 `added` 并在 `coverage.notes` 说明。
+- etcd 只保留最近一次**压缩**之后的历史。早于压缩点的修订 → `DATA_UNAVAILABLE`，`details.compact_revision` 是最早可读修订（etcd 报错不带该值，workctl 用二分 range 探测得出），`details.etcd_message` 保留原文 `required revision has been compacted`。是否自动压缩取决于 etcd 的 `--auto-compaction-*` 配置；看不到历史 ≠ 没有发生过修改。
+- 大于当前集群修订 → `INVALID_ARGUMENT`（`details.current_revision`）；修订号格式错误 → `INVALID_ARGUMENT`。workctl 不执行压缩，压缩是集群级不可逆操作。
+
+### 敏感值遮蔽
+
+- 键名（相对名）或 JSON 字段名按分段匹配 `password/passwd/pwd/secret/token/key/apikey/dsn/credential/private_key/access_key` 等时，值替换为 `"***"`，`masked=true`，`masked_paths` 标出位置（`$` 为整个值，`$.token` 为字段）。只按名称判断，不分析值内容；宁可多遮（如 `cache.key_prefix` 也会被遮）。
+- `config diff` 中被遮蔽的项两侧都显示 `***`，`changed` 依据原始字节判断，所以“密码轮换过”可见而值不可见。`value_bytes` 是遮蔽前的字节数。
+- 遮蔽是展示层保护，不替代 etcd 的权限控制：只读账号应只授予所需前缀（`etcdctl role grant-permission --prefix <role> read <prefix>`）。
+
+### 服务注册与租约
+
+- `discovery list --service S` 列出 `<discovery_prefix>S/` 下的注册，解析 JSON 中的 `address`、`port`、`version`、`env`、`healthy`、`registered_at`。
+- `healthy` 是实例写进注册内容的**自报**状态，不是 workctl 的探测；要验证可达性用 `network connectivity check`。
+- 带租约的注册：`lease.remaining_ttl_s` 来自本次 `POST /v3/lease/timetolive`（`relation: sampled`），续约会重置；实例停止续约后 etcd 在 TTL 到期时删除键。`-1` 表示租约已过期/已撤销。
+- **没有租约的注册永不过期**：实例下线后可能残留，输出中 `lease=null`、`summary.without_lease` 计数并在 `coverage.notes` 提示。
+- `--env` 按注册内容的 `env` 字段过滤（缺字段的注册被排除并计入 `excluded.env_missing`）；`--healthy-only` 只保留 `healthy=true`。没有注册时返回 success + 空列表 + 说明。
+
+### 端点配置与错误
+
+```yaml
+defaults: { etcd: demo-etcd }
+endpoints:
+  etcd:
+    demo-etcd:
+      url: http://127.0.0.1:12379        # 客户端端口（JSON 网关 /v3/*）
+      config_prefix: /config/
+      discovery_prefix: /services/
+      # username: workctl_ro               # 开启认证时：POST /v3/auth/authenticate 换 token
+      # password_ref: file:.runtime/secrets/etcd_ro_password
+```
+
+| 情况 | 错误码 |
+|---|---|
+| 连接失败 / 网关路径不存在 / 5xx | `UPSTREAM_UNAVAILABLE` |
+| 开启认证但未配置凭据、密码错误、token 无效 | `UNAUTHENTICATED` |
+| 角色无该前缀权限（`permission denied`） | `PERMISSION_DENIED` |
+| 修订已被压缩 | `DATA_UNAVAILABLE`（含 `compact_revision`） |
+| 未来修订、格式错误的修订、非法服务/环境/键名 | `INVALID_ARGUMENT` |
+| `config get --key` 指定的键不存在 | `NOT_FOUND`（hint 列出前缀下已有键） |
+
+`auth status --probe` / `access check` 对 etcd 端点调用 `GET /version`、`POST /v3/maintenance/status`（leader、db 大小）与 `/v3/auth/status`。TLS 客户端证书、Nacos / Apollo / Consul / Eureka provider 尚未接入。
+
 ## Provider 路线
 
 | 能力 | 当前 | 规划 |
@@ -165,5 +228,6 @@ endpoints:
 | 负载均衡/网关后端 | 绑定 + 发布端口 + 探测 | Nginx / 云 LB / Ingress（`network loadbalancer get`，planned） |
 | 存储 | Docker 卷、本机文件系统 | S3 兼容对象存储（`object stat`）、HDFS（`hdfs path stat`），planned |
 | 配额 | — | `quota get`（Kubernetes ResourceQuota / 云配额，planned） |
+| 配置中心 / 服务注册 | etcd v3 JSON 网关（`config get` / `config diff` / `discovery list`，etcd 3.5.21 实测） | Nacos、Apollo、Consul、Eureka、Kubernetes Endpoints |
 
 规划中的能力只出现在目录（`workctl capability list --status planned`），调用返回 `CAPABILITY_PLANNED`。

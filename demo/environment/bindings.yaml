@@ -30,6 +30,16 @@ resources:
     env: sandbox
     endpoint: { kind: kafka, name: demo-mq }
     attributes: { engine: kafka, container: demo-kafka }
+  - id: demo-etcd
+    type: config.center
+    env: sandbox
+    endpoint: { kind: etcd, name: demo-etcd }
+    attributes: { engine: etcd, container: demo-etcd, config_prefix: /config/, discovery_prefix: /services/ }
+  - id: demo-search
+    type: search.cluster
+    env: sandbox
+    endpoint: { kind: opensearch, name: demo-search }
+    attributes: { engine: opensearch, container: demo-search }
   - id: demo-prometheus
     type: observability.metrics
     env: sandbox

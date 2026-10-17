@@ -256,6 +256,73 @@ workctl --json service dependency list --service demo-order --env sandbox
 
 ## 基础设施
 
+### `workctl config diff`
+
+比较配置项在两个 etcd 修订之间的差异（新增/删除/修改，敏感值遮蔽）；不给 --from-rev 时与 --key 的上一版本比较
+
+- 能力：`config.diff` v1.0.0；操作类型：**read**；适配器：etcd-v3-gateway；认证：etcd-profile
+- 输出 Schema：[docs/schemas/config.diff.v1.json](../docs/schemas/config.diff.v1.json)；指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--service` | string | 是 |  | 服务 ID |
+| `--env` | string | 否 |  | 环境；默认取 profile 的 env |
+| `--key` | string | 否 |  | 只比较一个配置项（相对键名） |
+| `--from-rev` | int | 否 |  | 起始修订（集群修订号）；省略时须给 --key，取该键上一版本（mod_revision-1） |
+| `--to-rev` | string | 否 | `"current"` | 结束修订：正整数或 current |
+| `--endpoint` | string | 否 |  | etcd 端点名（默认取 profile defaults.etcd） |
+
+前置条件：
+
+- profile 配置 endpoints.etcd
+- 起始修订不早于最近一次压缩（compaction）
+
+口径说明：
+
+- 修订号是 etcd 集群级的全局修订（任意键写入都会递增），不是单个配置项的版本号
+- 只比较两个修订时刻的快照：区间内改了又改回的值显示为未变化（计入 rewritten_same_value），中间值不可见
+- 历史只保留到最近一次压缩：早于压缩点的修订返回 DATA_UNAVAILABLE，details.compact_revision 为最早可读修订（二分探测得出）
+- 修订大于当前集群修订返回 INVALID_ARGUMENT；比较只读，不会触发压缩
+- 键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "***" 替代，masked=true，masked_paths 标出位置
+
+```bash
+workctl config diff --service demo-order --env sandbox --from-rev 2
+workctl config diff --service demo-order --key cache.ttl_seconds
+```
+
+### `workctl config get`
+
+读取配置中心（etcd v3）中某服务某环境的配置项：当前值、修订号、版本与租约（敏感项遮蔽）
+
+- 能力：`config.get` v1.0.0；操作类型：**read**；适配器：etcd-v3-gateway；认证：etcd-profile
+- 输出 Schema：[docs/schemas/config.get.v1.json](../docs/schemas/config.get.v1.json)；指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--service` | string | 是 |  | 服务 ID，如 demo-order |
+| `--env` | string | 否 |  | 环境；默认取 profile 的 env |
+| `--key` | string | 否 |  | 只读取一个配置项（服务前缀下的相对键名，如 cache.ttl_seconds） |
+| `--limit` | int | 否 | `200` | 最多返回的键数（1-1000） |
+| `--endpoint` | string | 否 |  | etcd 端点名（默认取 profile defaults.etcd） |
+
+前置条件：
+
+- profile 配置 endpoints.etcd（url，可选 config_prefix / username + password_ref）
+- 身份对该前缀有 read 权限（开启认证时）
+
+口径说明：
+
+- 读的是 etcd 当前已提交的值（线性一致读），observed_revision 是读取时刻的集群修订，不代表应用已加载该值
+- 键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "***" 替代，masked=true，masked_paths 标出位置
+- 值为 JSON（对象/数组/数字/布尔）时返回解析后的值；非 UTF-8 字节以 base64 返回（value_format=binary_base64）
+- mod_revision 是最后一次修改的集群修订；可作为 config diff --from-rev 的输入
+- Nacos / Apollo / Consul KV 是规划中的 provider
+
+```bash
+workctl config get --service demo-order --env sandbox
+workctl config get --service demo-order --key cache.ttl_seconds
+```
+
 ### `workctl capacity summary`
 
 汇总环境内容器的资源上限与当前使用（快照），标出未设上限、接近上限、OOM 等
@@ -400,6 +467,37 @@ workctl container workload get --service demo-order --env sandbox
 
 ```bash
 workctl container workload restart-plan --service demo-order --env sandbox
+```
+
+### `workctl discovery list`
+
+从服务注册中心（etcd v3 前缀注册）列出某服务的实例：地址、版本、自报健康、租约与剩余 TTL
+
+- 能力：`discovery.list` v1.0.0；操作类型：**read**；适配器：etcd-v3-gateway；认证：etcd-profile
+- 输出 Schema：[docs/schemas/discovery.list.v1.json](../docs/schemas/discovery.list.v1.json)；指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--service` | string | 是 |  | 服务 ID，如 demo-order |
+| `--env` | string | 否 |  | 按注册内容中的 env 字段过滤（不给则不过滤） |
+| `--healthy-only` | bool | 否 | `false` | 只返回自报 healthy=true 的实例 |
+| `--endpoint` | string | 否 |  | etcd 端点名（默认取 profile defaults.etcd） |
+
+前置条件：
+
+- profile 配置 endpoints.etcd（url，可选 discovery_prefix）
+- 实例以 <discovery_prefix><service>/<instance-id> → JSON 注册
+
+口径说明：
+
+- healthy 来自实例写入的注册内容（自报），不是 workctl 的探测结果；要验证可达性用 network connectivity check
+- 带租约的注册在实例停止续约后按 TTL 自动删除；没有租约的注册永不过期，实例下线后可能残留
+- remaining_ttl_s 为本次 /v3/lease/timetolive 的读数（采样），续约后会重置
+- Nacos / Consul / Eureka / Kubernetes Endpoints 是规划中的 provider
+
+```bash
+workctl discovery list --service demo-order
+workctl discovery list --service demo-order --env sandbox --healthy-only
 ```
 
 ### `workctl network backend list`

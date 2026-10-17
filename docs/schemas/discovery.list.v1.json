@@ -1,0 +1,215 @@
+{
+  "$id": "docs/schemas/discovery.list.v1.json",
+  "title": "discovery.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "endpoint": {
+      "type": "string"
+    },
+    "service": {
+      "type": "string"
+    },
+    "env": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "prefix": {
+      "type": "string"
+    },
+    "observed_revision": {
+      "type": "number"
+    },
+    "instances": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "instance_id": {
+            "type": "string",
+            "description": "<discovery_prefix><service>/ 之后的键名部分"
+          },
+          "key": {
+            "type": "string"
+          },
+          "payload": {
+            "description": "注册内容（JSON 解析后，敏感字段遮蔽）；无法解析为 JSON 时为 null"
+          },
+          "payload_error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "address": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "port": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "env": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "healthy": {
+            "description": "实例自报的 healthy 字段；缺失为 null",
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "registered_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "create_revision": {
+            "type": "number"
+          },
+          "mod_revision": {
+            "type": "number"
+          },
+          "lease": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "granted_ttl_s": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "remaining_ttl_s": {
+                    "description": "剩余 TTL（秒）；-1 表示租约已过期/不存在",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "error": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "granted_ttl_s",
+                  "remaining_ttl_s",
+                  "error"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null 表示注册未绑定租约：不会自动过期"
+          }
+        },
+        "required": [
+          "instance_id",
+          "key",
+          "payload",
+          "payload_error",
+          "address",
+          "port",
+          "version",
+          "env",
+          "healthy",
+          "registered_at",
+          "create_revision",
+          "mod_revision",
+          "lease"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "registered": {
+          "type": "number",
+          "description": "前缀下的注册键总数（过滤前）"
+        },
+        "returned": {
+          "type": "number"
+        },
+        "healthy": {
+          "type": "number"
+        },
+        "unhealthy": {
+          "type": "number"
+        },
+        "health_unknown": {
+          "type": "number"
+        },
+        "without_lease": {
+          "type": "number"
+        },
+        "excluded": {
+          "type": "object",
+          "properties": {
+            "env_mismatch": {
+              "type": "number"
+            },
+            "env_missing": {
+              "type": "number"
+            },
+            "not_healthy": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "env_mismatch",
+            "env_missing",
+            "not_healthy"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "registered",
+        "returned",
+        "healthy",
+        "unhealthy",
+        "health_unknown",
+        "without_lease",
+        "excluded"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "endpoint",
+    "service",
+    "env",
+    "prefix",
+    "observed_revision",
+    "instances",
+    "summary"
+  ],
+  "additionalProperties": false
+}

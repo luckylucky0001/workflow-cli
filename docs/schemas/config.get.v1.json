@@ -1,0 +1,123 @@
+{
+  "$id": "docs/schemas/config.get.v1.json",
+  "title": "config.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "endpoint": {
+      "type": "string"
+    },
+    "service": {
+      "type": "string"
+    },
+    "env": {
+      "type": "string"
+    },
+    "prefix": {
+      "type": "string",
+      "description": "读取的 etcd 键前缀：<config_prefix><env>/<service>/"
+    },
+    "key": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "observed_revision": {
+      "type": "number",
+      "description": "响应头中的 etcd 集群当前修订（读取时刻）"
+    },
+    "count": {
+      "type": "number",
+      "description": "前缀下的键总数（etcd count，可能大于返回数）"
+    },
+    "truncated": {
+      "type": "boolean"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "etcd 完整键"
+          },
+          "name": {
+            "type": "string",
+            "description": "服务前缀下的相对键名"
+          },
+          "value": {
+            "description": "JSON 可解析时为解析后的值，否则为文本；binary_base64 时为 base64；被遮蔽时为 \"***\""
+          },
+          "value_format": {
+            "type": "string",
+            "enum": [
+              "json",
+              "text",
+              "binary_base64",
+              "empty"
+            ]
+          },
+          "value_bytes": {
+            "type": "number",
+            "description": "原始值字节数（遮蔽前）"
+          },
+          "masked": {
+            "type": "boolean"
+          },
+          "masked_paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "被遮蔽的位置：\"$\" 为整个值，\"$.a.b\" 为 JSON 字段"
+          },
+          "create_revision": {
+            "type": "number"
+          },
+          "mod_revision": {
+            "type": "number"
+          },
+          "version": {
+            "type": "number",
+            "description": "该键自创建以来的修改次数（删除后重建从 1 开始）"
+          },
+          "lease": {
+            "description": "绑定的租约 ID（十进制字符串）；null 表示无租约",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "value",
+          "value_format",
+          "value_bytes",
+          "masked",
+          "masked_paths",
+          "create_revision",
+          "mod_revision",
+          "version",
+          "lease"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "endpoint",
+    "service",
+    "env",
+    "prefix",
+    "key",
+    "observed_revision",
+    "count",
+    "truncated",
+    "items"
+  ],
+  "additionalProperties": false
+}

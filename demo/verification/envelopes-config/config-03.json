@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "config.get",
+  "data": {
+    "endpoint": "etcd/demo-etcd",
+    "service": "demo-order",
+    "env": "sandbox",
+    "prefix": "/config/sandbox/demo-order/",
+    "key": "upstream.payment",
+    "observed_revision": 85,
+    "count": 1,
+    "truncated": false,
+    "items": [
+      {
+        "key": "/config/sandbox/demo-order/upstream.payment",
+        "name": "upstream.payment",
+        "value": {
+          "url": "http://payment.sandbox.invalid",
+          "timeout_ms": 1500,
+          "token": "***"
+        },
+        "value_format": "json",
+        "value_bytes": 87,
+        "masked": true,
+        "masked_paths": [
+          "$.token"
+        ],
+        "create_revision": 74,
+        "mod_revision": 81,
+        "version": 2,
+        "lease": null
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "etcd",
+        "adapter": "etcd-v3-gateway",
+        "observed_at": "2026-10-17T15:29:23.187Z",
+        "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
+        "method": "POST /v3/kv/range key=/config/sandbox/demo-order/upstream.payment",
+        "relation": "explicit",
+        "version": "3.5.21"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "scope": "etcd etcd/demo-etcd 键前缀 /config/sandbox/demo-order/，修订 85",
+      "notes": [
+        "1 个配置项的值或字段已遮蔽（按名称匹配敏感模式）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcjy5se-1301ee",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:29:23.150Z",
+    "duration_ms": 38
+  }
+}

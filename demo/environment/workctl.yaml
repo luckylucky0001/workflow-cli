@@ -21,6 +21,8 @@ profiles:
       trino: demo-trino
       catalog: demo
       kafka: demo-mq
+      opensearch: demo-search
+      etcd: demo-etcd
     endpoints:
       docker:
         local:
@@ -102,3 +104,12 @@ profiles:
         demo-mq:
           brokers: [127.0.0.1:19092]
           client_id: workctl
+      opensearch:
+        demo-search:
+          url: http://127.0.0.1:19200
+      # etcd v3 config center / service registry (JSON gateway); sandbox runs without auth
+      etcd:
+        demo-etcd:
+          url: http://127.0.0.1:12379
+          config_prefix: /config/
+          discovery_prefix: /services/

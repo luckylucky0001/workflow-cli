@@ -1,0 +1,249 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "config.diff",
+  "data": {
+    "endpoint": "etcd/demo-etcd",
+    "service": "demo-order",
+    "env": "sandbox",
+    "prefix": "/config/sandbox/demo-order/",
+    "key": null,
+    "mode": "revisions",
+    "from_revision": 74,
+    "to_revision": 85,
+    "current_revision": 85,
+    "changes": [
+      {
+        "name": "cache.max_entries",
+        "key": "/config/sandbox/demo-order/cache.max_entries",
+        "change": "added",
+        "masked": false,
+        "old": null,
+        "new": {
+          "value": 10000,
+          "value_format": "json",
+          "value_bytes": 5,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": 79,
+          "version": 1,
+          "create_revision": 79
+        }
+      },
+      {
+        "name": "cache.ttl_seconds",
+        "key": "/config/sandbox/demo-order/cache.ttl_seconds",
+        "change": "changed",
+        "masked": false,
+        "old": {
+          "value": 300,
+          "value_format": "json",
+          "value_bytes": 3,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": 69,
+          "version": 1,
+          "create_revision": 69
+        },
+        "new": {
+          "value": 60,
+          "value_format": "json",
+          "value_bytes": 2,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": 78,
+          "version": 2,
+          "create_revision": 69
+        }
+      },
+      {
+        "name": "db.password",
+        "key": "/config/sandbox/demo-order/db.password",
+        "change": "changed",
+        "masked": true,
+        "old": {
+          "value": "***",
+          "value_format": "text",
+          "value_bytes": 26,
+          "masked": true,
+          "masked_paths": [
+            "$"
+          ],
+          "mod_revision": 71,
+          "version": 1,
+          "create_revision": 71
+        },
+        "new": {
+          "value": "***",
+          "value_format": "text",
+          "value_bytes": 26,
+          "masked": true,
+          "masked_paths": [
+            "$"
+          ],
+          "mod_revision": 80,
+          "version": 2,
+          "create_revision": 71
+        }
+      },
+      {
+        "name": "db.pool_size",
+        "key": "/config/sandbox/demo-order/db.pool_size",
+        "change": "changed",
+        "masked": false,
+        "old": {
+          "value": 10,
+          "value_format": "json",
+          "value_bytes": 2,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": 70,
+          "version": 1,
+          "create_revision": 70
+        },
+        "new": {
+          "value": 20,
+          "value_format": "json",
+          "value_bytes": 2,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": 76,
+          "version": 2,
+          "create_revision": 70
+        }
+      },
+      {
+        "name": "feature.flags",
+        "key": "/config/sandbox/demo-order/feature.flags",
+        "change": "changed",
+        "masked": false,
+        "old": {
+          "value": {
+            "new_checkout": false,
+            "async_audit": true,
+            "rollout_percent": 0
+          },
+          "value_format": "json",
+          "value_bytes": 61,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": 72,
+          "version": 1,
+          "create_revision": 72
+        },
+        "new": {
+          "value": {
+            "new_checkout": true,
+            "async_audit": true,
+            "rollout_percent": 20
+          },
+          "value_format": "json",
+          "value_bytes": 61,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": 75,
+          "version": 2,
+          "create_revision": 72
+        }
+      },
+      {
+        "name": "feature.legacy_mode",
+        "key": "/config/sandbox/demo-order/feature.legacy_mode",
+        "change": "removed",
+        "masked": false,
+        "old": {
+          "value": "on",
+          "value_format": "text",
+          "value_bytes": 2,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": 73,
+          "version": 1,
+          "create_revision": 73
+        },
+        "new": null
+      },
+      {
+        "name": "upstream.payment",
+        "key": "/config/sandbox/demo-order/upstream.payment",
+        "change": "changed",
+        "masked": true,
+        "old": {
+          "value": {
+            "url": "http://payment.sandbox.invalid",
+            "timeout_ms": 800,
+            "token": "***"
+          },
+          "value_format": "json",
+          "value_bytes": 86,
+          "masked": true,
+          "masked_paths": [
+            "$.token"
+          ],
+          "mod_revision": 74,
+          "version": 1,
+          "create_revision": 74
+        },
+        "new": {
+          "value": {
+            "url": "http://payment.sandbox.invalid",
+            "timeout_ms": 1500,
+            "token": "***"
+          },
+          "value_format": "json",
+          "value_bytes": 87,
+          "masked": true,
+          "masked_paths": [
+            "$.token"
+          ],
+          "mod_revision": 81,
+          "version": 2,
+          "create_revision": 74
+        }
+      }
+    ],
+    "summary": {
+      "added": 1,
+      "removed": 1,
+      "changed": 5,
+      "unchanged": 1,
+      "rewritten_same_value": 1
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "etcd",
+        "adapter": "etcd-v3-gateway",
+        "observed_at": "2026-10-17T15:29:23.925Z",
+        "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
+        "method": "POST /v3/kv/range prefix=/config/sandbox/demo-order/ revision=74 / revision=85",
+        "relation": "explicit",
+        "version": "3.5.21"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "scope": "etcd etcd/demo-etcd 前缀 /config/sandbox/demo-order/，修订 74 → 85",
+      "notes": [
+        "部分差异项的值已遮蔽（***），changed 依据原始字节判断",
+        "只比较两个修订的快照；区间内的中间值不可见。历史只保留到最近一次压缩"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcjy6ca-e73185",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:29:23.866Z",
+    "duration_ms": 59
+  }
+}

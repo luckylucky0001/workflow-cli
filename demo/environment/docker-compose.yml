@@ -78,6 +78,23 @@ services:
     ports:
       - "19092:19092"
 
+  # OpenSearch single node for the demo-search plugin (search domain); security plugin disabled (sandbox only)
+  search:
+    image: opensearchproject/opensearch:2.19.3
+    container_name: demo-search
+    labels:
+      workctl.resource: demo-search
+      workctl.env: sandbox
+    environment:
+      discovery.type: single-node
+      DISABLE_SECURITY_PLUGIN: "true"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+      # sandbox host disk is >90% used; without this OpenSearch auto-applies cluster.blocks.create_index
+      cluster.routing.allocation.disk.threshold_enabled: "false"
+    ports:
+      - "19200:9200"
+
   demo-order:
     build: ../sample-service
     image: workctl-demo/demo-order:local
@@ -173,6 +190,26 @@ services:
       - ./trino/rules.json:/etc/trino/rules.json:ro
     ports:
       - "18085:8080"
+
+  # etcd v3 (single node) as the demo config center / service registry for `config get|diff`
+  # and `discovery list` (HTTP/JSON gateway /v3/*). No auth in the sandbox; history is kept
+  # until a compaction (no auto-compaction configured). Seed: demo/scenarios/config/seed.mjs.
+  etcd:
+    image: bitnamilegacy/etcd:3.5
+    container_name: demo-etcd
+    labels:
+      workctl.resource: demo-etcd
+      workctl.env: sandbox
+    environment:
+      ALLOW_NONE_AUTHENTICATION: "yes"
+      ETCD_ADVERTISE_CLIENT_URLS: http://127.0.0.1:12379
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+    ports:
+      - "12379:2379"
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 5s
+      retries: 20
 
 volumes:
   mysql-data:

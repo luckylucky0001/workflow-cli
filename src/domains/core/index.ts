@@ -25,6 +25,7 @@ export const DOMAIN_ENDPOINT_KINDS: Record<string, string[]> = {
   storage: ['docker'],
   observability: ['prometheus', 'docker', 'loki'],
   mq: ['kafka'],
+  config: ['etcd'],
 };
 
 export const ENDPOINT_AUTH_PROVIDERS: Record<string, string> = {
@@ -39,6 +40,7 @@ export const ENDPOINT_AUTH_PROVIDERS: Record<string, string> = {
   prometheus: 'none',
   catalog: 'filesystem',
   kafka: 'kafka-profile',
+  etcd: 'etcd-profile',
 };
 
 const CapabilitySummary = z.object({

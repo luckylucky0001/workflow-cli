@@ -70,6 +70,16 @@ workctl network backend list --service <svc>            # 业务探测
 ```
 执行器的 `verified` 只基于 inspect（进程运行、启动时间更新、健康检查状态）；业务恢复以探测与指标为准。失败时用 `container event list` 和 `log query` 查看原因，不要自动重试。
 
+## 场景 6：配置与服务发现（etcd，只读）
+
+```bash
+workctl config get --service <svc> [--key <name>]                 # 当前值、mod_revision、version；敏感值为 ***
+workctl config diff --service <svc> --from-rev <rev>              # 或 --key <name> 与上一版本比较
+workctl discovery list --service <svc> [--healthy-only]           # 注册实例、租约剩余 TTL
+```
+- 修订是集群级全局修订；`observed_revision` 是 etcd 的值，不代表应用已加载。`DATA_UNAVAILABLE` = 修订已被压缩（`details.compact_revision` 起可读），不是“没有改过”。
+- `healthy` 是实例自报；`lease=null` 的注册永不过期，可能是残留。不要输出或猜测被遮蔽的值。
+
 ## Docker 与 Kubernetes
 
 同一组命令按资源绑定自动选择 provider（`data.provider`、`selector.matched_by` 说明依据）。Kubernetes 下注意：

@@ -7,7 +7,7 @@
 | 板块 | 已支持 | 待接入 |
 | --- | --- | --- |
 | 核心（发现、资源、身份、操作） | 13 | 0 |
-| 基础设施 | 14 | 7 |
+| 基础设施 | 17 | 4 |
 | 中间件 | 19 | 11 |
 | 离线链路 | 21 | 4 |
 
@@ -83,13 +83,13 @@ Docker 卷与本机文件系统元数据；对象存储与 HDFS 规划中。指�
 
 ### 配置与服务发现（`config`）
 
-配置中心与服务注册（待接入）。指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)
+配置中心与服务注册（etcd v3 JSON 网关）：配置读取、修订间差异、注册实例与租约。指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)；Skill：`skills/infra-operations`
 
 | 能力 | 命令 | 操作 | 状态 | 适配器 | 版本 |
 | --- | --- | --- | --- | --- | --- |
-| `config.diff` | `workctl config diff` | read | 待接入 | config-center (待接入) | 1.0.0 |
-| `config.get` | `workctl config get` | read | 待接入 | config-center (待接入) | 1.0.0 |
-| `discovery.list` | `workctl discovery list` | read | 待接入 | service-registry (待接入) | 1.0.0 |
+| `config.diff` | `workctl config diff` | read | 已支持 | etcd-v3-gateway | 1.0.0 |
+| `config.get` | `workctl config get` | read | 已支持 | etcd-v3-gateway | 1.0.0 |
+| `discovery.list` | `workctl discovery list` | read | 已支持 | etcd-v3-gateway | 1.0.0 |
 
 ## 中间件
 

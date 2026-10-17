@@ -378,31 +378,120 @@
     {
       "name": "config.diff",
       "command": "config diff",
-      "summary": "比较配置项两个版本的差异",
+      "summary": "比较配置项在两个 etcd 修订之间的差异（新增/删除/修改，敏感值遮蔽）；不给 --from-rev 时与 --key 的上一版本比较",
       "domain": "config",
-      "status": "planned",
-      "inputs": {},
-      "output_schema": null,
-      "adapter": "config-center (待接入)",
+      "status": "available",
+      "inputs": {
+        "service": {
+          "type": "string",
+          "required": true,
+          "description": "服务 ID"
+        },
+        "env": {
+          "type": "string",
+          "required": false,
+          "description": "环境；默认取 profile 的 env"
+        },
+        "key": {
+          "type": "string",
+          "required": false,
+          "description": "只比较一个配置项（相对键名）"
+        },
+        "from_rev": {
+          "type": "int",
+          "required": false,
+          "description": "起始修订（集群修订号）；省略时须给 --key，取该键上一版本（mod_revision-1）"
+        },
+        "to_rev": {
+          "type": "string",
+          "required": false,
+          "default": "current",
+          "description": "结束修订：正整数或 current"
+        },
+        "endpoint": {
+          "type": "string",
+          "required": false,
+          "description": "etcd 端点名（默认取 profile defaults.etcd）"
+        }
+      },
+      "output_schema": "docs/schemas/config.diff.v1.json",
+      "adapter": "etcd-v3-gateway",
       "operation": "read",
-      "auth_provider": "tbd",
+      "auth_provider": "etcd-profile",
       "capability_version": "1.0.0",
       "guide": "docs/guides/infrastructure.md",
+      "prerequisites": [
+        "profile 配置 endpoints.etcd",
+        "起始修订不早于最近一次压缩（compaction）"
+      ],
+      "notes": [
+        "修订号是 etcd 集群级的全局修订（任意键写入都会递增），不是单个配置项的版本号",
+        "只比较两个修订时刻的快照：区间内改了又改回的值显示为未变化（计入 rewritten_same_value），中间值不可见",
+        "历史只保留到最近一次压缩：早于压缩点的修订返回 DATA_UNAVAILABLE，details.compact_revision 为最早可读修订（二分探测得出）",
+        "修订大于当前集群修订返回 INVALID_ARGUMENT；比较只读，不会触发压缩",
+        "键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 \"***\" 替代，masked=true，masked_paths 标出位置"
+      ],
+      "examples": [
+        "workctl config diff --service demo-order --env sandbox --from-rev 2",
+        "workctl config diff --service demo-order --key cache.ttl_seconds"
+      ],
       "origin": "builtin"
     },
     {
       "name": "config.get",
       "command": "config get",
-      "summary": "读取配置中心配置项的当前值摘要",
+      "summary": "读取配置中心（etcd v3）中某服务某环境的配置项：当前值、修订号、版本与租约（敏感项遮蔽）",
       "domain": "config",
-      "status": "planned",
-      "inputs": {},
-      "output_schema": null,
-      "adapter": "config-center (待接入)",
+      "status": "available",
+      "inputs": {
+        "service": {
+          "type": "string",
+          "required": true,
+          "description": "服务 ID，如 demo-order"
+        },
+        "env": {
+          "type": "string",
+          "required": false,
+          "description": "环境；默认取 profile 的 env"
+        },
+        "key": {
+          "type": "string",
+          "required": false,
+          "description": "只读取一个配置项（服务前缀下的相对键名，如 cache.ttl_seconds）"
+        },
+        "limit": {
+          "type": "int",
+          "required": false,
+          "default": 200,
+          "description": "最多返回的键数（1-1000）"
+        },
+        "endpoint": {
+          "type": "string",
+          "required": false,
+          "description": "etcd 端点名（默认取 profile defaults.etcd）"
+        }
+      },
+      "output_schema": "docs/schemas/config.get.v1.json",
+      "adapter": "etcd-v3-gateway",
       "operation": "read",
-      "auth_provider": "tbd",
+      "auth_provider": "etcd-profile",
       "capability_version": "1.0.0",
       "guide": "docs/guides/infrastructure.md",
+      "prerequisites": [
+        "profile 配置 endpoints.etcd（url，可选 config_prefix / username + password_ref）",
+        "身份对该前缀有 read 权限（开启认证时）"
+      ],
+      "notes": [
+        "读的是 etcd 当前已提交的值（线性一致读），observed_revision 是读取时刻的集群修订，不代表应用已加载该值",
+        "键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 \"***\" 替代，masked=true，masked_paths 标出位置",
+        "值为 JSON（对象/数组/数字/布尔）时返回解析后的值；非 UTF-8 字节以 base64 返回（value_format=binary_base64）",
+        "mod_revision 是最后一次修改的集群修订；可作为 config diff --from-rev 的输入",
+        "Nacos / Apollo / Consul KV 是规划中的 provider"
+      ],
+      "examples": [
+        "workctl config get --service demo-order --env sandbox",
+        "workctl config get --service demo-order --key cache.ttl_seconds"
+      ],
       "origin": "builtin"
     },
     {
@@ -889,16 +978,52 @@
     {
       "name": "discovery.list",
       "command": "discovery list",
-      "summary": "从服务注册中心列出服务实例",
+      "summary": "从服务注册中心（etcd v3 前缀注册）列出某服务的实例：地址、版本、自报健康、租约与剩余 TTL",
       "domain": "config",
-      "status": "planned",
-      "inputs": {},
-      "output_schema": null,
-      "adapter": "service-registry (待接入)",
+      "status": "available",
+      "inputs": {
+        "service": {
+          "type": "string",
+          "required": true,
+          "description": "服务 ID，如 demo-order"
+        },
+        "env": {
+          "type": "string",
+          "required": false,
+          "description": "按注册内容中的 env 字段过滤（不给则不过滤）"
+        },
+        "healthy_only": {
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "description": "只返回自报 healthy=true 的实例"
+        },
+        "endpoint": {
+          "type": "string",
+          "required": false,
+          "description": "etcd 端点名（默认取 profile defaults.etcd）"
+        }
+      },
+      "output_schema": "docs/schemas/discovery.list.v1.json",
+      "adapter": "etcd-v3-gateway",
       "operation": "read",
-      "auth_provider": "tbd",
+      "auth_provider": "etcd-profile",
       "capability_version": "1.0.0",
       "guide": "docs/guides/infrastructure.md",
+      "prerequisites": [
+        "profile 配置 endpoints.etcd（url，可选 discovery_prefix）",
+        "实例以 <discovery_prefix><service>/<instance-id> → JSON 注册"
+      ],
+      "notes": [
+        "healthy 来自实例写入的注册内容（自报），不是 workctl 的探测结果；要验证可达性用 network connectivity check",
+        "带租约的注册在实例停止续约后按 TTL 自动删除；没有租约的注册永不过期，实例下线后可能残留",
+        "remaining_ttl_s 为本次 /v3/lease/timetolive 的读数（采样），续约后会重置",
+        "Nacos / Consul / Eureka / Kubernetes Endpoints 是规划中的 provider"
+      ],
+      "examples": [
+        "workctl discovery list --service demo-order",
+        "workctl discovery list --service demo-order --env sandbox --healthy-only"
+      ],
       "origin": "builtin"
     },
     {
@@ -3327,19 +3452,19 @@
       "skill": "skills/data-validation"
     },
     {
+      "name": "config",
+      "title": "配置与服务发现",
+      "summary": "配置中心与服务注册（etcd v3 JSON 网关）：配置读取、修订间差异、注册实例与租约",
+      "pillar": "infrastructure",
+      "guide": "docs/guides/infrastructure.md",
+      "skill": "skills/infra-operations"
+    },
+    {
       "name": "planned",
       "title": "待接入能力",
       "summary": "能力全景中尚未接入的能力；只出现在目录中，不可调用",
       "pillar": "core",
       "guide": "docs/capability-catalog.md",
-      "skill": null
-    },
-    {
-      "name": "config",
-      "title": "配置与服务发现",
-      "summary": "配置中心与服务注册（待接入）",
-      "pillar": "infrastructure",
-      "guide": "docs/guides/infrastructure.md",
       "skill": null
     },
     {
