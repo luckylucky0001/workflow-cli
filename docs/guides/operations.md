@@ -42,11 +42,19 @@ workctl --json operation get --id op-20261017-abc123
 
 目标系统仍会做自己的授权校验，workctl 的检查不替代平台权限。
 
+`--confirm` 只是防止执行错误计划的意图校验，**不是人工审批**：能调用 `operation execute` 的一方也能填写它。人工把关靠以下机制：
+
+- 给 Agent 使用的 profile 设置 `allow_execute: false`（演示中 `run-agent-demo.sh` 使用这样的只读 profile），Agent 只能生成计划；
+- MCP 服务默认不暴露 execute 类工具，只有以 `workctl mcp serve --allow-execute` 启动时才暴露；
+- 执行由授权人员在终端完成，或接入客户既有的变更审批流程（计划 ID 可作为审批单附件）。
+
+同一计划的执行与取消持有独占锁（`operations/<id>.lock`）：两个终端或 CLI 与 MCP 同时执行同一计划时，后到者得到 `CONFLICT`；过期计划返回 `PRECONDITION_FAILED`。
+
 ## 已注册的计划器与执行器
 
 | 操作类型 | 计划命令 | 执行器 | 说明 |
 | --- | --- | --- | --- |
-| `container.restart` | `operation plan --action container.restart` / `container workload restart-plan` | 有（Docker Engine API） | 重启后轮询确认恢复运行 |
+| `container.restart` | `operation plan --action container.restart` / `container workload restart-plan` | 有（Docker Engine API） | 重启后确认同一实例稳定运行 3 秒、有健康检查时需为 healthy，才记为 verified |
 | `mysql.index.create` | `mysql index plan` | 无 | 产出 DDL 与影响评估，交 DBA 变更流程 |
 | `offline.backfill` | `offline backfill plan` | 有（Airflow REST） | 按区间触发/清理 DAG run，遵守并发预算 |
 

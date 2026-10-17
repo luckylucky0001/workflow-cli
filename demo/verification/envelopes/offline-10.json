@@ -1,20 +1,173 @@
 {
   "schema_version": "1.0",
-  "status": "error",
+  "status": "success",
   "capability": "offline.backfill.get",
-  "data": null,
-  "error": {
-    "code": "INVALID_ARGUMENT",
-    "message": "计划 ID 格式不正确: <missing:plan_id>",
-    "retryable": false
+  "data": {
+    "plan": {
+      "id": "op-20261017-0e6bad",
+      "kind": "offline.backfill",
+      "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+      "status": "planned",
+      "created_at": "2026-10-17T13:15:47.181Z",
+      "expires_at": "2026-10-17T15:15:47.181Z",
+      "params": {
+        "workflow": "demo-daily-orders",
+        "from": "2026-10-14",
+        "to": "2026-10-16",
+        "timezone": "Asia/Shanghai",
+        "rerun_succeeded": false,
+        "max_active_runs": 2,
+        "allow_append_duplicates": false,
+        "airflow_endpoint": "demo-airflow"
+      },
+      "preconditions": [
+        {
+          "check": "dag_importable",
+          "ok": true,
+          "detail": "DAG 可解析且处于活跃状态"
+        },
+        {
+          "check": "dag_not_paused",
+          "ok": false,
+          "detail": "DAG 已暂停：触发的 run 不会被调度，需先恢复（属于变更，需单独授权）"
+        },
+        {
+          "check": "write_mode_safe",
+          "ok": true,
+          "detail": "overwrite_partition：重跑覆盖目标分区，幂等"
+        },
+        {
+          "check": "upstream_inputs_present",
+          "ok": true,
+          "detail": "动作涉及的目录内上游输入分区均为 present（外部来源未检查）"
+        },
+        {
+          "check": "intervals_complete",
+          "ok": true,
+          "detail": "所有动作对应的数据区间均已结束"
+        },
+        {
+          "check": "has_actions",
+          "ok": false,
+          "detail": "没有需要执行的动作（全部跳过）"
+        },
+        {
+          "check": "max_active_runs_valid",
+          "ok": true,
+          "detail": "计划并发 2，DAG max_active_runs=3"
+        }
+      ],
+      "history": [
+        {
+          "at": "2026-10-17T13:15:47.181Z",
+          "status": "planned",
+          "note": "计划已生成，未执行"
+        }
+      ]
+    },
+    "targets": [
+      {
+        "business_date": "2026-10-14",
+        "data_interval": {
+          "start_local": "2026-10-14T00:00:00+08:00",
+          "end_local": "2026-10-15T00:00:00+08:00",
+          "start_utc": "2026-10-13T16:00:00.000Z",
+          "end_utc": "2026-10-14T16:00:00.000Z"
+        },
+        "existing_runs": [
+          {
+            "run_id": "demo__2026-10-14__missing_upstream",
+            "state": "running",
+            "run_type": "manual",
+            "match": "exact",
+            "conf": {}
+          }
+        ],
+        "action": "skip_in_progress",
+        "run_id": "demo__2026-10-14__missing_upstream",
+        "reason": "已有在途 run（running），等待其结束后再评估",
+        "target_partition": "dt=2026-10-14",
+        "partition_state": "missing",
+        "upstream_inputs": [],
+        "not_due": false
+      },
+      {
+        "business_date": "2026-10-15",
+        "data_interval": {
+          "start_local": "2026-10-15T00:00:00+08:00",
+          "end_local": "2026-10-16T00:00:00+08:00",
+          "start_utc": "2026-10-14T16:00:00.000Z",
+          "end_utc": "2026-10-15T16:00:00.000Z"
+        },
+        "existing_runs": [
+          {
+            "run_id": "demo__2026-10-15__ok",
+            "state": "success",
+            "run_type": "manual",
+            "match": "exact",
+            "conf": {}
+          }
+        ],
+        "action": "skip_succeeded",
+        "run_id": "demo__2026-10-15__ok",
+        "reason": "已成功（调度层），默认跳过；如需重跑使用 --rerun-succeeded",
+        "target_partition": "dt=2026-10-15",
+        "partition_state": "present",
+        "upstream_inputs": [],
+        "not_due": false
+      },
+      {
+        "business_date": "2026-10-16",
+        "data_interval": {
+          "start_local": "2026-10-16T00:00:00+08:00",
+          "end_local": "2026-10-17T00:00:00+08:00",
+          "start_utc": "2026-10-15T16:00:00.000Z",
+          "end_utc": "2026-10-16T16:00:00.000Z"
+        },
+        "existing_runs": [
+          {
+            "run_id": "demo__2026-10-16__wrong_partition",
+            "state": "success",
+            "run_type": "manual",
+            "match": "exact",
+            "conf": {
+              "fault": "wrong_partition"
+            }
+          }
+        ],
+        "action": "skip_succeeded",
+        "run_id": "demo__2026-10-16__wrong_partition",
+        "reason": "已成功（调度层），默认跳过；如需重跑使用 --rerun-succeeded；注意：调度成功但目标分区 dt=2026-10-16 状态为 missing，重跑前先确认原因（同一 run 的 conf/代码会被沿用）",
+        "target_partition": "dt=2026-10-16",
+        "partition_state": "missing",
+        "upstream_inputs": [],
+        "not_due": false
+      }
+    ],
+    "execution": null,
+    "runs": [],
+    "progress": {},
+    "note": "计划尚未执行：以下目标只是预览"
   },
+  "error": null,
   "meta": {
-    "sources": [],
-    "coverage": null,
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "plan-store",
+        "method": "operations/op-20261017-0e6bad.json",
+        "observed_at": "2026-10-17T13:15:47.471Z",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "op-20261017-0e6bad"
+    },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvceggwz-ae914a",
+    "request_id": "req-mvcf6cu6-9d6088",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -22,7 +175,7 @@
     "adapter": "airflow-rest-v1",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T12:55:39.683Z",
-    "duration_ms": 15
+    "started_at": "2026-10-17T13:15:47.454Z",
+    "duration_ms": 17
   }
 }

@@ -39,19 +39,19 @@
         "area": "endpoints",
         "item": "mysql/demo-mysql",
         "ok": true,
-        "detail": "127.0.0.1:13306 可达 (5ms)"
+        "detail": "127.0.0.1:13306 可达 (4ms)"
       },
       {
         "area": "endpoints",
         "item": "redis/demo-redis",
         "ok": true,
-        "detail": "127.0.0.1:16379 可达 (2ms)"
+        "detail": "127.0.0.1:16379 可达 (1ms)"
       },
       {
         "area": "endpoints",
         "item": "prometheus/demo-prometheus",
         "ok": true,
-        "detail": "127.0.0.1:19090 可达 (0ms)"
+        "detail": "127.0.0.1:19090 可达 (1ms)"
       },
       {
         "area": "credentials",
@@ -69,7 +69,7 @@
         "area": "endpoints",
         "item": "spark/demo-spark",
         "ok": true,
-        "detail": "127.0.0.1:18088 可达 (0ms)"
+        "detail": "127.0.0.1:18088 可达 (1ms)"
       },
       {
         "area": "endpoints",
@@ -81,7 +81,7 @@
         "area": "endpoints",
         "item": "kafka/demo-mq",
         "ok": true,
-        "detail": "127.0.0.1:19092 可达 (2ms)"
+        "detail": "127.0.0.1:19092 可达 (1ms)"
       },
       {
         "area": "plugins",
@@ -103,7 +103,7 @@
       {
         "system": "workctl",
         "adapter": "local",
-        "observed_at": "2026-10-17T12:54:58.625Z",
+        "observed_at": "2026-10-17T13:15:06.713Z",
         "relation": "derived"
       }
     ],
@@ -111,7 +111,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcefl6j-00161e",
+    "request_id": "req-mvcf5hd1-dc6e99",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -119,7 +119,7 @@
     "adapter": "local",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T12:54:58.554Z",
-    "duration_ms": 71
+    "started_at": "2026-10-17T13:15:06.661Z",
+    "duration_ms": 53
   }
 }

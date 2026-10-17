@@ -6,27 +6,29 @@
     "service": "demo-order",
     "env": "sandbox",
     "selector": {
+      "kind": "label",
       "label": "workctl.service=demo-order",
       "origin": "binding-file",
-      "evidence": "bindings: demo-order.attributes.container_label=workctl.service=demo-order"
+      "evidence": "bindings: demo-order.attributes.container_label=workctl.service=demo-order",
+      "matched_by": "label workctl.service=demo-order（binding attribute container_label）"
     },
     "provider": "docker",
     "containers": [
       {
-        "id": "0dd91c2d29da",
+        "id": "3132b175b5dc",
         "name": "demo-order",
         "service": "demo-order",
         "env": "sandbox",
         "image": "workctl-demo/demo-order:local",
-        "image_id": "97a5e4bd054a",
-        "created": "2026-10-17T12:52:47.817428051Z",
+        "image_id": "acc01b2bc1e6",
+        "created": "2026-10-17T13:14:00.468892777Z",
         "state": "running",
         "health": "none",
         "health_failing_streak": null,
         "last_health_check": null,
         "restart_count": 0,
         "restart_policy": "no",
-        "started_at": "2026-10-17T12:52:48.700736369Z",
+        "started_at": "2026-10-17T13:14:16.564878716Z",
         "finished_at": null,
         "exit_code": 0,
         "oom_killed": false,
@@ -67,13 +69,12 @@
         "labels": {
           "com.docker.compose.config-hash": "dab0df4c0d51a1ff1ab3bf5b6fc9157422973c62febef6bed74990152b1aadbe",
           "com.docker.compose.container-number": "1",
-          "com.docker.compose.depends_on": "redis:service_healthy:false,mysql:service_healthy:false",
-          "com.docker.compose.image": "sha256:f7997606c41dc2a73a7bf16f51887d4ab2f4c38de2a33b8943793e8a619fba48",
+          "com.docker.compose.depends_on": "mysql:service_healthy:false,redis:service_healthy:false",
+          "com.docker.compose.image": "sha256:879324a4b481c1def727954785265698ca1eb15db7d2abddd017659ef33a3755",
           "com.docker.compose.oneoff": "False",
           "com.docker.compose.project": "workctl-demo",
           "com.docker.compose.project.config_files": "/home/user/workflow-cli/demo/environment/docker-compose.yml",
           "com.docker.compose.project.working_dir": "/home/user/workflow-cli/demo/environment",
-          "com.docker.compose.replace": "demo-order",
           "com.docker.compose.service": "demo-order",
           "com.docker.compose.version": "5.6.0",
           "workctl.env": "sandbox",
@@ -96,7 +97,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T12:55:01.616Z",
+        "observed_at": "2026-10-17T13:15:09.746Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/json?all=1&filters={label:workctl.service=demo-order}",
         "relation": "explicit",
@@ -105,7 +106,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T12:55:01.616Z",
+        "observed_at": "2026-10-17T13:15:09.746Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/json",
         "relation": "explicit",
@@ -114,23 +115,23 @@
       {
         "system": "workctl",
         "adapter": "resource-bindings",
-        "observed_at": "2026-10-17T12:55:01.616Z",
+        "observed_at": "2026-10-17T13:15:09.747Z",
         "method": "bindings: demo-order.attributes.container_label=workctl.service=demo-order",
         "relation": "explicit"
       }
     ],
     "coverage": {
       "complete": true,
-      "scope": "Docker 主机 docker/local (unix:/var/run/docker.sock) 上带标签 workctl.service=demo-order 的容器（含已停止）",
+      "scope": "Docker 主机 docker/local (unix:/var/run/docker.sock) 上匹配 label workctl.service=demo-order（binding attribute container_label） 的容器（含已停止）",
       "notes": [
-        "容器选择器: label workctl.service=demo-order（bindings: demo-order.attributes.container_label=workctl.service=demo-order）",
+        "容器选择器: label workctl.service=demo-order（binding attribute container_label）（bindings: demo-order.attributes.container_label=workctl.service=demo-order）",
         "环境过滤: workctl.env=sandbox（无该标签的容器保留并标注）"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcefnhd-c0cd97",
+    "request_id": "req-mvcf5jot-9e56d2",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -138,7 +139,7 @@
     "adapter": "docker-engine-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T12:55:01.537Z",
-    "duration_ms": 79
+    "started_at": "2026-10-17T13:15:09.677Z",
+    "duration_ms": 70
   }
 }

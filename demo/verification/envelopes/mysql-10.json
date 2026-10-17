@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "mysql.index.plan",
   "data": {
-    "id": "op-20261017-7a4784",
+    "id": "op-20261017-d23058",
     "kind": "mysql.index.create",
     "title": "为 demo.orders 新增索引 idx_customer_id_created_at(customer_id, created_at)",
     "params": {
@@ -33,7 +33,7 @@
           "idx_created_at(created_at)",
           "PRIMARY(id)"
         ],
-        "observed_at": "2026-10-17T12:55:23.058Z"
+        "observed_at": "2026-10-17T13:15:30.303Z"
       }
     ],
     "impact": {
@@ -52,52 +52,13 @@
           "schema": "demo",
           "statement": "SELECT",
           "digest_text": "SELECT `id` , STATUS , `amount` , `created_at` FROM `orders` WHERE `customer_id` = ? ORDER BY `created_at` DESC LIMIT ?",
-          "count": 1533,
-          "total_latency_ms": 2369046,
-          "avg_rows_examined": 223827,
+          "count": 11,
+          "total_latency_ms": 3546,
+          "avg_rows_examined": 274385,
           "no_index_used_count": 0,
           "references_leading_column": true,
           "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
-          "first_seen": "2026-10-17T12:34:07.558263Z"
-        },
-        {
-          "digest": "e05c5aa7ccd9337710213dd661c95012077c559f596e06a9ce54df217fdb6b2f",
-          "schema": "demo",
-          "statement": "UPDATE",
-          "digest_text": "UPDATE `orders` SET `updated_at` = `updated_at` WHERE `id` = ?",
-          "count": 2,
-          "total_latency_ms": 11507,
-          "avg_rows_examined": 1,
-          "no_index_used_count": 0,
-          "references_leading_column": false,
-          "effect": "写入需额外维护新索引",
-          "first_seen": "2026-10-17T12:43:17.838555Z"
-        },
-        {
-          "digest": "cbc540a780559b66bb51cba4ea074f47f37122292720d013baeff3ed0bf077e7",
-          "schema": "demo",
-          "statement": "SELECT",
-          "digest_text": "SELECT * FROM `orders` WHERE `id` = ?",
-          "count": 4081,
-          "total_latency_ms": 4156,
-          "avg_rows_examined": 1,
-          "no_index_used_count": 0,
-          "references_leading_column": false,
-          "effect": "不直接相关",
-          "first_seen": "2026-10-17T12:33:36.124494Z"
-        },
-        {
-          "digest": "94a74bb71ae7fc8e42c6fae6fa05586657e46513350f6ede4df9bfc7dea26844",
-          "schema": "demo",
-          "statement": "SELECT",
-          "digest_text": "SELECT `customer_id` , SUM ( `amount` ) AS `total` FROM `orders` WHERE `created_at` >= ? AND `created_at` < ? GROUP BY `customer_id`",
-          "count": 1,
-          "total_latency_ms": 144,
-          "avg_rows_examined": 17647,
-          "no_index_used_count": 0,
-          "references_leading_column": true,
-          "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
-          "first_seen": "2026-10-17T12:42:38.456747Z"
+          "first_seen": "2026-10-17T13:14:28.048125Z"
         },
         {
           "digest": "ecfc7b7e3c5148aeacff65bff4d7a4be31edbdf4cf3eb6625028a579dc22f4ea",
@@ -105,51 +66,25 @@
           "statement": "SELECT",
           "digest_text": "SELECT `id` , `customer_id` , STATUS , `amount` , `created_at` FROM `orders` WHERE `customer_id` <= ? ORDER BY `created_at` DESC",
           "count": 1,
-          "total_latency_ms": 137,
+          "total_latency_ms": 110,
           "avg_rows_examined": 334050,
           "no_index_used_count": 1,
           "references_leading_column": true,
           "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
-          "first_seen": "2026-10-17T12:42:38.107109Z"
+          "first_seen": "2026-10-17T13:14:22.634019Z"
         },
         {
-          "digest": "8ef857573e0a6506e02423f7be3824476a4ba37ae4f76f6b1f5032c690895eb4",
-          "schema": null,
-          "statement": "SELECT",
-          "digest_text": "SELECT COUNT ( * ) FROM `demo` . `orders`",
-          "count": 2,
-          "total_latency_ms": 62,
-          "avg_rows_examined": 0,
-          "no_index_used_count": 0,
-          "references_leading_column": false,
-          "effect": "不直接相关",
-          "first_seen": "2026-10-17T12:27:51.362289Z"
-        },
-        {
-          "digest": "47eb0701773acdc8464faff9a7cc4708e616ff1c62961b839a1e6f6acd3ce6de",
+          "digest": "94a74bb71ae7fc8e42c6fae6fa05586657e46513350f6ede4df9bfc7dea26844",
           "schema": "demo",
           "statement": "SELECT",
-          "digest_text": "SELECT `id` , `customer_id` , STATUS , `amount` FROM `orders` WHERE `created_at` >= ? AND `created_at` < ?",
+          "digest_text": "SELECT `customer_id` , SUM ( `amount` ) AS `total` FROM `orders` WHERE `created_at` >= ? AND `created_at` < ? GROUP BY `customer_id`",
           "count": 1,
-          "total_latency_ms": 34,
-          "avg_rows_examined": 4412,
+          "total_latency_ms": 30,
+          "avg_rows_examined": 17647,
           "no_index_used_count": 0,
           "references_leading_column": true,
           "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
-          "first_seen": "2026-10-17T12:42:38.506622Z"
-        },
-        {
-          "digest": "01792cc5a103fca6d1e7739f1f67a6805ea37b208bfda6ed58fe8d587403f829",
-          "schema": "demo",
-          "statement": "SELECT",
-          "digest_text": "SELECT * FROM `orders` `o1` LIMIT ?",
-          "count": 1,
-          "total_latency_ms": 16,
-          "avg_rows_examined": 22313,
-          "no_index_used_count": 1,
-          "references_leading_column": false,
-          "effect": "不直接相关",
-          "first_seen": "2026-10-17T12:37:20.789807Z"
+          "first_seen": "2026-10-17T13:14:22.805387Z"
         },
         {
           "digest": "4c13e8a437c41ece13d7722667678f2e84e34a0e28e1b14217d8315d7a2940db",
@@ -157,25 +92,38 @@
           "statement": "SELECT",
           "digest_text": "SELECT * FROM `orders` WHERE `id` <= ?",
           "count": 1,
-          "total_latency_ms": 1,
+          "total_latency_ms": 15,
           "avg_rows_examined": 3000,
           "no_index_used_count": 0,
           "references_leading_column": false,
           "effect": "不直接相关",
-          "first_seen": "2026-10-17T12:42:37.867138Z"
+          "first_seen": "2026-10-17T13:14:22.442152Z"
         },
         {
-          "digest": "d49427171759bc8df6c97bf59dc4015fb21777baad8d5b8dd05a2a94d84c2777",
+          "digest": "47eb0701773acdc8464faff9a7cc4708e616ff1c62961b839a1e6f6acd3ce6de",
           "schema": "demo",
           "statement": "SELECT",
-          "digest_text": "SELECT COUNT ( * ) , SUM ( `amount` ) FROM `orders` `o1` JOIN `orders` `o2` ON `o1` . `customer_id` = `o2` . `customer_id`",
-          "count": 2,
-          "total_latency_ms": 1,
-          "avg_rows_examined": 0,
+          "digest_text": "SELECT `id` , `customer_id` , STATUS , `amount` FROM `orders` WHERE `created_at` >= ? AND `created_at` < ?",
+          "count": 1,
+          "total_latency_ms": 11,
+          "avg_rows_examined": 4412,
           "no_index_used_count": 0,
           "references_leading_column": true,
           "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
-          "first_seen": "2026-10-17T12:36:57.858920Z"
+          "first_seen": "2026-10-17T13:14:22.867553Z"
+        },
+        {
+          "digest": "cbc540a780559b66bb51cba4ea074f47f37122292720d013baeff3ed0bf077e7",
+          "schema": "demo",
+          "statement": "SELECT",
+          "digest_text": "SELECT * FROM `orders` WHERE `id` = ?",
+          "count": 17,
+          "total_latency_ms": 7,
+          "avg_rows_examined": 1,
+          "no_index_used_count": 0,
+          "references_leading_column": false,
+          "effect": "不直接相关",
+          "first_seen": "2026-10-17T13:14:27.430593Z"
         }
       ],
       "affected_statements_note": "受影响语句来自 events_statements_summary_by_digest 的累计值（自启动/重置以来），按 DIGEST_TEXT 文本匹配表名（推断，relation=inferred）",
@@ -244,14 +192,14 @@
     "idempotent": false,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-17T12:55:23.059Z",
-    "expires_at": "2026-10-17T13:55:23.059Z",
+    "created_at": "2026-10-17T13:15:30.305Z",
+    "expires_at": "2026-10-17T14:15:30.305Z",
     "profile": "demo",
     "env": "sandbox",
     "executable": false,
     "history": [
       {
-        "at": "2026-10-17T12:55:23.059Z",
+        "at": "2026-10-17T13:15:30.305Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
@@ -263,7 +211,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T12:55:23.060Z",
+        "observed_at": "2026-10-17T13:15:30.305Z",
         "endpoint": "mysql/demo-mysql",
         "version": "8.4.11",
         "method": "information_schema.TABLES/COLUMNS/STATISTICS + INNODB_TRX",
@@ -272,7 +220,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T12:55:23.060Z",
+        "observed_at": "2026-10-17T13:15:30.305Z",
         "endpoint": "mysql/demo-mysql",
         "version": "8.4.11",
         "method": "performance_schema.events_statements_summary_by_digest (cumulative, text match)",
@@ -281,7 +229,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T12:55:23.060Z",
+        "observed_at": "2026-10-17T13:15:30.305Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/state/operations",
         "relation": "derived"
       }
@@ -296,7 +244,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvceg41w-493b7c",
+    "request_id": "req-mvcf5zkd-43f7ad",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -304,7 +252,7 @@
     "adapter": "mysql-driver",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T12:55:23.012Z",
-    "duration_ms": 48
+    "started_at": "2026-10-17T13:15:30.253Z",
+    "duration_ms": 52
   }
 }

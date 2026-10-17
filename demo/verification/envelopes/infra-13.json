@@ -3,68 +3,101 @@
   "status": "success",
   "capability": "observability.trace.get",
   "data": {
-    "trace_id": "34fd908994e4bdd82709957411032f19",
-    "start": "2026-10-17T12:54:15.529Z",
-    "end": "2026-10-17T12:54:15.529Z",
-    "duration_ms": 0.8,
-    "span_count": 1,
+    "trace_id": "b0a093934e259df9114c14b39a63dfc9",
+    "start": "2026-10-17T13:15:06.263Z",
+    "end": "2026-10-17T13:15:06.264Z",
+    "duration_ms": 1.068,
+    "span_count": 2,
     "services": [
       "demo-order"
     ],
     "error_spans": 0,
     "roots": [
-      "fce53c040d4ca393"
+      "e3dfee1fd89618ee"
     ],
+    "cyclic_parents": [],
     "external_parent": null,
     "spans": [
       {
-        "span_id": "fce53c040d4ca393",
+        "span_id": "e3dfee1fd89618ee",
         "parent_span_id": null,
         "name": "http.request",
         "service": "demo-order",
         "container": "demo-order",
         "depth": 0,
-        "start": "2026-10-17T12:54:15.529Z",
+        "start": "2026-10-17T13:15:06.263Z",
         "offset_ms": 0,
-        "duration_ms": 0.8,
-        "self_ms": 0.8,
+        "duration_ms": 1.068,
+        "self_ms": 0.316,
         "pct_of_trace": 100,
         "status": "ok",
         "attributes": {
           "http.method": "GET",
-          "http.route": "/admin/cache-mode",
-          "http.target": "/admin/cache-mode",
+          "http.route": "/orders/:id",
+          "http.target": "/orders/1401",
           "http.status_code": 200
         },
-        "children": [],
+        "children": [
+          "cc90a998ccfed4cb"
+        ],
         "logs": [
           {
-            "ts": "2026-10-17T12:54:15.531016927Z",
+            "ts": "2026-10-17T13:15:06.266319007Z",
             "level": "info",
             "msg": "request completed",
             "fields": {
               "service": "demo-order",
               "method": "GET",
-              "route": "/admin/cache-mode",
-              "path": "/admin/cache-mode",
+              "route": "/orders/:id",
+              "path": "/orders/1401",
               "status": 200,
-              "duration_ms": 0.297,
+              "duration_ms": 0.904,
               "cache_mode": "normal",
               "parent_span_id": null,
-              "app_ts": "2026-10-17T12:54:15.530Z"
+              "app_ts": "2026-10-17T13:15:06.264Z"
             }
           }
         ],
+        "orphan": false
+      },
+      {
+        "span_id": "cc90a998ccfed4cb",
+        "parent_span_id": "e3dfee1fd89618ee",
+        "name": "redis.get",
+        "service": "demo-order",
+        "container": "demo-order",
+        "depth": 1,
+        "start": "2026-10-17T13:15:06.263Z",
+        "offset_ms": 0,
+        "duration_ms": 0.752,
+        "self_ms": 0.752,
+        "pct_of_trace": 70.4,
+        "status": "ok",
+        "attributes": {
+          "db.system": "redis",
+          "db.operation": "GET",
+          "key": "demo:order:1401",
+          "hit": true
+        },
+        "children": [],
+        "logs": [],
         "orphan": false
       }
     ],
     "breakdown": [
       {
+        "name": "redis.get",
+        "count": 1,
+        "total_ms": 0.752,
+        "self_ms": 0.752,
+        "pct_of_trace": 70.4
+      },
+      {
         "name": "http.request",
         "count": 1,
-        "total_ms": 0.8,
-        "self_ms": 0.8,
-        "pct_of_trace": 100
+        "total_ms": 1.068,
+        "self_ms": 0.316,
+        "pct_of_trace": 29.6
       }
     ],
     "unattached_logs": [],
@@ -74,7 +107,7 @@
         "containers": [
           "demo-order"
         ],
-        "lines_scanned": 231
+        "lines_scanned": 1043
       }
     ]
   },
@@ -84,7 +117,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T12:55:09.218Z",
+        "observed_at": "2026-10-17T13:15:16.672Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/logs（kind=span 记录重建）",
         "relation": "derived",
@@ -94,8 +127,8 @@
     "coverage": {
       "complete": true,
       "window": {
-        "start": "2026-10-17T06:55:09.174Z",
-        "end": "2026-10-17T12:55:09.174Z"
+        "start": "2026-10-17T07:15:16.612Z",
+        "end": "2026-10-17T13:15:16.612Z"
       },
       "scope": "服务: demo-order 的容器日志",
       "notes": [
@@ -105,7 +138,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvceftch-9c6471",
+    "request_id": "req-mvcf5p0p-1f5136",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -113,7 +146,7 @@
     "adapter": "docker-engine-api",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T12:55:09.137Z",
-    "duration_ms": 81
+    "started_at": "2026-10-17T13:15:16.584Z",
+    "duration_ms": 88
   }
 }

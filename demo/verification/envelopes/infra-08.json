@@ -7,7 +7,7 @@
     "driver": "local",
     "mountpoint": "/var/lib/docker/volumes/workctl-demo_mysql-data/_data",
     "scope": "local",
-    "created_at": "2026-10-17T12:23:43Z",
+    "created_at": "2026-10-17T13:14:00Z",
     "labels": {
       "com.docker.compose.config-hash": "c6c1b35301bbd2d496faf79082be324934f8546ce0911b89569ce9b3dc8259f5",
       "com.docker.compose.project": "workctl-demo",
@@ -17,14 +17,14 @@
     "options": {},
     "usage": {
       "status": "available",
-      "size_bytes": 281795876,
+      "size_bytes": 281502029,
       "ref_count": 1,
       "note": null
     },
     "used_by": [
       {
         "name": "demo-mysql",
-        "id": "300f4ee907bc",
+        "id": "b8abfc2dc253",
         "state": "running",
         "destination": "/var/lib/mysql",
         "rw": true
@@ -37,7 +37,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T12:55:07.417Z",
+        "observed_at": "2026-10-17T13:15:15.060Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /volumes/workctl-demo_mysql-data",
         "relation": "explicit",
@@ -46,7 +46,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T12:55:07.421Z",
+        "observed_at": "2026-10-17T13:15:15.063Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /system/df?type=volume",
         "relation": "explicit",
@@ -55,7 +55,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T12:55:07.439Z",
+        "observed_at": "2026-10-17T13:15:15.079Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/json?filters={volume}",
         "relation": "explicit",
@@ -72,7 +72,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcefrzj-1290b1",
+    "request_id": "req-mvcf5nt3-6651ae",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -80,7 +80,7 @@
     "adapter": "docker-engine-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T12:55:07.375Z",
-    "duration_ms": 65
+    "started_at": "2026-10-17T13:15:15.015Z",
+    "duration_ms": 64
   }
 }

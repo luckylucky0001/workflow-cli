@@ -705,7 +705,7 @@ const qualityCheck = defineCapability({
         ev.scan.mode === 'full'
           ? `全量扫描 ${ev.scan.files_read} 个文件 ${ev.scan.rows_read} 行`
           : ev.scan.mode === 'sampled'
-            ? `抽样读取 ${ev.scan.rows_read}/${ev.scan.rows_total} 行（${ev.scan.files_read}/${ev.scan.files_total} 个文件）；内容规则的 pass 不是结论性的，行数规则为全量计数`
+            ? `头部抽样：按文件顺序读取前 ${ev.scan.rows_read}/${ev.scan.rows_total} 行（${ev.scan.files_read}/${ev.scan.files_total} 个文件），不是随机样本；内容规则的 pass 不是结论性的，行数规则为全量计数`
             : `未读取数据内容（${ev.precondition.ok ? '规则无需读取记录' : '前置条件不满足'}）`,
       ],
     };

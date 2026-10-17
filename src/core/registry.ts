@@ -13,8 +13,6 @@ export interface InputSpec {
   required?: boolean;
   default?: string | number | boolean | string[];
   enum?: string[];
-  /** Hide from MCP/agent tool schemas (e.g. confirmation tokens). */
-  agent_hidden?: boolean;
 }
 
 export type Handler = (ctx: Ctx, inputs: Record<string, any>) => Promise<Result>;

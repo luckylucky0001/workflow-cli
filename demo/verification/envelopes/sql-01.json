@@ -3,16 +3,16 @@
   "status": "success",
   "capability": "sql.query.submit",
   "data": {
-    "query_id": "q-20261017-aad233",
+    "query_id": "q-20261017-d2a0ae",
     "engine": "spark",
     "state": "submitted",
-    "submitted_at": "2026-10-17T12:55:41.515Z",
-    "pid": 18243,
+    "submitted_at": "2026-10-17T13:15:49.127Z",
+    "pid": 21305,
     "sql_sha256": "896905aaaf3124413d1931ed32f229b686e4f80fa1b14d44430b7ba5114ca293",
-    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261017-aad233/result",
-    "state_file": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261017-aad233.json",
+    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261017-d2a0ae/result",
+    "state_file": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261017-d2a0ae.json",
     "tables": "数仓目录注册为 <db>_<table> 临时视图",
-    "next": "workctl sql query get --id q-20261017-aad233"
+    "next": "workctl sql query get --id q-20261017-d2a0ae"
   },
   "error": null,
   "meta": {
@@ -20,7 +20,7 @@
       {
         "system": "spark",
         "adapter": "spark-submit-local",
-        "observed_at": "2026-10-17T12:55:41.522Z",
+        "observed_at": "2026-10-17T13:15:49.133Z",
         "endpoint": "spark/demo-spark",
         "method": "spawn /home/user/workflow-cli/demo/offline-workflows/spark/spark-submit.sh --mode query",
         "relation": "explicit"
@@ -28,12 +28,12 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "q-20261017-aad233"
+      "scope": "q-20261017-d2a0ae"
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcegibf-69ce2c",
+    "request_id": "req-mvcf6e4a-1006cc",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -41,7 +41,7 @@
     "adapter": "spark-submit-local",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T12:55:41.499Z",
-    "duration_ms": 23
+    "started_at": "2026-10-17T13:15:49.114Z",
+    "duration_ms": 19
   }
 }

@@ -4,12 +4,13 @@
   "capability": "container.stats.get",
   "data": {
     "kind": "snapshot",
-    "observed_at": "2026-10-17T12:55:03.360Z",
+    "observed_at": "2026-10-17T13:15:11.433Z",
     "service": "demo-order",
     "env": "sandbox",
+    "matched_by": "label workctl.service=demo-order（binding attribute container_label）",
     "containers": [
       {
-        "id": "0dd91c2d29da",
+        "id": "3132b175b5dc",
         "name": "demo-order",
         "state": "running",
         "limits": {
@@ -17,26 +18,26 @@
           "memory_bytes": 268435456
         },
         "stats": {
-          "read_at": "2026-10-17T12:55:03.356007043Z",
-          "preread_at": "2026-10-17T12:55:02.353023679Z",
+          "read_at": "2026-10-17T13:15:11.429117774Z",
+          "preread_at": "2026-10-17T13:15:10.426025031Z",
           "sample_interval_ms": 1003,
           "cpu": {
-            "cores_used": 0.0003,
-            "percent": 0.03,
+            "cores_used": 0.0004,
+            "percent": 0.04,
             "online_cpus": 4,
-            "percent_of_limit": 0.06
+            "percent_of_limit": 0.07
           },
           "memory": {
-            "usage_bytes": 19148800,
-            "working_set_bytes": 19148800,
+            "usage_bytes": 21798912,
+            "working_set_bytes": 21798912,
             "limit_bytes": 268435456,
             "limit_source": "container",
-            "percent_of_limit": 7.13
+            "percent_of_limit": 8.12
           },
           "pids": 11,
           "network": {
-            "rx_bytes": 105673,
-            "tx_bytes": 261728,
+            "rx_bytes": 323989,
+            "tx_bytes": 453789,
             "rx_errors": 0,
             "tx_errors": 0
           },
@@ -56,7 +57,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T12:55:03.379Z",
+        "observed_at": "2026-10-17T13:15:11.445Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/stats?stream=false",
         "relation": "sampled",
@@ -65,7 +66,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T12:55:03.379Z",
+        "observed_at": "2026-10-17T13:15:11.445Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/json",
         "relation": "explicit",
@@ -76,7 +77,7 @@
       "complete": true,
       "scope": "snapshot：单次采样，不代表时间窗口",
       "notes": [
-        "容器选择器: label workctl.service=demo-order（bindings: demo-order.attributes.container_label=workctl.service=demo-order）",
+        "容器选择器: label workctl.service=demo-order（binding attribute container_label）（bindings: demo-order.attributes.container_label=workctl.service=demo-order）",
         "环境过滤: workctl.env=sandbox（无该标签的容器保留并标注）",
         "CPU 使用率来自守护进程 precpu→cpu 两次采样；网络/块 I/O 为累计值"
       ]
@@ -84,7 +85,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcefo2f-2b42bb",
+    "request_id": "req-mvcf5k83-72e99c",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -92,7 +93,7 @@
     "adapter": "docker-engine-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T12:55:02.295Z",
-    "duration_ms": 1084
+    "started_at": "2026-10-17T13:15:10.371Z",
+    "duration_ms": 1074
   }
 }

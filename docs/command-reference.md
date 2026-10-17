@@ -154,7 +154,7 @@ workctl capability list --status planned
 | 参数 | 类型 | 必填 | 默认 | 说明 |
 | --- | --- | --- | --- | --- |
 | `--id` | string | 是 |  | 计划 ID |
-| `--confirm` | string | 是 |  | 再次输入计划 ID 以确认执行 |
+| `--confirm` | string | 是 |  | 再次输入计划 ID 以确认执行（防止执行错误的计划；不是人工审批） |
 
 口径说明：
 

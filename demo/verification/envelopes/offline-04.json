@@ -142,7 +142,7 @@
           "source": {
             "system": "airflow",
             "adapter": "airflow-rest-v1",
-            "observed_at": "2026-10-17T12:55:34.503Z",
+            "observed_at": "2026-10-17T13:15:42.191Z",
             "endpoint": "airflow/demo-airflow",
             "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition",
             "version": "2.10.5",
@@ -155,13 +155,13 @@
           "app_id": "local-1792240691874",
           "task_id": "aggregate_orders",
           "app_id_via": "xcom:return_value",
-          "detail": "应用已结束（attempt.completed=true）且没有失败作业；history server 不记录驱动进程退出码",
+          "detail": "应用已结束（attempt.completed=true）且没有失败作业；history server 不记录驱动进程退出码；driver 日志末尾没有未处理异常",
           "duration_ms": 8529,
           "failed_jobs": 0,
           "source": {
             "system": "spark",
             "adapter": "spark-history-rest",
-            "observed_at": "2026-10-17T12:55:34.817Z",
+            "observed_at": "2026-10-17T13:15:42.475Z",
             "endpoint": "spark/demo-spark",
             "method": "GET /api/v1/applications/local-1792240691874",
             "version": "3.5.5",
@@ -178,7 +178,7 @@
           "source": {
             "system": "local-filesystem",
             "adapter": "file-catalog",
-            "observed_at": "2026-10-17T12:55:34.849Z",
+            "observed_at": "2026-10-17T13:15:42.524Z",
             "endpoint": "catalog/demo:warehouse_root",
             "method": "stat+readdir analytics/daily_orders/dt=2026-10-16",
             "relation": "derived"
@@ -186,6 +186,8 @@
         },
         "quality": {
           "state": "fail",
+          "table": "analytics.daily_orders",
+          "partition": "dt=2026-10-16",
           "checked_at": "2026-10-17T12:39:33.026Z",
           "conclusive": true,
           "ruleset": "demo-daily-rules",
@@ -197,7 +199,19 @@
             "skipped": 10,
             "warn_failures": 0
           },
-          "detail": "最近一次检查 2026-10-17T12:39:33.026Z；结果不会随分区重写自动失效，注意与分区更新时间比较",
+          "failed_rules": [
+            {
+              "rule": "partition_exists",
+              "type": "partition_exists",
+              "status": "fail",
+              "severity": "error",
+              "message": "分区目录不存在"
+            }
+          ],
+          "skipped_reason": "10 条规则被跳过：前置条件不满足（分区 missing：分区目录不存在）",
+          "partition_state_at_check": "missing",
+          "stale": false,
+          "detail": "最近一次检查 2026-10-17T12:39:33.026Z",
           "source": {
             "system": "workctl-state",
             "adapter": "data-quality-store",
@@ -225,7 +239,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T12:55:34.503Z",
+        "observed_at": "2026-10-17T13:15:42.191Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition",
         "version": "2.10.5",
@@ -234,7 +248,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T12:55:34.503Z",
+        "observed_at": "2026-10-17T13:15:42.191Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition/taskInstances",
         "version": "2.10.5",
@@ -243,7 +257,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T12:55:34.792Z",
+        "observed_at": "2026-10-17T13:15:42.452Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET .../taskInstances/{task}/xcomEntries/return_value | logs",
         "version": "2.10.5",
@@ -252,7 +266,7 @@
       {
         "system": "spark",
         "adapter": "spark-history-rest",
-        "observed_at": "2026-10-17T12:55:34.817Z",
+        "observed_at": "2026-10-17T13:15:42.475Z",
         "endpoint": "spark/demo-spark",
         "method": "GET /api/v1/applications/local-1792240691874",
         "version": "3.5.5",
@@ -261,7 +275,7 @@
       {
         "system": "catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T12:55:34.826Z",
+        "observed_at": "2026-10-17T13:15:42.496Z",
         "endpoint": "catalog/demo",
         "method": "tables/*.yaml produced_by.workflow=demo-daily-orders",
         "relation": "explicit"
@@ -269,7 +283,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T12:55:34.849Z",
+        "observed_at": "2026-10-17T13:15:42.524Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "stat+readdir analytics/daily_orders/dt=2026-10-16",
         "relation": "derived"
@@ -289,7 +303,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcegclt-54192c",
+    "request_id": "req-mvcf68gd-8a4e6c",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -297,7 +311,7 @@
     "adapter": "airflow-rest-v1",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T12:55:34.097Z",
-    "duration_ms": 756
+    "started_at": "2026-10-17T13:15:41.772Z",
+    "duration_ms": 759
   }
 }

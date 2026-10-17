@@ -16,7 +16,7 @@
       },
       "query": {
         "execution_date_gte": "2026-10-14T16:00:00.000Z",
-        "execution_date_lte": "2026-10-16T16:00:00.000Z",
+        "execution_date_lte": "2026-10-17T16:00:00.000Z",
         "order_by": "-execution_date",
         "limit": 100
       }
@@ -72,7 +72,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T12:55:33.814Z",
+        "observed_at": "2026-10-17T13:15:41.508Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns",
         "version": "2.10.5",
@@ -81,7 +81,7 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "logical_date ∈ [2026-10-14T16:00:00.000Z, 2026-10-16T16:00:00.000Z]",
+      "scope": "logical_date ∈ [2026-10-14T16:00:00.000Z, 2026-10-17T16:00:00.000Z]",
       "limit": 20,
       "window": {
         "start": "2026-10-15T16:00:00.000Z",
@@ -94,7 +94,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcegbzz-559b0d",
+    "request_id": "req-mvcf680d-9a5a51",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -102,7 +102,7 @@
     "adapter": "airflow-rest-v1",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T12:55:33.311Z",
-    "duration_ms": 503
+    "started_at": "2026-10-17T13:15:41.197Z",
+    "duration_ms": 311
   }
 }

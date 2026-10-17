@@ -287,7 +287,9 @@ const authStatus = defineCapability({
             probe = { ok: false, detail: e instanceof Error ? e.message : String(e) };
           }
         }
-        endpoints.push({ kind, name, auth_provider: ENDPOINT_AUTH_PROVIDERS[kind] ?? 'plugin-defined', credential_refs: refs, probe });
+        // Airflow 3 (REST v2) exchanges username/password for a JWT; v1 uses basic auth
+        const authProvider = kind === 'airflow' && String(cfg.api_version ?? 'v1') === 'v2' ? 'airflow-jwt' : ENDPOINT_AUTH_PROVIDERS[kind] ?? 'plugin-defined';
+        endpoints.push({ kind, name, auth_provider: authProvider, credential_refs: refs, probe });
       }
     }
     return {
@@ -444,7 +446,7 @@ const operationExecute = defineCapability({
   domain: 'core',
   inputs: {
     id: { type: 'string', required: true, description: '计划 ID' },
-    confirm: { type: 'string', required: true, description: '再次输入计划 ID 以确认执行', agent_hidden: true },
+    confirm: { type: 'string', required: true, description: '再次输入计划 ID 以确认执行（防止执行错误的计划；不是人工审批）' },
   },
   output: PlanSchema,
   adapter: 'plan-store',

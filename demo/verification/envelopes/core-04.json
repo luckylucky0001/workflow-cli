@@ -94,7 +94,7 @@
       {
         "system": "resource-bindings",
         "adapter": "binding-file",
-        "observed_at": "2026-10-17T12:54:59.691Z",
+        "observed_at": "2026-10-17T13:15:07.916Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "relation": "explicit"
       }
@@ -106,7 +106,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcefm12-3ffbb0",
+    "request_id": "req-mvcf5iav-47654c",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -114,7 +114,7 @@
     "adapter": "binding-file",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T12:54:59.654Z",
+    "started_at": "2026-10-17T13:15:07.879Z",
     "duration_ms": 38
   }
 }

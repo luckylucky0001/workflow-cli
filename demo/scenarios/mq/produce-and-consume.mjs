@@ -224,7 +224,21 @@ async function main() {
   }
 }
 
-main().catch((e) => {
+// A freshly started broker may not have elected the group coordinator yet; retry those.
+async function mainWithRetry(attempts = 5) {
+  for (let i = 1; ; i++) {
+    try {
+      return await main();
+    } catch (e) {
+      const transient = /coordinator|NOT_COORDINATOR|COORDINATOR_NOT_AVAILABLE|COORDINATOR_LOAD_IN_PROGRESS/i.test(`${e?.message} ${e?.type}`);
+      if (!transient || i >= attempts) throw e;
+      console.error(`协调者未就绪（${e?.type ?? e?.message}），${3 * i}s 后重试 (${i}/${attempts - 1})`);
+      await new Promise((r) => setTimeout(r, 3000 * i));
+    }
+  }
+}
+
+mainWithRetry().catch((e) => {
   console.error(`场景执行失败: ${e?.message ?? e}`);
   if (e?.type) console.error(`kafka error type: ${e.type}`);
   process.exit(1);

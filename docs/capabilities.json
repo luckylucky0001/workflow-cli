@@ -2339,7 +2339,7 @@
         "confirm": {
           "type": "string",
           "required": true,
-          "description": "再次输入计划 ID 以确认执行"
+          "description": "再次输入计划 ID 以确认执行（防止执行错误的计划；不是人工审批）"
         }
       },
       "output_schema": "docs/schemas/operation.execute.v1.json",
