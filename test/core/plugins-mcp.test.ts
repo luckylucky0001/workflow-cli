@@ -100,6 +100,23 @@ describe('plugins', () => {
     expect(() => installPlugin(tgz, reg)).toThrow(/fake/);
   });
 
+  it('lets a plugin fulfil capabilities the built-in catalog lists as planned', async () => {
+    const d5 = tempDir();
+    const tgz = buildFakePlugin(d5);
+    spawnSync('sh', ['-c', `cd ${d5}/pkg && sed -i 's/"name":"q"/"name":"search"/; s/"q\\.lag"/"search.query"/; s/"command":"q lag"/"command":"search query"/; s/"q\\.other"/"search.other"/; s/"command":"q other"/"command":"search other"/' workctl-plugin.json && tar -czf ${tgz} .`]);
+    const reg = testRegistry();
+    expect(reg.get('search.query')?.status).toBe('planned');
+    installPlugin(tgz, reg);
+    const reg2 = testRegistry();
+    expect(loadPlugins(reg2).errors).toEqual([]);
+    expect(reg2.get('search.query')?.status).toBe('available');
+    expect(reg2.get('search.query')?.origin).toBe('plugin:fake-q@0.1.0');
+    expect(reg2.get('search.index.get')?.status).toBe('planned'); // untouched planned entries stay
+    const env = await invoke(reg2, 'search.query', { group: 'g' }, { configPath: writeConfig(d5) });
+    expect(env.status).toBe('success');
+    removePlugin('fake-q');
+  });
+
   it('allows reinstalling a loaded plugin', () => {
     const d3 = tempDir();
     const tgz = buildFakePlugin(d3);

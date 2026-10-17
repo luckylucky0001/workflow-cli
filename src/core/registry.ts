@@ -96,20 +96,31 @@ export class Registry {
   readonly executors = new Map<string, Executor>();
   readonly errorMappers: NonNullable<DomainDef['mapError']>[] = [];
 
-  addDomain(d: DomainDef): void {
-    if (this.domains.has(d.name)) throw new Error(`duplicate domain ${d.name}`);
+  /**
+   * `fulfillPlanned`: a plugin may implement a domain/capabilities that the built-in catalog only
+   * lists as planned; those planned entries are replaced instead of being reported as duplicates.
+   */
+  addDomain(d: DomainDef, opts: { fulfillPlanned?: boolean } = {}): void {
+    if (this.domains.has(d.name)) {
+      const onlyPlanned = [...this.capabilities.values()].filter((c) => c.domain === d.name).every((c) => c.status === 'planned');
+      if (!(opts.fulfillPlanned && onlyPlanned)) throw new Error(`duplicate domain ${d.name}`);
+    }
     // Skills are referenced by directory; accept a path to SKILL.md as well.
     if (d.skill?.endsWith('/SKILL.md')) d = { ...d, skill: d.skill.slice(0, -'/SKILL.md'.length) };
     this.domains.set(d.name, d);
-    for (const c of d.capabilities) this.addCapability({ ...c, domain: c.domain ?? d.name });
+    for (const c of d.capabilities) this.addCapability({ ...c, domain: c.domain ?? d.name }, opts);
     for (const [k, p] of Object.entries(d.probes ?? {})) this.probes.set(k, p);
     for (const p of d.planners ?? []) this.planners.set(p.kind, p);
     for (const [k, e] of Object.entries(d.executors ?? {})) this.executors.set(k, e);
     if (d.mapError) this.errorMappers.push(d.mapError);
   }
 
-  addCapability(c: CapabilityDef): void {
-    if (this.capabilities.has(c.name)) throw new Error(`duplicate capability ${c.name}`);
+  addCapability(c: CapabilityDef, opts: { fulfillPlanned?: boolean } = {}): void {
+    const existing = this.capabilities.get(c.name);
+    if (existing) {
+      if (!(opts.fulfillPlanned && existing.status === 'planned' && (existing.origin ?? 'builtin') === 'builtin')) throw new Error(`duplicate capability ${c.name}`);
+      this.capabilities.delete(c.name);
+    }
     if (c.status !== 'planned' && !c.handler) throw new Error(`capability ${c.name} is ${c.status} but has no handler`);
     for (const other of this.capabilities.values()) {
       if (other.status !== 'planned' && c.status !== 'planned' && other.command === c.command) {

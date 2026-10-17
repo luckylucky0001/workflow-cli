@@ -127,7 +127,9 @@ export function validatePlugin(dir: string, registry: Registry, replacing?: stri
   for (const c of manifest.capabilities) {
     if (!c.name.startsWith(`${manifest.domain.name}.`)) problems.push(`能力 ${c.name} 不在领域 ${manifest.domain.name} 下`);
     const clash = registry.get(c.name);
-    if (clash && !ownedBySelf(clash.origin)) problems.push(`能力名冲突: ${c.name}`);
+    // a plugin may fulfil a capability the built-in catalog lists as planned
+    const fulfilsPlanned = clash?.status === 'planned' && (clash.origin ?? 'builtin') === 'builtin';
+    if (clash && !ownedBySelf(clash.origin) && !fulfilsPlanned) problems.push(`能力名冲突: ${c.name}`);
     if (c.status !== 'planned') {
       const cmdClash = [...registry.capabilities.values()].find((o) => o.status !== 'planned' && o.command === c.command && o.name !== c.name && !ownedBySelf(o.origin));
       if (cmdClash) problems.push(`命令冲突: ${c.command}（已由 ${cmdClash.name} 使用）`);
@@ -222,7 +224,7 @@ export function loadPlugins(registry: Registry): { loaded: string[]; errors: str
   for (const p of listInstalled()) {
     try {
       const manifest = readManifest(p.dir);
-      registry.addDomain(pluginDomain(p, manifest));
+      registry.addDomain(pluginDomain(p, manifest), { fulfillPlanned: true });
       loaded.push(`${p.name}@${p.version}`);
     } catch (e) {
       errors.push(`${p.name}: ${e instanceof Error ? e.message : String(e)}`);
