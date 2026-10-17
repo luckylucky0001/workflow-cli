@@ -242,5 +242,48 @@ services:
     ports:
       - "18500:8500"
 
+  # PostgreSQL 16 for the `pg` domain. Superuser password from secret; read-only role
+  # workctl_ro is provisioned by postgres/provision-users.sh. Scenario: demo/scenarios/postgres.
+  postgres:
+    image: postgres:16-alpine
+    container_name: demo-postgres
+    labels:
+      workctl.resource: demo-postgres
+      workctl.env: sandbox
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_superuser_password
+      POSTGRES_DB: demo_orders
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements", "-c", "pg_stat_statements.track=top", "-c", "track_io_timing=on", "-c", "max_connections=100"]
+    volumes:
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./.runtime/secrets/pg_superuser_password:/run/secrets/pg_superuser_password:ro
+      - ./.runtime/secrets/pg_ro_password:/run/secrets/pg_ro_password:ro
+    ports:
+      - "15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d demo_orders"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # Jenkins LTS (core only, no setup wizard) as the deploy-system provider for `deploy ...`.
+  # init.groovy.d creates user admin (password from the secret file) and the freestyle job
+  # deploy-demo-order; builds are seeded by demo/scenarios/deploy/seed-jenkins.mjs.
+  # Host port 18091 (18081 is taken by demo-order). Runs as root only to read the 0600 secret file.
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: demo-jenkins
+    user: root
+    labels:
+      workctl.resource: demo-jenkins
+      workctl.env: sandbox
+    environment:
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false -Xmx512m
+    volumes:
+      - ./jenkins/init.groovy.d:/var/jenkins_home/init.groovy.d:ro
+      - ./.runtime/secrets/jenkins_admin_password:/run/secrets/jenkins_admin_password:ro
+    ports:
+      - "18091:8080"
+
 volumes:
   mysql-data:

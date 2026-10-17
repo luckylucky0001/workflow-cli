@@ -403,3 +403,24 @@ describe('plugin install hardening', () => {
     expect(keys.every((k) => Object.keys(pluginEnv()).includes(k) || !(k in process.env))).toBe(true);
   });
 });
+
+describe('registry: fulfilling planned built-ins is all-or-nothing', () => {
+  it('a domain rejected mid-way leaves planned entries, domain metadata and commands untouched', async () => {
+    const { builtinRegistry } = await import('../../src/domains');
+    const reg = builtinRegistry();
+    const before = { search: reg.domains.get('search'), query: reg.get('search.query'), size: reg.capabilities.size };
+    const cap = (name: string, command: string) =>
+      defineCapability({ name, command, summary: name, domain: 'search', adapter: 'a', operation: 'read', auth_provider: 'a', guide: 'g', origin: 'plugin:p@1', handler: async () => ({ data: null }) });
+    // first capability fulfils a planned built-in, the second clashes with an existing command
+    const plugin = defineDomain({ name: 'search', title: 'plugin', summary: 's', pillar: 'middleware', guide: 'g', capabilities: [cap('search.query', 'search query'), cap('search.clash', 'capability list')] });
+    expect(() => reg.addDomain(plugin, { fulfillPlanned: true })).toThrow(/duplicate command/);
+    expect(reg.domains.get('search')).toBe(before.search);
+    expect(reg.get('search.query')).toBe(before.query);
+    expect(reg.get('search.query')?.status).toBe('planned');
+    expect(reg.get('search.clash')).toBeUndefined();
+    expect(reg.capabilities.size).toBe(before.size);
+    // the same plugin without the clash still fulfils the planned entry
+    reg.addDomain({ ...plugin, capabilities: [cap('search.query', 'search query')] }, { fulfillPlanned: true });
+    expect(reg.get('search.query')).toMatchObject({ status: 'available', origin: 'plugin:p@1' });
+  });
+});

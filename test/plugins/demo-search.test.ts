@@ -199,6 +199,18 @@ describe('demo-search error mapping and endpoints', () => {
     expect(() => resolveEndpoint(req, 'secured')).toThrow(expect.objectContaining({ code: 'UNAUTHENTICATED' }));
   });
 
+  it('review: a url with embedded user:password@ is refused without echoing it (fetch errors print the url)', () => {
+    const req = RequestSchema.parse({ protocol: 'workctl-plugin/1', capability: 'search.cluster.get', endpoints: { opensearch: { inline: { url: 'http://ro:inline-pw-9876@127.0.0.1:19200' } } } });
+    let err: any;
+    try {
+      resolveEndpoint(req, 'inline');
+    } catch (e) {
+      err = e;
+    }
+    expect(err?.code).toBe('NOT_CONFIGURED');
+    expect(JSON.stringify({ m: err.message, h: err.hint, d: err.details })).not.toContain('inline-pw-9876');
+  });
+
   it('sends basic auth when configured and maps a 401 from the server', async () => {
     let seen: IncomingHttpHeaders | null = null;
     const server = createServer((req, res) => {

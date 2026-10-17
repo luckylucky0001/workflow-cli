@@ -107,8 +107,13 @@ export class Registry {
     }
     // Skills are referenced by directory; accept a path to SKILL.md as well.
     if (d.skill?.endsWith('/SKILL.md')) d = { ...d, skill: d.skill.slice(0, -'/SKILL.md'.length) };
+    // stage every capability first: a rejected domain (e.g. a broken plugin) must leave the
+    // registry untouched, not half-registered with planned built-ins already replaced
+    const staged = new Map(this.capabilities);
+    for (const c of d.capabilities) stageCapability(staged, { ...c, domain: c.domain ?? d.name }, opts);
     this.domains.set(d.name, d);
-    for (const c of d.capabilities) this.addCapability({ ...c, domain: c.domain ?? d.name }, opts);
+    this.capabilities.clear();
+    for (const [k, c] of staged) this.capabilities.set(k, c);
     for (const [k, p] of Object.entries(d.probes ?? {})) this.probes.set(k, p);
     for (const p of d.planners ?? []) this.planners.set(p.kind, p);
     for (const [k, e] of Object.entries(d.executors ?? {})) this.executors.set(k, e);
@@ -116,18 +121,7 @@ export class Registry {
   }
 
   addCapability(c: CapabilityDef, opts: { fulfillPlanned?: boolean } = {}): void {
-    const existing = this.capabilities.get(c.name);
-    if (existing) {
-      if (!(opts.fulfillPlanned && existing.status === 'planned' && (existing.origin ?? 'builtin') === 'builtin')) throw new Error(`duplicate capability ${c.name}`);
-      this.capabilities.delete(c.name);
-    }
-    if (c.status !== 'planned' && !c.handler) throw new Error(`capability ${c.name} is ${c.status} but has no handler`);
-    for (const other of this.capabilities.values()) {
-      if (other.status !== 'planned' && c.status !== 'planned' && other.command === c.command) {
-        throw new Error(`duplicate command "${c.command}" (${other.name}, ${c.name})`);
-      }
-    }
-    this.capabilities.set(c.name, c);
+    stageCapability(this.capabilities, c, opts);
   }
 
   get(name: string): CapabilityDef | undefined {
@@ -149,6 +143,20 @@ export class Registry {
     if (c.output) return z.toJSONSchema(c.output, { unrepresentable: 'any', io: 'output' }) as Record<string, unknown>;
     return c.output_json_schema;
   }
+}
+
+/** Check `c` against `caps` and add it; throws before changing `caps` when it is rejected. */
+function stageCapability(caps: Map<string, CapabilityDef>, c: CapabilityDef, opts: { fulfillPlanned?: boolean }): void {
+  const existing = caps.get(c.name);
+  if (existing && !(opts.fulfillPlanned && existing.status === 'planned' && (existing.origin ?? 'builtin') === 'builtin')) throw new Error(`duplicate capability ${c.name}`);
+  if (c.status !== 'planned' && !c.handler) throw new Error(`capability ${c.name} is ${c.status} but has no handler`);
+  for (const other of caps.values()) {
+    if (other.name !== c.name && other.status !== 'planned' && c.status !== 'planned' && other.command === c.command) {
+      throw new Error(`duplicate command "${c.command}" (${other.name}, ${c.name})`);
+    }
+  }
+  if (existing) caps.delete(c.name);
+  caps.set(c.name, c);
 }
 
 export function outputSchemaPath(c: CapabilityDef): string | undefined {
