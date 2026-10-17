@@ -7,7 +7,7 @@
 | 命令参考 | 参数、输出 Schema、错误码与退出码、异步状态、示例（自动生成） | [command-reference.md](command-reference.md)、[schemas/](schemas/) |
 | 资源模型 | 服务、实例、作业、数据集、分区的关联与关系来源 | [resource-model.md](resource-model.md) |
 | 操作语义 | read / diagnose / plan / execute、计划字段、执行前置条件 | [guides/operations.md](guides/operations.md) |
-| 基础设施指南 | 容器（Docker / Kubernetes）、网络、存储；快照与窗口；配置中心与服务发现（etcd 修订、压缩、遮蔽、租约） | [guides/infrastructure.md](guides/infrastructure.md) |
+| 基础设施指南 | 容器（Docker / Kubernetes）、网络、存储；快照与窗口；配置中心与服务发现（etcd / Nacos / Consul：provider 选择、修订空间、历史与压缩、遮蔽、租约与健康） | [guides/infrastructure.md](guides/infrastructure.md) |
 | 可观测指南 | 指标目录与 PromQL、日志查询、日志派生调用链 | [guides/observability.md](guides/observability.md) |
 | MySQL 指南 | 库表、索引、会话与锁、语句采样差分、慢日志、执行计划与受限查询 | [guides/mysql.md](guides/mysql.md) |
 | Redis 指南 | 节点范围、计数器与窗口、TTL、SCAN 采样覆盖、慢日志、LFU 热度 | [guides/redis.md](guides/redis.md) |

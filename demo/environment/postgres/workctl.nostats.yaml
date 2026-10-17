@@ -1,0 +1,23 @@
+# Auxiliary profile for the pg verification suite: the same demo PostgreSQL instance, but the
+# endpoint connects to the `postgres` database, where pg_stat_statements is NOT created
+# (extensions are per database) → `pg statement summary` must report COLLECTION_DISABLED.
+schema_version: "1.0"
+current_profile: demo-pg-nostats
+profiles:
+  demo-pg-nostats:
+    description: demo-postgres 的 postgres 库（未安装 pg_stat_statements）
+    env: sandbox
+    data_mode: live
+    allow_execute: false
+    state_dir: ../.runtime/state
+    defaults:
+      postgres: demo-postgres-nostats
+    endpoints:
+      postgres:
+        demo-postgres-nostats:
+          host: 127.0.0.1
+          port: 15432
+          user: workctl_ro
+          password_ref: file:../.runtime/secrets/pg_ro_password
+          database: postgres
+          statement_timeout_ms: 5000

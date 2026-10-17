@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "postgres.query.analyze",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "query analyze 只允许 SELECT（含 WITH ... SELECT / VALUES / TABLE），收到 DELETE",
+    "hint": "EXPLAIN ANALYZE 会实际执行语句；写语句只能用 workctl pg query explain 查看估计计划",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclmfdu-5d1ff5",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:14.946Z",
+    "duration_ms": 37
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "discovery.list",
+  "data": {
+    "endpoint": "nacos/demo-nacos",
+    "provider": "nacos",
+    "provider_selected_by": "bindings: demo-payment.attributes.config_center=demo-nacos（endpoint nacos/demo-nacos）",
+    "service": "demo-payment",
+    "env": "sandbox",
+    "prefix": "sandbox/DEFAULT_GROUP@@demo-payment",
+    "observed_revision": null,
+    "instances": [
+      {
+        "instance_id": "127.0.0.1#8848#DEFAULT#DEFAULT_GROUP@@demo-payment",
+        "key": "sandbox/DEFAULT_GROUP@@demo-payment/127.0.0.1#8848#DEFAULT#DEFAULT_GROUP@@demo-payment",
+        "payload": {
+          "env": "sandbox",
+          "version": "3.2.0",
+          "zone": "az1"
+        },
+        "payload_error": null,
+        "address": "127.0.0.1",
+        "port": 8848,
+        "version": "3.2.0",
+        "env": "sandbox",
+        "healthy": true,
+        "health_basis": "registry_health",
+        "registered_at": null,
+        "create_revision": null,
+        "mod_revision": null,
+        "lease": null,
+        "nacos": {
+          "cluster": "DEFAULT",
+          "weight": 1,
+          "enabled": true,
+          "ephemeral": false
+        }
+      },
+      {
+        "instance_id": "127.0.0.2#8848#DEFAULT#DEFAULT_GROUP@@demo-payment",
+        "key": "sandbox/DEFAULT_GROUP@@demo-payment/127.0.0.2#8848#DEFAULT#DEFAULT_GROUP@@demo-payment",
+        "payload": {
+          "env": "sandbox",
+          "version": "3.1.9",
+          "zone": "az1"
+        },
+        "payload_error": null,
+        "address": "127.0.0.2",
+        "port": 8848,
+        "version": "3.1.9",
+        "env": "sandbox",
+        "healthy": true,
+        "health_basis": "registry_health",
+        "registered_at": null,
+        "create_revision": null,
+        "mod_revision": null,
+        "lease": null,
+        "nacos": {
+          "cluster": "DEFAULT",
+          "weight": 1,
+          "enabled": false,
+          "ephemeral": false
+        }
+      }
+    ],
+    "summary": {
+      "registered": 3,
+      "returned": 2,
+      "healthy": 2,
+      "unhealthy": 0,
+      "health_unknown": 0,
+      "without_lease": 0,
+      "excluded": {
+        "env_mismatch": 0,
+        "env_missing": 0,
+        "not_healthy": 1
+      },
+      "service_registered": true
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "nacos",
+        "adapter": "nacos-open-api",
+        "observed_at": "2026-10-17T16:20:36.834Z",
+        "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
+        "method": "GET /v1/ns/service serviceName=demo-payment groupName=DEFAULT_GROUP namespaceId=sandbox",
+        "relation": "explicit",
+        "version": "2.4.3"
+      },
+      {
+        "system": "nacos",
+        "adapter": "nacos-open-api",
+        "observed_at": "2026-10-17T16:20:36.851Z",
+        "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
+        "method": "GET /v1/ns/catalog/instances（逐集群，含 enabled=false 实例）",
+        "relation": "explicit",
+        "version": "2.4.3"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "Nacos nacos/demo-nacos 服务 sandbox/DEFAULT_GROUP@@demo-payment",
+      "notes": [
+        "1 个实例 enabled=false（已下线，不接收流量，但仍在注册表中）",
+        "持久实例（ephemeral=false）的健康由服务端主动探测（TCP/HTTP），不会自动删除",
+        "healthy 是 Nacos 服务端记录的健康状态（临时实例：心跳/连接；持久实例：服务端探测），不是 workctl 的探测"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcls1ds-3888cb",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:20:36.736Z",
+    "duration_ms": 117
+  }
+}

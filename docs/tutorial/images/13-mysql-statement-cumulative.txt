@@ -1,0 +1,49 @@
+$ workctl mysql statement summary --instance demo-mysql --sample-window 0 --top 2 --database demo
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+instance: demo-mysql
+aggregation: cumulative_since
+window: null
+cumulative_since:
+  server_started_at: 2026-10-17T15:35:55.125Z
+  earliest_first_seen: 2026-10-17T15:37:37.754061Z
+database: demo
+top: 2
+digests:
+  - schema: demo
+    digest: a7fccbab29e3f62419233ba2a1c8a481ab30891f033b89bceaf7fcc513d529be
+    digest_text: SELECT `id` , STATUS , `amount` , `created_at` FROM `orders` WHERE `customer_id` = ? ORDER BY `created_at` DESC LIMIT ?
+    count: 15
+    total_latency_ms: 4969.933
+    avg_latency_ms: 331.329
+    rows_examined: 4218240
+    rows_sent: 155
+    rows_affected: 0
+    avg_rows_examined: 281216
+    no_index_used_count: 0
+    no_good_index_used_count: 0
+    errors: 0
+    first_seen: 2026-10-17T15:37:53.337508Z
+    last_seen: 2026-10-17T15:42:13.805081Z
+    max_latency_ms: 483.918
+  - schema: demo
+    digest: 09eca44f7e83007ec171eac5a8c3aad2d14f9fa1a2cc7dbf02b0184388ed4a5b
+    digest_text: EXPLAIN ANALYZE SELECT * FROM `orders` WHERE `customer_id` = ?
+    count: 6
+    total_latency_ms: 454.65
+    avg_latency_ms: 75.775
+    rows_examined: 1800000
+    rows_sent: 6
+    rows_affected: 0
+    avg_rows_examined: 300000
+    no_index_used_count: 6
+    no_good_index_used_count: 0
+    errors: 0
+    first_seen: 2026-10-17T16:12:06.341718Z
+    last_seen: 2026-10-17T16:12:10.497966Z
+    max_latency_ms: 91.336
+totals:
+  digests_with_activity: 22
+  statements: 270
+  total_latency_ms: 5973.585
+excluded_self_digests: 0
+# sources: mysql:performance_schema.events_statements_summary_by_digest (cumulative) [explicit]

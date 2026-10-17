@@ -1,0 +1,152 @@
+{
+  "$id": "docs/schemas/postgres.database.list.v1.json",
+  "title": "postgres.database.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "databases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "owner": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "encoding": {
+            "type": "string"
+          },
+          "collate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "is_template": {
+            "type": "boolean"
+          },
+          "allow_connections": {
+            "type": "boolean"
+          },
+          "connection_limit": {
+            "description": "-1 表示不限",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "can_connect": {
+            "type": "boolean",
+            "description": "当前角色是否有 CONNECT 权限"
+          },
+          "size_bytes": {
+            "description": "pg_database_size；无 CONNECT 权限且非 pg_read_all_stats 时为 null",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "backends": {
+            "description": "当前连接数（瞬时）",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "xact_commit": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "xact_rollback": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "blks_read": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "blks_hit": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "cache_hit_ratio": {
+            "description": "blks_hit/(blks_hit+blks_read)，累计值计算，不是窗口值",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "deadlocks": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "temp_bytes": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "stats_reset": {
+            "description": "以上累计计数的起点；null 表示自 initdb 以来从未重置",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "xid_age": {
+            "description": "age(datfrozenxid)，接近 20 亿需关注回卷",
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "owner",
+          "encoding",
+          "collate",
+          "is_template",
+          "allow_connections",
+          "connection_limit",
+          "can_connect",
+          "size_bytes",
+          "backends",
+          "xact_commit",
+          "xact_rollback",
+          "blks_read",
+          "blks_hit",
+          "cache_hit_ratio",
+          "deadlocks",
+          "temp_bytes",
+          "stats_reset",
+          "xid_age"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "instance",
+    "databases"
+  ],
+  "additionalProperties": false
+}

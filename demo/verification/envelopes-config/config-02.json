@@ -4,11 +4,14 @@
   "capability": "config.get",
   "data": {
     "endpoint": "etcd/demo-etcd",
+    "provider": "etcd",
+    "provider_selected_by": "profile 默认 etcd 端点 demo-etcd（服务 demo-order 未绑定配置中心）",
     "service": "demo-order",
     "env": "sandbox",
     "prefix": "/config/sandbox/demo-order/",
     "key": null,
-    "observed_revision": 68,
+    "revision_space": "etcd-cluster-revision",
+    "observed_revision": 112,
     "count": 7,
     "truncated": false,
     "items": [
@@ -20,8 +23,8 @@
         "value_bytes": 5,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 62,
-        "mod_revision": 62,
+        "create_revision": 106,
+        "mod_revision": 106,
         "version": 1,
         "lease": null
       },
@@ -33,8 +36,8 @@
         "value_bytes": 12,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 51,
-        "mod_revision": 65,
+        "create_revision": 95,
+        "mod_revision": 109,
         "version": 2,
         "lease": null
       },
@@ -46,8 +49,8 @@
         "value_bytes": 2,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 52,
-        "mod_revision": 61,
+        "create_revision": 96,
+        "mod_revision": 105,
         "version": 2,
         "lease": null
       },
@@ -56,13 +59,13 @@
         "name": "db.password",
         "value": "***",
         "value_format": "text",
-        "value_bytes": 26,
+        "value_bytes": null,
         "masked": true,
         "masked_paths": [
           "$"
         ],
-        "create_revision": 54,
-        "mod_revision": 63,
+        "create_revision": 98,
+        "mod_revision": 107,
         "version": 2,
         "lease": null
       },
@@ -74,8 +77,8 @@
         "value_bytes": 2,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 53,
-        "mod_revision": 59,
+        "create_revision": 97,
+        "mod_revision": 103,
         "version": 2,
         "lease": null
       },
@@ -91,8 +94,8 @@
         "value_bytes": 61,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 55,
-        "mod_revision": 58,
+        "create_revision": 99,
+        "mod_revision": 102,
         "version": 2,
         "lease": null
       },
@@ -110,8 +113,8 @@
         "masked_paths": [
           "$.token"
         ],
-        "create_revision": 57,
-        "mod_revision": 64,
+        "create_revision": 101,
+        "mod_revision": 108,
         "version": 2,
         "lease": null
       }
@@ -123,7 +126,7 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-17T15:59:27.362Z",
+        "observed_at": "2026-10-17T16:20:15.785Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
         "method": "POST /v3/kv/range prefix=/config/sandbox/demo-order/",
         "relation": "explicit",
@@ -134,7 +137,7 @@
       "complete": true,
       "truncated": false,
       "limit": 200,
-      "scope": "etcd etcd/demo-etcd 键前缀 /config/sandbox/demo-order/，修订 68",
+      "scope": "etcd etcd/demo-etcd 键前缀 /config/sandbox/demo-order/，修订 112",
       "notes": [
         "2 个配置项的值或字段已遮蔽（按名称匹配敏感模式）"
       ]
@@ -142,15 +145,15 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcl0tvu-64ffef",
+    "request_id": "req-mvclrl6c-694441",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
     "capability_version": "1.0.0",
-    "adapter": "etcd-v3-gateway",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:59:27.306Z",
-    "duration_ms": 56
+    "started_at": "2026-10-17T16:20:15.732Z",
+    "duration_ms": 53
   }
 }

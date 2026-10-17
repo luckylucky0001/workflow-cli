@@ -3,59 +3,151 @@
   "status": "success",
   "capability": "discovery.list",
   "data": {
-    "endpoint": "etcd/demo-etcd",
+    "endpoint": "nacos/demo-nacos",
+    "provider": "nacos",
+    "provider_selected_by": "bindings: demo-payment.attributes.config_center=demo-nacos（endpoint nacos/demo-nacos）",
     "service": "demo-payment",
     "env": null,
-    "prefix": "/services/demo-payment/",
-    "observed_revision": 68,
-    "instances": [],
+    "prefix": "sandbox/DEFAULT_GROUP@@demo-payment",
+    "observed_revision": null,
+    "instances": [
+      {
+        "instance_id": "127.0.0.1#8848#DEFAULT#DEFAULT_GROUP@@demo-payment",
+        "key": "sandbox/DEFAULT_GROUP@@demo-payment/127.0.0.1#8848#DEFAULT#DEFAULT_GROUP@@demo-payment",
+        "payload": {
+          "env": "sandbox",
+          "version": "3.2.0",
+          "zone": "az1"
+        },
+        "payload_error": null,
+        "address": "127.0.0.1",
+        "port": 8848,
+        "version": "3.2.0",
+        "env": "sandbox",
+        "healthy": true,
+        "health_basis": "registry_health",
+        "registered_at": null,
+        "create_revision": null,
+        "mod_revision": null,
+        "lease": null,
+        "nacos": {
+          "cluster": "DEFAULT",
+          "weight": 1,
+          "enabled": true,
+          "ephemeral": false
+        }
+      },
+      {
+        "instance_id": "127.0.0.1#9#DEFAULT#DEFAULT_GROUP@@demo-payment",
+        "key": "sandbox/DEFAULT_GROUP@@demo-payment/127.0.0.1#9#DEFAULT#DEFAULT_GROUP@@demo-payment",
+        "payload": {
+          "env": "sandbox",
+          "zone": "az2",
+          "version": "3.2.0"
+        },
+        "payload_error": null,
+        "address": "127.0.0.1",
+        "port": 9,
+        "version": "3.2.0",
+        "env": "sandbox",
+        "healthy": false,
+        "health_basis": "registry_health",
+        "registered_at": null,
+        "create_revision": null,
+        "mod_revision": null,
+        "lease": null,
+        "nacos": {
+          "cluster": "DEFAULT",
+          "weight": 1,
+          "enabled": true,
+          "ephemeral": false
+        }
+      },
+      {
+        "instance_id": "127.0.0.2#8848#DEFAULT#DEFAULT_GROUP@@demo-payment",
+        "key": "sandbox/DEFAULT_GROUP@@demo-payment/127.0.0.2#8848#DEFAULT#DEFAULT_GROUP@@demo-payment",
+        "payload": {
+          "env": "sandbox",
+          "version": "3.1.9",
+          "zone": "az1"
+        },
+        "payload_error": null,
+        "address": "127.0.0.2",
+        "port": 8848,
+        "version": "3.1.9",
+        "env": "sandbox",
+        "healthy": true,
+        "health_basis": "registry_health",
+        "registered_at": null,
+        "create_revision": null,
+        "mod_revision": null,
+        "lease": null,
+        "nacos": {
+          "cluster": "DEFAULT",
+          "weight": 1,
+          "enabled": false,
+          "ephemeral": false
+        }
+      }
+    ],
     "summary": {
-      "registered": 0,
-      "returned": 0,
-      "healthy": 0,
-      "unhealthy": 0,
+      "registered": 3,
+      "returned": 3,
+      "healthy": 2,
+      "unhealthy": 1,
       "health_unknown": 0,
       "without_lease": 0,
       "excluded": {
         "env_mismatch": 0,
         "env_missing": 0,
         "not_healthy": 0
-      }
+      },
+      "service_registered": true
     }
   },
   "error": null,
   "meta": {
     "sources": [
       {
-        "system": "etcd",
-        "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-17T15:59:32.654Z",
-        "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
-        "method": "POST /v3/kv/range prefix=/services/demo-payment/",
+        "system": "nacos",
+        "adapter": "nacos-open-api",
+        "observed_at": "2026-10-17T16:20:25.534Z",
+        "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
+        "method": "GET /v1/ns/service serviceName=demo-payment groupName=DEFAULT_GROUP namespaceId=sandbox",
         "relation": "explicit",
-        "version": "3.5.21"
+        "version": "2.4.3"
+      },
+      {
+        "system": "nacos",
+        "adapter": "nacos-open-api",
+        "observed_at": "2026-10-17T16:20:25.549Z",
+        "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
+        "method": "GET /v1/ns/catalog/instances（逐集群，含 enabled=false 实例）",
+        "relation": "explicit",
+        "version": "2.4.3"
       }
     ],
     "coverage": {
       "complete": true,
-      "truncated": false,
-      "scope": "etcd etcd/demo-etcd 键前缀 /services/demo-payment/，修订 68",
+      "scope": "Nacos nacos/demo-nacos 服务 sandbox/DEFAULT_GROUP@@demo-payment",
       "notes": [
-        "前缀 /services/demo-payment/ 下没有注册（修订 68）：服务未注册、已全部下线（租约过期）或前缀不同"
+        "1 个实例 enabled=false（已下线，不接收流量，但仍在注册表中）",
+        "持久实例（ephemeral=false）的健康由服务端主动探测（TCP/HTTP），不会自动删除",
+        "healthy 是 Nacos 服务端记录的健康状态（临时实例：心跳/连接；持久实例：服务端探测），不是 workctl 的探测"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcl0xzh-94028e",
+    "request_id": "req-mvclrsop-076e8a",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
     "capability_version": "1.0.0",
-    "adapter": "etcd-v3-gateway",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:59:32.621Z",
-    "duration_ms": 33
+    "started_at": "2026-10-17T16:20:25.465Z",
+    "duration_ms": 85
   }
 }

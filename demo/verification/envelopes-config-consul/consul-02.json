@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "config.get",
+  "data": {
+    "endpoint": "consul/demo-consul",
+    "provider": "consul",
+    "provider_selected_by": "bindings: demo-inventory.attributes.config_center=demo-consul（endpoint consul/demo-consul）",
+    "service": "demo-inventory",
+    "env": "sandbox",
+    "prefix": "config/sandbox/demo-inventory/",
+    "key": null,
+    "revision_space": "consul-raft-index",
+    "observed_revision": 108,
+    "count": 6,
+    "truncated": false,
+    "items": [
+      {
+        "key": "config/sandbox/demo-inventory/cache.ttl_seconds",
+        "name": "cache.ttl_seconds",
+        "value": 30,
+        "value_format": "json",
+        "value_bytes": 2,
+        "masked": false,
+        "masked_paths": [],
+        "create_revision": 101,
+        "mod_revision": 106,
+        "version": null,
+        "lease": null,
+        "consul": {
+          "flags": 0,
+          "lock_index": 0,
+          "session": null
+        }
+      },
+      {
+        "key": "config/sandbox/demo-inventory/db.password",
+        "name": "db.password",
+        "value": "***",
+        "value_format": "text",
+        "value_bytes": null,
+        "masked": true,
+        "masked_paths": [
+          "$"
+        ],
+        "create_revision": 103,
+        "mod_revision": 107,
+        "version": null,
+        "lease": null,
+        "consul": {
+          "flags": 0,
+          "lock_index": 0,
+          "session": null
+        }
+      },
+      {
+        "key": "config/sandbox/demo-inventory/db.pool_size",
+        "name": "db.pool_size",
+        "value": 8,
+        "value_format": "json",
+        "value_bytes": 1,
+        "masked": false,
+        "masked_paths": [],
+        "create_revision": 102,
+        "mod_revision": 102,
+        "version": null,
+        "lease": null,
+        "consul": {
+          "flags": 0,
+          "lock_index": 0,
+          "session": null
+        }
+      },
+      {
+        "key": "config/sandbox/demo-inventory/feature.flags",
+        "name": "feature.flags",
+        "value": {
+          "reserve_on_cart": true,
+          "rollout_percent": 50
+        },
+        "value_format": "json",
+        "value_bytes": 45,
+        "masked": false,
+        "masked_paths": [],
+        "create_revision": 108,
+        "mod_revision": 108,
+        "version": null,
+        "lease": null,
+        "consul": {
+          "flags": 0,
+          "lock_index": 0,
+          "session": null
+        }
+      },
+      {
+        "key": "config/sandbox/demo-inventory/upstream.order",
+        "name": "upstream.order",
+        "value": {
+          "url": "http://order.sandbox.invalid",
+          "timeout_ms": 500,
+          "api_key": "***"
+        },
+        "value_format": "json",
+        "value_bytes": 88,
+        "masked": true,
+        "masked_paths": [
+          "$.api_key"
+        ],
+        "create_revision": 105,
+        "mod_revision": 105,
+        "version": null,
+        "lease": null,
+        "consul": {
+          "flags": 0,
+          "lock_index": 0,
+          "session": null
+        }
+      },
+      {
+        "key": "config/sandbox/demo-inventory/warehouse.default",
+        "name": "warehouse.default",
+        "value": "wh-east",
+        "value_format": "text",
+        "value_bytes": 7,
+        "masked": false,
+        "masked_paths": [],
+        "create_revision": 104,
+        "mod_revision": 104,
+        "version": null,
+        "lease": null,
+        "consul": {
+          "flags": 0,
+          "lock_index": 0,
+          "session": null
+        }
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "consul",
+        "adapter": "consul-http-api",
+        "observed_at": "2026-10-17T16:14:29.883Z",
+        "endpoint": "consul/demo-consul (http://127.0.0.1:18500)",
+        "method": "GET /v1/kv/config/sandbox/demo-inventory/?recurse",
+        "relation": "explicit",
+        "version": "1.20.6"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "limit": 200,
+      "scope": "Consul consul/demo-consul KV 前缀 config/sandbox/demo-inventory/，索引 108",
+      "notes": [
+        "2 个配置项的值或字段已遮蔽（按名称匹配敏感模式）",
+        "Consul KV 不保留历史：mod_revision 为 ModifyIndex（最后修改时的 raft 索引），version 不提供（null）；旧值不可回溯"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclk69d-a0c40a",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:14:29.809Z",
+    "duration_ms": 74
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "$id": "docs/schemas/deploy.release.list.v1.json",
+  "title": "deploy.release.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "service": {
+      "type": "string"
+    },
+    "env": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "binding": {
+          "type": "string",
+          "description": "资源绑定中的 deploy.target ID"
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "kubernetes",
+            "jenkins"
+          ]
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "description": "Kubernetes: Deployment <ns>/<name>；Jenkins: job 路径"
+        }
+      },
+      "required": [
+        "binding",
+        "provider",
+        "endpoint",
+        "object"
+      ],
+      "additionalProperties": false
+    },
+    "releases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Kubernetes: ReplicaSet 名；Jenkins: 构建号"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "kubernetes",
+              "jenkins"
+            ]
+          },
+          "version": {
+            "description": "Kubernetes: 首个容器镜像 tag；Jenkins: 版本参数值",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "revision": {
+            "description": "Kubernetes: deployment.kubernetes.io/revision；Jenkins: 构建号",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "started_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "finished_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "timestamps": {
+            "type": "string",
+            "enum": [
+              "explicit",
+              "derived"
+            ],
+            "description": "explicit=系统记录的发布开始/结束；derived=由对象创建时间/条件更新时间推得"
+          },
+          "duration_ms": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "succeeded",
+              "failed",
+              "running",
+              "aborted",
+              "unknown"
+            ]
+          },
+          "status_basis": {
+            "type": "string",
+            "description": "状态判定依据"
+          },
+          "current": {
+            "type": "boolean",
+            "description": "是否为当前生效的发布"
+          },
+          "triggered_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cause": {
+            "description": "Kubernetes: kubernetes.io/change-cause 注解；Jenkins: 触发原因",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_ref": {
+            "type": "object",
+            "properties": {
+              "system": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "description": "如 ReplicaSet、Deployment、jenkins.build"
+              },
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "description": "不含凭据的链接（Jenkins build URL）",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "system",
+              "kind",
+              "name",
+              "url"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "provider",
+          "version",
+          "images",
+          "revision",
+          "started_at",
+          "finished_at",
+          "timestamps",
+          "duration_ms",
+          "status",
+          "status_basis",
+          "current",
+          "triggered_by",
+          "cause",
+          "source_ref"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "retained": {
+      "type": "number",
+      "description": "provider 当前保留的发布总数（不受窗口限制）"
+    }
+  },
+  "required": [
+    "service",
+    "env",
+    "target",
+    "releases",
+    "retained"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,224 @@
+[
+ {
+  "id": "deploy-01",
+  "args": [
+   "access",
+   "check",
+   "--capability",
+   "deploy.release.list",
+   "--target",
+   "demo-jenkins"
+  ],
+  "note": "Jenkins 端点：password_ref 可解析，探测 /me（身份 admin）与 X-Jenkins 版本；kubernetes 端点未配置（deploy 域两种 provider 之一）"
+ },
+ {
+  "id": "deploy-02",
+  "args": [
+   "deploy",
+   "release",
+   "list",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "note": "seed-jenkins.mjs 的 4 个构建（新→旧）：#4 v1.4.1 current、#3 v1.4.2-bad failed、#2 v1.4.1、#1 v1.4.0；时间 explicit；按 SERVICE/ENV 参数过滤；构建丢弃策略 20"
+ },
+ {
+  "id": "deploy-03",
+  "args": [
+   "deploy",
+   "release",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--id",
+   "3"
+  ],
+  "note": "失败构建：参数、原因 admin、控制台日志末尾（registry token 已遮蔽）"
+ },
+ {
+  "id": "deploy-04",
+  "args": [
+   "deploy",
+   "release",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--id",
+   "4",
+   "--tail",
+   "5"
+  ],
+  "note": "当前版本（重新部署 v1.4.1），控制台只取末尾 5 行"
+ },
+ {
+  "id": "deploy-05",
+  "args": [
+   "deploy",
+   "release",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--id",
+   "999"
+  ],
+  "expect": "NOT_FOUND",
+  "note": "构建不存在 / 已被丢弃：NOT_FOUND"
+ },
+ {
+  "id": "deploy-06",
+  "args": [
+   "deploy",
+   "release",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--id",
+   "abc"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "Jenkins 发布 ID 须为构建号"
+ },
+ {
+  "id": "deploy-07",
+  "args": [
+   "deploy",
+   "status",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "note": "没有运行/排队的部署构建：state=complete，current_release=#4"
+ },
+ {
+  "id": "deploy-08",
+  "args": [
+   "deploy",
+   "release",
+   "list",
+   "--service",
+   "demo-mysql",
+   "--env",
+   "sandbox"
+  ],
+  "expect": "NOT_CONFIGURED",
+  "note": "资源存在但没有 deploy.target 绑定：NOT_CONFIGURED"
+ },
+ {
+  "id": "deploy-09",
+  "args": [
+   "deploy",
+   "release",
+   "list",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--window",
+   "1m"
+  ],
+  "note": "窗口内没有发布：success + 空 releases（retained 不受窗口影响），不是错误"
+ },
+ {
+  "id": "deploy-10",
+  "args": [
+   "deploy",
+   "rollback",
+   "plan",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--to",
+   "3"
+  ],
+  "capture": {
+   "badplan": "data.id"
+  },
+  "note": "目标是失败构建 #3：前置条件 target_succeeded=false"
+ },
+ {
+  "id": "deploy-11",
+  "args": [
+   "operation",
+   "execute",
+   "--id",
+   "${badplan}",
+   "--confirm",
+   "${badplan}"
+  ],
+  "expect": "PRECONDITION_FAILED",
+  "note": "前置条件不满足的计划拒绝执行"
+ },
+ {
+  "id": "deploy-12",
+  "args": [
+   "deploy",
+   "rollback",
+   "plan",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "capture": {
+   "plan": "data.id",
+   "target": "data.targets[0].target_version"
+  },
+  "note": "默认目标：上一个不同版本的成功构建（首次运行为 #1 v1.4.0）；参数可原样重放，前置条件全部满足"
+ },
+ {
+  "id": "deploy-13",
+  "args": [
+   "--timeout",
+   "120s",
+   "operation",
+   "execute",
+   "--id",
+   "${plan}",
+   "--confirm",
+   "${plan}"
+  ],
+  "timeout_s": 140,
+  "note": "执行回滚：crumb + 会话 cookie 调 buildWithParameters，轮询队列项与构建直到 SUCCESS"
+ },
+ {
+  "id": "deploy-14",
+  "args": [
+   "deploy",
+   "status",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "note": "回滚构建完成后 state=complete，current_release 为新构建（版本 = ${target}）"
+ },
+ {
+  "id": "deploy-15",
+  "args": [
+   "deploy",
+   "release",
+   "list",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--limit",
+   "2"
+  ],
+  "note": "新构建在最前（current，cause Started by user admin）"
+ }
+]

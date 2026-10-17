@@ -1,0 +1,44 @@
+$ workctl config diff --service demo-order --key cache.ttl_seconds
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+endpoint: etcd/demo-etcd
+provider: etcd
+provider_selected_by: profile 默认 etcd 端点 demo-etcd（服务 demo-order 未绑定配置中心）
+service: demo-order
+env: sandbox
+prefix: /config/sandbox/demo-order/
+key: cache.ttl_seconds
+revision_space: etcd-cluster-revision
+mode: previous_version
+from_revision: 104
+to_revision: 112
+current_revision: 112
+changes:
+  - name: cache.ttl_seconds
+    key: /config/sandbox/demo-order/cache.ttl_seconds
+    change: changed
+    masked: false
+    old:
+      value: 300
+      value_format: json
+      value_bytes: 3
+      masked: false
+      masked_paths: []
+      mod_revision: 96
+      version: 1
+      create_revision: 96
+    new:
+      value: 60
+      value_format: json
+      value_bytes: 2
+      masked: false
+      masked_paths: []
+      mod_revision: 105
+      version: 2
+      create_revision: 96
+summary:
+  added: 0
+  removed: 0
+  changed: 1
+  unchanged: 0
+  rewritten_same_value: 0
+# sources: etcd:POST /v3/kv/range key=/config/sandbox/demo-order/cache.ttl_seconds revision=104 / revision=112 [explicit]

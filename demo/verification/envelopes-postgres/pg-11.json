@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "postgres.statement.summary",
+  "data": {
+    "instance": "demo-postgres",
+    "aggregation": "window_delta",
+    "window": {
+      "start": "2026-10-17T16:16:08.026Z",
+      "end": "2026-10-17T16:16:11.032Z",
+      "duration_ms": 3006
+    },
+    "cumulative_since": null,
+    "database": "demo_orders",
+    "order_by": "total_time",
+    "top": 5,
+    "statements": [],
+    "totals": {
+      "statements_with_activity": 0,
+      "calls": 0,
+      "total_exec_ms": 0
+    },
+    "collection": {
+      "extension_version": "1.10",
+      "track": "top",
+      "max_entries": 5000,
+      "dealloc": 0,
+      "text_visible": true
+    },
+    "excluded_self": 1
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "postgresql",
+        "adapter": "pg-driver",
+        "observed_at": "2026-10-17T16:16:11.036Z",
+        "endpoint": "postgres/demo-postgres",
+        "method": "public.pg_stat_statements (t1 − t0)",
+        "version": "16.15",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "limit": 5,
+      "truncated": false,
+      "window": {
+        "start": "2026-10-17T16:16:08.026Z",
+        "end": "2026-10-17T16:16:11.032Z"
+      },
+      "notes": [
+        "窗口值（t1 − t0），窗口 3006ms；t0 中不存在的语句按其全部计数计入（窗口内首次出现）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclma03-01a2e4",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:07.971Z",
+    "duration_ms": 3075
+  }
+}

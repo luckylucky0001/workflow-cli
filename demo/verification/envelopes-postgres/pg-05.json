@@ -1,0 +1,139 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "postgres.table.get",
+  "data": {
+    "instance": "demo-postgres",
+    "database": "demo_orders",
+    "schema": "public",
+    "table": "internal_ledger",
+    "kind": "table",
+    "comment": "synthetic ledger; NOT readable by workctl_ro (permission demo)",
+    "access": {
+      "select": false
+    },
+    "size": {
+      "heap_bytes": 8192,
+      "table_bytes": 8192,
+      "indexes_bytes": 16384,
+      "total_bytes": 24576
+    },
+    "rows_estimate": 100,
+    "columns": [
+      {
+        "name": "id",
+        "position": 1,
+        "type": "bigint",
+        "nullable": false,
+        "default": null,
+        "identity": "a",
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "account",
+        "position": 2,
+        "type": "character varying(32)",
+        "nullable": false,
+        "default": null,
+        "identity": null,
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "balance",
+        "position": 3,
+        "type": "numeric(14,2)",
+        "nullable": false,
+        "default": null,
+        "identity": null,
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "updated_at",
+        "position": 4,
+        "type": "timestamp with time zone",
+        "nullable": false,
+        "default": null,
+        "identity": null,
+        "comment": null,
+        "sensitive": false
+      }
+    ],
+    "indexes": [
+      {
+        "name": "internal_ledger_pkey",
+        "definition": "CREATE UNIQUE INDEX internal_ledger_pkey ON public.internal_ledger USING btree (id)",
+        "primary": true,
+        "unique": true,
+        "valid": true,
+        "columns": [
+          "id"
+        ],
+        "size_bytes": 16384,
+        "idx_scan": 0,
+        "idx_tup_read": 0,
+        "idx_tup_fetch": 0,
+        "last_idx_scan": null
+      }
+    ],
+    "stats": {
+      "seq_scan": 0,
+      "seq_tup_read": 0,
+      "idx_scan": 0,
+      "idx_tup_fetch": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0,
+      "n_tup_hot_upd": 0,
+      "n_live_tup": 0,
+      "n_dead_tup": 0,
+      "dead_ratio": null,
+      "n_mod_since_analyze": 0,
+      "last_vacuum": null,
+      "last_autovacuum": null,
+      "last_analyze": null,
+      "last_autoanalyze": null,
+      "vacuum_count": 0,
+      "autovacuum_count": 0,
+      "analyze_count": 0,
+      "autoanalyze_count": 0
+    },
+    "stats_reset": "2026-10-17T16:11:49.362262Z"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "postgresql",
+        "adapter": "pg-driver",
+        "observed_at": "2026-10-17T16:16:04.332Z",
+        "endpoint": "postgres/demo-postgres",
+        "method": "pg_class / pg_attribute / pg_index / pg_stat_all_tables / pg_stat_all_indexes / pg_*_size()",
+        "version": "16.15",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "notes": [
+        "n_live_tup / n_dead_tup / rows_estimate 为估计值；seq_scan / idx_scan / n_tup_* 为自 stats_reset 以来的累计值",
+        "角色 workctl_ro 对该表没有 SELECT 权限：结构来自系统目录（对所有角色可见），数据查询会返回 PERMISSION_DENIED"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclm74p-7d89c5",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:04.249Z",
+    "duration_ms": 94
+  }
+}

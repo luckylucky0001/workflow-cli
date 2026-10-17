@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "config.get",
+  "data": {
+    "endpoint": "consul/demo-consul",
+    "provider": "consul",
+    "provider_selected_by": "bindings: demo-inventory.attributes.config_center=demo-consul（endpoint consul/demo-consul）",
+    "service": "demo-inventory",
+    "env": "sandbox",
+    "prefix": "config/sandbox/demo-inventory/",
+    "key": "upstream.order",
+    "revision_space": "consul-raft-index",
+    "observed_revision": 105,
+    "count": 1,
+    "truncated": false,
+    "items": [
+      {
+        "key": "config/sandbox/demo-inventory/upstream.order",
+        "name": "upstream.order",
+        "value": {
+          "url": "http://order.sandbox.invalid",
+          "timeout_ms": 500,
+          "api_key": "***"
+        },
+        "value_format": "json",
+        "value_bytes": 88,
+        "masked": true,
+        "masked_paths": [
+          "$.api_key"
+        ],
+        "create_revision": 105,
+        "mod_revision": 105,
+        "version": null,
+        "lease": null,
+        "consul": {
+          "flags": 0,
+          "lock_index": 0,
+          "session": null
+        }
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "consul",
+        "adapter": "consul-http-api",
+        "observed_at": "2026-10-17T16:14:30.408Z",
+        "endpoint": "consul/demo-consul (http://127.0.0.1:18500)",
+        "method": "GET /v1/kv/config/sandbox/demo-inventory/upstream.order",
+        "relation": "explicit",
+        "version": "1.20.6"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "scope": "Consul consul/demo-consul KV 前缀 config/sandbox/demo-inventory/，索引 105",
+      "notes": [
+        "1 个配置项的值或字段已遮蔽（按名称匹配敏感模式）",
+        "单键读取时 observed_revision（X-Consul-Index）即该键的 ModifyIndex",
+        "Consul KV 不保留历史：mod_revision 为 ModifyIndex（最后修改时的 raft 索引），version 不提供（null）；旧值不可回溯"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclk6o7-083f82",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:14:30.343Z",
+    "duration_ms": 66
+  }
+}

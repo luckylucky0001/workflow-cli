@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "config.get",
+  "data": {
+    "endpoint": "consul/demo-consul",
+    "provider": "consul",
+    "provider_selected_by": "--endpoint consul/demo-consul",
+    "service": "ghost-svc",
+    "env": "sandbox",
+    "prefix": "config/sandbox/ghost-svc/",
+    "key": null,
+    "revision_space": "consul-raft-index",
+    "observed_revision": null,
+    "count": 0,
+    "truncated": false,
+    "items": []
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "consul",
+        "adapter": "consul-http-api",
+        "observed_at": "2026-10-17T16:14:32.716Z",
+        "endpoint": "consul/demo-consul (http://127.0.0.1:18500)",
+        "method": "GET /v1/kv/config/sandbox/ghost-svc/?recurse",
+        "relation": "explicit",
+        "version": "1.20.6"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "limit": 200,
+      "scope": "Consul consul/demo-consul KV 前缀 config/sandbox/ghost-svc/",
+      "notes": [
+        "前缀 config/sandbox/ghost-svc/ 下没有配置项（Consul 返回 404）；不同环境/服务的键前缀不同，检查 --env / --service",
+        "Consul KV 不保留历史：mod_revision 为 ModifyIndex（最后修改时的 raft 索引），version 不提供（null）；旧值不可回溯"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclk8gf-a3a5e0",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:14:32.655Z",
+    "duration_ms": 62
+  }
+}

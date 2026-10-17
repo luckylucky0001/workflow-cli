@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "postgres.database.list",
+  "data": {
+    "instance": "demo-postgres",
+    "databases": [
+      {
+        "name": "demo_orders",
+        "owner": "postgres",
+        "encoding": "UTF8",
+        "collate": "en_US.utf8",
+        "is_template": false,
+        "allow_connections": true,
+        "connection_limit": -1,
+        "can_connect": true,
+        "size_bytes": 25033751,
+        "backends": 1,
+        "xact_commit": 903,
+        "xact_rollback": 19,
+        "blks_read": 289,
+        "blks_hit": 418234,
+        "cache_hit_ratio": 0.9993,
+        "deadlocks": 0,
+        "temp_bytes": 0,
+        "stats_reset": "2026-10-17T16:11:49.362262Z",
+        "xid_age": 64
+      },
+      {
+        "name": "postgres",
+        "owner": "postgres",
+        "encoding": "UTF8",
+        "collate": "en_US.utf8",
+        "is_template": false,
+        "allow_connections": true,
+        "connection_limit": -1,
+        "can_connect": true,
+        "size_bytes": 7699479,
+        "backends": 0,
+        "xact_commit": 42,
+        "xact_rollback": 0,
+        "blks_read": 243,
+        "blks_hit": 4629,
+        "cache_hit_ratio": 0.9501,
+        "deadlocks": 0,
+        "temp_bytes": 0,
+        "stats_reset": null,
+        "xid_age": 64
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "postgresql",
+        "adapter": "pg-driver",
+        "observed_at": "2026-10-17T16:16:03.134Z",
+        "endpoint": "postgres/demo-postgres",
+        "method": "pg_database LEFT JOIN pg_stat_database",
+        "version": "16.15",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "notes": [
+        "计数类字段为自 stats_reset 以来的累计值；backends 为瞬时值",
+        "未包含模板库（加 --include-templates）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclm67o-0e9223",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:03.060Z",
+    "duration_ms": 81
+  }
+}

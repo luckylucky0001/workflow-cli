@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "postgres.table.get",
+  "data": null,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "表不存在: demo_orders.public.no_such_table",
+    "hint": "用 workctl pg query run 查询 information_schema.tables 查看可见表",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclm7nh-f01b9d",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:04.925Z",
+    "duration_ms": 101
+  }
+}

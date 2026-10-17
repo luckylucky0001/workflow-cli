@@ -1,0 +1,104 @@
+$ workctl capability list --domain redis
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+capabilities:
+  - name: redis.cluster.get
+    command: redis cluster get
+    summary: 查看 Redis Cluster 节点、槽位分布与故障转移状态
+    domain: redis
+    status: planned
+    operation: read
+    adapter: redis-client
+    capability_version: 1.0.0
+    origin: builtin
+  - name: redis.config.get
+    command: redis config get
+    summary: 读取 Redis 配置项（CONFIG GET），口令类配置自动隐藏
+    domain: redis
+    status: available
+    operation: read
+    adapter: redis-client
+    capability_version: 1.0.0
+    origin: builtin
+  - name: redis.info.get
+    command: redis info get
+    summary: 读取并解析 INFO 指定分区，逐项标注累计值/瞬时值/静态值
+    domain: redis
+    status: available
+    operation: read
+    adapter: redis-client
+    capability_version: 1.0.0
+    origin: builtin
+  - name: redis.instance.get
+    command: redis instance get
+    summary: 查看 Redis 实例概况：版本、角色、连接数、内存与淘汰策略、持久化状态，并附平台绑定元数据
+    domain: redis
+    status: available
+    operation: read
+    adapter: redis-client
+    capability_version: 1.0.0
+    origin: builtin
+  - name: redis.key.hot
+    command: redis key hot
+    summary: 在 LFU 淘汰策略下按 OBJECT FREQ 找访问频度最高的键（对数计数器，不是 QPS）
+    domain: redis
+    status: available
+    operation: diagnose
+    adapter: redis-client
+    capability_version: 1.0.0
+    origin: builtin
+  - name: redis.key.inspect
+    command: redis key inspect
+    summary: 查看单个键的类型、TTL、编码、近似内存、长度与 LFU 计数；可选读取截断后的值
+    domain: redis
+    status: available
+    operation: read
+    adapter: redis-client
+    capability_version: 1.0.0
+    origin: builtin
+  - name: redis.key.sample
+    command: redis key sample
+    summary: 按模式有预算地 SCAN 采样键，统计类型与内存占用分布（p50/p90/p99/max）和最大键候选
+    domain: redis
+    status: available
+    operation: diagnose
+    adapter: redis-client
+    capability_version: 1.0.0
+    origin: builtin
+  - name: redis.latency.get
+    command: redis latency get
+    summary: 读取 LATENCY LATEST / HISTORY 事件延迟（需开启 latency-monitor-threshold）
+    domain: redis
+    status: planned
+    operation: read
+    adapter: redis-client
+    capability_version: 1.0.0
+    origin: builtin
+  - name: redis.slowlog.list
+    command: redis slowlog list
+    summary: 读取 Redis 慢日志（SLOWLOG GET），参数脱敏，只保留命令与键名
+    domain: redis
+    status: available
+    operation: read
+    adapter: redis-client
+    capability_version: 1.0.0
+    origin: builtin
+  - name: redis.stats.sample
+    command: redis stats sample
+    summary: 在同一连接上两次采样 INFO，计算窗口内命中率、命令数、淘汰/过期等增量与速率（处理重启与计数器重置）
+    domain: redis
+    status: available
+    operation: diagnose
+    adapter: redis-client
+    capability_version: 1.0.0
+    origin: builtin
+domains:
+  - name: redis
+    title: Redis
+    pillar: middleware
+    summary: Redis 实例概况、INFO、窗口统计采样、慢日志、键采样/大键/热键、单键检查与配置读取
+    guide: docs/guides/redis.md
+    skill: skills/redis-operations
+    available: 8
+    planned: 2
+    origin: builtin
+# sources: workctl:builtin + installed plugins [explicit]

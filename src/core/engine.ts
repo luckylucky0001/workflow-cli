@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { loadConfig, resolveProfileName, type LoadedConfig } from './config';
 import { ERROR_CODES, SCHEMA_VERSION, WorkError, type Envelope, type Result } from './output';
 import type { CapabilityDef, InputSpec, Registry } from './registry';
-import { Ctx, parseDuration } from './runtime';
+import { checkTimeoutBudget, Ctx, parseDuration } from './runtime';
 
 export const CLI_VERSION = '0.1.0';
 
@@ -123,7 +123,8 @@ function mapUnknownError(registry: Registry, e: unknown): WorkError {
 
 export async function invoke(registry: Registry, capName: string, rawInputs: Record<string, unknown>, opts: InvokeOptions = {}): Promise<Envelope> {
   const started = Date.now();
-  const requestId = opts.requestId ?? newRequestId();
+  // an empty id (e.g. --request-id "") would make the envelope untraceable
+  const requestId = opts.requestId || newRequestId();
   const cap = registry.get(capName);
   let ctx: Ctx | undefined;
   const base = (): Envelope['context'] => ({
@@ -143,6 +144,7 @@ export async function invoke(registry: Registry, capName: string, rawInputs: Rec
     if (cap.status === 'planned' || !cap.handler) {
       throw new WorkError('CAPABILITY_PLANNED', `能力 ${cap.name} 已列入目录，尚未接入`, { hint: `参考 ${cap.guide}` });
     }
+    const timeoutMs = checkTimeoutBudget(opts.timeoutMs ?? 30_000);
     const loaded = opts.loaded ?? loadConfig(opts.configPath);
     const profileName = resolveProfileName(loaded, opts.profile);
     ctx = new Ctx({
@@ -150,7 +152,7 @@ export async function invoke(registry: Registry, capName: string, rawInputs: Rec
       loaded,
       profileName,
       requestId,
-      timeoutMs: opts.timeoutMs ?? 30_000,
+      timeoutMs,
       capability: cap,
       debug: opts.debug,
       allowExecute: opts.allowExecute,

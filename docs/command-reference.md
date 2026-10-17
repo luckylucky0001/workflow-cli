@@ -258,9 +258,9 @@ workctl --json service dependency list --service demo-order --env sandbox
 
 ### `workctl config diff`
 
-比较配置项在两个 etcd 修订之间的差异（新增/删除/修改，敏感值遮蔽）；不给 --from-rev 时与 --key 的上一版本比较
+比较配置项在两个修订之间的差异（etcd 集群修订 / Nacos 配置历史 ID；新增/删除/修改，敏感值遮蔽）；不给 --from-rev 时与 --key 的上一版本比较；Consul KV 无历史
 
-- 能力：`config.diff` v1.0.0；操作类型：**read**；适配器：etcd-v3-gateway；认证：etcd-profile
+- 能力：`config.diff` v1.0.0；操作类型：**read**；适配器：etcd-v3-gateway|nacos-open-api|consul-http-api；认证：etcd-profile | nacos-token | consul-acl-token
 - 输出 Schema：[docs/schemas/config.diff.v1.json](../docs/schemas/config.diff.v1.json)；指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -268,14 +268,14 @@ workctl --json service dependency list --service demo-order --env sandbox
 | `--service` | string | 是 |  | 服务 ID |
 | `--env` | string | 否 |  | 环境；默认取 profile 的 env |
 | `--key` | string | 否 |  | 只比较一个配置项（相对键名） |
-| `--from-rev` | int | 否 |  | 起始修订（集群修订号）；省略时须给 --key，取该键上一版本（mod_revision-1） |
+| `--from-rev` | int | 否 |  | 起始修订（etcd 集群修订号；Nacos 配置历史 ID）；省略时须给 --key，取该键上一版本 |
 | `--to-rev` | string | 否 | `"current"` | 结束修订：正整数或 current |
-| `--endpoint` | string | 否 |  | etcd 端点名（默认取 profile defaults.etcd） |
+| `--endpoint` | string | 否 |  | 配置中心端点：<类型>/<名称> 或名称（etcd / nacos / consul）；默认按资源绑定或 profile 默认选择 |
 
 前置条件：
 
-- profile 配置 endpoints.etcd
-- 起始修订不早于最近一次压缩（compaction）
+- profile 配置 etcd / nacos 端点（Consul KV 不保留历史，只能报告 DATA_UNAVAILABLE 与已知索引）
+- etcd：起始修订不早于最近一次压缩；Nacos：起始历史 ID 在保留期内（默认 30 天）
 
 口径说明：
 
@@ -283,18 +283,22 @@ workctl --json service dependency list --service demo-order --env sandbox
 - 只比较两个修订时刻的快照：区间内改了又改回的值显示为未变化（计入 rewritten_same_value），中间值不可见
 - 历史只保留到最近一次压缩：早于压缩点的修订返回 DATA_UNAVAILABLE，details.compact_revision 为最早可读修订（二分探测得出）
 - 修订大于当前集群修订返回 INVALID_ARGUMENT；比较只读，不会触发压缩
-- 键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "***" 替代，masked=true，masked_paths 标出位置
+- 键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "***" 替代，masked=true，masked_paths 标出位置；整个值被遮蔽时 value_bytes=null（不暴露长度）
+- provider 由端点类型决定（etcd | nacos | consul）：--endpoint [<类型>/]<名称> > 资源绑定（服务 attributes.config_center 或服务指向 config.center 资源的关系，取该资源的 endpoint）> profile defaults.config（<类型>[/<名称>]）> 默认 etcd 端点（或唯一的配置中心端点）；data.provider / provider_selected_by 写明实际选择
+- Nacos：修订空间为配置历史 ID（revision_space=nacos-history-id，全局递增 nid）；历史记录保存变更前的内容（前像），workctl 据此重建“该 ID 生效后”的文档再按键比较；早于最早保留记录 → DATA_UNAVAILABLE（details.oldest_history_id / retention_days）
+- Consul：KV 不保留历史，不重建任何旧值：--key 模式返回 DATA_UNAVAILABLE（details 带 create_index / modify_index），--from-rev 模式返回 DATA_UNAVAILABLE（details.changed_since 列出 ModifyIndex 更大的键）；删除的键无法发现
 
 ```bash
 workctl config diff --service demo-order --env sandbox --from-rev 2
 workctl config diff --service demo-order --key cache.ttl_seconds
+workctl config diff --service demo-payment --key order.timeout_ms
 ```
 
 ### `workctl config get`
 
-读取配置中心（etcd v3）中某服务某环境的配置项：当前值、修订号、版本与租约（敏感项遮蔽）
+读取配置中心（etcd v3 / Nacos / Consul KV）中某服务某环境的配置项：当前值、修订号与元数据（敏感项遮蔽）
 
-- 能力：`config.get` v1.0.0；操作类型：**read**；适配器：etcd-v3-gateway；认证：etcd-profile
+- 能力：`config.get` v1.0.0；操作类型：**read**；适配器：etcd-v3-gateway|nacos-open-api|consul-http-api；认证：etcd-profile | nacos-token | consul-acl-token
 - 输出 Schema：[docs/schemas/config.get.v1.json](../docs/schemas/config.get.v1.json)；指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -303,24 +307,30 @@ workctl config diff --service demo-order --key cache.ttl_seconds
 | `--env` | string | 否 |  | 环境；默认取 profile 的 env |
 | `--key` | string | 否 |  | 只读取一个配置项（服务前缀下的相对键名，如 cache.ttl_seconds） |
 | `--limit` | int | 否 | `200` | 最多返回的键数（1-1000） |
-| `--endpoint` | string | 否 |  | etcd 端点名（默认取 profile defaults.etcd） |
+| `--endpoint` | string | 否 |  | 配置中心端点：<类型>/<名称> 或名称（etcd / nacos / consul）；默认按资源绑定或 profile 默认选择 |
 
 前置条件：
 
-- profile 配置 endpoints.etcd（url，可选 config_prefix / username + password_ref）
-- 身份对该前缀有 read 权限（开启认证时）
+- profile 配置 endpoints.etcd（url，可选 config_prefix / username + password_ref）、endpoints.nacos（url，可选 namespace / group / data_id 模板、username + password_ref）或 endpoints.consul（url，可选 config_prefix / datacenter / token_ref）
+- 身份对该前缀（Nacos：命名空间）有读权限（开启认证/ACL 时）
 
 口径说明：
 
 - 读的是 etcd 当前已提交的值（线性一致读），observed_revision 是读取时刻的集群修订，不代表应用已加载该值
-- 键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "***" 替代，masked=true，masked_paths 标出位置
+- 键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "***" 替代，masked=true，masked_paths 标出位置；整个值被遮蔽时 value_bytes=null（不暴露长度）
 - 值为 JSON（对象/数组/数字/布尔）时返回解析后的值；非 UTF-8 字节以 base64 返回（value_format=binary_base64）
 - mod_revision 是最后一次修改的集群修订；可作为 config diff --from-rev 的输入
-- Nacos / Apollo / Consul KV 是规划中的 provider
+- provider 由端点类型决定（etcd | nacos | consul）：--endpoint [<类型>/]<名称> > 资源绑定（服务 attributes.config_center 或服务指向 config.center 资源的关系，取该资源的 endpoint）> profile defaults.config（<类型>[/<名称>]）> 默认 etcd 端点（或唯一的配置中心端点）；data.provider / provider_selected_by 写明实际选择
+- Nacos：读取 <namespace>/<group>/<dataId> 整个配置文档，properties / yaml / json 拆分为键（嵌套键以 . 和 [i] 展平），其他类型或解析失败时整个文档作为一个值；没有键级修订（null）
+- Consul：读取 KV 前缀 <config_prefix><env>/<service>/（?recurse），create/mod_revision 为 CreateIndex/ModifyIndex，observed_revision 为 X-Consul-Index；version 不提供
+- 键列表被截断（超过 --limit）时 status=partial、coverage.complete=false
+- 规划中的 provider（绑定或 --endpoint 指向时返回 CAPABILITY_PLANNED，不做模拟）：apollo / zookeeper
 
 ```bash
 workctl config get --service demo-order --env sandbox
 workctl config get --service demo-order --key cache.ttl_seconds
+workctl config get --service demo-payment --env sandbox
+workctl config get --service demo-inventory --endpoint consul/demo-consul
 ```
 
 ### `workctl capacity summary`
@@ -469,11 +479,135 @@ workctl container workload get --service demo-order --env sandbox
 workctl container workload restart-plan --service demo-order --env sandbox
 ```
 
+### `workctl deploy release get`
+
+查看一次发布的详情：Kubernetes 修订的镜像/变更原因/副本数/与当前差异；Jenkins 构建参数/结果/耗时/原因/控制台日志末尾（遮蔽）
+
+- 能力：`deploy.release.get` v1.0.0；操作类型：**read**；适配器：kubernetes-api | jenkins-rest；认证：kubernetes-bearer | jenkins-basic
+- 输出 Schema：[docs/schemas/deploy.release.get.v1.json](../docs/schemas/deploy.release.get.v1.json)；指南：[docs/guides/deploy.md](../docs/guides/deploy.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--service` | string | 是 |  | 服务 ID（资源绑定中 deploy.target 的 attributes.service） |
+| `--env` | string | 否 |  | 环境；默认取 profile 的 env |
+| `--id` | string | 是 |  | 发布 ID：Kubernetes 为 ReplicaSet 名或修订号；Jenkins 为构建号 |
+| `--tail` | int | 否 | `30` | Jenkins 控制台日志返回的末尾行数 |
+
+前置条件：
+
+- 资源绑定中有 type: deploy.target 的资源：attributes.service=<服务>，endpoint {kind: kubernetes|jenkins}
+- Kubernetes：attributes.namespace + attributes.deployment；身份需要 get/list deployments、replicasets、pods（回滚执行另需 patch deployments）
+- Jenkins：attributes.job（文件夹写 folder/job）；profile endpoints.jenkins.<name>（url、user、token_ref 或 password_ref），身份需要 Overall/Read + Job/Read（回滚执行另需 Job/Build）
+
+口径说明：
+
+- provider 由资源绑定的 deploy.target 决定（kubernetes 或 jenkins），两者输出同一 schema；Argo CD / Spinnaker / 内部发布平台尚未接入
+- 发布 ID 不在保留范围内时返回 NOT_FOUND（Kubernetes 已按 revisionHistoryLimit 清理 / Jenkins 已按构建丢弃策略清理）
+- 环境变量/构建参数中名称像凭据的值、控制台日志中的 password/token/secret=… 均遮蔽
+
+```bash
+workctl deploy release get --service demo-order --env sandbox --id 3
+workctl deploy release get --service demo-order --id demo-order-7b48cf7b44
+```
+
+### `workctl deploy release list`
+
+列出服务最近的发布/rollout（新→旧）：版本/镜像、修订、开始/结束时间、状态、触发人/原因
+
+Kubernetes：Deployment 保留的 ReplicaSet 修订（kubectl rollout history）；Jenkins：部署 job 的构建。同一输出 schema。
+
+- 能力：`deploy.release.list` v1.0.0；操作类型：**read**；适配器：kubernetes-api | jenkins-rest；认证：kubernetes-bearer | jenkins-basic
+- 输出 Schema：[docs/schemas/deploy.release.list.v1.json](../docs/schemas/deploy.release.list.v1.json)；指南：[docs/guides/deploy.md](../docs/guides/deploy.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--service` | string | 是 |  | 服务 ID（资源绑定中 deploy.target 的 attributes.service） |
+| `--env` | string | 否 |  | 环境；默认取 profile 的 env |
+| `--window` | duration | 否 | `"7d"` | 只看该时间窗口内开始的发布（Kubernetes 当前修订总是包含） |
+| `--limit` | int | 否 | `20` | 最多返回条数 |
+
+前置条件：
+
+- 资源绑定中有 type: deploy.target 的资源：attributes.service=<服务>，endpoint {kind: kubernetes|jenkins}
+- Kubernetes：attributes.namespace + attributes.deployment；身份需要 get/list deployments、replicasets、pods（回滚执行另需 patch deployments）
+- Jenkins：attributes.job（文件夹写 folder/job）；profile endpoints.jenkins.<name>（url、user、token_ref 或 password_ref），身份需要 Overall/Read + Job/Read（回滚执行另需 Job/Build）
+
+口径说明：
+
+- provider 由资源绑定的 deploy.target 决定（kubernetes 或 jenkins），两者输出同一 schema；Argo CD / Spinnaker / 内部发布平台尚未接入
+- Kubernetes：只保留 revisionHistoryLimit 个旧 ReplicaSet；started_at 为 ReplicaSet creationTimestamp（derived），没有精确的 rollout 完成时间；被替代修订的 status 为 unknown（API 不保存当时结果）；回滚会复用旧 ReplicaSet 并给它新的修订号
+- Jenkins：构建 timestamp/duration 为 explicit；只保留构建丢弃策略允许的构建（策略从 config.xml 读取，需要 Job/ExtendedRead）；current 为最近一次成功构建，不代表目标环境实际运行版本
+
+```bash
+workctl deploy release list --service demo-order --env sandbox --window 7d
+```
+
+### `workctl deploy rollback plan`
+
+为回滚发布生成计划：目标版本、当前与目标镜像/版本、依赖影响、前置条件（目标仍保留等）与步骤（不执行）
+
+- 能力：`deploy.rollback.plan` v1.0.0；操作类型：**plan**；适配器：kubernetes-api | jenkins-rest；认证：kubernetes-bearer | jenkins-basic
+- 输出 Schema：[docs/schemas/deploy.rollback.plan.v1.json](../docs/schemas/deploy.rollback.plan.v1.json)；指南：[docs/guides/deploy.md](../docs/guides/deploy.md)
+- 幂等：是；可取消：否
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--service` | string | 是 |  | 服务 ID（资源绑定中 deploy.target 的 attributes.service） |
+| `--env` | string | 否 |  | 环境；默认取 profile 的 env |
+| `--to` | string | 否 |  | 目标发布 ID（Kubernetes ReplicaSet 名或修订号；Jenkins 构建号）；缺省为上一修订 / 上一个不同版本的成功构建 |
+
+前置条件：
+
+- 资源绑定中有 type: deploy.target 的资源：attributes.service=<服务>，endpoint {kind: kubernetes|jenkins}
+- Kubernetes：attributes.namespace + attributes.deployment；身份需要 get/list deployments、replicasets、pods（回滚执行另需 patch deployments）
+- Jenkins：attributes.job（文件夹写 folder/job）；profile endpoints.jenkins.<name>（url、user、token_ref 或 password_ref），身份需要 Overall/Read + Job/Read（回滚执行另需 Job/Build）
+
+口径说明：
+
+- 计划预览不是执行成功的证据；执行用 workctl operation execute --id <plan> --confirm <plan>（需要 profile allow_execute）
+- 等价于 workctl operation plan --action deploy.rollback --param service=<service> [--param to=<id>]
+- Kubernetes：执行等价于 kubectl rollout undo --to-revision（JSON patch 把 Pod 模板替换为目标 ReplicaSet 的模板），执行前复核 uid 与当前修订，轮询 rollout 直到完成或超时；需要 patch deployments 权限
+- Jenkins：执行即用目标构建的参数（凭据类参数除外）重新触发部署 job（buildWithParameters，密码认证时附带 crumb），轮询队列与构建直到结束，结果 SUCCESS 才算成功；执行前复核当前成功构建未变、没有进行中的部署；需要 Job/Build 权限。目标构建含凭据类参数时前置条件 parameters_replayable 不满足
+- 回滚只回滚 Pod 模板 / 部署版本；配置中心、数据库结构等不随之回滚
+
+```bash
+workctl deploy rollback plan --service demo-order --env sandbox
+workctl deploy rollback plan --service demo-order --to 3
+```
+
+### `workctl deploy status get`
+
+查看服务当前的发布状态：Kubernetes rollout 条件与副本数；Jenkins 是否有部署构建在运行/排队
+
+- 能力：`deploy.status.get` v1.0.0；操作类型：**read**；适配器：kubernetes-api | jenkins-rest；认证：kubernetes-bearer | jenkins-basic
+- 输出 Schema：[docs/schemas/deploy.status.get.v1.json](../docs/schemas/deploy.status.get.v1.json)；指南：[docs/guides/deploy.md](../docs/guides/deploy.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--service` | string | 是 |  | 服务 ID（资源绑定中 deploy.target 的 attributes.service） |
+| `--env` | string | 否 |  | 环境；默认取 profile 的 env |
+
+前置条件：
+
+- 资源绑定中有 type: deploy.target 的资源：attributes.service=<服务>，endpoint {kind: kubernetes|jenkins}
+- Kubernetes：attributes.namespace + attributes.deployment；身份需要 get/list deployments、replicasets、pods（回滚执行另需 patch deployments）
+- Jenkins：attributes.job（文件夹写 folder/job）；profile endpoints.jenkins.<name>（url、user、token_ref 或 password_ref），身份需要 Overall/Read + Job/Read（回滚执行另需 Job/Build）
+
+口径说明：
+
+- provider 由资源绑定的 deploy.target 决定（kubernetes 或 jenkins），两者输出同一 schema；Argo CD / Spinnaker / 内部发布平台尚未接入
+- Kubernetes：state 按 kubectl rollout status 语义（observedGeneration、updated/available 副本、Progressing=ProgressDeadlineExceeded → failed、spec.paused → paused）；pods 列出各修订 Pod 的就绪与等待原因（如 ImagePullBackOff）
+- Jenkins：progressing=有构建在运行，queued=队列中有该 job 的构建，否则按最近一次构建结果给出 complete/failed/aborted
+
+```bash
+workctl deploy status get --service demo-order --env sandbox
+```
+
 ### `workctl discovery list`
 
-从服务注册中心（etcd v3 前缀注册）列出某服务的实例：地址、版本、自报健康、租约与剩余 TTL
+从服务注册中心（etcd v3 前缀注册 / Nacos 命名服务 / Consul 目录与健康检查）列出某服务的实例：地址、版本、健康与注册元数据
 
-- 能力：`discovery.list` v1.0.0；操作类型：**read**；适配器：etcd-v3-gateway；认证：etcd-profile
+- 能力：`discovery.list` v1.0.0；操作类型：**read**；适配器：etcd-v3-gateway|nacos-open-api|consul-http-api；认证：etcd-profile | nacos-token | consul-acl-token
 - 输出 Schema：[docs/schemas/discovery.list.v1.json](../docs/schemas/discovery.list.v1.json)；指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)
 
 | 参数 | 类型 | 必填 | 默认 | 说明 |
@@ -481,23 +615,29 @@ workctl container workload restart-plan --service demo-order --env sandbox
 | `--service` | string | 是 |  | 服务 ID，如 demo-order |
 | `--env` | string | 否 |  | 按注册内容中的 env 字段过滤（不给则不过滤） |
 | `--healthy-only` | bool | 否 | `false` | 只返回自报 healthy=true 的实例 |
-| `--endpoint` | string | 否 |  | etcd 端点名（默认取 profile defaults.etcd） |
+| `--endpoint` | string | 否 |  | 配置中心端点：<类型>/<名称> 或名称（etcd / nacos / consul）；默认按资源绑定或 profile 默认选择 |
 
 前置条件：
 
-- profile 配置 endpoints.etcd（url，可选 discovery_prefix）
-- 实例以 <discovery_prefix><service>/<instance-id> → JSON 注册
+- etcd：endpoints.etcd（可选 discovery_prefix），实例以 <discovery_prefix><service>/<instance-id> → JSON 注册
+- Nacos：endpoints.nacos（可选 discovery_namespace / discovery_group）
+- Consul：endpoints.consul（token 需 service/node read）
 
 口径说明：
 
 - healthy 来自实例写入的注册内容（自报），不是 workctl 的探测结果；要验证可达性用 network connectivity check
 - 带租约的注册在实例停止续约后按 TTL 自动删除；没有租约的注册永不过期，实例下线后可能残留
 - remaining_ttl_s 为本次 /v3/lease/timetolive 的读数（采样），续约后会重置
-- Nacos / Consul / Eureka / Kubernetes Endpoints 是规划中的 provider
+- provider 由端点类型决定（etcd | nacos | consul）：--endpoint [<类型>/]<名称> > 资源绑定（服务 attributes.config_center 或服务指向 config.center 资源的关系，取该资源的 endpoint）> profile defaults.config（<类型>[/<名称>]）> 默认 etcd 端点（或唯一的配置中心端点）；data.provider / provider_selected_by 写明实际选择
+- Nacos：GET /v1/ns/service + /v1/ns/catalog/instances（含 enabled=false 实例），healthy 为服务端健康状态，nacos 字段给出 cluster / weight / enabled / ephemeral；--env 按 metadata.env 过滤
+- Consul：GET /v1/health/service/<svc>，healthy 由检查聚合（任一 critical → false，warning 计为 healthy），consul 字段给出各检查；服务不在 /v1/catalog/services 时 summary.service_registered=false
+- Eureka / Kubernetes Endpoints / 规划中的 provider（绑定或 --endpoint 指向时返回 CAPABILITY_PLANNED，不做模拟）：apollo / zookeeper
 
 ```bash
 workctl discovery list --service demo-order
 workctl discovery list --service demo-order --env sandbox --healthy-only
+workctl discovery list --service demo-payment
+workctl discovery list --service demo-inventory
 ```
 
 ### `workctl network backend list`
@@ -1061,6 +1201,275 @@ workctl mysql statement summary --instance demo-mysql --sample-window 0
 
 ```bash
 workctl mysql table get --instance demo-mysql --database demo --table orders
+```
+
+### `workctl pg database list`
+
+列出实例中的数据库：大小、连接数、事务/缓存/死锁累计计数与统计重置时间、事务 ID 年龄
+
+- 能力：`postgres.database.list` v1.0.0；操作类型：**read**；适配器：pg-driver；认证：database-profile
+- 输出 Schema：[docs/schemas/postgres.database.list.v1.json](../docs/schemas/postgres.database.list.v1.json)；指南：[docs/guides/postgres.md](../docs/guides/postgres.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--instance` | string | 否 |  | PostgreSQL 端点名（profile 中 endpoints.postgres 的键；缺省取 defaults.postgres） |
+| `--include-templates` | bool | 否 | `false` | 包含 template0 / template1 |
+
+前置条件：
+
+- profile 中配置 endpoints.postgres.<name>（host/port/user/password_ref/database）
+- 只读诊断角色（如 workctl_ro）：LOGIN、CONNECT on 目标库、pg_read_all_stats、业务表 SELECT；建议 default_transaction_read_only=on
+
+口径说明：
+
+- xact_commit / blks_hit / deadlocks / temp_bytes 等来自 pg_stat_database，是自 stats_reset（或 initdb）以来的累计值，不是窗口值
+- backends 是瞬时值；size_bytes 是调用时的实际大小
+
+```bash
+workctl pg database list --instance demo-postgres
+```
+
+### `workctl pg instance get`
+
+查看 PostgreSQL 实例概况：版本、运行时长、关键参数、连接使用、主备角色、已安装扩展，并附平台绑定元数据
+
+- 能力：`postgres.instance.get` v1.0.0；操作类型：**read**；适配器：pg-driver；认证：database-profile
+- 输出 Schema：[docs/schemas/postgres.instance.get.v1.json](../docs/schemas/postgres.instance.get.v1.json)；指南：[docs/guides/postgres.md](../docs/guides/postgres.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--instance` | string | 否 |  | PostgreSQL 端点名（profile 中 endpoints.postgres 的键；缺省取 defaults.postgres） |
+
+前置条件：
+
+- profile 中配置 endpoints.postgres.<name>（host/port/user/password_ref/database）
+- 只读诊断角色（如 workctl_ro）：LOGIN、CONNECT on 目标库、pg_read_all_stats、业务表 SELECT；建议 default_transaction_read_only=on
+
+口径说明：
+
+- binding 来自资源绑定文件（平台元数据，relation=explicit），engine/settings/connections 来自引擎实时查询，两者分开标注
+- 扩展按库安装：extensions 只反映当前连接的库（--instance 端点配置的 database）
+- 连接数是瞬时快照；累计计数（提交/回滚/死锁）见 pg database list，是自统计重置以来的累计值
+
+```bash
+workctl pg instance get --instance demo-postgres
+```
+
+### `workctl pg lock list`
+
+列出锁等待与阻塞链：谁在等（等什么锁）、被谁阻塞（pg_blocking_pids），以及链条源头
+
+- 能力：`postgres.lock.list` v1.0.0；操作类型：**read**；适配器：pg-driver；认证：database-profile
+- 输出 Schema：[docs/schemas/postgres.lock.list.v1.json](../docs/schemas/postgres.lock.list.v1.json)；指南：[docs/guides/postgres.md](../docs/guides/postgres.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--instance` | string | 否 |  | PostgreSQL 端点名（profile 中 endpoints.postgres 的键；缺省取 defaults.postgres） |
+
+前置条件：
+
+- profile 中配置 endpoints.postgres.<name>（host/port/user/password_ref/database）
+- 只读诊断角色（如 workctl_ro）：LOGIN、CONNECT on 目标库、pg_read_all_stats、业务表 SELECT；建议 default_transaction_read_only=on
+- pg_locks 对所有角色可见；阻塞方语句需 pg_read_all_stats
+
+口径说明：
+
+- 没有锁等待时返回空列表（success），不是错误
+- 阻塞方 query 是其当前/最后一条语句，不一定是持锁语句；idle in transaction 的阻塞方需要应用提交/回滚或由 DBA 处理
+- 瞬时快照；锁等待可能在毫秒内结束。行锁等待在 pg_locks 中表现为 transactionid 锁（等待持锁事务结束）
+
+```bash
+workctl pg lock list --instance demo-postgres
+```
+
+### `workctl pg query analyze`
+
+用 EXPLAIN ANALYZE 实际执行 SELECT 并返回各节点的实际耗时、行数与缓冲区命中（READ ONLY 事务 + statement_timeout，结束后回滚）
+
+- 能力：`postgres.query.analyze` v1.0.0；操作类型：**diagnose**；适配器：pg-driver；认证：database-profile
+- 输出 Schema：[docs/schemas/postgres.query.analyze.v1.json](../docs/schemas/postgres.query.analyze.v1.json)；指南：[docs/guides/postgres.md](../docs/guides/postgres.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--instance` | string | 否 |  | PostgreSQL 端点名（profile 中 endpoints.postgres 的键；缺省取 defaults.postgres） |
+| `--database` | string | 否 |  | 要连接的库名；缺省取端点配置的 database（再缺省为 postgres） |
+| `--sql` | string | 否 |  | 直接给出单条 SQL 语句（≤256KB，适合 Agent/MCP 调用）；与 --sql-file 二选一 |
+| `--sql-file` | file | 否 |  | 包含单条 SQL 语句的文件路径（≤256KB）；与 --sql 二选一 |
+
+前置条件：
+
+- profile 中配置 endpoints.postgres.<name>（host/port/user/password_ref/database）
+- 只读诊断角色（如 workctl_ro）：LOGIN、CONNECT on 目标库、pg_read_all_stats、业务表 SELECT；建议 default_transaction_read_only=on
+- 端点 statement_timeout_ms（默认 10000）
+
+口径说明：
+
+- EXPLAIN ANALYZE 会实际执行语句（消耗实例资源、读取数据），只允许 SELECT / WITH...SELECT / VALUES / TABLE；在 READ ONLY 事务中执行、受 statement_timeout 约束，结束后 ROLLBACK
+- actual_total_ms / actual_rows 是每次 loop 的平均值；节点总量 ≈ 值 × loops
+- 结果集本身不返回，只返回计划与实际统计；实际耗时受缓存（shared_buffers / OS cache）影响，重复执行可能更快
+- SQL 来源二选一：--sql（内联，≤256KB）或 --sql-file
+
+```bash
+workctl pg query analyze --instance demo-postgres --sql "SELECT * FROM orders WHERE customer_id = 42"
+workctl pg query analyze --instance demo-postgres --database demo_orders --sql-file ./q.sql
+```
+
+### `workctl pg query explain`
+
+查看语句的执行计划（EXPLAIN (FORMAT JSON)，不执行语句，只是优化器估计），附扁平化摘要
+
+- 能力：`postgres.query.explain` v1.0.0；操作类型：**read**；适配器：pg-driver；认证：database-profile
+- 输出 Schema：[docs/schemas/postgres.query.explain.v1.json](../docs/schemas/postgres.query.explain.v1.json)；指南：[docs/guides/postgres.md](../docs/guides/postgres.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--instance` | string | 否 |  | PostgreSQL 端点名（profile 中 endpoints.postgres 的键；缺省取 defaults.postgres） |
+| `--database` | string | 否 |  | 要连接的库名；缺省取端点配置的 database（再缺省为 postgres） |
+| `--sql` | string | 否 |  | 直接给出单条 SQL 语句（≤256KB，适合 Agent/MCP 调用）；与 --sql-file 二选一 |
+| `--sql-file` | file | 否 |  | 包含单条 SQL 语句的文件路径（≤256KB）；与 --sql 二选一 |
+
+前置条件：
+
+- profile 中配置 endpoints.postgres.<name>（host/port/user/password_ref/database）
+- 只读诊断角色（如 workctl_ro）：LOGIN、CONNECT on 目标库、pg_read_all_stats、业务表 SELECT；建议 default_transaction_read_only=on
+- EXPLAIN 需要对涉及的表有相应权限（只读角色 EXPLAIN UPDATE/DELETE 会因缺 UPDATE/DELETE 权限被拒绝）
+
+口径说明：
+
+- 优化器估计，非实际执行：cost / plan_rows 都是基于统计信息的估计；实际耗时与行数用 pg query analyze（会执行语句）
+- 只接受单条语句，不要带 EXPLAIN 前缀；含 $1 等占位符（如 pg_stat_statements 中的归一化语句）时在 PG16+ 使用 GENERIC_PLAN
+- 在 READ ONLY 事务中执行并随后回滚；SQL 来源二选一：--sql（内联，≤256KB）或 --sql-file
+
+```bash
+workctl pg query explain --instance demo-postgres --sql "SELECT * FROM orders WHERE customer_id = 42"
+workctl pg query explain --instance demo-postgres --database demo_orders --sql-file ./q.sql
+```
+
+### `workctl pg query run`
+
+受限只读查询：单条 SELECT/WITH/VALUES/TABLE，READ ONLY 事务 + statement_timeout + 游标取行上限 + 敏感列脱敏
+
+- 能力：`postgres.query.run` v1.0.0；操作类型：**read**；适配器：pg-driver；认证：database-profile
+- 输出 Schema：[docs/schemas/postgres.query.run.v1.json](../docs/schemas/postgres.query.run.v1.json)；指南：[docs/guides/postgres.md](../docs/guides/postgres.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--instance` | string | 否 |  | PostgreSQL 端点名（profile 中 endpoints.postgres 的键；缺省取 defaults.postgres） |
+| `--database` | string | 否 |  | 要连接的库名；缺省取端点配置的 database（再缺省为 postgres） |
+| `--sql` | string | 否 |  | 直接给出单条 SQL 语句（≤256KB，适合 Agent/MCP 调用）；与 --sql-file 二选一 |
+| `--sql-file` | file | 否 |  | 包含单条 SQL 语句的文件路径（≤256KB）；与 --sql 二选一 |
+| `--max-rows` | int | 否 | `20` | 最多返回行数（上限 1000）；超出时 truncated=true |
+
+前置条件：
+
+- profile 中配置 endpoints.postgres.<name>（host/port/user/password_ref/database）
+- 只读诊断角色（如 workctl_ro）：LOGIN、CONNECT on 目标库、pg_read_all_stats、业务表 SELECT；建议 default_transaction_read_only=on
+- 端点 statement_timeout_ms（默认 10000）与 sensitive_columns 配置
+
+口径说明：
+
+- 真正的权限边界是数据库角色（workctl_ro 只有 SELECT，且 default_transaction_read_only=on）；程序层静态检查、READ ONLY 事务、statement_timeout、行数上限是额外防线，不能替代只读角色
+- 静态检查：只允许单条 SELECT / WITH...SELECT / VALUES / TABLE；拒绝多语句、数据修改型 CTE、SELECT INTO、FOR UPDATE/SHARE，以及终止会话/读写文件/咨询锁/序列/重置统计/执行任意 SQL 文本的函数（不穷尽：自定义函数仍可能有副作用，由角色权限兜底）
+- 通过游标（DECLARE CURSOR + FETCH）只取 max_rows+1 行，不缓冲完整结果集
+- 敏感列：输出列名或其来源列（按系统目录解析，覆盖别名）命中端点 sensitive_columns 时脱敏；表达式列在语句引用了敏感列时保守脱敏；不能替代数据库侧列权限或脱敏视图
+
+```bash
+workctl pg query run --instance demo-postgres --sql "SELECT id, status, amount FROM orders WHERE customer_id = 42" --max-rows 20
+workctl pg query run --instance demo-postgres --database demo_orders --sql-file ./q.sql --max-rows 50
+```
+
+### `workctl pg session list`
+
+列出当前会话（pg_stat_activity）：状态、等待事件、事务/语句时长、阻塞方，默认只含非 idle 的客户端会话
+
+- 能力：`postgres.session.list` v1.0.0；操作类型：**read**；适配器：pg-driver；认证：database-profile
+- 输出 Schema：[docs/schemas/postgres.session.list.v1.json](../docs/schemas/postgres.session.list.v1.json)；指南：[docs/guides/postgres.md](../docs/guides/postgres.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--instance` | string | 否 |  | PostgreSQL 端点名（profile 中 endpoints.postgres 的键；缺省取 defaults.postgres） |
+| `--include-idle` | bool | 否 | `false` | 包含 state=idle 的会话 |
+| `--include-background` | bool | 否 | `false` | 包含后台进程（autovacuum、walwriter、checkpointer 等） |
+
+前置条件：
+
+- profile 中配置 endpoints.postgres.<name>（host/port/user/password_ref/database）
+- 只读诊断角色（如 workctl_ro）：LOGIN、CONNECT on 目标库、pg_read_all_stats、业务表 SELECT；建议 default_transaction_read_only=on
+- 没有 pg_read_all_stats 时其他角色会话的语句、等待事件等字段被隐藏（结果标记为 partial）
+
+口径说明：
+
+- 瞬时快照：会话状态在毫秒级变化，不代表一段时间内的情况
+- 语句文本中的字面量替换为 ?（避免输出敏感值）并截断到 512 字符；原文本身受 track_activity_query_size 截断
+- 已排除 workctl 自身的连接（pg_backend_pid()）
+
+```bash
+workctl pg session list --instance demo-postgres
+workctl pg session list --instance demo-postgres --include-idle
+```
+
+### `workctl pg statement summary`
+
+按语句（pg_stat_statements）统计调用次数、执行耗时、返回行数和缓存命中；默认两次快照差分得到窗口值
+
+- 能力：`postgres.statement.summary` v1.0.0；操作类型：**diagnose**；适配器：pg-driver；认证：database-profile
+- 输出 Schema：[docs/schemas/postgres.statement.summary.v1.json](../docs/schemas/postgres.statement.summary.v1.json)；指南：[docs/guides/postgres.md](../docs/guides/postgres.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--instance` | string | 否 |  | PostgreSQL 端点名（profile 中 endpoints.postgres 的键；缺省取 defaults.postgres） |
+| `--sample-window` | string | 否 | `"10s"` | 采样窗口，如 5s、30s；0 表示返回自 stats_reset 以来的累计值（不是窗口值）。窗口须小于 --timeout |
+| `--top` | int | 否 | `10` | 取前 N 条 |
+| `--order-by` | enum (total_time/calls/mean_time/rows/shared_blks_read) | 否 | `"total_time"` | 排序：total_time（总耗时）/ calls / mean_time / rows / shared_blks_read |
+| `--database` | string | 否 |  | 只看该库的语句（pg_stat_statements.dbid）；缺省为全部库 |
+
+前置条件：
+
+- profile 中配置 endpoints.postgres.<name>（host/port/user/password_ref/database）
+- 只读诊断角色（如 workctl_ro）：LOGIN、CONNECT on 目标库、pg_read_all_stats、业务表 SELECT；建议 default_transaction_read_only=on
+- shared_preload_libraries 含 pg_stat_statements（需重启）且在连接库中 CREATE EXTENSION pg_stat_statements；pg_stat_statements.track ≠ none
+
+口径说明：
+
+- pg_stat_statements 的值是自 stats_reset（扩展创建或 pg_stat_statements_reset()；默认 save=on 时正常重启不清空）以来的累计值；--sample-window 0 直接返回累计值（aggregation=cumulative_since），不能当作窗口值
+- 窗口值 = t1 快照 − t0 快照（按 userid+dbid+queryid+toplevel）；采样期间命令会等待整个窗口，窗口须小于 --timeout（默认 30s）
+- 计数回退的条目视为被重置，只计入重置后的部分（reset_detected=true）；窗口内有条目被淘汰（dealloc 增加）或消失时结果标记为 partial
+- 耗时单位毫秒（total_exec_time，不含规划时间）；扩展未安装/未加载/track=none 时返回 COLLECTION_DISABLED，而不是空结果
+
+```bash
+workctl pg statement summary --instance demo-postgres --sample-window 10s --top 10
+workctl pg statement summary --instance demo-postgres --sample-window 0 --order-by mean_time --database demo_orders
+```
+
+### `workctl pg table get`
+
+查看表结构、索引、大小与表级统计（扫描次数、活/死元组估计、最近 vacuum/analyze）
+
+- 能力：`postgres.table.get` v1.0.0；操作类型：**read**；适配器：pg-driver；认证：database-profile
+- 输出 Schema：[docs/schemas/postgres.table.get.v1.json](../docs/schemas/postgres.table.get.v1.json)；指南：[docs/guides/postgres.md](../docs/guides/postgres.md)
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+| --- | --- | --- | --- | --- |
+| `--instance` | string | 否 |  | PostgreSQL 端点名（profile 中 endpoints.postgres 的键；缺省取 defaults.postgres） |
+| `--database` | string | 否 |  | 要连接的库名；缺省取端点配置的 database（再缺省为 postgres） |
+| `--schema` | string | 否 | `"public"` | schema 名（区分大小写，按实际名称给出） |
+| `--table` | string | 是 |  | 表名（区分大小写，按实际名称给出，不加双引号） |
+
+前置条件：
+
+- profile 中配置 endpoints.postgres.<name>（host/port/user/password_ref/database）
+- 只读诊断角色（如 workctl_ro）：LOGIN、CONNECT on 目标库、pg_read_all_stats、业务表 SELECT；建议 default_transaction_read_only=on
+- CONNECT on 目标库；系统目录对所有角色可见，所以没有 SELECT 权限也能看到结构（access.select=false）
+
+口径说明：
+
+- n_live_tup / n_dead_tup / reltuples 是估计值；seq_scan / idx_scan / n_tup_* 是自统计重置以来的累计值，不是窗口值
+- 名称区分大小写，按实际对象名给出（不加双引号）；表不存在返回 NOT_FOUND
+- seq_scan 远大于 idx_scan 且表不小，常见于缺索引；结合 pg query explain 确认
+
+```bash
+workctl pg table get --instance demo-postgres --database demo_orders --table orders
+workctl pg table get --instance demo-postgres --schema public --table order_items
 ```
 
 ### `workctl redis config get`

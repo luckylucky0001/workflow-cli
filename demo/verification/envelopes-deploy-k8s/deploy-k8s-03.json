@@ -1,0 +1,357 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "deploy.release.list",
+  "data": {
+    "service": "demo-order",
+    "env": "sandbox",
+    "target": {
+      "binding": "demo-order-deploy",
+      "provider": "kubernetes",
+      "endpoint": "k3s",
+      "object": "Deployment workctl-demo/demo-order"
+    },
+    "releases": [
+      {
+        "id": "demo-order-75874c6479",
+        "provider": "kubernetes",
+        "version": "1.27-alpine-workctl-missing",
+        "images": [
+          "nginx:1.27-alpine-workctl-missing"
+        ],
+        "revision": 14,
+        "started_at": "2026-10-17T16:18:06Z",
+        "finished_at": null,
+        "timestamps": "derived",
+        "duration_ms": null,
+        "status": "failed",
+        "status_basis": "Progressing=False ProgressDeadlineExceeded: ReplicaSet \"demo-order-75874c6479\" has timed out progressing.",
+        "current": true,
+        "triggered_by": null,
+        "cause": "release v1.4.2-bad: image tag that does not exist",
+        "source_ref": {
+          "system": "kubernetes",
+          "kind": "ReplicaSet",
+          "name": "workctl-demo/demo-order-75874c6479",
+          "url": null
+        }
+      },
+      {
+        "id": "demo-order-6cfc5699dd",
+        "provider": "kubernetes",
+        "version": "1.27-alpine",
+        "images": [
+          "nginx:1.27-alpine"
+        ],
+        "revision": 13,
+        "started_at": "2026-10-17T16:09:20Z",
+        "finished_at": null,
+        "timestamps": "derived",
+        "duration_ms": null,
+        "status": "unknown",
+        "status_basis": "已被当前修订 14 替代；ReplicaSet 不记录当时 rollout 是否成功（仍有 2 个副本，替换进行中）；该 ReplicaSet 曾是修订 11（回滚复用），started_at 为首次创建时间",
+        "current": false,
+        "triggered_by": null,
+        "cause": "release v1.4.1: cache ttl tuning",
+        "source_ref": {
+          "system": "kubernetes",
+          "kind": "ReplicaSet",
+          "name": "workctl-demo/demo-order-6cfc5699dd",
+          "url": null
+        }
+      },
+      {
+        "id": "demo-order-79854d45b5",
+        "provider": "kubernetes",
+        "version": "1.27-alpine",
+        "images": [
+          "nginx:1.27-alpine"
+        ],
+        "revision": 12,
+        "started_at": "2026-10-17T16:17:55Z",
+        "finished_at": null,
+        "timestamps": "derived",
+        "duration_ms": null,
+        "status": "unknown",
+        "status_basis": "已被当前修订 14 替代；ReplicaSet 不记录当时 rollout 是否成功",
+        "current": false,
+        "triggered_by": null,
+        "cause": "release v1.4.0: order api pagination",
+        "source_ref": {
+          "system": "kubernetes",
+          "kind": "ReplicaSet",
+          "name": "workctl-demo/demo-order-79854d45b5",
+          "url": null
+        }
+      },
+      {
+        "id": "demo-order-9c9cd6698",
+        "provider": "kubernetes",
+        "version": "1.27-alpine",
+        "images": [
+          "nginx:1.27-alpine"
+        ],
+        "revision": 10,
+        "started_at": "2026-10-17T16:07:15Z",
+        "finished_at": null,
+        "timestamps": "derived",
+        "duration_ms": null,
+        "status": "unknown",
+        "status_basis": "已被当前修订 14 替代；ReplicaSet 不记录当时 rollout 是否成功；该 ReplicaSet 曾是修订 8（回滚复用），started_at 为首次创建时间",
+        "current": false,
+        "triggered_by": null,
+        "cause": "workctl deploy rollback to revision 8 (demo-order-9c9cd6698, plan op-20261017-b059fd)",
+        "source_ref": {
+          "system": "kubernetes",
+          "kind": "ReplicaSet",
+          "name": "workctl-demo/demo-order-9c9cd6698",
+          "url": null
+        }
+      },
+      {
+        "id": "demo-order-df768984f",
+        "provider": "kubernetes",
+        "version": "1.27-alpine-workctl-missing",
+        "images": [
+          "nginx:1.27-alpine-workctl-missing"
+        ],
+        "revision": 9,
+        "started_at": "2026-10-17T16:07:21Z",
+        "finished_at": null,
+        "timestamps": "derived",
+        "duration_ms": null,
+        "status": "unknown",
+        "status_basis": "已被当前修订 14 替代；ReplicaSet 不记录当时 rollout 是否成功",
+        "current": false,
+        "triggered_by": null,
+        "cause": "release v1.4.2-bad: image tag that does not exist",
+        "source_ref": {
+          "system": "kubernetes",
+          "kind": "ReplicaSet",
+          "name": "workctl-demo/demo-order-df768984f",
+          "url": null
+        }
+      },
+      {
+        "id": "demo-order-5d996b7c4c",
+        "provider": "kubernetes",
+        "version": "1.27-alpine",
+        "images": [
+          "nginx:1.27-alpine"
+        ],
+        "revision": 7,
+        "started_at": "2026-10-17T16:07:12Z",
+        "finished_at": null,
+        "timestamps": "derived",
+        "duration_ms": null,
+        "status": "unknown",
+        "status_basis": "已被当前修订 14 替代；ReplicaSet 不记录当时 rollout 是否成功",
+        "current": false,
+        "triggered_by": null,
+        "cause": "release v1.4.0: order api pagination",
+        "source_ref": {
+          "system": "kubernetes",
+          "kind": "ReplicaSet",
+          "name": "workctl-demo/demo-order-5d996b7c4c",
+          "url": null
+        }
+      },
+      {
+        "id": "demo-order-7b48cf7b44",
+        "provider": "kubernetes",
+        "version": "1.27-alpine",
+        "images": [
+          "nginx:1.27-alpine"
+        ],
+        "revision": 6,
+        "started_at": "2026-10-17T15:41:36Z",
+        "finished_at": null,
+        "timestamps": "derived",
+        "duration_ms": null,
+        "status": "unknown",
+        "status_basis": "已被当前修订 14 替代；ReplicaSet 不记录当时 rollout 是否成功",
+        "current": false,
+        "triggered_by": null,
+        "cause": "rollout restart（Pod 模板注解 kubectl.kubernetes.io/restartedAt=2026-10-17T15:41:36Z）",
+        "source_ref": {
+          "system": "kubernetes",
+          "kind": "ReplicaSet",
+          "name": "workctl-demo/demo-order-7b48cf7b44",
+          "url": null
+        }
+      },
+      {
+        "id": "demo-order-55b4656794",
+        "provider": "kubernetes",
+        "version": "1.27-alpine",
+        "images": [
+          "nginx:1.27-alpine"
+        ],
+        "revision": 5,
+        "started_at": "2026-10-17T15:06:53Z",
+        "finished_at": null,
+        "timestamps": "derived",
+        "duration_ms": null,
+        "status": "unknown",
+        "status_basis": "已被当前修订 14 替代；ReplicaSet 不记录当时 rollout 是否成功",
+        "current": false,
+        "triggered_by": null,
+        "cause": "rollout restart（Pod 模板注解 kubectl.kubernetes.io/restartedAt=2026-10-17T15:06:53Z）",
+        "source_ref": {
+          "system": "kubernetes",
+          "kind": "ReplicaSet",
+          "name": "workctl-demo/demo-order-55b4656794",
+          "url": null
+        }
+      },
+      {
+        "id": "demo-order-6bff5b4f4",
+        "provider": "kubernetes",
+        "version": "1.27-alpine",
+        "images": [
+          "nginx:1.27-alpine"
+        ],
+        "revision": 4,
+        "started_at": "2026-10-17T15:02:17Z",
+        "finished_at": null,
+        "timestamps": "derived",
+        "duration_ms": null,
+        "status": "unknown",
+        "status_basis": "已被当前修订 14 替代；ReplicaSet 不记录当时 rollout 是否成功",
+        "current": false,
+        "triggered_by": null,
+        "cause": "rollout restart（Pod 模板注解 kubectl.kubernetes.io/restartedAt=2026-10-17T15:02:17Z）",
+        "source_ref": {
+          "system": "kubernetes",
+          "kind": "ReplicaSet",
+          "name": "workctl-demo/demo-order-6bff5b4f4",
+          "url": null
+        }
+      },
+      {
+        "id": "demo-order-6fd6cc6545",
+        "provider": "kubernetes",
+        "version": "1.27-alpine",
+        "images": [
+          "nginx:1.27-alpine"
+        ],
+        "revision": 3,
+        "started_at": "2026-10-17T14:06:55Z",
+        "finished_at": null,
+        "timestamps": "derived",
+        "duration_ms": null,
+        "status": "unknown",
+        "status_basis": "已被当前修订 14 替代；ReplicaSet 不记录当时 rollout 是否成功",
+        "current": false,
+        "triggered_by": null,
+        "cause": "rollout restart（Pod 模板注解 kubectl.kubernetes.io/restartedAt=2026-10-17T14:06:55Z）",
+        "source_ref": {
+          "system": "kubernetes",
+          "kind": "ReplicaSet",
+          "name": "workctl-demo/demo-order-6fd6cc6545",
+          "url": null
+        }
+      },
+      {
+        "id": "demo-order-78c648487c",
+        "provider": "kubernetes",
+        "version": "1.27-alpine",
+        "images": [
+          "nginx:1.27-alpine"
+        ],
+        "revision": 2,
+        "started_at": "2026-10-17T14:06:33Z",
+        "finished_at": null,
+        "timestamps": "derived",
+        "duration_ms": null,
+        "status": "unknown",
+        "status_basis": "已被当前修订 14 替代；ReplicaSet 不记录当时 rollout 是否成功",
+        "current": false,
+        "triggered_by": null,
+        "cause": "rollout restart（Pod 模板注解 kubectl.kubernetes.io/restartedAt=2026-10-17T14:06:33Z）",
+        "source_ref": {
+          "system": "kubernetes",
+          "kind": "ReplicaSet",
+          "name": "workctl-demo/demo-order-78c648487c",
+          "url": null
+        }
+      },
+      {
+        "id": "demo-order-5f6b55b9d8",
+        "provider": "kubernetes",
+        "version": "1.27-alpine",
+        "images": [
+          "nginx:1.27-alpine"
+        ],
+        "revision": 1,
+        "started_at": "2026-10-17T14:05:44Z",
+        "finished_at": null,
+        "timestamps": "derived",
+        "duration_ms": null,
+        "status": "unknown",
+        "status_basis": "已被当前修订 14 替代；ReplicaSet 不记录当时 rollout 是否成功",
+        "current": false,
+        "triggered_by": null,
+        "cause": null,
+        "source_ref": {
+          "system": "kubernetes",
+          "kind": "ReplicaSet",
+          "name": "workctl-demo/demo-order-5f6b55b9d8",
+          "url": null
+        }
+      }
+    ],
+    "retained": 12
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "kubernetes",
+        "adapter": "kubernetes-api",
+        "observed_at": "2026-10-17T16:19:38.897Z",
+        "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
+        "method": "GET /apis/apps/v1/namespaces/workctl-demo/deployments/demo-order",
+        "relation": "explicit",
+        "version": "v1.31.4+k3s1"
+      },
+      {
+        "system": "kubernetes",
+        "adapter": "kubernetes-api",
+        "observed_at": "2026-10-17T16:19:38.897Z",
+        "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
+        "method": "GET /apis/apps/v1/namespaces/workctl-demo/replicasets?labelSelector=app=demo-order",
+        "relation": "derived",
+        "version": "v1.31.4+k3s1"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "Deployment workctl-demo/demo-order 保留的 ReplicaSet 修订（窗口内或当前生效）",
+      "limit": 20,
+      "truncated": false,
+      "window": {
+        "start": "2026-10-10T16:19:38.885Z",
+        "end": "2026-10-17T16:19:38.897Z"
+      },
+      "notes": [
+        "Kubernetes 只保留 revisionHistoryLimit=10 个旧 ReplicaSet（当前保留 12 个修订）；更早的发布不可见",
+        "started_at 为 ReplicaSet creationTimestamp（derived）；Kubernetes 不记录 rollout 完成时间，finished_at 仅对当前修订按 Progressing=NewReplicaSetAvailable 的 lastUpdateTime 推得",
+        "被替代修订的状态为 unknown：ReplicaSet 不保存当时 rollout 的结果；triggered_by 不可得（API 不记录操作人，见审计日志）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclqsnt-8da095",
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "kubernetes-api | jenkins-rest",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:19:38.777Z",
+    "duration_ms": 122
+  }
+}

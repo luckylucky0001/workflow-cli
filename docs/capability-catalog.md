@@ -7,8 +7,8 @@
 | 板块 | 已支持 | 待接入 |
 | --- | --- | --- |
 | 核心（发现、资源、身份、操作） | 13 | 0 |
-| 基础设施 | 17 | 4 |
-| 中间件 | 19 | 11 |
+| 基础设施 | 21 | 7 |
+| 中间件 | 28 | 14 |
 | 离线链路 | 21 | 4 |
 
 ## 核心（发现、资源、身份、操作）
@@ -83,13 +83,27 @@ Docker 卷与本机文件系统元数据；对象存储与 HDFS 规划中。指�
 
 ### 配置与服务发现（`config`）
 
-配置中心与服务注册（etcd v3 JSON 网关）：配置读取、修订间差异、注册实例与租约。指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)；Skill：`skills/infra-operations`
+配置中心与服务注册（etcd v3 JSON 网关 / Nacos Open API / Consul HTTP API，按端点类型选择）：配置读取、修订间差异、注册实例与健康。指南：[docs/guides/infrastructure.md](../docs/guides/infrastructure.md)；Skill：`skills/infra-operations`
 
 | 能力 | 命令 | 操作 | 状态 | 适配器 | 版本 |
 | --- | --- | --- | --- | --- | --- |
-| `config.diff` | `workctl config diff` | read | 已支持 | etcd-v3-gateway | 1.0.0 |
-| `config.get` | `workctl config get` | read | 已支持 | etcd-v3-gateway | 1.0.0 |
-| `discovery.list` | `workctl discovery list` | read | 已支持 | etcd-v3-gateway | 1.0.0 |
+| `config.diff` | `workctl config diff` | read | 已支持 | etcd-v3-gateway\|nacos-open-api\|consul-http-api | 1.0.0 |
+| `config.get` | `workctl config get` | read | 已支持 | etcd-v3-gateway\|nacos-open-api\|consul-http-api | 1.0.0 |
+| `discovery.list` | `workctl discovery list` | read | 已支持 | etcd-v3-gateway\|nacos-open-api\|consul-http-api | 1.0.0 |
+
+### 部署系统（`deploy`）
+
+发布/rollout 历史、发布详情、当前发布状态与回滚计划（Kubernetes Deployment 修订、Jenkins 部署 job；按资源绑定选择 provider）。指南：[docs/guides/deploy.md](../docs/guides/deploy.md)；Skill：`skills/deploy-operations`
+
+| 能力 | 命令 | 操作 | 状态 | 适配器 | 版本 |
+| --- | --- | --- | --- | --- | --- |
+| `deploy.app.history` | `workctl deploy app history` | read | 待接入 | argocd (待接入) | 1.0.0 |
+| `deploy.app.sync_status` | `workctl deploy app sync-status` | read | 待接入 | argocd (待接入) | 1.0.0 |
+| `deploy.pipeline.execution.list` | `workctl deploy pipeline execution list` | read | 待接入 | spinnaker \| internal-release-platform (待接入) | 1.0.0 |
+| `deploy.release.get` | `workctl deploy release get` | read | 已支持 | kubernetes-api \| jenkins-rest | 1.0.0 |
+| `deploy.release.list` | `workctl deploy release list` | read | 已支持 | kubernetes-api \| jenkins-rest | 1.0.0 |
+| `deploy.rollback.plan` | `workctl deploy rollback plan` | plan | 已支持 | kubernetes-api \| jenkins-rest | 1.0.0 |
+| `deploy.status.get` | `workctl deploy status get` | read | 已支持 | kubernetes-api \| jenkins-rest | 1.0.0 |
 
 ## 中间件
 
@@ -112,6 +126,25 @@ MySQL 实例、表结构、会话与锁、语句摘要、慢日志、执行计�
 | `mysql.slowlog.list` | `workctl mysql slowlog list` | read | 已支持 | mysql-driver | 1.0.0 |
 | `mysql.statement.summary` | `workctl mysql statement summary` | diagnose | 已支持 | mysql-driver | 1.0.0 |
 | `mysql.table.get` | `workctl mysql table get` | read | 已支持 | mysql-driver | 1.0.0 |
+
+### PostgreSQL（`postgres`）
+
+PostgreSQL 实例、数据库、表结构与统计、会话与锁等待、语句统计（pg_stat_statements）、执行计划与受限只读查询。指南：[docs/guides/postgres.md](../docs/guides/postgres.md)；Skill：`skills/postgres-operations`
+
+| 能力 | 命令 | 操作 | 状态 | 适配器 | 版本 |
+| --- | --- | --- | --- | --- | --- |
+| `postgres.database.list` | `workctl pg database list` | read | 已支持 | pg-driver | 1.0.0 |
+| `postgres.index.plan` | `workctl pg index plan` | plan | 待接入 | pg-driver | 1.0.0 |
+| `postgres.instance.get` | `workctl pg instance get` | read | 已支持 | pg-driver | 1.0.0 |
+| `postgres.lock.list` | `workctl pg lock list` | read | 已支持 | pg-driver | 1.0.0 |
+| `postgres.query.analyze` | `workctl pg query analyze` | diagnose | 已支持 | pg-driver | 1.0.0 |
+| `postgres.query.explain` | `workctl pg query explain` | read | 已支持 | pg-driver | 1.0.0 |
+| `postgres.query.run` | `workctl pg query run` | read | 已支持 | pg-driver | 1.0.0 |
+| `postgres.replication.get` | `workctl pg replication get` | read | 待接入 | pg-driver | 1.0.0 |
+| `postgres.session.list` | `workctl pg session list` | read | 已支持 | pg-driver | 1.0.0 |
+| `postgres.statement.summary` | `workctl pg statement summary` | diagnose | 已支持 | pg-driver | 1.0.0 |
+| `postgres.table.get` | `workctl pg table get` | read | 已支持 | pg-driver | 1.0.0 |
+| `postgres.vacuum.plan` | `workctl pg vacuum plan` | plan | 待接入 | pg-driver | 1.0.0 |
 
 ### Redis（`redis`）
 

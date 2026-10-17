@@ -1,0 +1,163 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "discovery.list",
+  "data": {
+    "endpoint": "consul/demo-consul",
+    "provider": "consul",
+    "provider_selected_by": "bindings: demo-inventory.attributes.config_center=demo-consul（endpoint consul/demo-consul）",
+    "service": "demo-inventory",
+    "env": "sandbox",
+    "prefix": "/v1/health/service/demo-inventory",
+    "observed_revision": 111,
+    "instances": [
+      {
+        "instance_id": "inventory-1",
+        "key": "f3f661f1fe62/inventory-1",
+        "payload": {
+          "meta": {
+            "env": "sandbox",
+            "version": "2.1.0"
+          },
+          "tags": [
+            "sandbox",
+            "v2.1.0"
+          ]
+        },
+        "payload_error": null,
+        "address": "10.88.1.1",
+        "port": 9081,
+        "version": "2.1.0",
+        "env": "sandbox",
+        "healthy": true,
+        "health_basis": "registry_checks",
+        "registered_at": null,
+        "create_revision": 109,
+        "mod_revision": 109,
+        "lease": null,
+        "consul": {
+          "node": "f3f661f1fe62",
+          "status": "passing",
+          "tags": [
+            "sandbox",
+            "v2.1.0"
+          ],
+          "checks": [
+            {
+              "check_id": "serfHealth",
+              "name": "Serf Health Status",
+              "status": "passing",
+              "service_level": false,
+              "output": "Agent alive and reachable"
+            },
+            {
+              "check_id": "inventory-1-ttl",
+              "name": "app heartbeat (TTL)",
+              "status": "passing",
+              "service_level": true,
+              "output": ""
+            }
+          ]
+        }
+      },
+      {
+        "instance_id": "inventory-3",
+        "key": "f3f661f1fe62/inventory-3",
+        "payload": {
+          "meta": {
+            "env": "sandbox",
+            "version": "2.0.3"
+          },
+          "tags": [
+            "sandbox",
+            "v2.0.3"
+          ]
+        },
+        "payload_error": null,
+        "address": "10.88.1.3",
+        "port": 9083,
+        "version": "2.0.3",
+        "env": "sandbox",
+        "healthy": true,
+        "health_basis": "registry_checks",
+        "registered_at": null,
+        "create_revision": 111,
+        "mod_revision": 111,
+        "lease": null,
+        "consul": {
+          "node": "f3f661f1fe62",
+          "status": "warning",
+          "tags": [
+            "sandbox",
+            "v2.0.3"
+          ],
+          "checks": [
+            {
+              "check_id": "serfHealth",
+              "name": "Serf Health Status",
+              "status": "passing",
+              "service_level": false,
+              "output": "Agent alive and reachable"
+            },
+            {
+              "check_id": "inventory-3-ttl",
+              "name": "app heartbeat (TTL)",
+              "status": "warning",
+              "service_level": true,
+              "output": ""
+            }
+          ]
+        }
+      }
+    ],
+    "summary": {
+      "registered": 3,
+      "returned": 2,
+      "healthy": 2,
+      "unhealthy": 0,
+      "health_unknown": 0,
+      "without_lease": 0,
+      "excluded": {
+        "env_mismatch": 0,
+        "env_missing": 0,
+        "not_healthy": 1
+      },
+      "service_registered": true
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "consul",
+        "adapter": "consul-http-api",
+        "observed_at": "2026-10-17T16:14:33.784Z",
+        "endpoint": "consul/demo-consul (http://127.0.0.1:18500)",
+        "method": "GET /v1/health/service/demo-inventory",
+        "relation": "explicit",
+        "version": "1.20.6"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "Consul consul/demo-consul 服务 demo-inventory，索引 111",
+      "notes": [
+        "1 个实例存在 warning 检查，计为 healthy（与 Consul DNS 默认一致）；?passing 过滤会排除它们",
+        "healthy 由 Consul 健康检查聚合（含节点级检查，任一 critical → false），不是 workctl 的探测"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclk9a8-da3ab4",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:14:33.728Z",
+    "duration_ms": 58
+  }
+}

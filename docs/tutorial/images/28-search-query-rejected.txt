@@ -1,0 +1,8 @@
+$ workctl search query --cluster demo-search --index demo-orders-all --dsl-file demo/scenarios/search/dsl/script_score.json; echo "exit=$?"
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+error INVALID_ARGUMENT: DSL 含有禁止的脚本相关字段 script_score（位置 query.script_score）
+hint: 脚本查询/脚本聚合/运行时字段会在集群上执行任意代码，受限查询不允许；改用普通 query/aggs
+details:
+  forbidden_key: script_score
+  path: query.script_score
+exit=2

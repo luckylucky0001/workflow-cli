@@ -19,6 +19,12 @@ resources:
     owner: team-dba
     endpoint: { kind: mysql, name: demo-mysql }
     attributes: { engine: mysql, major_version: "8.4", container: demo-mysql }
+  - id: demo-postgres
+    type: postgres.instance
+    env: sandbox
+    owner: team-dba
+    endpoint: { kind: postgres, name: demo-postgres }
+    attributes: { engine: postgresql, major_version: "16", container: demo-postgres, database: demo_orders }
   - id: demo-redis
     type: redis.instance
     env: sandbox
@@ -35,6 +41,27 @@ resources:
     env: sandbox
     endpoint: { kind: etcd, name: demo-etcd }
     attributes: { engine: etcd, container: demo-etcd, config_prefix: /config/, discovery_prefix: /services/ }
+  - id: demo-nacos
+    type: config.center
+    env: sandbox
+    endpoint: { kind: nacos, name: demo-nacos }
+    attributes: { engine: nacos, container: demo-nacos, namespace: sandbox, group: DEFAULT_GROUP }
+  - id: demo-consul
+    type: config.center
+    env: sandbox
+    endpoint: { kind: consul, name: demo-consul }
+    attributes: { engine: consul, container: demo-consul, config_prefix: config/ }
+  # synthetic services that exist only in the config centers (config + registrations seeded by demo/scenarios/config)
+  - id: demo-payment
+    type: service
+    env: sandbox
+    owner: team-demo
+    attributes: { synthetic: true, config_center: demo-nacos }
+  - id: demo-inventory
+    type: service
+    env: sandbox
+    owner: team-demo
+    attributes: { synthetic: true, config_center: demo-consul }
   - id: demo-search
     type: search.cluster
     env: sandbox
@@ -79,6 +106,12 @@ resources:
     type: data.table
     env: sandbox
     attributes: { catalog: demo }
+  # deploy system of demo-order: Jenkins job builds filtered by the SERVICE / ENV parameters
+  - id: demo-order-deploy
+    type: deploy.target
+    env: sandbox
+    endpoint: { kind: jenkins, name: demo-jenkins }
+    attributes: { service: demo-order, job: deploy-demo-order, version_param: VERSION, service_param: SERVICE, env_param: ENV }
 relations:
   - { from: demo-order, to: demo-order-workload, type: runs_on, source: binding-file, evidence: "container label workctl.service=demo-order" }
   - { from: demo-order, to: demo-mysql, type: depends_on, source: service-config, evidence: "demo-order env MYSQL_HOST=mysql (docker-compose.yml)" }

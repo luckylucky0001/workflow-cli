@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "access.check",
+  "data": {
+    "capability": "postgres.replication.get",
+    "operation": "read",
+    "verdict": "denied",
+    "checks": [
+      {
+        "check": "capability_status",
+        "ok": false,
+        "detail": "能力待接入，不可调用"
+      },
+      {
+        "check": "profile",
+        "ok": true,
+        "detail": "profile demo (env sandbox)"
+      },
+      {
+        "check": "endpoint:postgres",
+        "ok": true,
+        "detail": "postgres/demo-postgres"
+      },
+      {
+        "check": "credential:postgres/demo-postgres.password_ref",
+        "ok": true,
+        "detail": "file 引用可解析"
+      },
+      {
+        "check": "identity:postgres/demo-postgres",
+        "ok": true,
+        "detail": "身份 workctl_ro；版本 16.15"
+      },
+      {
+        "check": "privileges:postgres/demo-postgres",
+        "ok": null,
+        "detail": "MEMBER OF pg_read_all_stats | default_transaction_read_only=on | database=demo_orders"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "profile",
+        "observed_at": "2026-10-17T16:16:25.797Z",
+        "relation": "derived"
+      }
+    ],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclmnpo-983040",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "profile",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:25.740Z",
+    "duration_ms": 57
+  }
+}

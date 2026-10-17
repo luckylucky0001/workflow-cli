@@ -15,15 +15,15 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcl0wvp-b5f24d",
+    "request_id": "req-mvclrpvl-275ef3",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
     "capability_version": "1.0.0",
-    "adapter": "etcd-v3-gateway",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:59:31.189Z",
-    "duration_ms": 25
+    "started_at": "2026-10-17T16:20:21.825Z",
+    "duration_ms": 20
   }
 }

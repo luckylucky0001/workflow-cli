@@ -1,0 +1,32 @@
+$ workctl --json operation execute --id op-20261017-d9d549 --confirm op-20261017-d9d549; echo "exit=$?"
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.agent.yaml
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "operation.execute",
+  "data": null,
+  "error": {
+    "code": "PRECONDITION_FAILED",
+    "message": "profile demo 未开启 allow_execute，拒绝执行类操作",
+    "hint": "执行操作只应在隔离或已授权环境中开启 allow_execute",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcls1fu-f773b7",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "plan-store",
+    "operation": "execute",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:20:36.810Z",
+    "duration_ms": 31
+  }
+}
+exit=9

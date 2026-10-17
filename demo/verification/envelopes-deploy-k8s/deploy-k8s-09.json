@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "operation.execute",
+  "data": null,
+  "error": {
+    "code": "PRECONDITION_FAILED",
+    "message": "计划存在未满足的前置条件: target_differs_from_current",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclqv50-1acc7f",
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "plan-store",
+    "operation": "execute",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:19:41.988Z",
+    "duration_ms": 22
+  }
+}

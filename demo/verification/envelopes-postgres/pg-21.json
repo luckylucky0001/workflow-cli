@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "postgres.query.run",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "语句中包含写入/会话控制关键字 DELETE（含数据修改型 CTE），只允许纯查询",
+    "hint": "若这是列名，请用双引号引用，如 \"update\"",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclmh1u-8dd247",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:17.106Z",
+    "duration_ms": 35
+  }
+}

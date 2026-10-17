@@ -1,0 +1,183 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "postgres.table.get",
+  "data": {
+    "instance": "demo-postgres",
+    "database": "demo_orders",
+    "schema": "public",
+    "table": "orders",
+    "kind": "table",
+    "comment": "synthetic orders (workctl demo); customer_id intentionally not indexed",
+    "access": {
+      "select": true
+    },
+    "size": {
+      "heap_bytes": 4481024,
+      "table_bytes": 4513792,
+      "indexes_bytes": 2277376,
+      "total_bytes": 6791168
+    },
+    "rows_estimate": 50000,
+    "columns": [
+      {
+        "name": "id",
+        "position": 1,
+        "type": "bigint",
+        "nullable": false,
+        "default": null,
+        "identity": "a",
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "customer_id",
+        "position": 2,
+        "type": "bigint",
+        "nullable": false,
+        "default": null,
+        "identity": null,
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "status",
+        "position": 3,
+        "type": "character varying(16)",
+        "nullable": false,
+        "default": null,
+        "identity": null,
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "amount",
+        "position": 4,
+        "type": "numeric(10,2)",
+        "nullable": false,
+        "default": null,
+        "identity": null,
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "item_count",
+        "position": 5,
+        "type": "integer",
+        "nullable": false,
+        "default": null,
+        "identity": null,
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "created_at",
+        "position": 6,
+        "type": "timestamp with time zone",
+        "nullable": false,
+        "default": null,
+        "identity": null,
+        "comment": null,
+        "sensitive": false
+      },
+      {
+        "name": "updated_at",
+        "position": 7,
+        "type": "timestamp with time zone",
+        "nullable": false,
+        "default": null,
+        "identity": null,
+        "comment": null,
+        "sensitive": false
+      }
+    ],
+    "indexes": [
+      {
+        "name": "orders_pkey",
+        "definition": "CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)",
+        "primary": true,
+        "unique": true,
+        "valid": true,
+        "columns": [
+          "id"
+        ],
+        "size_bytes": 1138688,
+        "idx_scan": 5,
+        "idx_tup_read": 8,
+        "idx_tup_fetch": 8,
+        "last_idx_scan": "2026-10-17T16:15:12.464193Z"
+      },
+      {
+        "name": "orders_created_at_idx",
+        "definition": "CREATE INDEX orders_created_at_idx ON public.orders USING btree (created_at)",
+        "primary": false,
+        "unique": false,
+        "valid": true,
+        "columns": [
+          "created_at"
+        ],
+        "size_bytes": 1138688,
+        "idx_scan": 0,
+        "idx_tup_read": 0,
+        "idx_tup_fetch": 0,
+        "last_idx_scan": null
+      }
+    ],
+    "stats": {
+      "seq_scan": 616,
+      "seq_tup_read": 30800000,
+      "idx_scan": 5,
+      "idx_tup_fetch": 8,
+      "n_tup_ins": 0,
+      "n_tup_upd": 5004,
+      "n_tup_del": 0,
+      "n_tup_hot_upd": 4,
+      "n_live_tup": 0,
+      "n_dead_tup": 5000,
+      "dead_ratio": 1,
+      "n_mod_since_analyze": 5000,
+      "last_vacuum": null,
+      "last_autovacuum": null,
+      "last_analyze": null,
+      "last_autoanalyze": null,
+      "vacuum_count": 0,
+      "autovacuum_count": 0,
+      "analyze_count": 0,
+      "autoanalyze_count": 0
+    },
+    "stats_reset": "2026-10-17T16:11:49.362262Z"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "postgresql",
+        "adapter": "pg-driver",
+        "observed_at": "2026-10-17T16:16:03.767Z",
+        "endpoint": "postgres/demo-postgres",
+        "method": "pg_class / pg_attribute / pg_index / pg_stat_all_tables / pg_stat_all_indexes / pg_*_size()",
+        "version": "16.15",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "notes": [
+        "n_live_tup / n_dead_tup / rows_estimate 为估计值；seq_scan / idx_scan / n_tup_* 为自 stats_reset 以来的累计值"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclm6pc-ee090f",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:03.696Z",
+    "duration_ms": 76
+  }
+}

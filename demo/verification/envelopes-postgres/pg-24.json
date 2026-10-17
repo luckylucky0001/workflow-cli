@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "postgres.query.run",
+  "data": null,
+  "error": {
+    "code": "TIMEOUT",
+    "message": "语句超过执行时间上限或被取消 (postgres/demo-postgres): canceling statement due to statement timeout",
+    "hint": "缩小查询范围；上限由端点 statement_timeout_ms 与 --timeout 共同决定",
+    "retryable": true,
+    "details": {
+      "endpoint": "postgres/demo-postgres",
+      "sql_state": "57014",
+      "severity": "ERROR",
+      "reason": "canceling statement due to statement timeout"
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclmida-e97981",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:18.814Z",
+    "duration_ms": 5068
+  }
+}

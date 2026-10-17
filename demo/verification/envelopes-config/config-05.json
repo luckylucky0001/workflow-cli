@@ -4,14 +4,17 @@
   "capability": "config.diff",
   "data": {
     "endpoint": "etcd/demo-etcd",
+    "provider": "etcd",
+    "provider_selected_by": "profile 默认 etcd 端点 demo-etcd（服务 demo-order 未绑定配置中心）",
     "service": "demo-order",
     "env": "sandbox",
     "prefix": "/config/sandbox/demo-order/",
     "key": null,
+    "revision_space": "etcd-cluster-revision",
     "mode": "revisions",
-    "from_revision": 57,
-    "to_revision": 68,
-    "current_revision": 68,
+    "from_revision": 101,
+    "to_revision": 112,
+    "current_revision": 112,
     "changes": [
       {
         "name": "cache.max_entries",
@@ -25,9 +28,9 @@
           "value_bytes": 5,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 62,
+          "mod_revision": 106,
           "version": 1,
-          "create_revision": 62
+          "create_revision": 106
         }
       },
       {
@@ -41,9 +44,9 @@
           "value_bytes": 3,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 52,
+          "mod_revision": 96,
           "version": 1,
-          "create_revision": 52
+          "create_revision": 96
         },
         "new": {
           "value": 60,
@@ -51,9 +54,9 @@
           "value_bytes": 2,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 61,
+          "mod_revision": 105,
           "version": 2,
-          "create_revision": 52
+          "create_revision": 96
         }
       },
       {
@@ -64,26 +67,26 @@
         "old": {
           "value": "***",
           "value_format": "text",
-          "value_bytes": 26,
+          "value_bytes": null,
           "masked": true,
           "masked_paths": [
             "$"
           ],
-          "mod_revision": 54,
+          "mod_revision": 98,
           "version": 1,
-          "create_revision": 54
+          "create_revision": 98
         },
         "new": {
           "value": "***",
           "value_format": "text",
-          "value_bytes": 26,
+          "value_bytes": null,
           "masked": true,
           "masked_paths": [
             "$"
           ],
-          "mod_revision": 63,
+          "mod_revision": 107,
           "version": 2,
-          "create_revision": 54
+          "create_revision": 98
         }
       },
       {
@@ -97,9 +100,9 @@
           "value_bytes": 2,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 53,
+          "mod_revision": 97,
           "version": 1,
-          "create_revision": 53
+          "create_revision": 97
         },
         "new": {
           "value": 20,
@@ -107,9 +110,9 @@
           "value_bytes": 2,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 59,
+          "mod_revision": 103,
           "version": 2,
-          "create_revision": 53
+          "create_revision": 97
         }
       },
       {
@@ -127,9 +130,9 @@
           "value_bytes": 61,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 55,
+          "mod_revision": 99,
           "version": 1,
-          "create_revision": 55
+          "create_revision": 99
         },
         "new": {
           "value": {
@@ -141,9 +144,9 @@
           "value_bytes": 61,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 58,
+          "mod_revision": 102,
           "version": 2,
-          "create_revision": 55
+          "create_revision": 99
         }
       },
       {
@@ -157,9 +160,9 @@
           "value_bytes": 2,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 56,
+          "mod_revision": 100,
           "version": 1,
-          "create_revision": 56
+          "create_revision": 100
         },
         "new": null
       },
@@ -180,9 +183,9 @@
           "masked_paths": [
             "$.token"
           ],
-          "mod_revision": 57,
+          "mod_revision": 101,
           "version": 1,
-          "create_revision": 57
+          "create_revision": 101
         },
         "new": {
           "value": {
@@ -196,9 +199,9 @@
           "masked_paths": [
             "$.token"
           ],
-          "mod_revision": 64,
+          "mod_revision": 108,
           "version": 2,
-          "create_revision": 57
+          "create_revision": 101
         }
       }
     ],
@@ -216,9 +219,9 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-17T15:59:28.707Z",
+        "observed_at": "2026-10-17T16:20:17.451Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
-        "method": "POST /v3/kv/range prefix=/config/sandbox/demo-order/ revision=57 / revision=68",
+        "method": "POST /v3/kv/range prefix=/config/sandbox/demo-order/ revision=101 / revision=112",
         "relation": "explicit",
         "version": "3.5.21"
       }
@@ -226,7 +229,7 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "etcd etcd/demo-etcd 前缀 /config/sandbox/demo-order/，修订 57 → 68",
+      "scope": "etcd etcd/demo-etcd 前缀 /config/sandbox/demo-order/，修订 101 → 112",
       "notes": [
         "部分差异项的值已遮蔽（***），changed 依据原始字节判断",
         "只比较两个修订的快照；区间内的中间值不可见。历史只保留到最近一次压缩"
@@ -235,15 +238,15 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcl0uxb-c1acf9",
+    "request_id": "req-mvclrmg9-46aef6",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
     "capability_version": "1.0.0",
-    "adapter": "etcd-v3-gateway",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:59:28.655Z",
-    "duration_ms": 53
+    "started_at": "2026-10-17T16:20:17.385Z",
+    "duration_ms": 67
   }
 }

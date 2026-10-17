@@ -13,6 +13,7 @@ profiles:
     state_dir: ./.runtime/state
     defaults:
       mysql: demo-mysql
+      postgres: demo-postgres
       redis: demo-redis
       docker: local
       prometheus: demo-prometheus
@@ -35,6 +36,16 @@ profiles:
           password_ref: file:.runtime/secrets/mysql_ro_password
           # Planning DDL needs no write privilege; execution uses a separate account.
           max_execution_time_ms: 5000
+          sensitive_columns: [phone, email, id_card, address]
+      postgres:
+        demo-postgres:
+          host: 127.0.0.1
+          port: 15432
+          user: workctl_ro
+          password_ref: file:.runtime/secrets/pg_ro_password
+          database: demo_orders
+          # role-side boundary: default_transaction_read_only=on, SELECT only (internal_ledger not granted)
+          statement_timeout_ms: 5000
           sensitive_columns: [phone, email, id_card, address]
       redis:
         demo-redis:
@@ -113,3 +124,24 @@ profiles:
           url: http://127.0.0.1:12379
           config_prefix: /config/
           discovery_prefix: /services/
+      # Nacos 2.x config center / registry (Open API); auth off in the sandbox. Selected per service
+      # through bindings (demo-payment → demo-nacos). With auth on: username + password_ref.
+      nacos:
+        demo-nacos:
+          url: http://127.0.0.1:18848
+          context_path: /nacos
+          namespace: ${env}
+          group: DEFAULT_GROUP
+          data_id: ${service}.properties
+      # Consul KV + catalog/health (dev agent, ACL off). Selected via bindings (demo-inventory → demo-consul).
+      # With ACL on: token_ref (sent as X-Consul-Token).
+      consul:
+        demo-consul:
+          url: http://127.0.0.1:18500
+          config_prefix: config/
+      # Jenkins deploy system (docker-compose service jenkins, job deploy-demo-order)
+      jenkins:
+        demo-jenkins:
+          url: http://127.0.0.1:18091
+          user: admin
+          password_ref: file:.runtime/secrets/jenkins_admin_password

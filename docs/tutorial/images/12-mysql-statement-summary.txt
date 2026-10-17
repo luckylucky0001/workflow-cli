@@ -1,0 +1,18 @@
+$ workctl --timeout 30s mysql statement summary --instance demo-mysql --sample-window 10s --top 3
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+instance: demo-mysql
+aggregation: window_delta
+window:
+  start: 2026-10-17T16:19:54.137Z
+  end: 2026-10-17T16:20:04.165Z
+  duration_ms: 10028
+cumulative_since: null
+database: null
+top: 3
+digests: []
+totals:
+  digests_with_activity: 0
+  statements: 0
+  total_latency_ms: 0
+excluded_self_digests: 1
+# sources: mysql:performance_schema.events_statements_summary_by_digest (t1 − t0) [derived]

@@ -1,0 +1,227 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "config.diff",
+  "data": {
+    "endpoint": "nacos/demo-nacos",
+    "provider": "nacos",
+    "provider_selected_by": "bindings: demo-payment.attributes.config_center=demo-nacos（endpoint nacos/demo-nacos）",
+    "service": "demo-payment",
+    "env": "sandbox",
+    "prefix": "sandbox/DEFAULT_GROUP/demo-payment.properties",
+    "key": null,
+    "revision_space": "nacos-history-id",
+    "mode": "revisions",
+    "from_revision": 32,
+    "to_revision": 34,
+    "current_revision": 34,
+    "changes": [
+      {
+        "name": "callback.token",
+        "key": "sandbox/DEFAULT_GROUP/demo-payment.properties#callback.token",
+        "change": "added",
+        "masked": true,
+        "old": null,
+        "new": {
+          "value": "***",
+          "value_format": "text",
+          "value_bytes": null,
+          "masked": true,
+          "masked_paths": [
+            "$"
+          ],
+          "mod_revision": null,
+          "version": null,
+          "create_revision": null
+        }
+      },
+      {
+        "name": "db.password",
+        "key": "sandbox/DEFAULT_GROUP/demo-payment.properties#db.password",
+        "change": "changed",
+        "masked": true,
+        "old": {
+          "value": "***",
+          "value_format": "text",
+          "value_bytes": null,
+          "masked": true,
+          "masked_paths": [
+            "$"
+          ],
+          "mod_revision": null,
+          "version": null,
+          "create_revision": null
+        },
+        "new": {
+          "value": "***",
+          "value_format": "text",
+          "value_bytes": null,
+          "masked": true,
+          "masked_paths": [
+            "$"
+          ],
+          "mod_revision": null,
+          "version": null,
+          "create_revision": null
+        }
+      },
+      {
+        "name": "feature.refund_v2",
+        "key": "sandbox/DEFAULT_GROUP/demo-payment.properties#feature.refund_v2",
+        "change": "changed",
+        "masked": false,
+        "old": {
+          "value": false,
+          "value_format": "json",
+          "value_bytes": 5,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": null,
+          "version": null,
+          "create_revision": null
+        },
+        "new": {
+          "value": true,
+          "value_format": "json",
+          "value_bytes": 4,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": null,
+          "version": null,
+          "create_revision": null
+        }
+      },
+      {
+        "name": "legacy.callback",
+        "key": "sandbox/DEFAULT_GROUP/demo-payment.properties#legacy.callback",
+        "change": "removed",
+        "masked": false,
+        "old": {
+          "value": "on",
+          "value_format": "text",
+          "value_bytes": 2,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": null,
+          "version": null,
+          "create_revision": null
+        },
+        "new": null
+      },
+      {
+        "name": "order.timeout_ms",
+        "key": "sandbox/DEFAULT_GROUP/demo-payment.properties#order.timeout_ms",
+        "change": "changed",
+        "masked": false,
+        "old": {
+          "value": 800,
+          "value_format": "json",
+          "value_bytes": 3,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": null,
+          "version": null,
+          "create_revision": null
+        },
+        "new": {
+          "value": 1500,
+          "value_format": "json",
+          "value_bytes": 4,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": null,
+          "version": null,
+          "create_revision": null
+        }
+      },
+      {
+        "name": "risk.max_amount",
+        "key": "sandbox/DEFAULT_GROUP/demo-payment.properties#risk.max_amount",
+        "change": "added",
+        "masked": false,
+        "old": null,
+        "new": {
+          "value": 5000,
+          "value_format": "json",
+          "value_bytes": 4,
+          "masked": false,
+          "masked_paths": [],
+          "mod_revision": null,
+          "version": null,
+          "create_revision": null
+        }
+      }
+    ],
+    "summary": {
+      "added": 2,
+      "removed": 1,
+      "changed": 3,
+      "unchanged": 2,
+      "rewritten_same_value": 0
+    },
+    "nacos": {
+      "namespace": "sandbox",
+      "group": "DEFAULT_GROUP",
+      "data_id": "demo-payment.properties",
+      "from_history": {
+        "id": 32,
+        "op_type": "I",
+        "modified_at": "2026-10-18T00:20:03.990+08:00",
+        "src_user": null
+      },
+      "to_history": {
+        "id": 34,
+        "op_type": "U",
+        "modified_at": "2026-10-18T00:20:04.704+08:00",
+        "src_user": null
+      },
+      "history_records": 31,
+      "oldest_history_id": 4
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "nacos",
+        "adapter": "nacos-open-api",
+        "observed_at": "2026-10-17T16:20:30.979Z",
+        "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
+        "method": "GET /v1/cs/configs?show=all dataId=demo-payment.properties",
+        "relation": "explicit",
+        "version": "2.4.3"
+      },
+      {
+        "system": "nacos",
+        "adapter": "nacos-open-api",
+        "observed_at": "2026-10-17T16:20:30.979Z",
+        "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
+        "method": "GET /v2/cs/history/list + GET /v2/cs/history?nid=（前像记录）",
+        "relation": "explicit",
+        "version": "2.4.3"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "scope": "Nacos nacos/demo-nacos 配置 sandbox/DEFAULT_GROUP/demo-payment.properties，历史 ID 32 → 34",
+      "notes": [
+        "部分差异项的值已遮蔽（***），changed 依据原始内容判断",
+        "修订空间为 Nacos 配置历史 ID（全局递增的 nid）：起点/终点表示“不晚于该 ID 的最后一次变更生效后”的文档；只比较两个时刻，中间值不可见。历史保留 30 天"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclrwua-7372b6",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:20:30.850Z",
+    "duration_ms": 144
+  }
+}

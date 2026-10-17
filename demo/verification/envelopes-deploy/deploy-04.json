@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "deploy.release.get",
+  "data": {
+    "service": "demo-order",
+    "env": "sandbox",
+    "target": {
+      "binding": "demo-order-deploy",
+      "provider": "jenkins",
+      "endpoint": "demo-jenkins",
+      "object": "job deploy-demo-order"
+    },
+    "release": {
+      "id": "4",
+      "provider": "jenkins",
+      "version": "v1.4.1",
+      "images": [],
+      "revision": 4,
+      "started_at": "2026-10-17T16:04:29.725Z",
+      "finished_at": "2026-10-17T16:04:31.742Z",
+      "timestamps": "explicit",
+      "duration_ms": 2017,
+      "status": "succeeded",
+      "status_basis": "Jenkins 构建结果 SUCCESS；最近一次成功的部署构建，视为当前版本（Jenkins 不观测目标环境实际运行的版本）",
+      "current": true,
+      "triggered_by": "admin",
+      "cause": "Started by user admin",
+      "source_ref": {
+        "system": "jenkins",
+        "kind": "jenkins.build",
+        "name": "deploy-demo-order#4",
+        "url": "http://127.0.0.1:18091/job/deploy-demo-order/4/"
+      }
+    },
+    "jenkins": {
+      "job": "deploy-demo-order",
+      "number": 4,
+      "result": "SUCCESS",
+      "building": false,
+      "estimated_duration_ms": 2034,
+      "built_on": null,
+      "parameters": {
+        "SERVICE": "demo-order",
+        "VERSION": "v1.4.1",
+        "ENV": "sandbox"
+      },
+      "causes": [
+        {
+          "description": "Started by user admin",
+          "user_id": "admin"
+        }
+      ],
+      "console": {
+        "lines": [
+          "deploying demo-order version v1.4.1 to sandbox",
+          "image: workctl-demo/demo-order:v1.4.1",
+          "registry token: ******",
+          "deploy of demo-order:v1.4.1 finished",
+          "Finished: SUCCESS"
+        ],
+        "total_lines": 9,
+        "truncated": true,
+        "masked": true
+      }
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "jenkins",
+        "adapter": "jenkins-rest",
+        "observed_at": "2026-10-17T16:15:53.138Z",
+        "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
+        "method": "GET /job/deploy-demo-order/4/api/json",
+        "relation": "explicit",
+        "version": "2.541.3"
+      },
+      {
+        "system": "jenkins",
+        "adapter": "jenkins-rest",
+        "observed_at": "2026-10-17T16:15:53.138Z",
+        "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
+        "method": "GET /job/deploy-demo-order/4/consoleText",
+        "relation": "explicit",
+        "version": "2.541.3"
+      },
+      {
+        "system": "jenkins",
+        "adapter": "jenkins-rest",
+        "observed_at": "2026-10-17T16:15:53.138Z",
+        "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
+        "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,50}",
+        "relation": "derived",
+        "version": "2.541.3"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "Jenkins 构建 deploy-demo-order#4",
+      "notes": [
+        "控制台日志只返回最后 5 行，凭据样式的值（password/token/secret=…、Bearer、URL 中的用户名密码）已遮蔽"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclly8h-bf762d",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "kubernetes-api | jenkins-rest",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:15:52.721Z",
+    "duration_ms": 417
+  }
+}

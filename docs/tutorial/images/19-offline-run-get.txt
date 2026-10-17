@@ -1,0 +1,184 @@
+$ workctl --timeout 60s offline run get --id demo__2026-10-16__wrong_partition --workflow demo-daily-orders
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+run:
+  run_id: demo__2026-10-16__wrong_partition
+  state: success
+  run_type: manual
+  external_trigger: true
+  business_date: 2026-10-16
+  logical_date:
+    utc: 2026-10-15T16:00:00.000Z
+    local: 2026-10-16T00:00:00+08:00
+  data_interval:
+    start:
+      utc: 2026-10-15T16:00:00.000Z
+      local: 2026-10-16T00:00:00+08:00
+    end:
+      utc: 2026-10-16T16:00:00.000Z
+      local: 2026-10-17T00:00:00+08:00
+  queued_at: null
+  start_date:
+    utc: 2026-10-17T15:36:19.308Z
+    local: 2026-10-17T23:36:19+08:00
+  end_date:
+    utc: 2026-10-17T15:37:32.504Z
+    local: 2026-10-17T23:37:32+08:00
+  duration_seconds: 73
+  last_scheduling_decision:
+    utc: 2026-10-17T15:37:32.503Z
+    local: 2026-10-17T23:37:32+08:00
+  conf:
+    fault: wrong_partition
+  note: workctl offline scenario
+tasks:
+  - task_id: wait_for_ods_partition
+    state: success
+    try_number: 1
+    max_tries: 0
+    operator: PythonSensor
+    pool: default_pool
+    hostname: vm
+    queued_when:
+      utc: 2026-10-17T15:36:55.553Z
+      local: 2026-10-17T23:36:55+08:00
+    start_date:
+      utc: 2026-10-17T15:36:57.031Z
+      local: 2026-10-17T23:36:57+08:00
+    end_date:
+      utc: 2026-10-17T15:36:57.167Z
+      local: 2026-10-17T23:36:57+08:00
+    duration_seconds: 0.135966
+    map_index: -1
+  - task_id: aggregate_orders
+    state: success
+    try_number: 1
+    max_tries: 0
+    operator: BashOperator
+    pool: demo-batch-pool
+    hostname: vm
+    queued_when:
+      utc: 2026-10-17T15:37:12.549Z
+      local: 2026-10-17T23:37:12+08:00
+    start_date:
+      utc: 2026-10-17T15:37:13.973Z
+      local: 2026-10-17T23:37:13+08:00
+    end_date:
+      utc: 2026-10-17T15:37:25.426Z
+      local: 2026-10-17T23:37:25+08:00
+    duration_seconds: 11.452937
+    map_index: -1
+  - task_id: validate_output
+    state: success
+    try_number: 1
+    max_tries: 0
+    operator: PythonOperator
+    pool: default_pool
+    hostname: vm
+    queued_when:
+      utc: 2026-10-17T15:37:28.138Z
+      local: 2026-10-17T23:37:28+08:00
+    start_date:
+      utc: 2026-10-17T15:37:31.669Z
+      local: 2026-10-17T23:37:31+08:00
+    end_date:
+      utc: 2026-10-17T15:37:31.816Z
+      local: 2026-10-17T23:37:31+08:00
+    duration_seconds: 0.146866
+    map_index: -1
+summary:
+  workflow: demo-daily-orders
+  run_id: demo__2026-10-16__wrong_partition
+  business_date: 2026-10-16
+  data_interval:
+    start:
+      utc: 2026-10-15T16:00:00.000Z
+      local: 2026-10-16T00:00:00+08:00
+    end:
+      utc: 2026-10-16T16:00:00.000Z
+      local: 2026-10-17T00:00:00+08:00
+  target_partition:
+    table: analytics.daily_orders
+    partition: dt=2026-10-16
+    write_mode: overwrite_partition
+  scheduler_state: success
+  compute_state: succeeded
+  output_state: missing
+  quality_state: fail
+  layers:
+    scheduler:
+      state: success
+      source:
+        system: airflow
+        adapter: airflow-rest-v1
+        observed_at: 2026-10-17T16:20:18.503Z
+        endpoint: airflow/demo-airflow
+        method: GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition
+        version: 2.10.5
+        relation: explicit
+      detail: Airflow DAG run 状态；只代表调度层任务全部成功
+    compute:
+      state: succeeded
+      app_id: local-1792251437267
+      task_id: aggregate_orders
+      app_id_via: xcom:return_value
+      detail: 应用已结束（attempt.completed=true）且没有失败作业；history server 不记录驱动进程退出码；driver 日志末尾没有未处理异常
+      duration_ms: 8121
+      failed_jobs: 0
+      source:
+        system: spark
+        adapter: spark-history-rest
+        observed_at: 2026-10-17T16:20:19.075Z
+        endpoint: spark/demo-spark
+        method: GET /api/v1/applications/local-1792251437267
+        version: 3.5.5
+        relation: explicit
+    output:
+      state: missing
+      detail: 分区目录不存在（未产出、产出到其他位置，或分区值/业务日期不对）
+      table: analytics.daily_orders
+      partition: dt=2026-10-16
+      path: /home/user/workflow-cli/demo/environment/.runtime/warehouse/analytics/daily_orders/dt=2026-10-16
+      via: data.partition.get
+      source:
+        system: local-filesystem
+        adapter: file-catalog
+        observed_at: 2026-10-17T16:20:19.139Z
+        endpoint: catalog/demo:warehouse_root
+        method: stat+readdir analytics/daily_orders/dt=2026-10-16
+        relation: derived
+    quality:
+      state: fail
+      table: analytics.daily_orders
+      partition: dt=2026-10-16
+      checked_at: 2026-10-17T16:11:34.733Z
+      conclusive: true
+      ruleset: demo-daily-rules
+      summary:
+        total: 11
+        pass: 0
+        fail: 1
+        error: 0
+        skipped: 10
+        warn_failures: 0
+      failed_rules:
+        - rule: partition_exists
+          type: partition_exists
+          status: fail
+          severity: error
+          message: 分区目录不存在
+      skipped_reason: 10 条规则被跳过：前置条件不满足（分区 missing：分区目录不存在）
+      partition_state_at_check: missing
+      stale: false
+      detail: 最近一次检查 2026-10-17T16:11:34.733Z
+      source:
+        system: workctl-state
+        adapter: data-quality-store
+        observed_at: 2026-10-17T16:11:34.733Z
+        method: readLatestQualityResult
+        relation: derived
+  findings:
+    - kind: inconsistency
+      message: 调度状态 success，但目标分区状态为 missing：调度成功不代表数据产出
+    - kind: inconsistency
+      message: Spark 应用成功结束，但目标分区 missing：可能写到了其他分区或路径（需查看计算日志与输出路径确认）
+# sources: airflow:GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition [explicit], airflow:GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition/taskInstances [explicit], airflow:GET .../taskInstances/{task}/xcomEntries/return_value | logs [derived], spark:GET /api/v1/applications/local-1792251437267 [explicit], catalog:tables/*.yaml produced_by.workflow=demo-daily-orders [explicit], local-filesystem:stat+readdir analytics/daily_orders/dt=2026-10-16 [derived], workctl-state:readLatestQualityResult [derived]

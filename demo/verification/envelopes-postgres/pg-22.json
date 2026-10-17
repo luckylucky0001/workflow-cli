@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "postgres.query.run",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "只允许单条语句，检测到 2 条",
+    "hint": "拆分为多次调用",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclmhix-049f46",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:17.721Z",
+    "duration_ms": 49
+  }
+}

@@ -1,0 +1,39 @@
+$ workctl --json mysql query execute --instance demo-mysql --database demo --sql "SELECT user, host FROM mysql.user"; echo "exit=$?"
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "mysql.query.execute",
+  "data": null,
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "MySQL 拒绝该操作 (mysql/demo-mysql): SELECT command denied to user 'workctl_ro'@'172.18.0.1' for table 'user'",
+    "hint": "账号已认证，但缺少所需权限；见 docs/guides/mysql.md 的权限前提",
+    "retryable": false,
+    "details": {
+      "endpoint": "mysql/demo-mysql",
+      "driver_code": "ER_TABLEACCESS_DENIED_ERROR",
+      "errno": 1142,
+      "sql_state": "42000",
+      "reason": "SELECT command denied to user 'workctl_ro'@'172.18.0.1' for table 'user'"
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclqzal-d6f924",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "mysql-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:19:47.373Z",
+    "duration_ms": 47
+  }
+}
+exit=4

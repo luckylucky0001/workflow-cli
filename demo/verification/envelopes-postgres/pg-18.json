@@ -1,0 +1,115 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "postgres.query.run",
+  "data": {
+    "instance": "demo-postgres",
+    "database": "demo_orders",
+    "statement_type": "SELECT",
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint",
+        "source_column": "id",
+        "masked": false
+      },
+      {
+        "name": "name",
+        "type": "character varying",
+        "source_column": "name",
+        "masked": false
+      },
+      {
+        "name": "p",
+        "type": "character varying",
+        "source_column": "phone",
+        "masked": true
+      },
+      {
+        "name": "em",
+        "type": "text",
+        "source_column": null,
+        "masked": true
+      },
+      {
+        "name": "amount",
+        "type": "numeric",
+        "source_column": "amount",
+        "masked": false
+      }
+    ],
+    "rows": [
+      [
+        "1920",
+        "customer-1920",
+        "+86****4480",
+        "C***@EXAMPLE.INVALID",
+        "1.37"
+      ],
+      [
+        "1839",
+        "customer-1839",
+        "+86****3041",
+        "C***@EXAMPLE.INVALID",
+        "1.74"
+      ],
+      [
+        "1758",
+        "customer-1758",
+        "+86****1602",
+        "C***@EXAMPLE.INVALID",
+        "2.11"
+      ]
+    ],
+    "row_count": 3,
+    "max_rows": 3,
+    "truncated": true,
+    "masked_columns": [
+      "p",
+      "em"
+    ],
+    "guards": {
+      "static_check": "passed",
+      "read_only_transaction": true,
+      "statement_timeout_ms": 5000,
+      "fetch_limit": 4
+    },
+    "elapsed_ms": 35
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "postgresql",
+        "adapter": "pg-driver",
+        "observed_at": "2026-10-17T16:16:15.652Z",
+        "endpoint": "postgres/demo-postgres",
+        "method": "BEGIN READ ONLY; DECLARE CURSOR FOR SELECT; FETCH 4",
+        "version": "16.15",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": false,
+      "truncated": true,
+      "limit": 3,
+      "notes": [
+        "结果超过 3 行，只返回前 3 行（游标未继续读取）",
+        "已脱敏列: p, em（按端点 sensitive_columns；p 来自敏感列 phone；em 是表达式/派生列，而语句引用了敏感列 phone, email（保守脱敏））"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclmfrs-45fd82",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:15.448Z",
+    "duration_ms": 210
+  }
+}

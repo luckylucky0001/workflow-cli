@@ -1,0 +1,217 @@
+$ workctl container workload get --service demo-order --env sandbox
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/k8s/workctl.k8s.yaml
+service: demo-order
+env: sandbox
+selector:
+  kind: label
+  label: app=demo-order
+  origin: binding-file
+  evidence: "bindings: demo-order runs_on demo-order-k8s（endpoint kubernetes/k3s）"
+  matched_by: label selector app=demo-order（binding demo-order-k8s.labels，namespace workctl-demo）
+provider: kubernetes
+containers:
+  - id: a03b138d3d79
+    name: demo-order-5f7bdfbf76-j6tx6/nginx
+    service: demo-order
+    env: sandbox
+    image: nginx:1.27-alpine
+    image_id: 65645c7bb6a0
+    created: 2026-10-17T16:19:55Z
+    state: running
+    health: healthy
+    health_failing_streak: null
+    last_health_check: null
+    restart_count: 0
+    restart_policy: Always
+    started_at: 2026-10-17T16:19:55Z
+    finished_at: null
+    exit_code: 0
+    oom_killed: false
+    error: null
+    ports:
+      - container_port: 80
+        protocol: tcp
+        host_ip: null
+        host_port: null
+    limits:
+      cpus: 0.5
+      memory_bytes: 134217728
+      memory_reservation_bytes: null
+      pids_limit: null
+    log_driver: null
+    networks:
+      - name: pod
+        ip: 10.42.0.29
+        aliases: []
+    mounts:
+      - type: configMap
+        name: html
+        source: demo-order-html
+        destination: /usr/share/nginx/html
+        rw: false
+      - type: projected
+        name: kube-api-access-9kktd
+        source: ""
+        destination: /var/run/secrets/kubernetes.io/serviceaccount
+        rw: false
+    labels:
+      app: demo-order
+      pod-template-hash: 5f7bdfbf76
+      workctl.env: sandbox
+      workctl.service: demo-order
+    kubernetes:
+      namespace: workctl-demo
+      pod: demo-order-5f7bdfbf76-j6tx6
+      container: nginx
+      pod_uid: f398142e-4a62-486b-85f1-68187cdda393
+      node: vm
+      phase: Running
+      pod_ready: true
+      container_ready: true
+      qos_class: Burstable
+      owner: ReplicaSet/demo-order-5f7bdfbf76
+      state_reason: null
+      last_termination: null
+      requests:
+        cpus: 0.1
+        memory_bytes: 33554432
+      conditions:
+        - type: PodReadyToStartContainers
+          status: "True"
+          reason: null
+        - type: Initialized
+          status: "True"
+          reason: null
+        - type: Ready
+          status: "True"
+          reason: null
+        - type: ContainersReady
+          status: "True"
+          reason: null
+        - type: PodScheduled
+          status: "True"
+          reason: null
+  - id: 896641b7ddf3
+    name: demo-order-5f7bdfbf76-p8hkk/nginx
+    service: demo-order
+    env: sandbox
+    image: nginx:1.27-alpine
+    image_id: 65645c7bb6a0
+    created: 2026-10-17T16:19:55Z
+    state: running
+    health: healthy
+    health_failing_streak: null
+    last_health_check: null
+    restart_count: 0
+    restart_policy: Always
+    started_at: 2026-10-17T16:19:56Z
+    finished_at: null
+    exit_code: 0
+    oom_killed: false
+    error: null
+    ports:
+      - container_port: 80
+        protocol: tcp
+        host_ip: null
+        host_port: null
+    limits:
+      cpus: 0.5
+      memory_bytes: 134217728
+      memory_reservation_bytes: null
+      pids_limit: null
+    log_driver: null
+    networks:
+      - name: pod
+        ip: 10.42.0.30
+        aliases: []
+    mounts:
+      - type: configMap
+        name: html
+        source: demo-order-html
+        destination: /usr/share/nginx/html
+        rw: false
+      - type: projected
+        name: kube-api-access-hdr24
+        source: ""
+        destination: /var/run/secrets/kubernetes.io/serviceaccount
+        rw: false
+    labels:
+      app: demo-order
+      pod-template-hash: 5f7bdfbf76
+      workctl.env: sandbox
+      workctl.service: demo-order
+    kubernetes:
+      namespace: workctl-demo
+      pod: demo-order-5f7bdfbf76-p8hkk
+      container: nginx
+      pod_uid: 3e38fcbd-66c7-4c42-b8e7-70c6d0216a60
+      node: vm
+      phase: Running
+      pod_ready: true
+      container_ready: true
+      qos_class: Burstable
+      owner: ReplicaSet/demo-order-5f7bdfbf76
+      state_reason: null
+      last_termination: null
+      requests:
+        cpus: 0.1
+        memory_bytes: 33554432
+      conditions:
+        - type: PodReadyToStartContainers
+          status: "True"
+          reason: null
+        - type: Initialized
+          status: "True"
+          reason: null
+        - type: Ready
+          status: "True"
+          reason: null
+        - type: ContainersReady
+          status: "True"
+          reason: null
+        - type: PodScheduled
+          status: "True"
+          reason: null
+summary:
+  total: 2
+  running: 2
+  unhealthy: 0
+  oom_killed: 0
+  restarted: 0
+kubernetes:
+  endpoint: kubernetes/k3s (https://127.0.0.1:16443/)
+  namespace: workctl-demo
+  server_version: v1.31.4+k3s1
+  label_selector: app=demo-order
+  workloads:
+    - kind: Deployment
+      name: demo-order
+      namespace: workctl-demo
+      uid: e32abd5e-1d03-4697-a778-107a8fc6df2b
+      generation: 18
+      observed_generation: 18
+      replicas: 2
+      ready_replicas: 2
+      updated_replicas: 2
+      available_replicas: 2
+      selector: app=demo-order
+      progressing:
+        status: "True"
+        reason: NewReplicaSetAvailable
+      restarted_at: 2026-10-17T16:19:54Z
+  pods:
+    - name: demo-order-5f7bdfbf76-j6tx6
+      phase: Running
+      ready: true
+      node: vm
+      pod_ip: 10.42.0.29
+      start_time: 2026-10-17T16:19:55Z
+      restarts: 0
+    - name: demo-order-5f7bdfbf76-p8hkk
+      phase: Running
+      ready: true
+      node: vm
+      pod_ip: 10.42.0.30
+      start_time: 2026-10-17T16:19:55Z
+      restarts: 0
+# sources: kubernetes:GET /apis/apps/v1/namespaces/workctl-demo/deployments [explicit], kubernetes:GET /apis/apps/v1/namespaces/workctl-demo/statefulsets [explicit], kubernetes:GET /api/v1/namespaces/workctl-demo/pods?labelSelector=app=demo-order [explicit], workctl:bindings: demo-order runs_on demo-order-k8s（endpoint kubernetes/k3s） [explicit]

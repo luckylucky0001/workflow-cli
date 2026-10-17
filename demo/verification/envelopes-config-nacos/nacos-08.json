@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "config.diff",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "须指定 --from-rev（Nacos 历史 ID），或用 --key 与该键的上一版本比较",
+    "hint": "历史 ID 见 config get 输出的 nacos.latest_history_id，或 Nacos 控制台“历史版本”",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclrynh-702c13",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:20:33.197Z",
+    "duration_ms": 36
+  }
+}

@@ -1,0 +1,27 @@
+$ workctl redis stats sample --help
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+Usage: workctl redis stats sample [options]
+
+在同一连接上两次采样 INFO，计算窗口内命中率、命令数、淘汰/过期等增量与速率（处理重启与计数器重置）
+
+Options:
+  --instance <value>  Redis 端点名（profile 中 endpoints.redis 的键；缺省取 defaults.redis）
+  --duration <value>  采样窗口（须小于 --timeout，默认 30s） [默认 "10s"]
+  -h, --help          display help for command
+
+能力: redis.stats.sample  (v1.0.0, available)
+操作类型: diagnose    适配器: redis-client    认证: redis-profile
+输出 Schema: docs/schemas/redis.stats.sample.v1.json    指南: docs/guides/redis.md
+前置条件:
+  - profile 中配置 endpoints.redis.<name>（host/port，可选 username/password_ref/db）
+  - 账号需允许 INFO（ACL +info）
+口径说明:
+  - 窗口值 = 第二次 INFO − 第一次 INFO；命令会等待整个窗口，窗口须小于 --timeout
+  - run_id 变化或 uptime 回退视为重启：增量为 null 且结果标记 partial；计数器回退（CONFIG RESETSTAT）同样处理，绝不输出负数
+  - hit_ratio = hits/(hits+misses)；窗口内没有键查找时为 null（不是 0）
+  - total_commands_processed 包含 workctl 自身的 1 条 INFO 命令
+示例:
+  workctl redis stats sample --instance demo-redis --duration 10s
+  workctl --timeout 60s redis stats sample --instance demo-redis --duration 30s
+
+输出为统一信封（--json）：status / data / error / meta{sources,coverage,warnings} / context

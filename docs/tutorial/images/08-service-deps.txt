@@ -1,0 +1,51 @@
+$ workctl service dependency list --service demo-order --env sandbox
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+service: demo-order
+env: sandbox
+dependencies:
+  - resource_id: demo-order-workload
+    type: container.workload
+    relation: runs_on
+    via: demo-order
+    depth: 1
+    source: binding-file
+    evidence: container label workctl.service=demo-order
+    registered: true
+    endpoint:
+      kind: docker
+      name: local
+  - resource_id: demo-mysql
+    type: mysql.instance
+    relation: depends_on
+    via: demo-order
+    depth: 1
+    source: service-config
+    evidence: demo-order env MYSQL_HOST=mysql (docker-compose.yml)
+    registered: true
+    endpoint:
+      kind: mysql
+      name: demo-mysql
+  - resource_id: demo-redis
+    type: redis.instance
+    relation: depends_on
+    via: demo-order
+    depth: 1
+    source: service-config
+    evidence: demo-order env REDIS_URL=redis://redis:6379 (docker-compose.yml)
+    registered: true
+    endpoint:
+      kind: redis
+      name: demo-redis
+dependents:
+  - resource_id: demo-prometheus
+    type: observability.metrics
+    relation: consumes
+    via: demo-order
+    depth: 1
+    source: binding-file
+    evidence: prometheus scrape job demo-order
+    registered: true
+    endpoint:
+      kind: prometheus
+      name: demo-prometheus
+# sources: resource-bindings [explicit]

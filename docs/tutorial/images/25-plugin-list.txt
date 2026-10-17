@@ -1,0 +1,16 @@
+$ workctl plugin list
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+plugins:
+  - name: demo-mq
+    version: 0.1.0
+    dir: /root/.local/share/workctl/plugins/demo-mq/0.1.0
+    installed_at: 2026-10-17T15:35:20.991Z
+    backend_mode: live
+    source_file: /home/user/workflow-cli/plugins/demo-mq/dist/demo-mq-plugin.tgz
+  - name: demo-search
+    version: 0.1.0
+    dir: /root/.local/share/workctl/plugins/demo-search/0.1.0
+    installed_at: 2026-10-17T16:02:01.149Z
+    backend_mode: live
+    source_file: /home/user/workflow-cli/plugins/demo-search/dist/demo-search-plugin.tgz
+load_errors: []

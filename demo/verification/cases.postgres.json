@@ -1,0 +1,350 @@
+[
+ {
+  "id": "pg-01",
+  "args": [
+   "access",
+   "check",
+   "--capability",
+   "postgres.query.run",
+   "--target",
+   "demo-postgres"
+  ],
+  "note": "前置检查：端点配置、password_ref 可解析、实际连接 workctl_ro（角色、pg_read_all_stats 成员、default_transaction_read_only=on）"
+ },
+ {
+  "id": "pg-01b",
+  "args": [
+   "auth",
+   "status",
+   "--probe"
+  ],
+  "note": "所有端点探测；postgres/demo-postgres：身份 workctl_ro、版本 16.x、MEMBER OF pg_read_all_stats、default_transaction_read_only=on（其它端点结果与本套件无关）",
+  "expect": [
+   "success",
+   "partial"
+  ]
+ },
+ {
+  "id": "pg-02",
+  "args": [
+   "pg",
+   "instance",
+   "get",
+   "--instance",
+   "demo-postgres"
+  ],
+  "note": "版本 16.x、运行时长、关键参数（max_connections/shared_buffers/work_mem…）、连接使用、primary、扩展 pg_stat_statements；shared_preload_libraries 对只读角色不可见 → hidden_settings（不臆造）"
+ },
+ {
+  "id": "pg-03",
+  "args": [
+   "pg",
+   "database",
+   "list"
+  ],
+  "note": "demo_orders / postgres：大小、连接数、累计计数与 stats_reset、xid 年龄"
+ },
+ {
+  "id": "pg-04",
+  "args": [
+   "pg",
+   "table",
+   "get",
+   "--table",
+   "orders"
+  ],
+  "note": "orders：列、索引（无 customer_id 索引）、heap/索引/总大小、reltuples 估计、seq_scan/idx_scan 累计、n_live/n_dead_tup、最近 (auto)vacuum/analyze"
+ },
+ {
+  "id": "pg-05",
+  "args": [
+   "pg",
+   "table",
+   "get",
+   "--table",
+   "internal_ledger"
+  ],
+  "note": "未授权表：结构来自系统目录（对所有角色可见），access.select=false 并在 coverage 说明"
+ },
+ {
+  "id": "pg-06",
+  "args": [
+   "pg",
+   "table",
+   "get",
+   "--table",
+   "no_such_table"
+  ],
+  "expect": "NOT_FOUND",
+  "note": "表不存在 → NOT_FOUND"
+ },
+ {
+  "id": "pg-07",
+  "args": [
+   "pg",
+   "table",
+   "get",
+   "--database",
+   "no_such_db",
+   "--table",
+   "orders"
+  ],
+  "expect": "NOT_FOUND",
+  "note": "库不存在（SQLSTATE 3D000）→ NOT_FOUND"
+ },
+ {
+  "id": "pg-08",
+  "args": [
+   "pg",
+   "session",
+   "list",
+   "--include-idle"
+  ],
+  "note": "pg_stat_activity 快照（排除自身连接），语句字面量替换为 ?"
+ },
+ {
+  "id": "pg-09",
+  "args": [
+   "pg",
+   "lock",
+   "list"
+  ],
+  "note": "无锁等待时返回空列表（success）；阻塞链场景见 demo/scenarios/postgres lock-wait 与 test/postgres/live.test.ts"
+ },
+ {
+  "id": "pg-10",
+  "args": [
+   "pg",
+   "statement",
+   "summary",
+   "--sample-window",
+   "0",
+   "--top",
+   "5",
+   "--order-by",
+   "total_time"
+  ],
+  "note": "累计模式：aggregation=cumulative_since，附 pg_stat_statements_info.stats_reset、dealloc、track、max"
+ },
+ {
+  "id": "pg-11",
+  "args": [
+   "--timeout",
+   "30s",
+   "pg",
+   "statement",
+   "summary",
+   "--sample-window",
+   "3s",
+   "--database",
+   "demo_orders",
+   "--top",
+   "5"
+  ],
+  "note": "窗口模式：两次快照差分（t1 − t0），排除采样语句自身"
+ },
+ {
+  "id": "pg-12",
+  "args": [
+   "--config",
+   "demo/environment/postgres/workctl.nostats.yaml",
+   "pg",
+   "statement",
+   "summary",
+   "--sample-window",
+   "0"
+  ],
+  "expect": "COLLECTION_DISABLED",
+  "note": "端点连接的 postgres 库未 CREATE EXTENSION pg_stat_statements → COLLECTION_DISABLED（不是空结果）"
+ },
+ {
+  "id": "pg-13",
+  "args": [
+   "pg",
+   "query",
+   "explain",
+   "--sql",
+   "SELECT id, status, amount, created_at FROM orders WHERE customer_id = 42 ORDER BY created_at DESC LIMIT 20"
+  ],
+  "note": "EXPLAIN (FORMAT JSON) 估计：Seq Scan on orders + Sort（缺 customer_id 索引），estimate_only=true"
+ },
+ {
+  "id": "pg-14",
+  "args": [
+   "pg",
+   "query",
+   "explain",
+   "--sql",
+   "SELECT * FROM orders WHERE id = $1"
+  ],
+  "note": "含 $1 占位符（pg_stat_statements 归一化文本）→ GENERIC_PLAN（PG16+），Index Scan on orders_pkey"
+ },
+ {
+  "id": "pg-15",
+  "args": [
+   "pg",
+   "query",
+   "explain",
+   "--sql",
+   "UPDATE orders SET status = 'x' WHERE id = 1"
+  ],
+  "expect": "PERMISSION_DENIED",
+  "note": "EXPLAIN 不执行但仍检查权限：只读角色无 UPDATE 权限 → PERMISSION_DENIED（SQLSTATE 42501）"
+ },
+ {
+  "id": "pg-16",
+  "args": [
+   "pg",
+   "query",
+   "analyze",
+   "--sql",
+   "SELECT id, status, amount, created_at FROM orders WHERE customer_id = 42 ORDER BY created_at DESC LIMIT 20"
+  ],
+  "note": "EXPLAIN (ANALYZE, BUFFERS) 实际执行于 READ ONLY 事务并回滚：Rows Removed by Filter≈49975、实际耗时与缓冲区命中"
+ },
+ {
+  "id": "pg-17",
+  "args": [
+   "pg",
+   "query",
+   "analyze",
+   "--sql",
+   "DELETE FROM orders WHERE id = 1"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "analyze 会实际执行，只允许 SELECT → 静态检查拒绝（未连接数据库）"
+ },
+ {
+  "id": "pg-18",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "SELECT c.id, c.name, c.phone AS p, upper(c.email) AS em, o.amount FROM customers c JOIN orders o ON o.customer_id = c.id ORDER BY o.id",
+   "--max-rows",
+   "3"
+  ],
+  "note": "游标取 max_rows+1 行（truncated=true）；别名 p 按来源列 phone 脱敏，表达式 em 保守脱敏"
+ },
+ {
+  "id": "pg-19",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "SELECT * FROM internal_ledger"
+  ],
+  "expect": "PERMISSION_DENIED",
+  "note": "未授权表 → PERMISSION_DENIED（SQLSTATE 42501，数据库角色是真正的边界）"
+ },
+ {
+  "id": "pg-20",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "DELETE FROM orders"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "写语句 → 静态检查拒绝"
+ },
+ {
+  "id": "pg-21",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "WITH d AS (DELETE FROM orders RETURNING *) SELECT * FROM d"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "数据修改型 CTE → 静态检查拒绝"
+ },
+ {
+  "id": "pg-22",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "SELECT 1; SELECT 2"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "多语句 → 拒绝"
+ },
+ {
+  "id": "pg-23",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "SELECT pg_terminate_backend(1)"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "有副作用的函数（终止会话）→ 拒绝"
+ },
+ {
+  "id": "pg-24",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "SELECT pg_sleep(8)"
+  ],
+  "expect": "TIMEOUT",
+  "note": "超过端点 statement_timeout_ms=5000 → TIMEOUT（SQLSTATE 57014）"
+ },
+ {
+  "id": "pg-25",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "SELECT * FROM no_such_table"
+  ],
+  "expect": "NOT_FOUND",
+  "note": "关系不存在（SQLSTATE 42P01）→ NOT_FOUND"
+ },
+ {
+  "id": "pg-26",
+  "args": [
+   "pg",
+   "session",
+   "list",
+   "--instance",
+   "nope"
+  ],
+  "expect": "NOT_FOUND",
+  "note": "profile 中没有该端点 → NOT_FOUND（hint 列出可用端点）"
+ },
+ {
+  "id": "pg-27",
+  "args": [
+   "--timeout",
+   "10s",
+   "pg",
+   "statement",
+   "summary",
+   "--sample-window",
+   "30s"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "采样窗口超过时间预算 → 连接前拒绝"
+ },
+ {
+  "id": "pg-28",
+  "args": [
+   "access",
+   "check",
+   "--capability",
+   "postgres.replication.get"
+  ],
+  "note": "planned 能力（无 handler，不生成 CLI 命令）：access check 给出 verdict=denied（能力待接入），不模拟结果"
+ }
+]

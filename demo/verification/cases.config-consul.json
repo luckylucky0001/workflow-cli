@@ -1,0 +1,137 @@
+[
+ {
+  "id": "consul-01",
+  "args": [
+   "auth",
+   "status",
+   "--probe"
+  ],
+  "note": "端点探测：consul 走 GET /v1/agent/self + /v1/status/leader（版本、数据中心、ACL 开关）"
+ },
+ {
+  "id": "consul-02",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "demo-inventory",
+   "--env",
+   "sandbox"
+  ],
+  "note": "provider 由资源绑定 demo-inventory.attributes.config_center=demo-consul 选择；KV ?recurse，Create/ModifyIndex，observed_revision=X-Consul-Index；db.password 遮蔽"
+ },
+ {
+  "id": "consul-03",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "demo-inventory",
+   "--key",
+   "upstream.order"
+  ],
+  "capture": {
+   "c1": "data.items[0].create_revision"
+  },
+  "note": "JSON 字段级遮蔽：masked_paths=[\"$.api_key\"]"
+ },
+ {
+  "id": "consul-04",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-inventory",
+   "--key",
+   "db.password"
+  ],
+  "expect": "DATA_UNAVAILABLE",
+  "note": "Consul KV 无历史：DATA_UNAVAILABLE，details 只给 create_index / modify_index，不编造旧值"
+ },
+ {
+  "id": "consul-05",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-inventory",
+   "--from-rev",
+   "${c1}"
+  ],
+  "expect": "DATA_UNAVAILABLE",
+  "note": "索引区间比较同样无历史：DATA_UNAVAILABLE，details.changed_since 列出 ModifyIndex 更大的键"
+ },
+ {
+  "id": "consul-06",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "demo-inventory",
+   "--key",
+   "no.such.key"
+  ],
+  "expect": "NOT_FOUND",
+  "note": "键不存在 → NOT_FOUND"
+ },
+ {
+  "id": "consul-07",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "ghost-svc",
+   "--endpoint",
+   "consul/demo-consul"
+  ],
+  "note": "前缀为空：success + 空列表（Consul 404 即“没有键”）"
+ },
+ {
+  "id": "consul-08",
+  "args": [
+   "discovery",
+   "list",
+   "--service",
+   "demo-inventory"
+  ],
+  "note": "健康检查聚合：inventory-1 passing、inventory-2 critical → unhealthy、inventory-3 warning（计为 healthy，注明）"
+ },
+ {
+  "id": "consul-09",
+  "args": [
+   "discovery",
+   "list",
+   "--service",
+   "demo-inventory",
+   "--env",
+   "sandbox",
+   "--healthy-only"
+  ],
+  "note": "过滤 critical"
+ },
+ {
+  "id": "consul-10",
+  "args": [
+   "discovery",
+   "list",
+   "--service",
+   "ghost-svc",
+   "--endpoint",
+   "consul/demo-consul"
+  ],
+  "note": "未注册服务：/v1/catalog/services 中不存在 → service_registered=false"
+ },
+ {
+  "id": "consul-11",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "demo-inventory",
+   "--endpoint",
+   "apollo/demo-apollo"
+  ],
+  "expect": "CAPABILITY_PLANNED",
+  "note": "规划中的 provider（Apollo）→ CAPABILITY_PLANNED，不模拟"
+ }
+]

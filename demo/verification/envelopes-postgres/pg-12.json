@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "postgres.statement.summary",
+  "data": null,
+  "error": {
+    "code": "COLLECTION_DISABLED",
+    "message": "库 postgres 中未安装 pg_stat_statements 扩展，没有语句统计可读",
+    "hint": "由 DBA 在库 postgres 执行 CREATE EXTENSION pg_stat_statements（扩展按库创建；若其它库已创建，可把端点 database 指向该库）；这不代表“没有慢语句”",
+    "retryable": false,
+    "details": {
+      "database": "postgres",
+      "module_loaded": true
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclmcuf-15ba76",
+    "profile": "demo-pg-nostats",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:11.655Z",
+    "duration_ms": 50
+  }
+}

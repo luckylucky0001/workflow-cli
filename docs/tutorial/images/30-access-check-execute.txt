@@ -1,0 +1,16 @@
+$ workctl access check --capability operation.execute
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.agent.yaml
+capability: operation.execute
+operation: execute
+verdict: denied
+checks:
+  - check: capability_status
+    ok: true
+    detail: 状态 available
+  - check: profile
+    ok: true
+    detail: profile demo (env sandbox)
+  - check: execute_permission
+    ok: false
+    detail: profile 未开启 allow_execute
+# sources: workctl [derived]

@@ -1,0 +1,90 @@
+$ workctl discovery list --service demo-order
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+endpoint: etcd/demo-etcd
+provider: etcd
+provider_selected_by: profile 默认 etcd 端点 demo-etcd（服务 demo-order 未绑定配置中心）
+service: demo-order
+env: null
+prefix: /services/demo-order/
+observed_revision: 112
+instances:
+  - instance_id: order-1
+    key: /services/demo-order/order-1
+    payload:
+      address: 10.88.0.11
+      port: 8080
+      version: 1.4.2
+      healthy: true
+      env: sandbox
+      registered_at: 2026-10-17T16:20:03.809Z
+    payload_error: null
+    address: 10.88.0.11
+    port: 8080
+    version: 1.4.2
+    env: sandbox
+    healthy: true
+    health_basis: self_reported
+    registered_at: 2026-10-17T16:20:03.809Z
+    create_revision: 110
+    mod_revision: 110
+    lease:
+      id: "7587898288556383596"
+      granted_ttl_s: 86400
+      remaining_ttl_s: 86376
+      error: null
+  - instance_id: order-2
+    key: /services/demo-order/order-2
+    payload:
+      address: 10.88.0.12
+      port: 8080
+      version: 1.4.2
+      healthy: false
+      env: sandbox
+      registered_at: 2026-10-17T16:20:03.809Z
+    payload_error: null
+    address: 10.88.0.12
+    port: 8080
+    version: 1.4.2
+    env: sandbox
+    healthy: false
+    health_basis: self_reported
+    registered_at: 2026-10-17T16:20:03.809Z
+    create_revision: 111
+    mod_revision: 111
+    lease:
+      id: "7587898288556383598"
+      granted_ttl_s: 86400
+      remaining_ttl_s: 86376
+      error: null
+  - instance_id: order-legacy
+    key: /services/demo-order/order-legacy
+    payload:
+      address: 10.88.0.9
+      port: 8080
+      version: 1.3.0
+      healthy: true
+      env: sandbox
+      registered_at: 2026-01-05T08:00:00Z
+    payload_error: null
+    address: 10.88.0.9
+    port: 8080
+    version: 1.3.0
+    env: sandbox
+    healthy: true
+    health_basis: self_reported
+    registered_at: 2026-01-05T08:00:00Z
+    create_revision: 112
+    mod_revision: 112
+    lease: null
+summary:
+  registered: 3
+  returned: 3
+  healthy: 2
+  unhealthy: 1
+  health_unknown: 0
+  without_lease: 1
+  excluded:
+    env_mismatch: 0
+    env_missing: 0
+    not_healthy: 0
+# sources: etcd:POST /v3/kv/range prefix=/services/demo-order/ [explicit], etcd:POST /v3/lease/timetolive [sampled]

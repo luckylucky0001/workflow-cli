@@ -1,0 +1,3 @@
+$ node dist/workctl.js --version
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+0.1.0

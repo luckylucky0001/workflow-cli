@@ -159,7 +159,44 @@ endpoints:
 
 ## 配置中心与服务发现
 
-`config` 领域（`config get`、`config diff`、`discovery list`）通过 etcd v3 的 HTTP/JSON 网关只读访问配置中心与服务注册（适配器 `etcd-v3-gateway`，认证 `etcd-profile`）。演示环境：容器 `demo-etcd`（etcd 3.5.21），种子与演示命令见 `demo/scenarios/config/README.md`。
+`config` 领域（`config get`、`config diff`、`discovery list`）只读访问配置中心与服务注册，支持三个 provider：etcd v3 HTTP/JSON 网关（适配器 `etcd-v3-gateway`，认证 `etcd-profile`）、Nacos 2.x Open API（`nacos-open-api`，`nacos-token`）、Consul HTTP API（`consul-http-api`，`consul-acl-token`）。每个能力只有一个输出 schema：`data.provider`、`data.provider_selected_by`、`data.revision_space` 写明实际使用的 provider、选择依据和修订号含义，provider 特有的事实放在可选字段 `nacos` / `consul` 中，`meta.sources` 给出适配器、调用方法和目标系统版本。演示环境：`demo-etcd`（etcd 3.5.21）、`demo-nacos`（Nacos 2.4.3）、`demo-consul`（Consul 1.20.6），种子与演示命令见 `demo/scenarios/config/README.md`。
+
+### Provider 对照
+
+| | etcd | Nacos | Consul |
+|---|---|---|---|
+| 端点类型 / 适配器 | `etcd` / `etcd-v3-gateway` | `nacos` / `nacos-open-api` | `consul` / `consul-http-api` |
+| 配置定位 | 键前缀 `<config_prefix><env>/<service>/` | 配置文档 `<namespace>/<group>/<dataId>`（模板默认 `${env}` / `DEFAULT_GROUP` / `${service}.properties`） | KV 前缀 `<config_prefix><env>/<service>/`（无前导 `/`） |
+| 键 | 每个 etcd 键一项 | 文档按类型拆分：properties 按行，yaml / json 展平为 `a.b`、`a[0]`；其他类型（text/xml/html）或解析失败时整个文档为一项（`nacos.parsed=false`，`parse_error` 说明） | 每个 KV 键一项（目录占位键 `a/` 忽略） |
+| 修订空间（`revision_space`） | `etcd-cluster-revision`：集群全局修订；键级 `create/mod_revision`、`version` | `nacos-history-id`：配置历史记录 ID（全局递增 nid）；没有键级修订（null），文档级见 `nacos.latest_history_id` | `consul-raft-index`：`CreateIndex` / `ModifyIndex`，`observed_revision` 为 `X-Consul-Index`；`version` 为 null |
+| `config diff` 历史 | 任意两个修订的快照；早于压缩点 → `DATA_UNAVAILABLE`（`compact_revision`） | 由历史记录重建（见下）；早于最早保留记录 → `DATA_UNAVAILABLE`（`oldest_history_id`、`retention_days`，默认保留 30 天） | **不保留历史**：一律 `DATA_UNAVAILABLE`，只给已知索引，不编造旧值 |
+| 服务发现 | 前缀注册 JSON，`healthy` 为实例自报，租约 TTL | `/v1/ns/service` + `/v1/ns/catalog/instances`：服务端健康状态，`enabled` / `ephemeral` / `weight` / `cluster`，metadata | `/v1/health/service/<svc>`：检查聚合（任一 critical → false；warning 计为 healthy），`/v1/catalog/services` 区分未注册 |
+| 遮蔽 | 键名 / JSON 字段名（同一规则，`values.ts`） | 同左，作用于展平后的键名；整文档项只按 dataId 判断 | 同 etcd；实例 Meta 按字段名遮蔽 |
+| 认证 | `username` + `password_ref` → `/v3/auth/authenticate` token | `username` + `password_ref` → `POST /v1/auth/login` 得 `accessToken`（查询参数）；鉴权关闭时不需要 | `token_ref` → `X-Consul-Token` 头；ACL 关闭时不需要 |
+| 版本来源 / 实测版本 | `GET /version` / 3.5.21 | `GET /v1/console/server/state` / 2.4.3（standalone，内嵌存储） | `GET /v1/agent/self` / 1.20.6（dev agent） |
+
+**provider 选择**（端点类型决定 provider）：`--endpoint <类型>/<名称>`（或在 etcd/nacos/consul 中唯一的名称）> 资源绑定（服务的 `attributes.config_center` 指向一个 `config.center` 资源，或服务到 `config.center` 资源的关系；取该资源的 `endpoint {kind, name}`）> profile `defaults.config`（如 `nacos` 或 `nacos/demo-nacos`）> 默认 etcd 端点（或唯一的配置中心端点）。多个候选且无法决定时 `NOT_CONFIGURED`。Apollo、ZooKeeper 是规划中的 provider：绑定或 `--endpoint` 指向这两种端点类型时返回 `CAPABILITY_PLANNED`，不做任何模拟。
+
+```yaml
+# bindings.yaml（演示环境）
+resources:
+  - { id: demo-nacos, type: config.center, env: sandbox, endpoint: { kind: nacos, name: demo-nacos } }
+  - { id: demo-payment, type: service, env: sandbox, attributes: { config_center: demo-nacos } }
+```
+
+### Nacos：文档、历史前像与发现
+
+- `config get` 读 `GET /v1/cs/configs?show=all`（内容 + `type` + md5 + 修改时间）。`show=all` 下文档不存在返回 200 空体，workctl 报告为 success + 空列表 + `nacos.exists=false`（与无权限 `PERMISSION_DENIED`、不可达 `UPSTREAM_UNAVAILABLE` 区分）。
+- 历史：优先 `GET /v2/cs/history/list`（2.2+ 的 v2 Open API；2.4.3 上 v1 `?search=accurately` 列表不可用），不存在时回退 v1；单条用 `/v2/cs/history?nid=`。**Nacos 历史记录保存的是变更前的内容（前像）**：`I` 记录存新内容，`U` / `D` 记录存修改/删除前的内容（2.4.3 实测）。因此“历史 ID X 生效后的文档” = X 之后下一条记录的前像，X 为最后一条时即当前内容。
+- `config diff --from-rev A [--to-rev B]`：A、B 是历史 ID；因为 nid 全局递增（不同配置共用），取“不晚于该 ID 的最后一次变更生效后”的文档，与 etcd 修订的语义一致。重建两侧文档后按键比较；`nacos.from_history` / `to_history` 给出对应记录（`op_type`、时间、操作人）。
+- `config diff --key K`：从最新记录往回找最近一次改变 K 的变更，用其前像比较；保留期内 K 从未变化 → `DATA_UNAVAILABLE`。
+- `discovery list`：`/v1/ns/service` 判断服务是否存在（未注册返回 400 `service not found` → success + `service_registered=false`），逐集群读 `/v1/ns/catalog/instances`（含 `enabled=false` 的已下线实例；Open API `/v1/ns/instance/list` 不返回它们，目录接口不可用时回退并在 notes 说明）。`healthy` 是服务端记录的状态：临时实例靠心跳/连接，持久实例（`ephemeral=false`）靠服务端 TCP/HTTP 探测且不会自动删除。
+
+### Consul：KV 无历史
+
+- `config get` 读 `GET /v1/kv/<prefix>?recurse`（base64 值），`create_revision` / `mod_revision` 为 `CreateIndex` / `ModifyIndex`；404 即前缀下没有键（success + 空列表）。单键读取时 `X-Consul-Index` 即该键的 `ModifyIndex`。
+- `config diff`：Consul KV 不保留任何历史版本，也不保留删除记录。`--key` 模式返回 `DATA_UNAVAILABLE`，`details` 只有 `create_index`、`modify_index`、`changed_since_creation`；`--from-rev N` 返回 `DATA_UNAVAILABLE`，`details.changed_since` 列出 `ModifyIndex > N` 的键（旧值不可知），删除的键无法发现；`--from-rev` 等于当前索引时返回空差异；指定非当前的 `--to-rev` → `DATA_UNAVAILABLE`。需要历史请在写入侧留痕（git2consul、配置仓库、审计日志）或使用 etcd / Nacos。
+- `discovery list`：`/v1/health/service/<svc>` 中每个实例的全部检查（含节点级 `serfHealth`）取最差状态写入 `consul.status`；`healthy = status != critical`（warning 计为 healthy，与 Consul DNS 默认一致，notes 中说明）；没有任何检查的实例 Consul 视为 passing。`version` / `env` 取自 `Service.Meta`。
 
 ### etcd 模型与键约定
 
@@ -172,6 +209,7 @@ endpoints:
 - 键和值在网关上是 base64；workctl 解码为 UTF-8，能解析为 JSON 的返回解析后的值（`value_format=json`），否则为文本；非 UTF-8 字节以 base64 返回（`binary_base64`）。
 - 前缀与服务/环境由端点 `config_prefix`、`discovery_prefix` 决定；不同的组织约定（如 `/<app>/<env>/`）通过配置调整，不靠名称猜测。
 - 结果中的 `observed_revision` 是读取时刻的集群修订：说明“etcd 在这个修订上的值是什么”，**不代表应用进程已经加载了这个值**。
+- 键数超过 `--limit`（默认 200）时只返回按键名排序的前 N 个：`status=partial`、`coverage.complete=false`、`data.truncated=true`，`data.count` 为总数（三个 provider 一致）。
 
 ### 修订与压缩（revision / compaction）
 
@@ -184,7 +222,7 @@ endpoints:
 ### 敏感值遮蔽
 
 - 键名（相对名）或 JSON 字段名按分段匹配 `password/passwd/pwd/secret/token/key/apikey/dsn/credential/private_key/access_key` 等时，值替换为 `"***"`，`masked=true`，`masked_paths` 标出位置（`$` 为整个值，`$.token` 为字段）。只按名称判断，不分析值内容；宁可多遮（如 `cache.key_prefix` 也会被遮）。
-- `config diff` 中被遮蔽的项两侧都显示 `***`，`changed` 依据原始字节判断，所以“密码轮换过”可见而值不可见。`value_bytes` 是遮蔽前的字节数。
+- `config diff` 中被遮蔽的项两侧都显示 `***`，`changed` 依据原始字节判断，所以“密码轮换过”可见而值不可见。`value_bytes` 是原始字节数；**整个值被遮蔽时为 `null`**（否则会泄露密钥长度及轮换前后的长度变化）；只有 JSON 字段被遮蔽时仍给出整个值的字节数。
 - 遮蔽是展示层保护，不替代 etcd 的权限控制：只读账号应只授予所需前缀（`etcdctl role grant-permission --prefix <role> read <prefix>`）。
 
 ### 服务注册与租约
@@ -198,7 +236,7 @@ endpoints:
 ### 端点配置与错误
 
 ```yaml
-defaults: { etcd: demo-etcd }
+defaults: { etcd: demo-etcd }            # 可选 config: nacos | consul | <类型>/<名称>
 endpoints:
   etcd:
     demo-etcd:
@@ -207,18 +245,35 @@ endpoints:
       discovery_prefix: /services/
       # username: workctl_ro               # 开启认证时：POST /v3/auth/authenticate 换 token
       # password_ref: file:.runtime/secrets/etcd_ro_password
+  nacos:
+    demo-nacos:
+      url: http://127.0.0.1:18848
+      context_path: /nacos
+      namespace: ${env}                  # 命名空间 ID 模板；public 表示公共命名空间
+      group: DEFAULT_GROUP
+      data_id: ${service}.properties
+      # discovery_namespace / discovery_group  # 发现使用的命名空间与分组（默认同上 / DEFAULT_GROUP）
+      # username: workctl_ro + password_ref    # 开启鉴权时
+  consul:
+    demo-consul:
+      url: http://127.0.0.1:18500
+      config_prefix: config/
+      # datacenter: dc1
+      # token_ref: file:.runtime/secrets/consul_ro_token   # ACL 开启时，以 X-Consul-Token 发送
 ```
 
 | 情况 | 错误码 |
 |---|---|
 | 连接失败 / 网关路径不存在 / 5xx | `UPSTREAM_UNAVAILABLE` |
-| 开启认证但未配置凭据、密码错误、token 无效 | `UNAUTHENTICATED` |
-| 角色无该前缀权限（`permission denied`） | `PERMISSION_DENIED` |
-| 修订已被压缩 | `DATA_UNAVAILABLE`（含 `compact_revision`） |
+| 请求超时 | `TIMEOUT` |
+| 开启认证但未配置凭据、密码错误、token 无效（etcd 401/`invalid auth token`；Nacos 401、403 `user not found`/`token invalid`/登录失败；Consul 403 `ACL not found`） | `UNAUTHENTICATED` |
+| 身份有效但无权限（etcd `permission denied`；Nacos 403 `authorization failed`；Consul 403 `Permission denied`） | `PERMISSION_DENIED` |
+| etcd 修订已被压缩；Nacos 历史 ID 早于保留期；Consul 任何历史比较 | `DATA_UNAVAILABLE` |
+| 绑定或 `--endpoint` 指向 Apollo / ZooKeeper | `CAPABILITY_PLANNED` |
 | 未来修订、格式错误的修订、非法服务/环境/键名 | `INVALID_ARGUMENT` |
 | `config get --key` 指定的键不存在 | `NOT_FOUND`（hint 列出前缀下已有键） |
 
-`auth status --probe` / `access check` 对 etcd 端点调用 `GET /version`、`POST /v3/maintenance/status`（leader、db 大小）与 `/v3/auth/status`。TLS 客户端证书、Nacos / Apollo / Consul / Eureka provider 尚未接入。
+`auth status --probe` / `access check` 对 etcd 端点调用 `GET /version`、`POST /v3/maintenance/status`（leader、db 大小）与 `/v3/auth/status`；对 Nacos 调用 `GET /v1/console/server/state`（版本、模式、鉴权开关、历史保留天数）；对 Consul 调用 `GET /v1/agent/self` 与 `/v1/status/leader`（版本、数据中心、ACL 开关）。TLS 客户端证书、Apollo / ZooKeeper / Eureka provider 尚未接入。
 
 ## Provider 路线
 
@@ -228,6 +283,6 @@ endpoints:
 | 负载均衡/网关后端 | 绑定 + 发布端口 + 探测 | Nginx / 云 LB / Ingress（`network loadbalancer get`，planned） |
 | 存储 | Docker 卷、本机文件系统 | S3 兼容对象存储（`object stat`）、HDFS（`hdfs path stat`），planned |
 | 配额 | — | `quota get`（Kubernetes ResourceQuota / 云配额，planned） |
-| 配置中心 / 服务注册 | etcd v3 JSON 网关（`config get` / `config diff` / `discovery list`，etcd 3.5.21 实测） | Nacos、Apollo、Consul、Eureka、Kubernetes Endpoints |
+| 配置中心 / 服务注册 | etcd v3 JSON 网关、Nacos 2.x Open API、Consul HTTP API（`config get` / `config diff` / `discovery list`，按端点类型选择；etcd 3.5.21、Nacos 2.4.3、Consul 1.20.6 实测） | Apollo、ZooKeeper（选中时 `CAPABILITY_PLANNED`）、Eureka、Kubernetes Endpoints |
 
 规划中的能力只出现在目录（`workctl capability list --status planned`），调用返回 `CAPABILITY_PLANNED`。

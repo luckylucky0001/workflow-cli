@@ -1,0 +1,402 @@
+{
+  "$id": "docs/schemas/postgres.table.get.v1.json",
+  "title": "postgres.table.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "database": {
+      "type": "string"
+    },
+    "schema": {
+      "type": "string"
+    },
+    "table": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "description": "relkind：table / partitioned table / view / materialized view / foreign table"
+    },
+    "comment": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "access": {
+      "type": "object",
+      "properties": {
+        "select": {
+          "type": "boolean",
+          "description": "当前角色对该表是否有 SELECT 权限（目录元数据对所有角色可见，与能否读数据无关）"
+        }
+      },
+      "required": [
+        "select"
+      ],
+      "additionalProperties": false
+    },
+    "size": {
+      "type": "object",
+      "properties": {
+        "heap_bytes": {
+          "description": "pg_relation_size：主数据文件",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "table_bytes": {
+          "description": "pg_table_size：含 TOAST / FSM / VM，不含索引",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "indexes_bytes": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "total_bytes": {
+          "description": "pg_total_relation_size",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "heap_bytes",
+        "table_bytes",
+        "indexes_bytes",
+        "total_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "rows_estimate": {
+      "description": "pg_class.reltuples：ANALYZE/VACUUM 时的估计值；-1 表示从未 ANALYZE",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "columns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "position": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          },
+          "nullable": {
+            "type": "boolean"
+          },
+          "default": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "identity": {
+            "description": "a=ALWAYS, d=BY DEFAULT",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "comment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sensitive": {
+            "type": "boolean",
+            "description": "列名命中端点 sensitive_columns（query run 会脱敏）"
+          }
+        },
+        "required": [
+          "name",
+          "position",
+          "type",
+          "nullable",
+          "default",
+          "identity",
+          "comment",
+          "sensitive"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "indexes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "definition": {
+            "type": "string",
+            "description": "pg_get_indexdef"
+          },
+          "primary": {
+            "type": "boolean"
+          },
+          "unique": {
+            "type": "boolean"
+          },
+          "valid": {
+            "type": "boolean",
+            "description": "false 表示 CREATE INDEX CONCURRENTLY 失败留下的无效索引"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "size_bytes": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "idx_scan": {
+            "description": "自统计重置以来的索引扫描次数（累计）",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "idx_tup_read": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "idx_tup_fetch": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "last_idx_scan": {
+            "description": "PG16+：最近一次使用该索引的时间",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "definition",
+          "primary",
+          "unique",
+          "valid",
+          "columns",
+          "size_bytes",
+          "idx_scan",
+          "idx_tup_read",
+          "idx_tup_fetch",
+          "last_idx_scan"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "stats": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "seq_scan": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "seq_tup_read": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "idx_scan": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "idx_tup_fetch": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "n_tup_ins": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "n_tup_upd": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "n_tup_del": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "n_tup_hot_upd": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "n_live_tup": {
+              "description": "估计值",
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "n_dead_tup": {
+              "description": "估计值",
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "dead_ratio": {
+              "description": "n_dead_tup/(n_live_tup+n_dead_tup)",
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "n_mod_since_analyze": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "last_vacuum": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "last_autovacuum": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "last_analyze": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "last_autoanalyze": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "vacuum_count": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "autovacuum_count": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "analyze_count": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "autoanalyze_count": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "seq_scan",
+            "seq_tup_read",
+            "idx_scan",
+            "idx_tup_fetch",
+            "n_tup_ins",
+            "n_tup_upd",
+            "n_tup_del",
+            "n_tup_hot_upd",
+            "n_live_tup",
+            "n_dead_tup",
+            "dead_ratio",
+            "n_mod_since_analyze",
+            "last_vacuum",
+            "last_autovacuum",
+            "last_analyze",
+            "last_autoanalyze",
+            "vacuum_count",
+            "autovacuum_count",
+            "analyze_count",
+            "autoanalyze_count"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "pg_stat_user_tables；扫描/增删改计数是自统计重置以来的累计值"
+    },
+    "stats_reset": {
+      "description": "所在库 pg_stat_database.stats_reset：累计计数的起点（null=自 initdb 以来未重置）",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "instance",
+    "database",
+    "schema",
+    "table",
+    "kind",
+    "comment",
+    "access",
+    "size",
+    "rows_estimate",
+    "columns",
+    "indexes",
+    "stats",
+    "stats_reset"
+  ],
+  "additionalProperties": false
+}

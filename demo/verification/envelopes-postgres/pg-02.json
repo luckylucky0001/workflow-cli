@@ -1,0 +1,257 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "postgres.instance.get",
+  "data": {
+    "instance": "demo-postgres",
+    "binding": {
+      "id": "demo-postgres",
+      "type": "postgres.instance",
+      "env": "sandbox",
+      "owner": "team-dba",
+      "labels": {},
+      "attributes": {
+        "engine": "postgresql",
+        "major_version": "16",
+        "container": "demo-postgres",
+        "database": "demo_orders"
+      }
+    },
+    "engine": {
+      "version": "16.15",
+      "version_num": 160015,
+      "version_full": "PostgreSQL 16.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+      "current_user": "workctl_ro",
+      "connected_database": "demo_orders",
+      "started_at": "2026-10-17T16:00:29.908661Z",
+      "uptime_s": 933,
+      "in_recovery": false,
+      "role": "primary"
+    },
+    "settings": {
+      "autovacuum": {
+        "value": "on",
+        "unit": null,
+        "display": "on",
+        "source": "default",
+        "pending_restart": false
+      },
+      "default_transaction_read_only": {
+        "value": "on",
+        "unit": null,
+        "display": "on",
+        "source": "user",
+        "pending_restart": false
+      },
+      "effective_cache_size": {
+        "value": "524288",
+        "unit": "8kB",
+        "display": "4GB",
+        "source": "default",
+        "pending_restart": false
+      },
+      "idle_in_transaction_session_timeout": {
+        "value": "0",
+        "unit": "ms",
+        "display": "0",
+        "source": "default",
+        "pending_restart": false
+      },
+      "log_min_duration_statement": {
+        "value": "-1",
+        "unit": "ms",
+        "display": "-1",
+        "source": "default",
+        "pending_restart": false
+      },
+      "maintenance_work_mem": {
+        "value": "65536",
+        "unit": "kB",
+        "display": "64MB",
+        "source": "default",
+        "pending_restart": false
+      },
+      "max_connections": {
+        "value": "100",
+        "unit": null,
+        "display": "100",
+        "source": "command line",
+        "pending_restart": false
+      },
+      "max_wal_size": {
+        "value": "1024",
+        "unit": "MB",
+        "display": "1GB",
+        "source": "configuration file",
+        "pending_restart": false
+      },
+      "pg_stat_statements.max": {
+        "value": "5000",
+        "unit": null,
+        "display": "5000",
+        "source": "default",
+        "pending_restart": false
+      },
+      "pg_stat_statements.track": {
+        "value": "top",
+        "unit": null,
+        "display": "top",
+        "source": "command line",
+        "pending_restart": false
+      },
+      "server_encoding": {
+        "value": "UTF8",
+        "unit": null,
+        "display": "UTF8",
+        "source": "default",
+        "pending_restart": false
+      },
+      "shared_buffers": {
+        "value": "16384",
+        "unit": "8kB",
+        "display": "128MB",
+        "source": "configuration file",
+        "pending_restart": false
+      },
+      "statement_timeout": {
+        "value": "5000",
+        "unit": "ms",
+        "display": "5s",
+        "source": "client",
+        "pending_restart": false
+      },
+      "superuser_reserved_connections": {
+        "value": "3",
+        "unit": null,
+        "display": "3",
+        "source": "default",
+        "pending_restart": false
+      },
+      "TimeZone": {
+        "value": "UTC",
+        "unit": null,
+        "display": "UTC",
+        "source": "client",
+        "pending_restart": false
+      },
+      "track_activities": {
+        "value": "on",
+        "unit": null,
+        "display": "on",
+        "source": "default",
+        "pending_restart": false
+      },
+      "track_activity_query_size": {
+        "value": "1024",
+        "unit": "B",
+        "display": "1kB",
+        "source": "default",
+        "pending_restart": false
+      },
+      "track_counts": {
+        "value": "on",
+        "unit": null,
+        "display": "on",
+        "source": "default",
+        "pending_restart": false
+      },
+      "track_io_timing": {
+        "value": "on",
+        "unit": null,
+        "display": "on",
+        "source": "command line",
+        "pending_restart": false
+      },
+      "wal_level": {
+        "value": "replica",
+        "unit": null,
+        "display": "replica",
+        "source": "default",
+        "pending_restart": false
+      },
+      "work_mem": {
+        "value": "4096",
+        "unit": "kB",
+        "display": "4MB",
+        "source": "default",
+        "pending_restart": false
+      }
+    },
+    "hidden_settings": [
+      "shared_preload_libraries"
+    ],
+    "connections": {
+      "max_connections": 100,
+      "superuser_reserved": 3,
+      "client_backends": 1,
+      "by_state": {
+        "active": 1
+      },
+      "usage_ratio": 0.0103
+    },
+    "replication": {
+      "replicas_connected": 0,
+      "last_replay_at": null
+    },
+    "extensions": [
+      {
+        "name": "pg_stat_statements",
+        "version": "1.10",
+        "schema": "public"
+      },
+      {
+        "name": "plpgsql",
+        "version": "1.0",
+        "schema": "pg_catalog"
+      }
+    ],
+    "observability": {
+      "pg_stat_statements_installed": true,
+      "pg_stat_statements_loaded": true,
+      "track_counts": true,
+      "track_io_timing": true
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "postgresql",
+        "adapter": "pg-driver",
+        "observed_at": "2026-10-17T16:16:02.619Z",
+        "endpoint": "postgres/demo-postgres",
+        "method": "version(); pg_settings; pg_stat_activity; pg_is_in_recovery(); pg_extension",
+        "version": "16.15",
+        "relation": "explicit"
+      },
+      {
+        "system": "workctl",
+        "adapter": "binding-file",
+        "observed_at": "2026-10-17T16:16:02.618Z",
+        "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
+        "method": "resources.forEndpoint(postgres, demo-postgres)",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": false,
+      "notes": [
+        "以下参数对角色 workctl_ro 不可见或不存在: shared_preload_libraries（如 shared_preload_libraries 需 pg_read_all_settings）",
+        "连接数为瞬时快照"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclm5s7-bab22d",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:02.503Z",
+    "duration_ms": 122
+  }
+}

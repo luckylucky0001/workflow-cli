@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "deploy.release.get",
+  "data": null,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Jenkins job deploy-demo-order 没有构建 #999",
+    "hint": "构建可能已被构建丢弃策略清理；用 workctl deploy release list 查看保留的发布",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcllywn-f2efa3",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "kubernetes-api | jenkins-rest",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:15:53.591Z",
+    "duration_ms": 206
+  }
+}

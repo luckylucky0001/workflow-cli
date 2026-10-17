@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "config.get",
+  "data": null,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "配置项不存在: config/sandbox/demo-inventory/no.such.key",
+    "hint": "该前缀下的键（前 20 个）: cache.ttl_seconds, db.password, db.pool_size, feature.flags, upstream.order, warehouse.default",
+    "retryable": false,
+    "details": {
+      "observed_revision": 108
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclk805-71e1cd",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:14:32.069Z",
+    "duration_ms": 57
+  }
+}

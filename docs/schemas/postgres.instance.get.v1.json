@@ -1,0 +1,314 @@
+{
+  "$id": "docs/schemas/postgres.instance.get.v1.json",
+  "title": "postgres.instance.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "binding": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "env": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "owner": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "labels": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "attributes": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "env",
+            "owner",
+            "labels",
+            "attributes"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "平台元数据（资源绑定文件），不是引擎查询结果"
+    },
+    "engine": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "server_version"
+        },
+        "version_num": {
+          "type": "number"
+        },
+        "version_full": {
+          "type": "string",
+          "description": "version() 全文"
+        },
+        "current_user": {
+          "type": "string"
+        },
+        "connected_database": {
+          "type": "string"
+        },
+        "started_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "uptime_s": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "in_recovery": {
+          "type": "boolean",
+          "description": "pg_is_in_recovery()：true 表示备库（standby）"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "primary",
+            "standby"
+          ]
+        }
+      },
+      "required": [
+        "version",
+        "version_num",
+        "version_full",
+        "current_user",
+        "connected_database",
+        "started_at",
+        "uptime_s",
+        "in_recovery",
+        "role"
+      ],
+      "additionalProperties": false
+    },
+    "settings": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "pg_settings.setting 原值（单位见 unit）"
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "display": {
+            "type": "string",
+            "description": "current_setting() 的人类可读值，如 128MB"
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pending_restart": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "value",
+          "unit",
+          "display",
+          "source",
+          "pending_restart"
+        ],
+        "additionalProperties": false
+      },
+      "description": "关键参数；当前角色看不到的参数（如 shared_preload_libraries 需 pg_read_all_settings）不出现，见 hidden_settings"
+    },
+    "hidden_settings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "请求了但对当前角色不可见或不存在的参数"
+    },
+    "connections": {
+      "type": "object",
+      "properties": {
+        "max_connections": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "superuser_reserved": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "client_backends": {
+          "type": "number",
+          "description": "pg_stat_activity 中 backend_type=client backend 的数量（含 workctl 自身）"
+        },
+        "by_state": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "usage_ratio": {
+          "description": "client_backends / (max_connections − superuser_reserved)",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "max_connections",
+        "superuser_reserved",
+        "client_backends",
+        "by_state",
+        "usage_ratio"
+      ],
+      "additionalProperties": false
+    },
+    "replication": {
+      "type": "object",
+      "properties": {
+        "replicas_connected": {
+          "description": "主库：pg_stat_replication 行数；备库为 null",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "last_replay_at": {
+          "description": "备库：pg_last_xact_replay_timestamp()",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "replicas_connected",
+        "last_replay_at"
+      ],
+      "additionalProperties": false
+    },
+    "extensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "schema": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "schema"
+        ],
+        "additionalProperties": false
+      },
+      "description": "当前连接库中已 CREATE EXTENSION 的扩展（扩展按库安装）"
+    },
+    "observability": {
+      "type": "object",
+      "properties": {
+        "pg_stat_statements_installed": {
+          "type": "boolean",
+          "description": "当前库已 CREATE EXTENSION pg_stat_statements"
+        },
+        "pg_stat_statements_loaded": {
+          "description": "已通过 shared_preload_libraries 加载；null 表示无法判断",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "track_counts": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "track_io_timing": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "pg_stat_statements_installed",
+        "pg_stat_statements_loaded",
+        "track_counts",
+        "track_io_timing"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "instance",
+    "binding",
+    "engine",
+    "settings",
+    "hidden_settings",
+    "connections",
+    "replication",
+    "extensions",
+    "observability"
+  ],
+  "additionalProperties": false
+}

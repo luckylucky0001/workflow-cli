@@ -1,0 +1,49 @@
+$ workctl log query --service demo-order --env sandbox --window 6h --contains "cache mode changed" --limit 2
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+service: demo-order
+env: sandbox
+matched_by: label workctl.service=demo-order（binding attribute container_label）
+window:
+  start: 2026-10-17T10:19:52.835Z
+  end: 2026-10-17T16:19:52.835Z
+order: newest
+entries:
+  - ts: 2026-10-17T15:44:18.692668054Z
+    container: demo-order
+    stream: stdout
+    level: warn
+    msg: cache mode changed
+    kind: null
+    trace_id: d028c0732939f0c6a9f63a29ef86c9d7
+    span_id: 2e132359d95af621
+    fields:
+      service: demo-order
+      before:
+        mode: normal
+        ttl_seconds: 300
+      after:
+        mode: normal
+        ttl_seconds: 300
+      reason: admin api (fault injection)
+      app_ts: 2026-10-17T15:44:18.692Z
+    raw: null
+stats:
+  lines_scanned: 1475
+  matched: 1
+  returned: 1
+  unparsed_lines: 0
+  spans_skipped: 1026
+  unparsed_excluded_by_level: 0
+  by_level:
+    warn: 1
+containers:
+  - name: demo-order
+    id: f878ca97b200
+    log_driver: json-file
+    created_at: 2026-10-17T15:35:42.375620843Z
+    started_at: 2026-10-17T15:39:12.860792651Z
+    lines_scanned: 1475
+    matched: 1
+    status: ok
+    note: null
+# sources: docker:GET /containers/{id}/logs?stdout=1&stderr=1&timestamps=1&since&until [explicit]

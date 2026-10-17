@@ -1,0 +1,482 @@
+{
+  "$id": "docs/schemas/deploy.release.get.v1.json",
+  "title": "deploy.release.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "service": {
+      "type": "string"
+    },
+    "env": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "binding": {
+          "type": "string",
+          "description": "资源绑定中的 deploy.target ID"
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "kubernetes",
+            "jenkins"
+          ]
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "description": "Kubernetes: Deployment <ns>/<name>；Jenkins: job 路径"
+        }
+      },
+      "required": [
+        "binding",
+        "provider",
+        "endpoint",
+        "object"
+      ],
+      "additionalProperties": false
+    },
+    "release": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Kubernetes: ReplicaSet 名；Jenkins: 构建号"
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "kubernetes",
+            "jenkins"
+          ]
+        },
+        "version": {
+          "description": "Kubernetes: 首个容器镜像 tag；Jenkins: 版本参数值",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "revision": {
+          "description": "Kubernetes: deployment.kubernetes.io/revision；Jenkins: 构建号",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "started_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "finished_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "timestamps": {
+          "type": "string",
+          "enum": [
+            "explicit",
+            "derived"
+          ],
+          "description": "explicit=系统记录的发布开始/结束；derived=由对象创建时间/条件更新时间推得"
+        },
+        "duration_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "succeeded",
+            "failed",
+            "running",
+            "aborted",
+            "unknown"
+          ]
+        },
+        "status_basis": {
+          "type": "string",
+          "description": "状态判定依据"
+        },
+        "current": {
+          "type": "boolean",
+          "description": "是否为当前生效的发布"
+        },
+        "triggered_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cause": {
+          "description": "Kubernetes: kubernetes.io/change-cause 注解；Jenkins: 触发原因",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_ref": {
+          "type": "object",
+          "properties": {
+            "system": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "description": "如 ReplicaSet、Deployment、jenkins.build"
+            },
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "description": "不含凭据的链接（Jenkins build URL）",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "system",
+            "kind",
+            "name",
+            "url"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "provider",
+        "version",
+        "images",
+        "revision",
+        "started_at",
+        "finished_at",
+        "timestamps",
+        "duration_ms",
+        "status",
+        "status_basis",
+        "current",
+        "triggered_by",
+        "cause",
+        "source_ref"
+      ],
+      "additionalProperties": false
+    },
+    "kubernetes": {
+      "type": "object",
+      "properties": {
+        "namespace": {
+          "type": "string"
+        },
+        "deployment": {
+          "type": "string"
+        },
+        "replicaset": {
+          "type": "string"
+        },
+        "uid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "revision": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "revision_history": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "description": "deployment.kubernetes.io/revision-history：该 ReplicaSet 曾用过的修订号（回滚复用）"
+        },
+        "pod_template_hash": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "change_cause": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "created_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "replicas": {
+          "type": "object",
+          "properties": {
+            "desired": {
+              "type": "number"
+            },
+            "current": {
+              "type": "number"
+            },
+            "ready": {
+              "type": "number"
+            },
+            "available": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "desired",
+            "current",
+            "ready",
+            "available"
+          ],
+          "additionalProperties": false
+        },
+        "containers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "image": {
+                "type": "string"
+              },
+              "env": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "name",
+              "image",
+              "env"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "diff_vs_current": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "against_revision": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "images": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "container": {
+                        "type": "string"
+                      },
+                      "this_release": {
+                        "type": "string"
+                      },
+                      "current": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "container",
+                      "this_release",
+                      "current"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "env_changed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "against_revision",
+                "images",
+                "env_changed"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "namespace",
+        "deployment",
+        "replicaset",
+        "uid",
+        "revision",
+        "revision_history",
+        "pod_template_hash",
+        "change_cause",
+        "created_at",
+        "replicas",
+        "containers",
+        "diff_vs_current"
+      ],
+      "additionalProperties": false
+    },
+    "jenkins": {
+      "type": "object",
+      "properties": {
+        "job": {
+          "type": "string"
+        },
+        "number": {
+          "type": "number"
+        },
+        "result": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "building": {
+          "type": "boolean"
+        },
+        "estimated_duration_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "built_on": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "parameters": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "构建参数；名称像凭据的值已遮蔽"
+        },
+        "causes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "user_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "description",
+              "user_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "console": {
+          "type": "object",
+          "properties": {
+            "lines": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "total_lines": {
+              "type": "number"
+            },
+            "truncated": {
+              "type": "boolean"
+            },
+            "masked": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "lines",
+            "total_lines",
+            "truncated",
+            "masked"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "job",
+        "number",
+        "result",
+        "building",
+        "estimated_duration_ms",
+        "built_on",
+        "parameters",
+        "causes",
+        "console"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "service",
+    "env",
+    "target",
+    "release"
+  ],
+  "additionalProperties": false
+}

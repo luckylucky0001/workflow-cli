@@ -1,0 +1,220 @@
+{
+  "$id": "docs/schemas/postgres.query.explain.v1.json",
+  "title": "postgres.query.explain data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "database": {
+      "type": "string"
+    },
+    "statement_type": {
+      "type": "string"
+    },
+    "estimate_only": {
+      "type": "boolean",
+      "const": true,
+      "description": "优化器估计，非实际执行"
+    },
+    "generic_plan": {
+      "type": "boolean",
+      "description": "语句含 $n 占位符时用 GENERIC_PLAN（PG16+）生成通用计划"
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_cost": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "plan_rows": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "seq_scans": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Seq Scan 的表（全表顺序扫描）"
+        },
+        "index_scans": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "表:索引"
+        },
+        "sorts": {
+          "type": "number"
+        },
+        "planning_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "execution_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "total_cost",
+        "plan_rows",
+        "seq_scans",
+        "index_scans",
+        "sorts",
+        "planning_ms",
+        "execution_ms"
+      ],
+      "additionalProperties": false
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "depth": {
+            "type": "number"
+          },
+          "node_type": {
+            "type": "string"
+          },
+          "relation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "alias": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "index": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "join_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "startup_cost": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "total_cost": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "plan_rows": {
+            "description": "优化器估计行数",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "filter": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "index_cond": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "actual_total_ms": {
+            "description": "仅 analyze：每次 loop 的平均耗时（毫秒）",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "actual_rows": {
+            "description": "仅 analyze：每次 loop 的平均行数",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "loops": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "rows_removed_by_filter": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "shared_hit_blocks": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "shared_read_blocks": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "never_executed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "depth",
+          "node_type",
+          "relation",
+          "alias",
+          "index",
+          "join_type",
+          "startup_cost",
+          "total_cost",
+          "plan_rows",
+          "filter",
+          "index_cond"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "plan": {
+      "description": "EXPLAIN (FORMAT JSON) 原文（解析后的 JSON）"
+    }
+  },
+  "required": [
+    "instance",
+    "database",
+    "statement_type",
+    "estimate_only",
+    "generic_plan",
+    "summary",
+    "nodes",
+    "plan"
+  ],
+  "additionalProperties": false
+}

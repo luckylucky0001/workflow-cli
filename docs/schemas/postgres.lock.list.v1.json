@@ -1,0 +1,225 @@
+{
+  "$id": "docs/schemas/postgres.lock.list.v1.json",
+  "title": "postgres.lock.list data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "waits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pid": {
+            "type": "number"
+          },
+          "user": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "database": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "wait_event_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "wait_event": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "wait_age_s": {
+            "description": "处于当前等待状态的秒数（state_change 起）",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "xact_age_s": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "query": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "waiting_for": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locktype": {
+                  "type": "string"
+                },
+                "mode": {
+                  "type": "string",
+                  "description": "请求的锁模式，如 ShareLock、RowExclusiveLock、AccessExclusiveLock"
+                },
+                "relation": {
+                  "description": "关系名（仅当前连接库内可解析；其它库显示 OID）",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "transactionid": {
+                  "description": "locktype=transactionid 时等待的事务 ID（典型的行锁等待）",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "locktype",
+                "mode",
+                "relation",
+                "transactionid"
+              ],
+              "additionalProperties": false
+            },
+            "description": "pg_locks 中该 pid 未授予（granted=false）的锁"
+          },
+          "blocked_by": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "pid",
+          "user",
+          "database",
+          "wait_event_type",
+          "wait_event",
+          "wait_age_s",
+          "xact_age_s",
+          "query",
+          "waiting_for",
+          "blocked_by"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pid": {
+            "type": "number"
+          },
+          "user": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "database": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "xact_age_s": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "state_age_s": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "wait_event_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "query": {
+            "description": "阻塞方当前/最后一条语句（不一定是持锁语句）；idle in transaction 时为最后执行的语句",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "is_root": {
+            "type": "boolean",
+            "description": "自身不在等待中的阻塞方（链条源头）"
+          }
+        },
+        "required": [
+          "pid",
+          "user",
+          "database",
+          "state",
+          "xact_age_s",
+          "state_age_s",
+          "wait_event_type",
+          "query",
+          "is_root"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "waiting": {
+          "type": "number"
+        },
+        "blockers": {
+          "type": "number"
+        },
+        "root_blockers": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "max_chain_depth": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "waiting",
+        "blockers",
+        "root_blockers",
+        "max_chain_depth"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "instance",
+    "waits",
+    "blockers",
+    "summary"
+  ],
+  "additionalProperties": false
+}

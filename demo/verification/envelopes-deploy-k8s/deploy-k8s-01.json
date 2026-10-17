@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "access.check",
+  "data": {
+    "capability": "deploy.release.list",
+    "operation": "read",
+    "verdict": "unknown",
+    "checks": [
+      {
+        "check": "capability_status",
+        "ok": true,
+        "detail": "状态 available"
+      },
+      {
+        "check": "profile",
+        "ok": true,
+        "detail": "profile k8s-demo (env sandbox)"
+      },
+      {
+        "check": "endpoint:kubernetes",
+        "ok": true,
+        "detail": "kubernetes/k3s"
+      },
+      {
+        "check": "credential:kubernetes/k3s.token_ref",
+        "ok": true,
+        "detail": "file 引用可解析"
+      },
+      {
+        "check": "identity:kubernetes/k3s",
+        "ok": true,
+        "detail": "身份 system:serviceaccount:workctl-demo:workctl (groups: system:serviceaccounts,system:serviceaccounts:workctl-demo,system:authenticated)；版本 v1.31.4+k3s1；auth=bearer-token；namespace=workctl-demo"
+      },
+      {
+        "check": "privileges:kubernetes/k3s",
+        "ok": null,
+        "detail": "get,list nodes | get,list pods,events | get,list deployments,statefulsets,replicasets [apps] | patch deployments,statefulsets [apps] | get,list pods [metrics.k8s.io]"
+      },
+      {
+        "check": "endpoint:jenkins",
+        "ok": null,
+        "detail": "未配置 jenkins 端点"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "workctl",
+        "adapter": "profile",
+        "observed_at": "2026-10-17T16:19:37.459Z",
+        "relation": "derived"
+      }
+    ],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclqrlm-10aff6",
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "profile",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:19:37.402Z",
+    "duration_ms": 57
+  }
+}

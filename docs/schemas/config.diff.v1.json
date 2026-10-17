@@ -7,6 +7,18 @@
     "endpoint": {
       "type": "string"
     },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "etcd",
+        "nacos",
+        "consul"
+      ],
+      "description": "实际使用的 provider（由端点类型决定）"
+    },
+    "provider_selected_by": {
+      "type": "string"
+    },
     "service": {
       "type": "string"
     },
@@ -22,6 +34,15 @@
         "null"
       ]
     },
+    "revision_space": {
+      "type": "string",
+      "enum": [
+        "etcd-cluster-revision",
+        "consul-raft-index",
+        "nacos-history-id"
+      ],
+      "description": "修订号的含义：etcd 集群全局修订；Consul raft 索引（CreateIndex/ModifyIndex/X-Consul-Index）；Nacos 配置历史记录 ID（nid）"
+    },
     "mode": {
       "type": "string",
       "enum": [
@@ -30,7 +51,8 @@
       ]
     },
     "from_revision": {
-      "type": "number"
+      "type": "number",
+      "description": "起点（etcd 集群修订；Nacos 历史 ID，表示“该次变更生效后”的状态；0 表示文档创建前）"
     },
     "to_revision": {
       "type": "number"
@@ -59,7 +81,7 @@
           },
           "masked": {
             "type": "boolean",
-            "description": "任一侧的值被遮蔽；遮蔽时 changed 仍按原始字节判断"
+            "description": "任一侧的值被遮蔽；遮蔽时 changed 仍按原始内容判断"
           },
           "old": {
             "anyOf": [
@@ -79,8 +101,11 @@
                     ]
                   },
                   "value_bytes": {
-                    "type": "number",
-                    "description": "原始值字节数（遮蔽前）"
+                    "description": "原始值字节数（遮蔽前）；整个值被遮蔽时为 null，避免泄露密钥长度",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
                   },
                   "masked": {
                     "type": "boolean"
@@ -93,13 +118,22 @@
                     "description": "被遮蔽的位置：\"$\" 为整个值，\"$.a.b\" 为 JSON 字段"
                   },
                   "mod_revision": {
-                    "type": "number"
+                    "type": [
+                      "number",
+                      "null"
+                    ]
                   },
                   "version": {
-                    "type": "number"
+                    "type": [
+                      "number",
+                      "null"
+                    ]
                   },
                   "create_revision": {
-                    "type": "number"
+                    "type": [
+                      "number",
+                      "null"
+                    ]
                   }
                 },
                 "required": [
@@ -137,8 +171,11 @@
                     ]
                   },
                   "value_bytes": {
-                    "type": "number",
-                    "description": "原始值字节数（遮蔽前）"
+                    "description": "原始值字节数（遮蔽前）；整个值被遮蔽时为 null，避免泄露密钥长度",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
                   },
                   "masked": {
                     "type": "boolean"
@@ -151,13 +188,22 @@
                     "description": "被遮蔽的位置：\"$\" 为整个值，\"$.a.b\" 为 JSON 字段"
                   },
                   "mod_revision": {
-                    "type": "number"
+                    "type": [
+                      "number",
+                      "null"
+                    ]
                   },
                   "version": {
-                    "type": "number"
+                    "type": [
+                      "number",
+                      "null"
+                    ]
                   },
                   "create_revision": {
-                    "type": "number"
+                    "type": [
+                      "number",
+                      "null"
+                    ]
                   }
                 },
                 "required": [
@@ -206,7 +252,7 @@
         },
         "rewritten_same_value": {
           "type": "number",
-          "description": "值相同但在区间内被重新写入（mod_revision 变化）"
+          "description": "值相同但在区间内被重新写入（etcd：mod_revision 变化；Nacos：键级不可知，恒为 0）"
         }
       },
       "required": [
@@ -217,14 +263,133 @@
         "rewritten_same_value"
       ],
       "additionalProperties": false
+    },
+    "nacos": {
+      "type": "object",
+      "properties": {
+        "namespace": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        },
+        "data_id": {
+          "type": "string"
+        },
+        "from_history": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "op_type": {
+                  "description": "I 新建 / U 修改 / D 删除",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "modified_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "src_user": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "op_type",
+                "modified_at",
+                "src_user"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "to_history": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "op_type": {
+                  "description": "I 新建 / U 修改 / D 删除",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "modified_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "src_user": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "op_type",
+                "modified_at",
+                "src_user"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "history_records": {
+          "type": "number",
+          "description": "本次读取到的历史记录数（受保留期限制）"
+        },
+        "oldest_history_id": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "namespace",
+        "group",
+        "data_id",
+        "from_history",
+        "to_history",
+        "history_records",
+        "oldest_history_id"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
     "endpoint",
+    "provider",
+    "provider_selected_by",
     "service",
     "env",
     "prefix",
     "key",
+    "revision_space",
     "mode",
     "from_revision",
     "to_revision",

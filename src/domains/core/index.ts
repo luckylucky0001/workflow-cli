@@ -15,6 +15,7 @@ const GUIDE = 'docs/capability-catalog.md';
 /** Endpoint kind each domain talks to; used by auth status and access check. */
 export const DOMAIN_ENDPOINT_KINDS: Record<string, string[]> = {
   mysql: ['mysql'],
+  postgres: ['postgres'],
   redis: ['redis'],
   offline: ['airflow'],
   compute: ['spark', 'airflow'],
@@ -25,11 +26,13 @@ export const DOMAIN_ENDPOINT_KINDS: Record<string, string[]> = {
   storage: ['docker'],
   observability: ['prometheus', 'docker', 'loki'],
   mq: ['kafka'],
-  config: ['etcd'],
+  config: ['etcd', 'nacos', 'consul'],
+  deploy: ['kubernetes', 'jenkins'],
 };
 
 export const ENDPOINT_AUTH_PROVIDERS: Record<string, string> = {
   mysql: 'database-profile',
+  postgres: 'database-profile',
   redis: 'redis-profile',
   airflow: 'airflow-basic',
   spark: 'none (local history server)',
@@ -41,6 +44,9 @@ export const ENDPOINT_AUTH_PROVIDERS: Record<string, string> = {
   catalog: 'filesystem',
   kafka: 'kafka-profile',
   etcd: 'etcd-profile',
+  nacos: 'nacos-token (username + password_ref → accessToken; none when auth is off)',
+  consul: 'consul-acl-token (token_ref → X-Consul-Token; none when ACL is off)',
+  jenkins: 'jenkins-basic',
 };
 
 const CapabilitySummary = z.object({

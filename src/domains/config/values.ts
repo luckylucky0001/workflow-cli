@@ -25,7 +25,8 @@ export type ValueFormat = 'json' | 'text' | 'binary_base64' | 'empty';
 export interface DecodedValue {
   value: unknown;
   value_format: ValueFormat;
-  value_bytes: number;
+  /** Raw size in bytes; null when the whole value is masked (its length would leak the secret's length). */
+  value_bytes: number | null;
   masked: boolean;
   masked_paths: string[];
 }
@@ -70,7 +71,7 @@ export function decodeValue(raw: Buffer, name: string): DecodedValue {
   } catch {
     text = null;
   }
-  if (isSecretName(name)) return { value: MASK, value_format: text === null ? 'binary_base64' : 'text', value_bytes: bytes, masked: true, masked_paths: ['$'] };
+  if (isSecretName(name)) return { value: MASK, value_format: text === null ? 'binary_base64' : 'text', value_bytes: null, masked: true, masked_paths: ['$'] };
   if (text === null) return { value: raw.toString('base64'), value_format: 'binary_base64', value_bytes: bytes, masked: false, masked_paths: [] };
   const t = text.trim();
   if (/^[[{]/.test(t) || /^(true|false|null|-?\d+(\.\d+)?([eE][+-]?\d+)?)$/.test(t)) {

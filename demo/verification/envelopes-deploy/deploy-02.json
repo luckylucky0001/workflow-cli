@@ -1,0 +1,149 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "deploy.release.list",
+  "data": {
+    "service": "demo-order",
+    "env": "sandbox",
+    "target": {
+      "binding": "demo-order-deploy",
+      "provider": "jenkins",
+      "endpoint": "demo-jenkins",
+      "object": "job deploy-demo-order"
+    },
+    "releases": [
+      {
+        "id": "4",
+        "provider": "jenkins",
+        "version": "v1.4.1",
+        "images": [],
+        "revision": 4,
+        "started_at": "2026-10-17T16:04:29.725Z",
+        "finished_at": "2026-10-17T16:04:31.742Z",
+        "timestamps": "explicit",
+        "duration_ms": 2017,
+        "status": "succeeded",
+        "status_basis": "Jenkins 构建结果 SUCCESS；最近一次成功的部署构建，视为当前版本（Jenkins 不观测目标环境实际运行的版本）",
+        "current": true,
+        "triggered_by": "admin",
+        "cause": "Started by user admin",
+        "source_ref": {
+          "system": "jenkins",
+          "kind": "jenkins.build",
+          "name": "deploy-demo-order#4",
+          "url": "http://127.0.0.1:18091/job/deploy-demo-order/4/"
+        }
+      },
+      {
+        "id": "3",
+        "provider": "jenkins",
+        "version": "v1.4.2-bad",
+        "images": [],
+        "revision": 3,
+        "started_at": "2026-10-17T16:04:19.721Z",
+        "finished_at": "2026-10-17T16:04:21.734Z",
+        "timestamps": "explicit",
+        "duration_ms": 2013,
+        "status": "failed",
+        "status_basis": "Jenkins 构建结果 FAILURE",
+        "current": false,
+        "triggered_by": "admin",
+        "cause": "Started by user admin",
+        "source_ref": {
+          "system": "jenkins",
+          "kind": "jenkins.build",
+          "name": "deploy-demo-order#3",
+          "url": "http://127.0.0.1:18091/job/deploy-demo-order/3/"
+        }
+      },
+      {
+        "id": "2",
+        "provider": "jenkins",
+        "version": "v1.4.1",
+        "images": [],
+        "revision": 2,
+        "started_at": "2026-10-17T16:04:09.717Z",
+        "finished_at": "2026-10-17T16:04:11.729Z",
+        "timestamps": "explicit",
+        "duration_ms": 2012,
+        "status": "succeeded",
+        "status_basis": "Jenkins 构建结果 SUCCESS",
+        "current": false,
+        "triggered_by": "admin",
+        "cause": "Started by user admin",
+        "source_ref": {
+          "system": "jenkins",
+          "kind": "jenkins.build",
+          "name": "deploy-demo-order#2",
+          "url": "http://127.0.0.1:18091/job/deploy-demo-order/2/"
+        }
+      },
+      {
+        "id": "1",
+        "provider": "jenkins",
+        "version": "v1.4.0",
+        "images": [],
+        "revision": 1,
+        "started_at": "2026-10-17T16:03:59.718Z",
+        "finished_at": "2026-10-17T16:04:01.790Z",
+        "timestamps": "explicit",
+        "duration_ms": 2072,
+        "status": "succeeded",
+        "status_basis": "Jenkins 构建结果 SUCCESS",
+        "current": false,
+        "triggered_by": "admin",
+        "cause": "Started by user admin",
+        "source_ref": {
+          "system": "jenkins",
+          "kind": "jenkins.build",
+          "name": "deploy-demo-order#1",
+          "url": "http://127.0.0.1:18091/job/deploy-demo-order/1/"
+        }
+      }
+    ],
+    "retained": 4
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "jenkins",
+        "adapter": "jenkins-rest",
+        "observed_at": "2026-10-17T16:15:51.313Z",
+        "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
+        "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100}",
+        "relation": "explicit",
+        "version": "2.541.3"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "Jenkins job deploy-demo-order 保留的构建（窗口内）",
+      "limit": 20,
+      "truncated": false,
+      "window": {
+        "start": "2026-10-10T16:15:51.312Z",
+        "end": "2026-10-17T16:15:51.313Z"
+      },
+      "notes": [
+        "Jenkins job 构建丢弃策略只保留最近 20 个构建；更早的发布不可见",
+        "时间来自构建 timestamp/duration（explicit）；version 为构建参数 VERSION",
+        "按构建参数过滤：SERVICE=demo-order, ENV=sandbox（0 个构建属于其他服务/环境，已排除）",
+        "current=最近一次成功的部署构建；Jenkins 不观测目标环境实际运行的版本，需要与容器/工作负载的镜像核对"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcllwyf-ac5e81",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "kubernetes-api | jenkins-rest",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:15:51.063Z",
+    "duration_ms": 250
+  }
+}

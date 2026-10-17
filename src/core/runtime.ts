@@ -221,6 +221,17 @@ export function parseDuration(v: string): number {
   return Math.round(n * mult);
 }
 
+/** Largest delay a Node timer honours; a longer budget fires at once (TimeoutOverflowWarning). */
+export const MAX_TIMEOUT_MS = 2_147_483_647;
+
+/** Check an invocation time budget (global --timeout, MCP, programmatic): positive and timer-safe. */
+export function checkTimeoutBudget(ms: unknown, label = '--timeout'): number {
+  if (typeof ms !== 'number' || !Number.isFinite(ms) || ms <= 0 || ms > MAX_TIMEOUT_MS) {
+    throw new WorkError('INVALID_ARGUMENT', `${label} 须为大于 0 且不超过 24d 的时长，收到 ${String(ms)}ms`, { hint: '使用如 30s、2m' });
+  }
+  return ms;
+}
+
 export function formatDuration(ms: number): string {
   if (ms % 86_400_000 === 0) return `${ms / 86_400_000}d`;
   if (ms % 3_600_000 === 0) return `${ms / 3_600_000}h`;

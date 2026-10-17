@@ -1,0 +1,50 @@
+$ workctl capability list --domain search
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+capabilities:
+  - name: search.cluster.get
+    command: search cluster get
+    summary: 查看 OpenSearch 集群健康（状态、节点、分片分配）、实际版本与索引数量
+    domain: search
+    status: available
+    operation: read
+    adapter: opensearch-http
+    capability_version: 1.0.0
+    origin: plugin:demo-search@0.1.0
+  - name: search.index.get
+    command: search index get
+    summary: 查看 OpenSearch 索引的设置、映射摘要、文档数/容量、累计读写统计与分片分配
+    domain: search
+    status: available
+    operation: read
+    adapter: opensearch-http
+    capability_version: 1.0.0
+    origin: plugin:demo-search@0.1.0
+  - name: search.query
+    command: search query
+    summary: 对 OpenSearch 执行受限只读查询（query_string 或受限 DSL），返回命中数、命中与聚合
+    domain: search
+    status: available
+    operation: read
+    adapter: opensearch-http
+    capability_version: 1.0.0
+    origin: plugin:demo-search@0.1.0
+  - name: search.snapshot.list
+    command: search snapshot list
+    summary: 列出 OpenSearch 快照仓库中的快照及状态（待接入）
+    domain: search
+    status: planned
+    operation: read
+    adapter: opensearch-http
+    capability_version: 1.0.0
+    origin: plugin:demo-search@0.1.0
+domains:
+  - name: search
+    title: 搜索引擎
+    pillar: middleware
+    summary: OpenSearch 集群健康、索引分片/容量/映射、受限只读查询；以插件形式接入
+    guide: /root/.local/share/workctl/plugins/demo-search/0.1.0/guides/search.md
+    skill: /root/.local/share/workctl/plugins/demo-search/0.1.0/skills/search-operations
+    available: 3
+    planned: 1
+    origin: plugin:demo-search@0.1.0
+# sources: workctl:builtin + installed plugins [explicit]

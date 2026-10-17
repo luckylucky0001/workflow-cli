@@ -1,0 +1,744 @@
+{
+  "$id": "docs/schemas/deploy.status.get.v1.json",
+  "title": "deploy.status.get data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "service": {
+      "type": "string"
+    },
+    "env": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "binding": {
+          "type": "string",
+          "description": "资源绑定中的 deploy.target ID"
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "kubernetes",
+            "jenkins"
+          ]
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "description": "Kubernetes: Deployment <ns>/<name>；Jenkins: job 路径"
+        }
+      },
+      "required": [
+        "binding",
+        "provider",
+        "endpoint",
+        "object"
+      ],
+      "additionalProperties": false
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "kubernetes",
+        "jenkins"
+      ]
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "progressing",
+        "failed",
+        "paused",
+        "queued",
+        "aborted",
+        "unknown"
+      ]
+    },
+    "detail": {
+      "type": "string"
+    },
+    "current_release": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Kubernetes: ReplicaSet 名；Jenkins: 构建号"
+            },
+            "provider": {
+              "type": "string",
+              "enum": [
+                "kubernetes",
+                "jenkins"
+              ]
+            },
+            "version": {
+              "description": "Kubernetes: 首个容器镜像 tag；Jenkins: 版本参数值",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "images": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "revision": {
+              "description": "Kubernetes: deployment.kubernetes.io/revision；Jenkins: 构建号",
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "started_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "finished_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "timestamps": {
+              "type": "string",
+              "enum": [
+                "explicit",
+                "derived"
+              ],
+              "description": "explicit=系统记录的发布开始/结束；derived=由对象创建时间/条件更新时间推得"
+            },
+            "duration_ms": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "succeeded",
+                "failed",
+                "running",
+                "aborted",
+                "unknown"
+              ]
+            },
+            "status_basis": {
+              "type": "string",
+              "description": "状态判定依据"
+            },
+            "current": {
+              "type": "boolean",
+              "description": "是否为当前生效的发布"
+            },
+            "triggered_by": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "cause": {
+              "description": "Kubernetes: kubernetes.io/change-cause 注解；Jenkins: 触发原因",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "source_ref": {
+              "type": "object",
+              "properties": {
+                "system": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string",
+                  "description": "如 ReplicaSet、Deployment、jenkins.build"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "url": {
+                  "description": "不含凭据的链接（Jenkins build URL）",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "system",
+                "kind",
+                "name",
+                "url"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "provider",
+            "version",
+            "images",
+            "revision",
+            "started_at",
+            "finished_at",
+            "timestamps",
+            "duration_ms",
+            "status",
+            "status_basis",
+            "current",
+            "triggered_by",
+            "cause",
+            "source_ref"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "in_progress": {
+      "type": "boolean"
+    },
+    "kubernetes": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "generation": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "observed_generation": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "paused": {
+              "type": "boolean"
+            },
+            "progress_deadline_seconds": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "replicas": {
+              "type": "object",
+              "properties": {
+                "desired": {
+                  "type": "number"
+                },
+                "current": {
+                  "type": "number"
+                },
+                "updated": {
+                  "type": "number"
+                },
+                "ready": {
+                  "type": "number"
+                },
+                "available": {
+                  "type": "number"
+                },
+                "unavailable": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "desired",
+                "current",
+                "updated",
+                "ready",
+                "available",
+                "unavailable"
+              ],
+              "additionalProperties": false
+            },
+            "conditions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "last_update": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "status",
+                  "reason",
+                  "message",
+                  "last_update"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "pods": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "revision": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "phase": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "ready": {
+                    "type": "boolean"
+                  },
+                  "waiting_reasons": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "restarts": {
+                    "type": "number"
+                  },
+                  "terminating": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "name",
+                  "revision",
+                  "phase",
+                  "ready",
+                  "waiting_reasons",
+                  "restarts",
+                  "terminating"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "generation",
+            "observed_generation",
+            "paused",
+            "progress_deadline_seconds",
+            "replicas",
+            "conditions",
+            "pods"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "jenkins": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "string"
+            },
+            "running": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Kubernetes: ReplicaSet 名；Jenkins: 构建号"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "kubernetes",
+                      "jenkins"
+                    ]
+                  },
+                  "version": {
+                    "description": "Kubernetes: 首个容器镜像 tag；Jenkins: 版本参数值",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "revision": {
+                    "description": "Kubernetes: deployment.kubernetes.io/revision；Jenkins: 构建号",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "started_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "finished_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "timestamps": {
+                    "type": "string",
+                    "enum": [
+                      "explicit",
+                      "derived"
+                    ],
+                    "description": "explicit=系统记录的发布开始/结束；derived=由对象创建时间/条件更新时间推得"
+                  },
+                  "duration_ms": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "succeeded",
+                      "failed",
+                      "running",
+                      "aborted",
+                      "unknown"
+                    ]
+                  },
+                  "status_basis": {
+                    "type": "string",
+                    "description": "状态判定依据"
+                  },
+                  "current": {
+                    "type": "boolean",
+                    "description": "是否为当前生效的发布"
+                  },
+                  "triggered_by": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "cause": {
+                    "description": "Kubernetes: kubernetes.io/change-cause 注解；Jenkins: 触发原因",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "source_ref": {
+                    "type": "object",
+                    "properties": {
+                      "system": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string",
+                        "description": "如 ReplicaSet、Deployment、jenkins.build"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "url": {
+                        "description": "不含凭据的链接（Jenkins build URL）",
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "system",
+                      "kind",
+                      "name",
+                      "url"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "id",
+                  "provider",
+                  "version",
+                  "images",
+                  "revision",
+                  "started_at",
+                  "finished_at",
+                  "timestamps",
+                  "duration_ms",
+                  "status",
+                  "status_basis",
+                  "current",
+                  "triggered_by",
+                  "cause",
+                  "source_ref"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "queued": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "queue_id": {
+                    "type": "number"
+                  },
+                  "why": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "in_queue_since": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "blocked": {
+                    "type": "boolean"
+                  },
+                  "stuck": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "queue_id",
+                  "why",
+                  "in_queue_since",
+                  "blocked",
+                  "stuck"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "last_build": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Kubernetes: ReplicaSet 名；Jenkins: 构建号"
+                    },
+                    "provider": {
+                      "type": "string",
+                      "enum": [
+                        "kubernetes",
+                        "jenkins"
+                      ]
+                    },
+                    "version": {
+                      "description": "Kubernetes: 首个容器镜像 tag；Jenkins: 版本参数值",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "revision": {
+                      "description": "Kubernetes: deployment.kubernetes.io/revision；Jenkins: 构建号",
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "started_at": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "finished_at": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "timestamps": {
+                      "type": "string",
+                      "enum": [
+                        "explicit",
+                        "derived"
+                      ],
+                      "description": "explicit=系统记录的发布开始/结束；derived=由对象创建时间/条件更新时间推得"
+                    },
+                    "duration_ms": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "succeeded",
+                        "failed",
+                        "running",
+                        "aborted",
+                        "unknown"
+                      ]
+                    },
+                    "status_basis": {
+                      "type": "string",
+                      "description": "状态判定依据"
+                    },
+                    "current": {
+                      "type": "boolean",
+                      "description": "是否为当前生效的发布"
+                    },
+                    "triggered_by": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "cause": {
+                      "description": "Kubernetes: kubernetes.io/change-cause 注解；Jenkins: 触发原因",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "source_ref": {
+                      "type": "object",
+                      "properties": {
+                        "system": {
+                          "type": "string"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "如 ReplicaSet、Deployment、jenkins.build"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "description": "不含凭据的链接（Jenkins build URL）",
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "system",
+                        "kind",
+                        "name",
+                        "url"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "provider",
+                    "version",
+                    "images",
+                    "revision",
+                    "started_at",
+                    "finished_at",
+                    "timestamps",
+                    "duration_ms",
+                    "status",
+                    "status_basis",
+                    "current",
+                    "triggered_by",
+                    "cause",
+                    "source_ref"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "job",
+            "running",
+            "queued",
+            "last_build"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "service",
+    "env",
+    "target",
+    "provider",
+    "state",
+    "detail",
+    "current_release",
+    "in_progress",
+    "kubernetes",
+    "jenkins"
+  ],
+  "additionalProperties": false
+}

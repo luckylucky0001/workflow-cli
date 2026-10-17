@@ -1,0 +1,41 @@
+$ workctl --timeout 30s redis stats sample --instance demo-redis --duration 5s
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+instance: demo-redis
+window:
+  start: 2026-10-17T16:20:07.407Z
+  end: 2026-10-17T16:20:12.409Z
+  duration_ms: 5002
+restart_detected: false
+reset_counters: []
+deltas:
+  keyspace_hits: 0
+  keyspace_misses: 0
+  total_commands_processed: 2
+  evicted_keys: 0
+  expired_keys: 0
+  rejected_connections: 0
+  total_connections_received: 1
+  total_net_input_bytes: 76
+  total_net_output_bytes: 4177
+  total_error_replies: 0
+rates_per_sec:
+  keyspace_hits: 0
+  keyspace_misses: 0
+  total_commands_processed: 0.4
+  evicted_keys: 0
+  expired_keys: 0
+  rejected_connections: 0
+  total_connections_received: 0.2
+  total_net_input_bytes: 15.19
+  total_net_output_bytes: 835.07
+  total_error_replies: 0
+hit_ratio: null
+hit_ratio_note: 窗口内没有键查找（hits+misses=0），命中率无定义（null），不是 0
+gauges_at_end:
+  used_memory: 4782088
+  maxmemory: 67108864
+  connected_clients: 2
+  mem_fragmentation_ratio: 3.29
+  instantaneous_ops_per_sec: 0
+self_commands_in_window: 1
+# sources: redis:INFO stats ×2 (Δ keyspace_hits, keyspace_misses, total_commands_processed, evicted_keys, expired_keys, rejected_connections, total_connections_received, total_net_input_bytes, total_net_output_bytes, total_error_replies) [derived]

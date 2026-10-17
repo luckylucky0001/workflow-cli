@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "postgres.statement.summary",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "采样窗口 30s 超过剩余时间预算 9s",
+    "hint": "增大 --timeout（如 --timeout 40s）或缩小 --sample-window",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclmndr-13f229",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:25.311Z",
+    "duration_ms": 23
+  }
+}

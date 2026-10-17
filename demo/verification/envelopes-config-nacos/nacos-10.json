@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "config.get",
+  "data": {
+    "endpoint": "nacos/demo-nacos",
+    "provider": "nacos",
+    "provider_selected_by": "--endpoint nacos/demo-nacos",
+    "service": "demo-refund",
+    "env": "sandbox",
+    "prefix": "sandbox/DEFAULT_GROUP/demo-refund.properties",
+    "key": null,
+    "revision_space": "nacos-history-id",
+    "observed_revision": null,
+    "count": 0,
+    "truncated": false,
+    "items": [],
+    "nacos": {
+      "namespace": "sandbox",
+      "group": "DEFAULT_GROUP",
+      "data_id": "demo-refund.properties",
+      "exists": false,
+      "type": null,
+      "content_format": "properties",
+      "parsed": false,
+      "parse_error": null,
+      "md5": null,
+      "content_bytes": null,
+      "last_modified": null,
+      "latest_history_id": null
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "nacos",
+        "adapter": "nacos-open-api",
+        "observed_at": "2026-10-17T16:20:34.778Z",
+        "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
+        "method": "GET /v1/cs/configs?show=all dataId=demo-refund.properties group=DEFAULT_GROUP tenant=sandbox",
+        "relation": "explicit",
+        "version": "2.4.3"
+      },
+      {
+        "system": "nacos",
+        "adapter": "nacos-open-api",
+        "observed_at": "2026-10-17T16:20:34.786Z",
+        "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
+        "method": "GET /v2/cs/history/list",
+        "relation": "explicit",
+        "version": "2.4.3"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "truncated": false,
+      "limit": 200,
+      "scope": "Nacos nacos/demo-nacos 配置 sandbox/DEFAULT_GROUP/demo-refund.properties",
+      "notes": [
+        "配置文档 sandbox/DEFAULT_GROUP/demo-refund.properties 不存在；检查 --env / --service 与端点的 namespace / group / data_id 模板",
+        "Nacos 没有键级修订：create_revision / mod_revision / version 为 null；文档级历史见 nacos.latest_history_id（config diff 的修订空间）"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclrzss-224183",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:20:34.684Z",
+    "duration_ms": 102
+  }
+}

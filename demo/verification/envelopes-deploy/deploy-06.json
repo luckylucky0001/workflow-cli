@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "deploy.release.get",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "Jenkins 发布 ID 应为构建号: abc",
+    "retryable": false
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcllzfd-2acf72",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "kubernetes-api | jenkins-rest",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:15:54.265Z",
+    "duration_ms": 38
+  }
+}

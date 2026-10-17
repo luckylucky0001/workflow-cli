@@ -1,0 +1,165 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "deploy.rollback.plan",
+  "data": {
+    "id": "op-20261017-dd1913",
+    "kind": "deploy.rollback",
+    "title": "回滚服务 demo-order（sandbox）的 Deployment workctl-demo/demo-order 到修订 14",
+    "params": {
+      "service": "demo-order",
+      "env": "sandbox",
+      "provider": "kubernetes",
+      "endpoint": "k3s",
+      "namespace": "workctl-demo",
+      "deployment": "demo-order",
+      "to": "demo-order-75874c6479"
+    },
+    "targets": [
+      {
+        "provider": "kubernetes",
+        "kind": "Deployment",
+        "namespace": "workctl-demo",
+        "name": "demo-order",
+        "uid": "e32abd5e-1d03-4697-a778-107a8fc6df2b",
+        "generation": 15,
+        "current_revision": 14,
+        "current_replicaset": "demo-order-75874c6479",
+        "current_images": [
+          "nginx:1.27-alpine-workctl-missing"
+        ],
+        "target_release": "demo-order-75874c6479",
+        "target_revision": 14,
+        "target_replicaset_uid": "cc0ea9fa-74ae-4f6c-a2ad-583e30f02065",
+        "target_images": [
+          "nginx:1.27-alpine-workctl-missing"
+        ],
+        "target_change_cause": "release v1.4.2-bad: image tag that does not exist",
+        "replicas": 2
+      }
+    ],
+    "impact": {
+      "service": "demo-order",
+      "env": "sandbox",
+      "provider": "kubernetes",
+      "namespace": "workctl-demo",
+      "deployment": "demo-order",
+      "image_change": "镜像不变（nginx:1.27-alpine-workctl-missing），只回滚 Pod 模板其他字段（环境变量、注解、探针等）",
+      "expected_interruption": "等价于 kubectl rollout undo --to-revision：Pod 模板替换为目标 ReplicaSet 的模板，按 {\"type\":\"RollingUpdate\",\"rollingUpdate\":{\"maxUnavailable\":0,\"maxSurge\":1}} 滚动替换 2 个 Pod",
+      "dependents_of_service": [],
+      "service_dependencies": [
+        {
+          "resource": "demo-order-k8s",
+          "relation": "runs_on",
+          "source": "binding-file",
+          "evidence": "Deployment workctl-demo/demo-order (labels app=demo-order)"
+        }
+      ],
+      "dependency_note": "来自资源绑定 /home/user/workflow-cli/demo/environment/k8s/bindings.k8s.yaml；被依赖方在 Pod 替换期间可能看到连接重置",
+      "side_effect": "目标 ReplicaSet 成为新的修订号（revision 递增，原修订号从历史中消失），并写入 kubernetes.io/change-cause 注解；配置中心/数据库结构不随之回滚"
+    },
+    "preconditions": [
+      {
+        "check": "target_release_retained",
+        "ok": true,
+        "detail": "目标 ReplicaSet workctl-demo/demo-order-75874c6479（修订 14）仍保留"
+      },
+      {
+        "check": "target_differs_from_current",
+        "ok": false,
+        "detail": "目标就是当前修订 14"
+      },
+      {
+        "check": "deployment_not_paused",
+        "ok": true,
+        "detail": "未暂停"
+      },
+      {
+        "check": "no_rollout_in_progress",
+        "ok": true,
+        "detail": "当前修订的 rollout 已失败（Progressing=False ProgressDeadlineExceeded: ReplicaSet \"demo-order-75874c6479\" has timed out progressing.），没有进行中的 rollout"
+      },
+      {
+        "check": "profile_allow_execute",
+        "ok": true,
+        "detail": "profile k8s-demo 允许执行"
+      },
+      {
+        "check": "kubernetes_reachable",
+        "ok": true,
+        "detail": "kubernetes/k3s (https://127.0.0.1:16443/) 可访问（计划生成时）"
+      }
+    ],
+    "steps": [
+      {
+        "name": "recheck",
+        "detail": "GET Deployment 与目标 ReplicaSet：uid 与计划一致、当前修订仍为 14（否则拒绝执行）"
+      },
+      {
+        "name": "patch template",
+        "detail": "PATCH /apis/apps/v1/namespaces/workctl-demo/deployments/demo-order（JSON patch：test uid，replace /spec/template 为目标 ReplicaSet 模板（去掉 pod-template-hash 标签），写 kubernetes.io/change-cause）"
+      },
+      {
+        "name": "verify",
+        "detail": "轮询 Deployment 直到 observedGeneration ≥ 新 generation、updatedReplicas=availableReplicas=replicas；ProgressDeadlineExceeded 视为失败（最多 300s，且不超过 --timeout）"
+      }
+    ],
+    "rollback": "再次回滚：workctl deploy rollback plan --service demo-order --to demo-order-75874c6479（回滚后原当前修订会成为旧修订）",
+    "idempotent": false,
+    "cancellable": false,
+    "status": "planned",
+    "created_at": "2026-10-17T16:19:41.468Z",
+    "expires_at": "2026-10-17T16:49:41.468Z",
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "executable": true,
+    "history": [
+      {
+        "at": "2026-10-17T16:19:41.468Z",
+        "status": "planned",
+        "note": "计划已生成，未执行"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "kubernetes",
+        "adapter": "kubernetes-api",
+        "observed_at": "2026-10-17T16:19:41.476Z",
+        "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
+        "method": "GET /apis/apps/v1/namespaces/workctl-demo/deployments/demo-order + replicasets",
+        "relation": "explicit",
+        "version": "v1.31.4+k3s1"
+      },
+      {
+        "system": "workctl",
+        "adapter": "plan-store",
+        "observed_at": "2026-10-17T16:19:41.476Z",
+        "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/k8s/state/operations",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "计划生成时解析出的目标",
+      "notes": [
+        "前置条件未满足（target_differs_from_current），该计划不能执行"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclquoi-132287",
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "kubernetes-api | jenkins-rest",
+    "operation": "plan",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:19:41.394Z",
+    "duration_ms": 82
+  }
+}

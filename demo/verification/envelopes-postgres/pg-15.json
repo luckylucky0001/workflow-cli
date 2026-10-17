@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "postgres.query.explain",
+  "data": null,
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "PostgreSQL 拒绝该操作 (postgres/demo-postgres): permission denied for table orders",
+    "hint": "角色已认证，但缺少所需权限；见 docs/guides/postgres.md 的权限前提",
+    "retryable": false,
+    "details": {
+      "endpoint": "postgres/demo-postgres",
+      "sql_state": "42501",
+      "severity": "ERROR",
+      "reason": "permission denied for table orders"
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclmehn-0f568e",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:13.787Z",
+    "duration_ms": 90
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "deploy.status.get",
+  "data": {
+    "service": "demo-order",
+    "env": "sandbox",
+    "target": {
+      "binding": "demo-order-deploy",
+      "provider": "kubernetes",
+      "endpoint": "k3s",
+      "object": "Deployment workctl-demo/demo-order"
+    },
+    "provider": "kubernetes",
+    "state": "complete",
+    "detail": "Deployment rollout 完成（2/2 个副本已更新并可用；Progressing=True NewReplicaSetAvailable）",
+    "current_release": {
+      "id": "demo-order-6cfc5699dd",
+      "provider": "kubernetes",
+      "version": "1.27-alpine",
+      "images": [
+        "nginx:1.27-alpine"
+      ],
+      "revision": 15,
+      "started_at": "2026-10-17T16:09:20Z",
+      "finished_at": "2026-10-17T16:19:44Z",
+      "timestamps": "derived",
+      "duration_ms": 624000,
+      "status": "succeeded",
+      "status_basis": "Deployment rollout 完成（2/2 个副本已更新并可用；Progressing=True NewReplicaSetAvailable）；该 ReplicaSet 曾是修订 11,13（回滚复用），started_at 为首次创建时间",
+      "current": true,
+      "triggered_by": null,
+      "cause": "workctl deploy rollback to revision 13 (demo-order-6cfc5699dd, plan op-20261017-c4c407)",
+      "source_ref": {
+        "system": "kubernetes",
+        "kind": "ReplicaSet",
+        "name": "workctl-demo/demo-order-6cfc5699dd",
+        "url": null
+      }
+    },
+    "in_progress": false,
+    "kubernetes": {
+      "generation": 16,
+      "observed_generation": 16,
+      "paused": false,
+      "progress_deadline_seconds": 30,
+      "replicas": {
+        "desired": 2,
+        "current": 2,
+        "updated": 2,
+        "ready": 2,
+        "available": 2,
+        "unavailable": 0
+      },
+      "conditions": [
+        {
+          "type": "Available",
+          "status": "True",
+          "reason": "MinimumReplicasAvailable",
+          "message": "Deployment has minimum availability.",
+          "last_update": "2026-10-17T14:05:52Z"
+        },
+        {
+          "type": "Progressing",
+          "status": "True",
+          "reason": "NewReplicaSetAvailable",
+          "message": "ReplicaSet \"demo-order-6cfc5699dd\" has successfully progressed.",
+          "last_update": "2026-10-17T16:19:44Z"
+        }
+      ],
+      "pods": [
+        {
+          "name": "demo-order-6cfc5699dd-86cm6",
+          "revision": 15,
+          "phase": "Running",
+          "ready": true,
+          "waiting_reasons": [],
+          "restarts": 0,
+          "terminating": false
+        },
+        {
+          "name": "demo-order-6cfc5699dd-qmnd2",
+          "revision": 15,
+          "phase": "Running",
+          "ready": true,
+          "waiting_reasons": [],
+          "restarts": 0,
+          "terminating": false
+        }
+      ]
+    },
+    "jenkins": null
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "kubernetes",
+        "adapter": "kubernetes-api",
+        "observed_at": "2026-10-17T16:19:47.158Z",
+        "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
+        "method": "GET /apis/apps/v1/namespaces/workctl-demo/deployments/demo-order",
+        "relation": "explicit",
+        "version": "v1.31.4+k3s1"
+      },
+      {
+        "system": "kubernetes",
+        "adapter": "kubernetes-api",
+        "observed_at": "2026-10-17T16:19:47.158Z",
+        "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
+        "method": "GET /apis/apps/v1/namespaces/workctl-demo/replicasets?labelSelector=app=demo-order",
+        "relation": "explicit",
+        "version": "v1.31.4+k3s1"
+      },
+      {
+        "system": "kubernetes",
+        "adapter": "kubernetes-api",
+        "observed_at": "2026-10-17T16:19:47.158Z",
+        "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
+        "method": "GET /api/v1/namespaces/workctl-demo/pods?labelSelector=app=demo-order",
+        "relation": "explicit",
+        "version": "v1.31.4+k3s1"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "Deployment workctl-demo/demo-order 当前 rollout 状态（kubectl rollout status 语义）",
+      "notes": []
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclqyy8-1e1892",
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "kubernetes-api | jenkins-rest",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:19:46.928Z",
+    "duration_ms": 232
+  }
+}

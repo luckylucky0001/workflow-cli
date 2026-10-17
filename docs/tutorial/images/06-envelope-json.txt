@@ -1,0 +1,83 @@
+$ workctl --json network connectivity check --target 127.0.0.1:13306
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "network.connectivity.check",
+  "data": {
+    "target": "127.0.0.1:13306",
+    "host": "127.0.0.1",
+    "port": 13306,
+    "resolution": {
+      "addresses": [
+        "127.0.0.1"
+      ],
+      "duration_ms": null,
+      "error_code": null
+    },
+    "samples": [
+      {
+        "seq": 1,
+        "ok": true,
+        "connect_ms": 4.5,
+        "remote_address": "127.0.0.1",
+        "error_code": null
+      },
+      {
+        "seq": 2,
+        "ok": true,
+        "connect_ms": 1.5,
+        "remote_address": "127.0.0.1",
+        "error_code": null
+      },
+      {
+        "seq": 3,
+        "ok": true,
+        "connect_ms": 2.7,
+        "remote_address": "127.0.0.1",
+        "error_code": null
+      }
+    ],
+    "summary": {
+      "sent": 3,
+      "succeeded": 3,
+      "failed": 0,
+      "loss_pct": 0,
+      "min_ms": 1.5,
+      "avg_ms": 2.9,
+      "max_ms": 4.5
+    },
+    "reachable": true
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "tcp",
+        "adapter": "node-net",
+        "observed_at": "2026-10-17T16:19:46.262Z",
+        "method": "connect 127.0.0.1:13306 ×3",
+        "relation": "sampled"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "sampled": true,
+      "scope": "workctl 所在主机发起的 TCP 建连采样",
+      "notes": []
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclqy3p-7dbfa3",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "node-net",
+    "operation": "diagnose",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:19:45.829Z",
+    "duration_ms": 434
+  }
+}

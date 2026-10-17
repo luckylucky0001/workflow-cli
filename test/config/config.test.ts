@@ -26,14 +26,16 @@ describe('config domain definition', () => {
     expect(caps.map((c) => c.command).sort()).toEqual(['config diff', 'config get', 'discovery list']);
     for (const c of caps) {
       expect(c.status).toBe('available');
-      expect(c.adapter).toBe('etcd-v3-gateway');
-      expect(c.auth_provider).toBe('etcd-profile');
+      expect(c.adapter).toBe('etcd-v3-gateway|nacos-open-api|consul-http-api');
+      expect(c.auth_provider).toBe('etcd-profile | nacos-token | consul-acl-token');
       expect(c.operation).toBe('read');
       expect(c.examples?.length).toBeGreaterThan(0);
       expect(c.notes?.length).toBeGreaterThan(0);
       expect(() => r.outputJsonSchema(c)).not.toThrow();
     }
     expect(r.probes.has('etcd')).toBe(true);
+    expect(r.probes.has('nacos')).toBe(true);
+    expect(r.probes.has('consul')).toBe(true);
     const all = builtinRegistry();
     expect(all.get('config.get')!.status).toBe('available');
     expect(all.domains.get('config')!.title).toBe('配置与服务发现');
@@ -59,7 +61,7 @@ describe('etcd helpers (pure)', () => {
     expect(decodeValue(Buffer.from('缓存-中文'), 'cache.label')).toMatchObject({ value: '缓存-中文', value_format: 'text', value_bytes: 13 });
     expect(decodeValue(Buffer.from([0xff, 0xfe, 0x00]), 'blob')).toMatchObject({ value: '//4A', value_format: 'binary_base64' });
     expect(decodeValue(Buffer.from(''), 'x')).toMatchObject({ value: '', value_format: 'empty' });
-    expect(decodeValue(Buffer.from('s3cr3t'), 'db.password')).toEqual({ value: '***', value_format: 'text', value_bytes: 6, masked: true, masked_paths: ['$'] });
+    expect(decodeValue(Buffer.from('s3cr3t'), 'db.password')).toEqual({ value: '***', value_format: 'text', value_bytes: null, masked: true, masked_paths: ['$'] });
     const nested = decodeValue(Buffer.from(JSON.stringify({ url: 'http://x', auth: { token: 'abc', user: 'u' }, list: [{ password: 'p' }] })), 'upstream.payment');
     expect(nested.value).toEqual({ url: 'http://x', auth: { token: '***', user: 'u' }, list: [{ password: '***' }] });
     expect(nested.masked_paths).toEqual(['$.auth.token', '$.list[0].password']);
@@ -163,6 +165,7 @@ describe('config / discovery against a fake etcd gateway', () => {
     expect(empty.meta.coverage).toMatchObject({ complete: true });
     expect(empty.meta.coverage!.notes!.join('')).toContain('没有配置项');
     const cut = await call('config.get', { service: 'demo-order', limit: 2 });
+    expect(cut.status).toBe('partial');
     expect(cut.data).toMatchObject({ truncated: true, count: 5 });
     expect(cut.meta.coverage).toMatchObject({ complete: false, truncated: true });
     const bad = await call('config.get', { service: '../etc' });

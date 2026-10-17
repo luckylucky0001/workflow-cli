@@ -1,0 +1,42 @@
+$ workctl metric query --resource demo-order --metric request_rate --window 1h --step 5m
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+resource: demo-order
+metric: request_rate
+promql: sum(rate(http_requests_total{service="demo-order"}[1m]))
+unit: req/s
+description: 每秒请求数
+window:
+  start: 2026-10-17T15:15:00.000Z
+  end: 2026-10-17T16:15:00.000Z
+step_seconds: 300
+result_type: matrix
+series:
+  - labels: {}
+    points:
+      - - 2026-10-17T15:40:00.000Z
+        - 1.018182
+      - - 2026-10-17T15:45:00.000Z
+        - 0
+      - - 2026-10-17T15:50:00.000Z
+        - 0
+      - - 2026-10-17T15:55:00.000Z
+        - 0
+      - - 2026-10-17T16:00:00.000Z
+        - 0.072725
+      - - 2026-10-17T16:05:00.000Z
+        - 0
+      - - 2026-10-17T16:10:00.000Z
+        - 0
+      - - 2026-10-17T16:15:00.000Z
+        - 0
+    summary:
+      points: 8
+      nan_points: 0
+      inf_points: 0
+      min: 0
+      max: 1.018182
+      avg: 0.136363
+      last: 0
+      last_at: 2026-10-17T16:15:00.000Z
+empty: false
+# sources: prometheus:GET /api/v1/query_range query=sum(rate(http_requests_total{service="demo-order"}[1m])) [explicit], workctl:metrics.request_rate [explicit]

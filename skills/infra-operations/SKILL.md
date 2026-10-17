@@ -70,15 +70,17 @@ workctl network backend list --service <svc>            # 业务探测
 ```
 执行器的 `verified` 只基于 inspect（进程运行、启动时间更新、健康检查状态）；业务恢复以探测与指标为准。失败时用 `container event list` 和 `log query` 查看原因，不要自动重试。
 
-## 场景 6：配置与服务发现（etcd，只读）
+## 场景 6：配置与服务发现（etcd / Nacos / Consul，只读）
 
 ```bash
-workctl config get --service <svc> [--key <name>]                 # 当前值、mod_revision、version；敏感值为 ***
+workctl config get --service <svc> [--key <name>]                 # 当前值与修订；敏感值为 ***（整值遮蔽时 value_bytes=null）
 workctl config diff --service <svc> --from-rev <rev>              # 或 --key <name> 与上一版本比较
-workctl discovery list --service <svc> [--healthy-only]           # 注册实例、租约剩余 TTL
+workctl discovery list --service <svc> [--healthy-only]           # 注册实例与健康
 ```
-- 修订是集群级全局修订；`observed_revision` 是 etcd 的值，不代表应用已加载。`DATA_UNAVAILABLE` = 修订已被压缩（`details.compact_revision` 起可读），不是“没有改过”。
-- `healthy` 是实例自报；`lease=null` 的注册永不过期，可能是残留。不要输出或猜测被遮蔽的值。
+- provider 由服务绑定的配置中心端点类型决定（`data.provider`、`provider_selected_by`）；`--endpoint <类型>/<名称>` 可显式指定。先看 `data.revision_space` 再解读修订号：etcd 集群修订、Nacos 历史 ID、Consul raft 索引，三者不可互换。
+- etcd：`DATA_UNAVAILABLE` = 修订已被压缩（`details.compact_revision` 起可读），不是“没有改过”。Nacos：历史默认只保留 30 天，早于最早记录同样是 `DATA_UNAVAILABLE`；properties/yaml/json 拆成键，其他类型整篇一项。Consul：KV **没有历史**，`config diff` 总是 `DATA_UNAVAILABLE`（只给 ModifyIndex），不要推测旧值。
+- `healthy` 的依据见 `health_basis`：etcd 为实例自报（`lease=null` 的注册永不过期，可能是残留）；Nacos 为服务端状态（`enabled=false` 已下线仍在列表）；Consul 为检查聚合（critical → false，warning 计为 healthy）。`service_registered=false` 表示服务未注册，与“0 个实例”不同。
+- 不要输出或猜测被遮蔽的值；Apollo / ZooKeeper 返回 `CAPABILITY_PLANNED`，属于未接入。
 
 ## Docker 与 Kubernetes
 

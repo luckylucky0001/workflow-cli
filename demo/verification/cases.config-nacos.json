@@ -1,0 +1,163 @@
+[
+ {
+  "id": "nacos-01",
+  "args": [
+   "auth",
+   "status",
+   "--probe"
+  ],
+  "note": "端点探测：nacos 走 GET /nacos/v1/console/server/state（版本、standalone、鉴权开关、历史保留天数）"
+ },
+ {
+  "id": "nacos-02",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "demo-payment",
+   "--env",
+   "sandbox"
+  ],
+  "capture": {
+   "v3": "data.nacos.latest_history_id"
+  },
+  "note": "provider 由资源绑定 demo-payment.attributes.config_center=demo-nacos 选择；properties 文档拆为键；db.password / callback.token 遮蔽且 value_bytes=null"
+ },
+ {
+  "id": "nacos-03",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "demo-payment",
+   "--key",
+   "db.password"
+  ],
+  "note": "单键读取：整值遮蔽，不暴露长度"
+ },
+ {
+  "id": "nacos-04",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-payment",
+   "--key",
+   "order.timeout_ms"
+  ],
+  "capture": {
+   "v1": "data.nacos.from_history.id"
+  },
+  "note": "与该键上一值比较（800 → 1500）：沿历史前像回溯，from_history 为变更前的记录"
+ },
+ {
+  "id": "nacos-05",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-payment",
+   "--from-rev",
+   "${v1}",
+   "--to-rev",
+   "${v3}"
+  ],
+  "note": "真实历史 ID 间差异：added risk.max_amount / callback.token、removed legacy.callback、changed ×3（含遮蔽的 db.password）"
+ },
+ {
+  "id": "nacos-06",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-payment",
+   "--key",
+   "db.password"
+  ],
+  "note": "密码轮换：两侧均 ***，changed 依据原始内容判断"
+ },
+ {
+  "id": "nacos-07",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-payment",
+   "--from-rev",
+   "0"
+  ],
+  "expect": "DATA_UNAVAILABLE",
+  "note": "早于保留的最早历史记录 → DATA_UNAVAILABLE（details.oldest_history_id、retention_days=30）"
+ },
+ {
+  "id": "nacos-08",
+  "args": [
+   "config",
+   "diff",
+   "--service",
+   "demo-payment"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "既无 --from-rev 也无 --key → INVALID_ARGUMENT"
+ },
+ {
+  "id": "nacos-09",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "demo-payment",
+   "--key",
+   "no.such.key"
+  ],
+  "expect": "NOT_FOUND",
+  "note": "键不存在 → NOT_FOUND（hint 列出文档中的键）"
+ },
+ {
+  "id": "nacos-10",
+  "args": [
+   "config",
+   "get",
+   "--service",
+   "demo-refund",
+   "--endpoint",
+   "nacos/demo-nacos"
+  ],
+  "note": "文档不存在：success + 空列表 + nacos.exists=false（与“无权限/不可达”区分）"
+ },
+ {
+  "id": "nacos-11",
+  "args": [
+   "discovery",
+   "list",
+   "--service",
+   "demo-payment"
+  ],
+  "note": "持久实例：127.0.0.1:9 服务端 TCP 探测失败 healthy=false；127.0.0.2 enabled=false 仍在注册表"
+ },
+ {
+  "id": "nacos-12",
+  "args": [
+   "discovery",
+   "list",
+   "--service",
+   "demo-payment",
+   "--env",
+   "sandbox",
+   "--healthy-only"
+  ],
+  "note": "按 metadata.env 与健康过滤"
+ },
+ {
+  "id": "nacos-13",
+  "args": [
+   "discovery",
+   "list",
+   "--service",
+   "ghost-svc",
+   "--endpoint",
+   "demo-nacos"
+  ],
+  "note": "未注册服务：success + 空列表，summary.service_registered=false"
+ }
+]

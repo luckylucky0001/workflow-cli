@@ -1,0 +1,61 @@
+$ workctl redis key sample --instance demo-redis --pattern 'demo:*' --max-keys 20
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+instance: demo-redis
+db: 0
+keys_in_db: 822
+scan:
+  pattern: demo:*
+  scan_count_hint: 100
+  scan_calls: 1
+  unique_keys: 20
+  duplicates_seen: 0
+  cursor_complete: false
+  stopped_by: max_keys
+sampled_keys: 20
+vanished_keys: 0
+type_counts:
+  hash: 13
+  string: 7
+memory_bytes:
+  p50: 152
+  p90: 256
+  p99: 256
+  max: 256
+  mean: 187
+  sum_sampled: 3744
+top_keys:
+  - key: demo:order:1440
+    type: string
+    memory_bytes: 256
+  - key: demo:order:1530
+    type: string
+    memory_bytes: 256
+  - key: demo:order:1340
+    type: string
+    memory_bytes: 256
+  - key: demo:order:2430
+    type: string
+    memory_bytes: 256
+  - key: demo:order:230
+    type: string
+    memory_bytes: 248
+  - key: demo:order:620
+    type: string
+    memory_bytes: 248
+  - key: demo:order:420
+    type: string
+    memory_bytes: 248
+  - key: demo:customer:191:profile
+    type: hash
+    memory_bytes: 152
+  - key: demo:customer:64:profile
+    type: hash
+    memory_bytes: 152
+  - key: demo:customer:1:profile
+    type: hash
+    memory_bytes: 152
+# coverage: incomplete (pattern demo:*)
+#   - 采样: SCAN 1 次，去重后 20 个键，重复返回 0 次，停止原因 max_keys
+#   - 游标未回到 0：只覆盖了部分键空间，分布仅代表样本
+#   - MEMORY USAGE 为近似值（SAMPLES 5）
+# sources: redis:SCAN MATCH demo:* COUNT 100 + TYPE + MEMORY USAGE SAMPLES 5 [sampled]

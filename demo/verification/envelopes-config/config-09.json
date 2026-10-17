@@ -4,11 +4,14 @@
   "capability": "config.get",
   "data": {
     "endpoint": "etcd/demo-etcd",
+    "provider": "etcd",
+    "provider_selected_by": "profile 默认 etcd 端点 demo-etcd（服务 demo-order 未绑定配置中心）",
     "service": "demo-order",
     "env": "prod",
     "prefix": "/config/prod/demo-order/",
     "key": null,
-    "observed_revision": 68,
+    "revision_space": "etcd-cluster-revision",
+    "observed_revision": 112,
     "count": 0,
     "truncated": false,
     "items": []
@@ -19,7 +22,7 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-17T15:59:30.407Z",
+        "observed_at": "2026-10-17T16:20:20.584Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
         "method": "POST /v3/kv/range prefix=/config/prod/demo-order/",
         "relation": "explicit",
@@ -30,23 +33,23 @@
       "complete": true,
       "truncated": false,
       "limit": 200,
-      "scope": "etcd etcd/demo-etcd 键前缀 /config/prod/demo-order/，修订 68",
+      "scope": "etcd etcd/demo-etcd 键前缀 /config/prod/demo-order/，修订 112",
       "notes": [
-        "前缀 /config/prod/demo-order/ 下没有配置项（修订 68）；不同环境/服务的键前缀不同，检查 --env / --service"
+        "前缀 /config/prod/demo-order/ 下没有配置项（修订 112）；不同环境/服务的键前缀不同，检查 --env / --service"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcl0w8a-40c074",
+    "request_id": "req-mvclrovm-8916b9",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
     "capability_version": "1.0.0",
-    "adapter": "etcd-v3-gateway",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:59:30.346Z",
-    "duration_ms": 61
+    "started_at": "2026-10-17T16:20:20.530Z",
+    "duration_ms": 54
   }
 }

@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "discovery.list",
+  "data": {
+    "endpoint": "nacos/demo-nacos",
+    "provider": "nacos",
+    "provider_selected_by": "--endpoint demo-nacos（nacos 端点）",
+    "service": "ghost-svc",
+    "env": null,
+    "prefix": "sandbox/DEFAULT_GROUP@@ghost-svc",
+    "observed_revision": null,
+    "instances": [],
+    "summary": {
+      "registered": 0,
+      "returned": 0,
+      "healthy": 0,
+      "unhealthy": 0,
+      "health_unknown": 0,
+      "without_lease": 0,
+      "excluded": {
+        "env_mismatch": 0,
+        "env_missing": 0,
+        "not_healthy": 0
+      },
+      "service_registered": false
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "nacos",
+        "adapter": "nacos-open-api",
+        "observed_at": "2026-10-17T16:20:37.525Z",
+        "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
+        "method": "GET /v1/ns/service serviceName=ghost-svc groupName=DEFAULT_GROUP namespaceId=sandbox",
+        "relation": "explicit",
+        "version": "2.4.3"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "Nacos nacos/demo-nacos 服务 sandbox/DEFAULT_GROUP@@ghost-svc",
+      "notes": [
+        "服务 DEFAULT_GROUP@@ghost-svc 未在命名空间 sandbox 注册（Nacos: service not found）",
+        "healthy 是 Nacos 服务端记录的健康状态（临时实例：心跳/连接；持久实例：服务端探测），不是 workctl 的探测"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvcls1y1-1d58d8",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:20:37.465Z",
+    "duration_ms": 61
+  }
+}

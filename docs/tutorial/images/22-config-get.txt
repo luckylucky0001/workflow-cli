@@ -1,0 +1,100 @@
+$ workctl config get --service demo-order --env sandbox
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+endpoint: etcd/demo-etcd
+provider: etcd
+provider_selected_by: profile 默认 etcd 端点 demo-etcd（服务 demo-order 未绑定配置中心）
+service: demo-order
+env: sandbox
+prefix: /config/sandbox/demo-order/
+key: null
+revision_space: etcd-cluster-revision
+observed_revision: 112
+count: 7
+truncated: false
+items:
+  - key: /config/sandbox/demo-order/cache.max_entries
+    name: cache.max_entries
+    value: 10000
+    value_format: json
+    value_bytes: 5
+    masked: false
+    masked_paths: []
+    create_revision: 106
+    mod_revision: 106
+    version: 1
+    lease: null
+  - key: /config/sandbox/demo-order/cache.mode
+    name: cache.mode
+    value: read-through
+    value_format: text
+    value_bytes: 12
+    masked: false
+    masked_paths: []
+    create_revision: 95
+    mod_revision: 109
+    version: 2
+    lease: null
+  - key: /config/sandbox/demo-order/cache.ttl_seconds
+    name: cache.ttl_seconds
+    value: 60
+    value_format: json
+    value_bytes: 2
+    masked: false
+    masked_paths: []
+    create_revision: 96
+    mod_revision: 105
+    version: 2
+    lease: null
+  - key: /config/sandbox/demo-order/db.password
+    name: db.password
+    value: "***"
+    value_format: text
+    value_bytes: null
+    masked: true
+    masked_paths:
+      - $
+    create_revision: 98
+    mod_revision: 107
+    version: 2
+    lease: null
+  - key: /config/sandbox/demo-order/db.pool_size
+    name: db.pool_size
+    value: 20
+    value_format: json
+    value_bytes: 2
+    masked: false
+    masked_paths: []
+    create_revision: 97
+    mod_revision: 103
+    version: 2
+    lease: null
+  - key: /config/sandbox/demo-order/feature.flags
+    name: feature.flags
+    value:
+      new_checkout: true
+      async_audit: true
+      rollout_percent: 20
+    value_format: json
+    value_bytes: 61
+    masked: false
+    masked_paths: []
+    create_revision: 99
+    mod_revision: 102
+    version: 2
+    lease: null
+  - key: /config/sandbox/demo-order/upstream.payment
+    name: upstream.payment
+    value:
+      url: http://payment.sandbox.invalid
+      timeout_ms: 1500
+      token: "***"
+    value_format: json
+    value_bytes: 87
+    masked: true
+    masked_paths:
+      - $.token
+    create_revision: 101
+    mod_revision: 108
+    version: 2
+    lease: null
+# sources: etcd:POST /v3/kv/range prefix=/config/sandbox/demo-order/ [explicit]

@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "deploy.release.list",
+  "data": null,
+  "error": {
+    "code": "NOT_CONFIGURED",
+    "message": "服务 demo-payment（env sandbox） 没有部署系统绑定",
+    "hint": "资源绑定中也没有服务 demo-payment；在 /home/user/workflow-cli/demo/environment/k8s/bindings.k8s.yaml 添加 type: deploy.target、attributes.service: demo-payment、endpoint {kind: kubernetes|jenkins} 的资源",
+    "retryable": false,
+    "details": {
+      "service": "demo-payment",
+      "env": "sandbox",
+      "bindings": "/home/user/workflow-cli/demo/environment/k8s/bindings.k8s.yaml"
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclqud5-51b361",
+    "profile": "k8s-demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "kubernetes-api | jenkins-rest",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:19:40.985Z",
+    "duration_ms": 20
+  }
+}

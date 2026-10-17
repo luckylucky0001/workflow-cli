@@ -1,0 +1,109 @@
+$ workctl doctor
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+healthy: true
+checks:
+  - area: config
+    item: file
+    ok: true
+    detail: /home/user/workflow-cli/demo/environment/workctl.yaml
+  - area: config
+    item: profile
+    ok: true
+    detail: demo env=sandbox data_mode=live allow_execute=true
+  - area: resources
+    item: bindings
+    ok: true
+    detail: 22 个资源，12 条关系
+  - area: endpoints
+    item: docker/local
+    ok: true
+    detail: /var/run/docker.sock
+  - area: credentials
+    item: mysql/demo-mysql.password_ref
+    ok: true
+    detail: file 引用可解析
+  - area: endpoints
+    item: mysql/demo-mysql
+    ok: true
+    detail: 127.0.0.1:13306 可达 (3ms)
+  - area: credentials
+    item: postgres/demo-postgres.password_ref
+    ok: true
+    detail: file 引用可解析
+  - area: endpoints
+    item: postgres/demo-postgres
+    ok: true
+    detail: 127.0.0.1:15432 可达 (2ms)
+  - area: endpoints
+    item: redis/demo-redis
+    ok: true
+    detail: 127.0.0.1:16379 可达 (0ms)
+  - area: endpoints
+    item: prometheus/demo-prometheus
+    ok: true
+    detail: 127.0.0.1:19090 可达 (1ms)
+  - area: endpoints
+    item: loki/demo-loki
+    ok: true
+    detail: 127.0.0.1:13100 可达 (1ms)
+  - area: credentials
+    item: airflow/demo-airflow.password_ref
+    ok: true
+    detail: file 引用可解析
+  - area: endpoints
+    item: airflow/demo-airflow
+    ok: true
+    detail: 127.0.0.1:18080 可达 (2ms)
+  - area: endpoints
+    item: spark/demo-spark
+    ok: true
+    detail: 127.0.0.1:18088 可达 (3ms)
+  - area: endpoints
+    item: trino/demo-trino
+    ok: true
+    detail: 127.0.0.1:18085 可达 (8ms)
+  - area: endpoints
+    item: catalog/demo
+    ok: true
+    detail: /home/user/workflow-cli/demo/catalog
+  - area: endpoints
+    item: kafka/demo-mq
+    ok: true
+    detail: 127.0.0.1:19092 可达 (2ms)
+  - area: endpoints
+    item: opensearch/demo-search
+    ok: true
+    detail: 127.0.0.1:19200 可达 (1ms)
+  - area: endpoints
+    item: etcd/demo-etcd
+    ok: true
+    detail: 127.0.0.1:12379 可达 (0ms)
+  - area: endpoints
+    item: nacos/demo-nacos
+    ok: true
+    detail: 127.0.0.1:18848 可达 (0ms)
+  - area: endpoints
+    item: consul/demo-consul
+    ok: true
+    detail: 127.0.0.1:18500 可达 (1ms)
+  - area: credentials
+    item: jenkins/demo-jenkins.password_ref
+    ok: true
+    detail: file 引用可解析
+  - area: endpoints
+    item: jenkins/demo-jenkins
+    ok: true
+    detail: 127.0.0.1:18091 可达 (0ms)
+  - area: plugins
+    item: demo-mq
+    ok: true
+    detail: v0.1.0 backend_mode=live，4 个能力
+  - area: plugins
+    item: demo-search
+    ok: true
+    detail: v0.1.0 backend_mode=live，4 个能力
+  - area: registry
+    item: capabilities
+    ok: true
+    detail: 89 个可调用，25 个待接入
+# sources: workctl [derived]

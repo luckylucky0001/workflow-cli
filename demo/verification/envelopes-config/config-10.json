@@ -5,11 +5,11 @@
   "data": null,
   "error": {
     "code": "INVALID_ARGUMENT",
-    "message": "--from-rev 99999999 大于 etcd 当前修订 68",
+    "message": "--from-rev 99999999 大于 etcd 当前修订 112",
     "retryable": false,
     "details": {
       "requested_revision": 99999999,
-      "current_revision": 68
+      "current_revision": 112
     }
   },
   "meta": {
@@ -18,15 +18,15 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcl0wjp-aa1a16",
+    "request_id": "req-mvclrpeo-922c13",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
     "capability_version": "1.0.0",
-    "adapter": "etcd-v3-gateway",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:59:30.757Z",
-    "duration_ms": 57
+    "started_at": "2026-10-17T16:20:21.216Z",
+    "duration_ms": 66
   }
 }

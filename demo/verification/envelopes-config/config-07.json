@@ -4,14 +4,17 @@
   "capability": "config.diff",
   "data": {
     "endpoint": "etcd/demo-etcd",
+    "provider": "etcd",
+    "provider_selected_by": "profile 默认 etcd 端点 demo-etcd（服务 demo-order 未绑定配置中心）",
     "service": "demo-order",
     "env": "sandbox",
     "prefix": "/config/sandbox/demo-order/",
     "key": "cache.mode",
+    "revision_space": "etcd-cluster-revision",
     "mode": "previous_version",
-    "from_revision": 64,
-    "to_revision": 68,
-    "current_revision": 68,
+    "from_revision": 108,
+    "to_revision": 112,
+    "current_revision": 112,
     "changes": [],
     "summary": {
       "added": 0,
@@ -27,9 +30,9 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-17T15:59:29.495Z",
+        "observed_at": "2026-10-17T16:20:18.956Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
-        "method": "POST /v3/kv/range key=/config/sandbox/demo-order/cache.mode revision=64 / revision=68",
+        "method": "POST /v3/kv/range key=/config/sandbox/demo-order/cache.mode revision=108 / revision=112",
         "relation": "explicit",
         "version": "3.5.21"
       }
@@ -37,7 +40,7 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "etcd etcd/demo-etcd 键 /config/sandbox/demo-order/cache.mode，修订 64 → 68",
+      "scope": "etcd etcd/demo-etcd 键 /config/sandbox/demo-order/cache.mode，修订 108 → 112",
       "notes": [
         "只比较两个修订的快照；区间内的中间值不可见。历史只保留到最近一次压缩"
       ]
@@ -45,15 +48,15 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcl0vi8-fcab75",
+    "request_id": "req-mvclrnmd-cd48e0",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
     "capability_version": "1.0.0",
-    "adapter": "etcd-v3-gateway",
+    "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:59:29.408Z",
-    "duration_ms": 87
+    "started_at": "2026-10-17T16:20:18.901Z",
+    "duration_ms": 55
   }
 }

@@ -7,6 +7,19 @@
     "endpoint": {
       "type": "string"
     },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "etcd",
+        "nacos",
+        "consul"
+      ],
+      "description": "实际使用的 provider（由端点类型决定）"
+    },
+    "provider_selected_by": {
+      "type": "string",
+      "description": "provider/端点的选择依据（--endpoint、资源绑定或 profile 默认）"
+    },
     "service": {
       "type": "string"
     },
@@ -15,7 +28,7 @@
     },
     "prefix": {
       "type": "string",
-      "description": "读取的 etcd 键前缀：<config_prefix><env>/<service>/"
+      "description": "etcd / Consul：读取的键前缀 <config_prefix><env>/<service>/；Nacos：<namespace>/<group>/<dataId>"
     },
     "key": {
       "type": [
@@ -23,13 +36,25 @@
         "null"
       ]
     },
+    "revision_space": {
+      "type": "string",
+      "enum": [
+        "etcd-cluster-revision",
+        "consul-raft-index",
+        "nacos-history-id"
+      ],
+      "description": "修订号的含义：etcd 集群全局修订；Consul raft 索引（CreateIndex/ModifyIndex/X-Consul-Index）；Nacos 配置历史记录 ID（nid）"
+    },
     "observed_revision": {
-      "type": "number",
-      "description": "响应头中的 etcd 集群当前修订（读取时刻）"
+      "description": "读取时刻的修订：etcd 集群修订；Consul X-Consul-Index；Nacos 无全局修订，为 null",
+      "type": [
+        "number",
+        "null"
+      ]
     },
     "count": {
       "type": "number",
-      "description": "前缀下的键总数（etcd count，可能大于返回数）"
+      "description": "前缀（或文档）下的键总数（可能大于返回数）"
     },
     "truncated": {
       "type": "boolean"
@@ -41,11 +66,11 @@
         "properties": {
           "key": {
             "type": "string",
-            "description": "etcd 完整键"
+            "description": "provider 内的完整定位：etcd / Consul 为完整键；Nacos 为 <namespace>/<group>/<dataId>#<name>"
           },
           "name": {
             "type": "string",
-            "description": "服务前缀下的相对键名"
+            "description": "服务前缀（或 Nacos 配置文档）下的相对键名"
           },
           "value": {
             "description": "JSON 可解析时为解析后的值，否则为文本；超出 ±2^53 的整数不做有损转换（单值为文本，JSON 内为数字字符串）；binary_base64 时为 base64；被遮蔽时为 \"***\""
@@ -60,8 +85,11 @@
             ]
           },
           "value_bytes": {
-            "type": "number",
-            "description": "原始值字节数（遮蔽前）"
+            "description": "原始值字节数（遮蔽前）；整个值被遮蔽时为 null，避免泄露密钥长度",
+            "type": [
+              "number",
+              "null"
+            ]
           },
           "masked": {
             "type": "boolean"
@@ -74,21 +102,56 @@
             "description": "被遮蔽的位置：\"$\" 为整个值，\"$.a.b\" 为 JSON 字段"
           },
           "create_revision": {
-            "type": "number"
+            "description": "etcd create_revision；Consul CreateIndex；Nacos 没有键级修订，为 null",
+            "type": [
+              "number",
+              "null"
+            ]
           },
           "mod_revision": {
-            "type": "number"
+            "description": "etcd mod_revision；Consul ModifyIndex；Nacos 为 null（文档级历史见 nacos.latest_history_id）",
+            "type": [
+              "number",
+              "null"
+            ]
           },
           "version": {
-            "type": "number",
-            "description": "该键自创建以来的修改次数（删除后重建从 1 开始）"
+            "description": "etcd：该键自创建以来的修改次数（删除后重建从 1 开始）；Consul / Nacos 不提供，为 null",
+            "type": [
+              "number",
+              "null"
+            ]
           },
           "lease": {
-            "description": "绑定的租约 ID（十进制字符串）；null 表示无租约",
+            "description": "etcd 租约 ID（十进制字符串）；null 表示无租约（Consul / Nacos 恒为 null）",
             "type": [
               "string",
               "null"
             ]
+          },
+          "consul": {
+            "description": "Consul KV 元数据",
+            "type": "object",
+            "properties": {
+              "flags": {
+                "type": "number"
+              },
+              "lock_index": {
+                "type": "number"
+              },
+              "session": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "flags",
+              "lock_index",
+              "session"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [
@@ -106,14 +169,103 @@
         ],
         "additionalProperties": false
       }
+    },
+    "nacos": {
+      "type": "object",
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "description": "命名空间 ID（tenant）；空串为 public"
+        },
+        "group": {
+          "type": "string"
+        },
+        "data_id": {
+          "type": "string"
+        },
+        "exists": {
+          "type": "boolean",
+          "description": "配置文档是否存在（不存在时 items 为空）"
+        },
+        "type": {
+          "description": "Nacos 记录的配置类型（properties/yaml/json/text/xml/html）；未记录为 null",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "content_format": {
+          "type": "string",
+          "enum": [
+            "properties",
+            "yaml",
+            "json",
+            "text"
+          ],
+          "description": "workctl 实际使用的解析方式"
+        },
+        "parsed": {
+          "type": "boolean",
+          "description": "false 表示整个文档作为一个值返回（类型不可拆分或解析失败）"
+        },
+        "parse_error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "md5": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "content_bytes": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "last_modified": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "latest_history_id": {
+          "description": "最近一条配置历史记录 ID（config diff 的修订空间）；历史为空或无权限读取时为 null",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "namespace",
+        "group",
+        "data_id",
+        "exists",
+        "type",
+        "content_format",
+        "parsed",
+        "parse_error",
+        "md5",
+        "content_bytes",
+        "last_modified",
+        "latest_history_id"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
     "endpoint",
+    "provider",
+    "provider_selected_by",
     "service",
     "env",
     "prefix",
     "key",
+    "revision_space",
     "observed_revision",
     "count",
     "truncated",

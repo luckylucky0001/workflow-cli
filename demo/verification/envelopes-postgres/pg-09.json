@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "postgres.lock.list",
+  "data": {
+    "instance": "demo-postgres",
+    "waits": [],
+    "blockers": [],
+    "summary": {
+      "waiting": 0,
+      "blockers": 0,
+      "root_blockers": [],
+      "max_chain_depth": 0
+    }
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "postgresql",
+        "adapter": "pg-driver",
+        "observed_at": "2026-10-17T16:16:06.705Z",
+        "endpoint": "postgres/demo-postgres",
+        "method": "pg_stat_activity + pg_blocking_pids() + pg_locks (granted=false)",
+        "version": "16.15",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "notes": [
+        "当前没有被阻塞的会话",
+        "瞬时快照；语句字面量已替换为 ?"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclm8zh-d1e6ca",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:06.653Z",
+    "duration_ms": 57
+  }
+}

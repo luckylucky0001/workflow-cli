@@ -1,0 +1,54 @@
+$ workctl mq consumer lag --cluster demo-mq --group demo-consumer
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+cluster: demo-mq
+cluster_id: 5L6g3nShT-eMCtK--X86sw
+group: demo-consumer
+group_state: Empty
+protocol_type: consumer
+assignment_strategy: null
+member_count: 0
+members: []
+topic_filter: null
+topics:
+  - topic: demo.order.events
+    partitions:
+      - partition: 0
+        committed_offset: 33
+        end_offset: 83
+        log_start_offset: 0
+        assigned_member: null
+        lag: 50
+        state: ok
+      - partition: 1
+        committed_offset: 46
+        end_offset: 116
+        log_start_offset: 0
+        assigned_member: null
+        lag: 70
+        state: ok
+      - partition: 2
+        committed_offset: 40
+        end_offset: 101
+        log_start_offset: 0
+        assigned_member: null
+        lag: 61
+        state: ok
+    total_lag: 181
+    partitions_with_commit: 3
+    partitions_without_commit: 0
+totals:
+  topics: 1
+  partitions: 3
+  partitions_with_commit: 3
+  partitions_without_commit: 0
+  partitions_lag_unknown: 0
+  total_lag: 181
+  max_partition_lag:
+    topic: demo.order.events
+    partition: 1
+    lag: 70
+lag_unit: offsets
+lag_basis: offset_difference
+end_offset_isolation: read_committed
+observed_at: 2026-10-17T16:20:14.769Z
+# sources: kafka:DescribeGroups(demo-consumer) [explicit], kafka:OffsetFetch(group=demo-consumer) [explicit], kafka:ListOffsets(latest+earliest, read_committed) [explicit], kafka:lag = end_offset - committed_offset [derived]

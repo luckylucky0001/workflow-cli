@@ -1,0 +1,51 @@
+$ workctl offline run list --workflow demo-daily-orders --data-date 2026-10-16 --timezone Asia/Shanghai
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+workflow: demo-daily-orders
+mapping:
+  rule: 业务日期 D 映射为业务时区内的半开区间 [D 00:00, D+1 00:00)；DAG run 的 data_interval 与该区间相交即纳入：exact=区间完全相同（日调度），contained=run 区间落在当天内（小时级调度），covers=run 区间覆盖当天（周/月调度），overlaps=部分重叠。run 的业务日期取 data_interval_start 在业务时区的日期，而不是 run 的启动时间。
+  business_date: 2026-10-16
+  timezone: Asia/Shanghai
+  business_interval:
+    start_local: 2026-10-16T00:00:00+08:00
+    end_local: 2026-10-17T00:00:00+08:00
+    start_utc: 2026-10-15T16:00:00.000Z
+    end_utc: 2026-10-16T16:00:00.000Z
+  query:
+    execution_date_gte: 2026-10-14T16:00:00.000Z
+    execution_date_lte: 2026-10-17T16:00:00.000Z
+    order_by: -execution_date
+    limit: 100
+runs:
+  - run_id: demo__2026-10-16__wrong_partition
+    state: success
+    run_type: manual
+    external_trigger: true
+    business_date: 2026-10-16
+    match: exact
+    logical_date:
+      utc: 2026-10-15T16:00:00.000Z
+      local: 2026-10-16T00:00:00+08:00
+    data_interval:
+      start:
+        utc: 2026-10-15T16:00:00.000Z
+        local: 2026-10-16T00:00:00+08:00
+      end:
+        utc: 2026-10-16T16:00:00.000Z
+        local: 2026-10-17T00:00:00+08:00
+    queued_at: null
+    start_date:
+      utc: 2026-10-17T15:36:19.308Z
+      local: 2026-10-17T23:36:19+08:00
+    end_date:
+      utc: 2026-10-17T15:37:32.504Z
+      local: 2026-10-17T23:37:32+08:00
+    duration_seconds: 73
+    last_scheduling_decision:
+      utc: 2026-10-17T15:37:32.503Z
+      local: 2026-10-17T23:37:32+08:00
+    conf:
+      fault: wrong_partition
+    note: workctl offline scenario
+total_matched: 1
+notes: []
+# sources: airflow:GET /api/v1/dags/demo-daily-orders/dagRuns [explicit]

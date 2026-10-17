@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "postgres.table.get",
+  "data": null,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "数据库不存在: no_such_db (postgres/demo-postgres)",
+    "hint": "用 workctl pg database list 查看可见的库",
+    "retryable": false,
+    "details": {
+      "endpoint": "postgres/demo-postgres",
+      "sql_state": "3D000",
+      "severity": "FATAL",
+      "reason": "database \"no_such_db\" does not exist"
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvclm82w-22efb6",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T16:16:05.480Z",
+    "duration_ms": 58
+  }
+}

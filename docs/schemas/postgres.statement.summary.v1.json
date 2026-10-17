@@ -1,0 +1,265 @@
+{
+  "$id": "docs/schemas/postgres.statement.summary.v1.json",
+  "title": "postgres.statement.summary data",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "string"
+    },
+    "aggregation": {
+      "type": "string",
+      "enum": [
+        "window_delta",
+        "cumulative_since"
+      ]
+    },
+    "window": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "string"
+            },
+            "end": {
+              "type": "string"
+            },
+            "duration_ms": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "start",
+            "end",
+            "duration_ms"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cumulative_since": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "stats_reset": {
+              "description": "pg_stat_statements_info.stats_reset（PG14+）",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "server_started_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "stats_reset",
+            "server_started_at"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "累计模式的统计起点是 stats_reset（扩展创建或 pg_stat_statements_reset()）；pg_stat_statements.save=on（默认）时正常重启不清空统计，崩溃恢复会清空"
+    },
+    "database": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "order_by": {
+      "type": "string"
+    },
+    "top": {
+      "type": "number"
+    },
+    "statements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "queryid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "database": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "user": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "query": {
+            "description": "归一化语句（常量为 $n），其余字面量替换为 ?，截断至 512 字符；无权限时为 null",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "query_truncated": {
+            "type": "boolean"
+          },
+          "calls": {
+            "type": "number"
+          },
+          "total_exec_ms": {
+            "type": "number"
+          },
+          "mean_exec_ms": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "max_exec_ms": {
+            "description": "仅累计模式：自 stats_reset 以来单次最大执行耗时",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "rows": {
+            "type": "number"
+          },
+          "rows_per_call": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "shared_blks_hit": {
+            "type": "number"
+          },
+          "shared_blks_read": {
+            "type": "number"
+          },
+          "cache_hit_ratio": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "temp_blks_written": {
+            "type": "number"
+          },
+          "reset_detected": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "queryid",
+          "database",
+          "user",
+          "query",
+          "query_truncated",
+          "calls",
+          "total_exec_ms",
+          "mean_exec_ms",
+          "rows",
+          "rows_per_call",
+          "shared_blks_hit",
+          "shared_blks_read",
+          "cache_hit_ratio",
+          "temp_blks_written"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "totals": {
+      "type": "object",
+      "properties": {
+        "statements_with_activity": {
+          "type": "number"
+        },
+        "calls": {
+          "type": "number"
+        },
+        "total_exec_ms": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "statements_with_activity",
+        "calls",
+        "total_exec_ms"
+      ],
+      "additionalProperties": false
+    },
+    "collection": {
+      "type": "object",
+      "properties": {
+        "extension_version": {
+          "type": "string"
+        },
+        "track": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "max_entries": {
+          "description": "pg_stat_statements.max：超过后最少执行的条目被淘汰（dealloc）",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "dealloc": {
+          "description": "累计被淘汰的条目数（PG14+）",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "text_visible": {
+          "type": "boolean",
+          "description": "当前角色能看到其他角色的语句文本（pg_read_all_stats）"
+        }
+      },
+      "required": [
+        "extension_version",
+        "track",
+        "max_entries",
+        "dealloc",
+        "text_visible"
+      ],
+      "additionalProperties": false
+    },
+    "excluded_self": {
+      "type": "number",
+      "description": "已排除的采样语句（查询 pg_stat_statements 本身的语句，含 workctl 自身）"
+    }
+  },
+  "required": [
+    "instance",
+    "aggregation",
+    "window",
+    "cumulative_since",
+    "database",
+    "order_by",
+    "top",
+    "statements",
+    "totals",
+    "collection",
+    "excluded_self"
+  ],
+  "additionalProperties": false
+}

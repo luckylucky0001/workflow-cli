@@ -1,0 +1,56 @@
+$ workctl data partition get --catalog demo --table analytics.daily_orders --partition dt=2026-10-16
+# [截图脚本记录，非命令输出] WORKCTL_CONFIG=demo/environment/workctl.yaml
+table: analytics.daily_orders
+partition: dt=2026-10-16
+path: /home/user/workflow-cli/demo/environment/.runtime/warehouse/analytics/daily_orders/dt=2026-10-16
+storage:
+  type: local-filesystem
+  warehouse_root: /home/user/workflow-cli/demo/environment/.runtime/warehouse
+  note: 通过本地文件系统读取；未验证对象存储或 HDFS
+state: missing
+explanation: 分区目录不存在（未产出、产出到其他位置，或分区值/业务日期不对）
+nearby_partitions:
+  - dt=2026-10-15
+  - dt=2026-10-17
+checks:
+  defined:
+    ok: true
+    keys:
+      - name: dt
+        value: 2026-10-16
+        type: date
+        timezone: Asia/Shanghai
+        semantics: 业务日期，Asia/Shanghai 自然日；与 order_date 列一致，不是任务启动日期
+    business_date:
+      value: 2026-10-16
+      timezone: Asia/Shanghai
+      today: 2026-10-18
+      day_ended: true
+      expected_ready_by: 2026-10-17T06:00:00+08:00
+      deadline_passed: true
+  exists:
+    ok: false
+    path: /home/user/workflow-cli/demo/environment/.runtime/warehouse/analytics/daily_orders/dt=2026-10-16
+  files:
+    ok: null
+    count: 0
+    total_bytes: 0
+    files: []
+    ignored: []
+    in_progress_markers: []
+  success_marker:
+    ok: null
+    name: _SUCCESS
+    present: null
+    modified_at: null
+  updated_at:
+    value: null
+    local: null
+    basis: 无文件
+  readable:
+    ok: null
+    sample_records_per_file: 20
+    files: []
+    observed_columns: []
+    undeclared_columns: []
+# sources: file-catalog:read tables/analytics.daily_orders.yaml (partition_keys) [explicit], local-filesystem:stat+readdir analytics/daily_orders/dt=2026-10-16 [derived]

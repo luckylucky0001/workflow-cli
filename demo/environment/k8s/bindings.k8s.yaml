@@ -19,5 +19,11 @@ resources:
   #   env: sandbox
   #   endpoint: { kind: kubernetes, name: k3s }
   #   attributes: { namespace: workctl-demo, deployment: demo-order }
+  # deploy system of demo-order: rollouts of the Deployment (workctl deploy ...)
+  - id: demo-order-deploy
+    type: deploy.target
+    env: sandbox
+    endpoint: { kind: kubernetes, name: k3s }
+    attributes: { service: demo-order, namespace: workctl-demo, deployment: demo-order }
 relations:
   - { from: demo-order, to: demo-order-k8s, type: runs_on, source: binding-file, evidence: "Deployment workctl-demo/demo-order (labels app=demo-order)" }

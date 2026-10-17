@@ -1,0 +1,211 @@
+[
+ {
+  "id": "deploy-k8s-01",
+  "args": [
+   "access",
+   "check",
+   "--capability",
+   "deploy.release.list",
+   "--target",
+   "k3s"
+  ],
+  "note": "deploy 域端点 kubernetes/jenkins：k8s profile 只配置 kubernetes，探测 API server 身份与 RBAC"
+ },
+ {
+  "id": "deploy-k8s-02",
+  "args": [
+   "deploy",
+   "status",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "note": "k8s-rollouts.sh break 之后：state=failed（Progressing=False ProgressDeadlineExceeded），新修订 Pod ImagePullBackOff，旧修订 Pod 仍就绪"
+ },
+ {
+  "id": "deploy-k8s-03",
+  "args": [
+   "deploy",
+   "release",
+   "list",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--window",
+   "7d"
+  ],
+  "capture": {
+   "bad": "data.releases[0].id",
+   "good": "data.releases[1].id"
+  },
+  "note": "保留的 ReplicaSet 修订（新→旧）：v1.4.2-bad 当前且 failed、v1.4.1/v1.4.0 change-cause；started_at derived；coverage 说明 revisionHistoryLimit"
+ },
+ {
+  "id": "deploy-k8s-04",
+  "args": [
+   "deploy",
+   "release",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--id",
+   "${bad}"
+  ],
+  "note": "失败修订详情：镜像 nginx:1.27-alpine-workctl-missing、change-cause、副本数、与当前差异为空（自身即当前）"
+ },
+ {
+  "id": "deploy-k8s-05",
+  "args": [
+   "deploy",
+   "release",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--id",
+   "${good}"
+  ],
+  "note": "上一修订详情：diff_vs_current 列出镜像与 RELEASE_VERSION 变化"
+ },
+ {
+  "id": "deploy-k8s-06",
+  "args": [
+   "deploy",
+   "release",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--id",
+   "demo-order-0000000000"
+  ],
+  "expect": "NOT_FOUND",
+  "note": "不在保留范围内的发布 ID：NOT_FOUND，hint 列出保留的修订"
+ },
+ {
+  "id": "deploy-k8s-07",
+  "args": [
+   "deploy",
+   "release",
+   "list",
+   "--service",
+   "demo-payment",
+   "--env",
+   "sandbox"
+  ],
+  "expect": "NOT_CONFIGURED",
+  "note": "服务没有 deploy.target 绑定：NOT_CONFIGURED"
+ },
+ {
+  "id": "deploy-k8s-08",
+  "args": [
+   "deploy",
+   "rollback",
+   "plan",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--to",
+   "${bad}"
+  ],
+  "capture": {
+   "noop": "data.id"
+  },
+  "note": "回滚到当前修订：计划生成但前置条件 target_differs_from_current=false"
+ },
+ {
+  "id": "deploy-k8s-09",
+  "args": [
+   "operation",
+   "execute",
+   "--id",
+   "${noop}",
+   "--confirm",
+   "${noop}"
+  ],
+  "expect": "PRECONDITION_FAILED",
+  "note": "前置条件不满足的计划拒绝执行"
+ },
+ {
+  "id": "deploy-k8s-10",
+  "args": [
+   "deploy",
+   "rollback",
+   "plan",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--to",
+   "999"
+  ],
+  "note": "目标修订不再保留：前置条件 target_release_retained=false（计划不可执行）"
+ },
+ {
+  "id": "deploy-k8s-11",
+  "args": [
+   "deploy",
+   "rollback",
+   "plan",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "capture": {
+   "plan": "data.id"
+  },
+  "note": "默认回滚到上一修订（v1.4.1）：当前/目标镜像、依赖影响、前置条件全部满足"
+ },
+ {
+  "id": "deploy-k8s-12",
+  "args": [
+   "--timeout",
+   "240s",
+   "operation",
+   "execute",
+   "--id",
+   "${plan}",
+   "--confirm",
+   "${plan}"
+  ],
+  "timeout_s": 260,
+  "note": "执行回滚（kubectl rollout undo 语义的 JSON patch），轮询 rollout 直到完成"
+ },
+ {
+  "id": "deploy-k8s-13",
+  "args": [
+   "deploy",
+   "status",
+   "get",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox"
+  ],
+  "note": "回滚后 state=complete，2/2 副本更新并可用"
+ },
+ {
+  "id": "deploy-k8s-14",
+  "args": [
+   "deploy",
+   "release",
+   "list",
+   "--service",
+   "demo-order",
+   "--env",
+   "sandbox",
+   "--limit",
+   "3"
+  ],
+  "note": "回滚复用 v1.4.1 的 ReplicaSet：修订号递增、change-cause 为 workctl 回滚、revision-history 说明"
+ }
+]

@@ -37,6 +37,13 @@ workctl config diff --service <service> --key <name>         # 与该键上一�
 ```
 修订号不是时间：配置变更与指标起点 T 的先后，要靠服务日志中的变更记录（第 4 步）对齐。
 
+服务有部署系统绑定时，再看最近的发布（未绑定返回 `NOT_CONFIGURED`，跳过即可）：
+```bash
+workctl deploy release list --service <service> --window 24h   # 版本、开始时间、状态；Kubernetes 时间为 derived（ReplicaSet 创建时间）
+workctl deploy status get --service <service>                  # 是否有进行中/失败的 rollout
+```
+发布开始时间早于且接近指标起点 T，只是“可能相关”的线索；用 `deploy release get` 看变更内容（镜像/环境变量差异），并用第 3 步的指标在发布前后对比确认。详见 `skills/deploy-operations/SKILL.md`。
+
 ### 3. 指标：确认现象与起点
 ```bash
 workctl metric list --resource <service>

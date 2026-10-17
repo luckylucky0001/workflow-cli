@@ -2,7 +2,7 @@ import { Command, CommanderError, Option } from 'commander';
 import { CLI_VERSION, invoke, kebab, newRequestId } from '../core/engine';
 import { ERROR_CODES, exitCodeFor, render, SCHEMA_VERSION, WorkError, type Envelope } from '../core/output';
 import { describeCapability, outputSchemaPath, type CapabilityDef, type Registry } from '../core/registry';
-import { parseDuration } from '../core/runtime';
+import { checkTimeoutBudget, parseDuration } from '../core/runtime';
 import { installPlugin, listInstalled, loadPlugins, removePlugin, validatePlugin } from '../core/plugins';
 import { builtinRegistry } from '../domains';
 import { generateDocs } from './docsgen';
@@ -350,18 +350,31 @@ export function buildProgram(registry: Registry, pluginErrors: string[] = [], qu
     .option('--domain <name>', '只暴露指定领域（可重复）', (v: string, prev?: string[]) => [...(prev ?? []), v])
     .action(async (o: { allowExecute?: boolean; domain?: string[] }, command: Command) => {
       const g = command.optsWithGlobals() as GlobalOpts;
+      let timeoutMs = 60_000;
+      try {
+        // a bad budget is a usage error before the server starts, not an uncaught exception
+        if (g.timeout) timeoutMs = checkTimeoutBudget(parseDuration(g.timeout));
+      } catch (e) {
+        emit(localEnvelope('mcp.serve', null, e instanceof WorkError ? e : new WorkError('INVALID_ARGUMENT', String(e)), Date.now()), g);
+        return;
+      }
       const { serveMcp } = await import('../mcp/server');
-      await serveMcp(registry, { allowExecute: !!o.allowExecute, domains: o.domain, configPath: g.config, profile: g.profile, timeoutMs: g.timeout ? parseDuration(g.timeout) : 60_000 });
+      await serveMcp(registry, { allowExecute: !!o.allowExecute, domains: o.domain, configPath: g.config, profile: g.profile, timeoutMs });
     });
 
   return program;
+}
+
+/** Whether usage errors must be reported as a JSON envelope (every spelling commander accepts for -o json). */
+export function wantsJsonOutput(argv: string[]): boolean {
+  return argv.includes('--json') || argv.some((a, i) => (a === '-o' || a === '--output') && argv[i + 1] === 'json') || argv.includes('--output=json') || argv.includes('-ojson');
 }
 
 export async function main(rawArgv = process.argv): Promise<void> {
   const registry = builtinRegistry();
   const { errors } = loadPlugins(registry);
   const argv = rewriteShadowedFlags(rawArgv, registry);
-  const wantsJson = argv.includes('--json') || argv.some((a, i) => (a === '-o' || a === '--output') && argv[i + 1] === 'json') || argv.includes('--output=json');
+  const wantsJson = wantsJsonOutput(argv);
   const program = buildProgram(registry, errors, wantsJson);
   try {
     await program.parseAsync(argv);
