@@ -184,8 +184,9 @@ export async function withMysql<T>(
     try {
       await Promise.race([conn.end(), new Promise((r) => setTimeout(r, 1000).unref?.())]);
     } catch {
-      conn.destroy();
+      /* already closed (e.g. row cap reached) */
     }
+    conn.destroy();
   }
 }
 
