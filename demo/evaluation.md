@@ -81,7 +81,7 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 | --- | --- |
 | 消费者复用 | `same-contract.mjs`：`redis.info.get` 与插件能力 `mq.consumer.lag` 经 CLI、脚本 API、MCP 三种入口返回相同的能力名、版本、适配器、数据字段和来源 |
 | 流程复用 | [reuse-matrix.md](../docs/reuse-matrix.md)：10 个 Skill 引用 55 个能力，其中 16 个能力被 2 个及以上 Skill 复用；`offline run get` 在代码层通过 `ctx.call` 复用 `data.partition.get`、`compute.job.get` |
-| 共享代码 | `scripts/maintenance-report.mjs`：共享运行时（core）约 1.3k 行、CLI+MCP 约 0.7k 行，被 10 个内置领域和插件共用；领域适配器 0.3k–2.4k 行 |
+| 共享代码 | `scripts/maintenance-report.mjs`：共享运行时（core）约 1.5k 行、CLI+MCP 约 0.7k 行，被 10 个内置领域和插件共用；领域适配器 0.3k–2.7k 行（容器域含 Docker 与 Kubernetes 两个 provider） |
 | 新系统接入（插件） | demo-mq：约 1.1k 行插件代码 + 清单/指南/Skill，无需为消息队列修改核心（开发过程中修复了插件加载器 2 个通用缺陷：重装校验、Schema 路径）；安装后命令、帮助、目录、MCP 工具自动出现，真实 Kafka 结果与 `kafka-consumer-groups.sh` 一致 |
 | 文档一致性 | 契约测试在 CI 中强制：生成文档逐字一致、示例命令/参数存在、设计稿命令全覆盖 |
 | 接口版本替换（设计稿 §10.4） | `version-swap.mjs`：9 个离线/计算能力（10 次调用）分别对 Airflow 2.10.5（REST v1）与 Airflow 3.3.2（REST v2）真实调用，两侧 `data` 通过同一 zod 输出 schema、顶层字段与 `run get` 四层状态一致，差异只在 `meta.sources`（adapter/method/version）；适配器侧新增 `airflow-v2.ts` 约 250 行 + 客户端约 130 行改动，能力代码改动约 40 行、输出 schema 未改；v2 补数执行器真实执行成功。见 [version-swap.md](verification/version-swap.md) |

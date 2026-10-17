@@ -7,11 +7,11 @@
 | `capability.get` | registry | 1 | enterprise-infra |
 | `capability.list` | registry | 2 | enterprise-infra, mq-operations |
 | `compute.queue.get` | airflow-pool | 1 | offline-operations |
-| `container.capacity.summary` | docker-engine-api | 1 | resource-capacity-review |
-| `container.event.list` | docker-engine-api | 2 | infra-operations, service-latency-investigation |
-| `container.stats.get` | docker-engine-api | 2 | resource-capacity-review, service-latency-investigation |
-| `container.workload.get` | docker-engine-api | 3 | infra-operations, resource-capacity-review, service-latency-investigation |
-| `container.workload.restart_plan` | docker-engine-api | 1 | infra-operations |
+| `container.capacity.summary` | docker-engine-api | kubernetes-api | 1 | resource-capacity-review |
+| `container.event.list` | docker-engine-api | kubernetes-api | 2 | infra-operations, service-latency-investigation |
+| `container.stats.get` | docker-engine-api | kubernetes-api | 2 | resource-capacity-review, service-latency-investigation |
+| `container.workload.get` | docker-engine-api | kubernetes-api | 3 | infra-operations, resource-capacity-review, service-latency-investigation |
+| `container.workload.restart_plan` | docker-engine-api | kubernetes-api | 1 | infra-operations |
 | `data.lineage.get` | file-catalog | 1 | data-validation |
 | `data.partition.get` | file-catalog | 1 | data-validation |
 | `data.partition.list` | file-catalog | 1 | data-validation |
@@ -34,17 +34,17 @@
 | `network.backend.list` | docker-engine-api + http-probe | 2 | infra-operations, service-latency-investigation |
 | `network.connectivity.check` | node-net | 2 | infra-operations, service-latency-investigation |
 | `network.dns.get` | node-dns | 1 | infra-operations |
-| `observability.log.query` | docker-engine-api | 2 | infra-operations, service-latency-investigation |
+| `observability.log.query` | docker-engine-api|loki-http-api | 2 | infra-operations, service-latency-investigation |
 | `observability.metric.list` | prometheus-http-api | 1 | service-latency-investigation |
 | `observability.metric.query` | prometheus-http-api | 2 | resource-capacity-review, service-latency-investigation |
-| `observability.trace.get` | docker-engine-api | 1 | service-latency-investigation |
-| `offline.dependency.list` | airflow-rest-v1 | 2 | offline-delay-investigation, offline-operations |
-| `offline.freshness.check` | file-catalog+airflow-rest-v1 | 1 | offline-delay-investigation |
-| `offline.log.get` | airflow-rest-v1 | 1 | offline-operations |
-| `offline.run.get` | airflow-rest-v1 | 2 | offline-delay-investigation, offline-operations |
-| `offline.run.list` | airflow-rest-v1 | 1 | offline-operations |
-| `offline.task.get` | airflow-rest-v1 | 1 | offline-operations |
-| `offline.workflow.get` | airflow-rest-v1 | 1 | offline-operations |
+| `observability.trace.get` | docker-engine-api|loki-http-api | 1 | service-latency-investigation |
+| `offline.dependency.list` | airflow-rest-v1|v2 | 2 | offline-delay-investigation, offline-operations |
+| `offline.freshness.check` | file-catalog+airflow-rest-v1|v2 | 1 | offline-delay-investigation |
+| `offline.log.get` | airflow-rest-v1|v2 | 1 | offline-operations |
+| `offline.run.get` | airflow-rest-v1|v2 | 2 | offline-delay-investigation, offline-operations |
+| `offline.run.list` | airflow-rest-v1|v2 | 1 | offline-operations |
+| `offline.task.get` | airflow-rest-v1|v2 | 1 | offline-operations |
+| `offline.workflow.get` | airflow-rest-v1|v2 | 1 | offline-operations |
 | `operation.execute` | plan-store | 1 | infra-operations |
 | `operation.get` | plan-store | 1 | infra-operations |
 | `redis.config.get` | redis-client | 1 | redis-operations |
@@ -64,13 +64,15 @@
 
 | 适配器 | 使用它的 Skill 数 |
 | --- | --- |
-| docker-engine-api | 3 |
+| docker-engine-api | kubernetes-api | 3 |
 | binding-file | 2 |
 | registry | 2 |
 | docker-engine-api + http-probe | 2 |
+| docker-engine-api|loki-http-api | 2 |
 | node-net | 2 |
+| docker-engine-api | 2 |
 | mysql-driver | 2 |
-| airflow-rest-v1 | 2 |
+| airflow-rest-v1|v2 | 2 |
 | redis-client | 2 |
 | prometheus-http-api | 2 |
 | file-catalog | 1 |
@@ -78,7 +80,7 @@
 | node-fs | 1 |
 | plan-store | 1 |
 | kafka-admin | 1 |
-| file-catalog+airflow-rest-v1 | 1 |
+| file-catalog+airflow-rest-v1|v2 | 1 |
 | airflow-pool | 1 |
 
 ## 能力组合（代码层复用）
