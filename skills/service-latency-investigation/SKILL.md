@@ -1,6 +1,6 @@
 ---
 name: service-latency-investigation
-description: 排查在线服务延迟升高或错误增多。按 资源绑定 → 容器状态/事件 → 指标（延迟、缓存命中率、数据库查询速率）→ 日志/调用链 → Redis → MySQL 的顺序收集证据，区分事实与假设，给出可验证的结论与下一步。适用于“某服务变慢了”“p95 升高”“接口超时”这类问题。
+description: 排查在线服务延迟升高、超时或错误增多的流程：按 资源绑定 → 最近发布 → 容器状态/事件 → 指标 → 日志/调用链 → Redis → MySQL/PostgreSQL 的顺序取证，区分事实与假设，给出可验证的结论与下一步。当用户说“某服务变慢了”“p95 升高”“接口超时/偶尔超时”“发布后报错变多”时使用。离线数据延迟改用 offline-delay-investigation；容量规划改用 resource-capacity-review。
 ---
 
 # 服务延迟排查
@@ -74,10 +74,14 @@ workctl redis key sample --instance <redis> --pattern 'demo:order:*' # 有预算
 ```
 区分：Redis 本身无命中（键过期/被驱逐）与应用根本没去查 Redis（应用侧 `result=bypass`）。
 
-### 6. 数据库（MySQL，由 mysql 领域提供）
+### 6. 数据库（按 `resource get` 中 depends_on 的类型选择 MySQL 或 PostgreSQL）
 ```bash
 workctl mysql statement summary --instance <mysql> --sample-window 10s   # 两次快照差分：执行次数、耗时、扫描行数、未用索引
 workctl mysql query explain --instance <mysql> --database <db> --sql-file q.sql   # 普通 EXPLAIN，不执行语句
+```
+依赖是 PostgreSQL 时改用 pg 领域（同样是窗口差分；`--sample-window 0` 是自 stats_reset 以来的累计值，不能当窗口值），细节见 `skills/postgres-operations/SKILL.md`：
+```bash
+workctl pg statement summary --instance <pg> --sample-window 10s --top 10
 ```
 对 trace/日志中出现的慢语句做 EXPLAIN：`type=ALL`、`key=NULL`、rows≈全表 → 全表扫描（事实）；“加索引能修复”是假设，需方案评审（mysql 的 plan 能力）后验证。
 

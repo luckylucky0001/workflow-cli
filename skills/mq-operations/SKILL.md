@@ -1,6 +1,6 @@
 ---
 name: mq-operations
-description: 排查 Kafka 消息积压与消费组问题（消费组 lag、topic 分区/ISR/保留策略）。当用户提到 Kafka、消费延迟、消息积压、consumer lag、消费组、topic 分区或保留时间时使用；能力由 demo-mq 插件提供（workctl mq ...）。
+description: 排查 Kafka 消息积压与消费组问题（消费组 lag、topic 分区/ISR/保留策略）。当用户提到 Kafka、消费延迟、消息积压、consumer lag、消费组、topic 分区或保留时间时使用；能力由 demo-mq 插件提供（workctl mq ...），RabbitMQ 待接入。不用于离线任务排队/等待（改用 offline-delay-investigation）。
 ---
 
 # 消息队列排查（Kafka，demo-mq 插件）

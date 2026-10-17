@@ -1,6 +1,6 @@
 ---
 name: data-validation
-description: 验证离线数据产出与质量：表元数据与分区语义、某个业务日期的分区是否存在/完整/可读、质量规则是否通过、上下游血缘与影响范围。当用户提到分区缺失、数据没产出、数据不对、重复/空值、质量检查、数据延迟、血缘、上游/下游影响、dt 分区、ods/analytics 表时使用（workctl data ...）。
+description: 验证离线数据产出与质量：表元数据与分区语义、某个业务日期的分区是否存在/完整/可读、质量规则是否通过、上下游血缘与影响范围。当用户提到分区缺失/是否完整、数据不对、重复/空值、质量检查、血缘、上游/下游影响、dt 分区、ods/analytics 表时使用（workctl data ...）。不负责查“为什么没按时产出”的调度原因（改用 offline-delay-investigation），也不操作 DAG/补数（改用 offline-operations）。
 ---
 
 # 数据产出与质量验证（workctl data）

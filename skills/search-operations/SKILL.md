@@ -1,6 +1,6 @@
 ---
 name: search-operations
-description: 排查 OpenSearch 搜索引擎问题（集群 red/yellow、分片未分配、索引容量与映射、“查不到数据”、命中数核对）。当用户提到 OpenSearch/Elasticsearch、搜索、索引健康、分片、别名、mapping、query_string、命中数时使用；能力由 demo-search 插件提供（workctl search ...）。
+description: 排查 OpenSearch 搜索引擎问题（集群 red/yellow、分片未分配、索引容量与映射、“查不到数据”、命中数核对）。当用户提到 OpenSearch/Elasticsearch、搜索、索引健康、分片、别名、mapping、query_string、命中数时使用；能力由 demo-search 插件提供（workctl search ...）。不用于数据库索引（改用 mysql-operations / postgres-operations）。
 ---
 
 # 搜索引擎排查（OpenSearch，demo-search 插件）

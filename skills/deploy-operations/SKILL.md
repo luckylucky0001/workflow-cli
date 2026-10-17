@@ -1,6 +1,6 @@
 ---
 name: deploy-operations
-description: 查看服务的发布/变更：最近有没有发布、发布到了哪个版本、发布是否成功、当前 rollout 是否卡住，以及按 计划 → 确认 → 执行 → 复核 回滚到历史版本（Kubernetes Deployment 修订、Jenkins 部署 job）。当用户提到发布、上线、部署、rollout、版本、回滚、change-cause、Jenkins 部署任务，或排查故障需要确认“最近是否有变更”时使用（workctl deploy ...）。
+description: 查看服务的发布/变更：最近有没有发布、发布到了哪个版本、是否成功、rollout 是否卡住，并按 计划 → 确认 → 执行 → 复核 回滚到历史版本（Kubernetes Deployment 修订、Jenkins 部署 job）。当用户提到发布、上线、部署、rollout、版本、回滚、Jenkins 部署任务，或“发布后报错/延迟升高”、排查故障需确认“最近是否有变更”时使用（workctl deploy ...）。配置中心里的配置变更改用 infra-operations；容器重启改用 infra-operations。
 ---
 
 # 部署系统操作

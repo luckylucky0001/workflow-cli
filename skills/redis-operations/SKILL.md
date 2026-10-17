@@ -1,6 +1,6 @@
 ---
 name: redis-operations
-description: 排查 Redis 缓存问题：命中率下降、内存与淘汰、慢命令、大键与热键、键的 TTL/编码/大小、配置核对（只读）。当用户提到 Redis/缓存命中率、缓存穿透/击穿、内存满/evicted、慢命令、大 key、热 key、某个键的过期时间或内容时使用。
+description: 排查 Redis 缓存问题（只读）：命中率下降、内存与淘汰、慢命令、大键与热键、键的 TTL/编码/大小、配置核对。当用户提到 Redis/缓存命中率、缓存穿透/击穿、内存满/evicted、慢命令、大 key、热 key、某个键的过期时间或内容时使用（workctl redis ...）。不用于服务整体变慢且原因未知的排查（改用 service-latency-investigation）。
 ---
 
 # Redis 缓存诊断

@@ -1,6 +1,6 @@
 ---
 name: enterprise-infra
-description: 当任务涉及计算/容器、网络、存储、配置中心与服务发现（etcd/Nacos/Consul）、部署系统与发布记录（Kubernetes/Jenkins）、数据库（MySQL/PostgreSQL）、缓存（Redis）、消息队列、搜索引擎，或离线调度、计算作业、数据分区、血缘和数据质量时使用。提供 workctl 能力发现、结果解读和跨系统组合的入口流程。
+description: workctl 入口：当任务涉及容器/网络/存储、配置中心与服务发现（etcd/Nacos/Consul）、发布记录（Kubernetes/Jenkins）、MySQL/PostgreSQL、Redis、Kafka、OpenSearch，或离线调度、Spark 作业、数据分区、血缘和质量，而不确定用哪个领域 skill、需要能力发现或跨系统组合时使用。提供能力发现、结果信封解读规则和路由表；不替代领域 skill：问题已明确属于某领域时同时加载对应领域 skill 或排查流程 skill。
 ---
 
 # 企业基础设施 / 中间件 / 离线链路入口

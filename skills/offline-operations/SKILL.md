@@ -1,6 +1,6 @@
 ---
 name: offline-operations
-description: 离线调度与计算的日常操作：查看 Airflow 工作流/任务定义、按业务日期找运行、看任务日志、看 Spark 应用/阶段/driver 日志、资源池占用、提交只读 Spark SQL、生成并执行补数计划。当用户提到 DAG、工作流、调度、run、任务实例、补数/回填/backfill、重跑、Spark 作业、pool、SQL 查询提交时使用（workctl offline / compute / sql ...）。
+description: 离线调度与计算的日常操作：查看 Airflow 工作流/任务定义、按业务日期找运行、看任务日志、看 Spark 应用/阶段/driver 日志、资源池占用、提交只读 Spark SQL、生成并执行补数计划。当用户提到 DAG、工作流、调度、run、任务实例、补数/回填/backfill、重跑、Spark 作业、pool、SQL 查询提交时使用（workctl offline / compute / sql ...）。排查“数据为什么没按时产出”改用 offline-delay-investigation；分区/质量核对改用 data-validation。
 ---
 
 # 离线调度与计算操作（workctl offline / compute / sql）

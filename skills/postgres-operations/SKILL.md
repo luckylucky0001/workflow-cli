@@ -1,6 +1,6 @@
 ---
 name: postgres-operations
-description: 排查 PostgreSQL 慢查询、锁等待/阻塞链、idle in transaction、顺序扫描与缺索引、死元组与 vacuum 状态（只读诊断，不执行变更）。当用户提到 PostgreSQL/Postgres/PG 数据库慢、慢 SQL、pg_stat_statements、锁等待、事务卡住、连接数、执行计划/EXPLAIN、Seq Scan、缺索引、表膨胀/死元组/autovacuum、或想对 PG 业务库做只读查询时使用（workctl pg ...）。
+description: 排查 PostgreSQL 慢查询、锁等待/阻塞链、idle in transaction、顺序扫描与缺索引、死元组与 vacuum 状态（只读诊断，不执行变更）。当用户提到 PostgreSQL/Postgres/PG 慢、慢 SQL、pg_stat_statements、锁等待、事务卡住、连接数、执行计划/EXPLAIN、Seq Scan、缺索引、表膨胀/死元组/autovacuum、或想对 PG 业务库做只读查询时使用（workctl pg ...）。MySQL 库改用 mysql-operations；库类型不明时先用 workctl resource list 看绑定。
 ---
 
 # PostgreSQL 只读诊断

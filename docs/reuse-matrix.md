@@ -20,7 +20,7 @@
 | `data.quality.check` | file-catalog | 1 | data-validation |
 | `data.table.get` | file-catalog | 1 | data-validation |
 | `deploy.release.get` | kubernetes-api | jenkins-rest | 1 | deploy-operations |
-| `deploy.release.list` | kubernetes-api | jenkins-rest | 2 | deploy-operations, service-latency-investigation |
+| `deploy.release.list` | kubernetes-api | jenkins-rest | 3 | deploy-operations, resource-capacity-review, service-latency-investigation |
 | `deploy.rollback.plan` | kubernetes-api | jenkins-rest | 1 | deploy-operations |
 | `deploy.status.get` | kubernetes-api | jenkins-rest | 2 | deploy-operations, service-latency-investigation |
 | `discovery.list` | etcd-v3-gateway|nacos-open-api|consul-http-api | 1 | infra-operations |
@@ -61,7 +61,7 @@
 | `postgres.query.explain` | pg-driver | 1 | postgres-operations |
 | `postgres.query.run` | pg-driver | 1 | postgres-operations |
 | `postgres.session.list` | pg-driver | 1 | postgres-operations |
-| `postgres.statement.summary` | pg-driver | 1 | postgres-operations |
+| `postgres.statement.summary` | pg-driver | 2 | postgres-operations, service-latency-investigation |
 | `postgres.table.get` | pg-driver | 1 | postgres-operations |
 | `redis.config.get` | redis-client | 1 | redis-operations |
 | `redis.instance.get` | redis-client | 1 | redis-operations |
@@ -79,13 +79,13 @@
 | `storage.file.stat` | node-fs | 1 | infra-operations |
 | `storage.volume.get` | docker-engine-api | 2 | infra-operations, resource-capacity-review |
 
-- Skill 数：13；被引用能力数：74；被 2 个及以上 Skill 复用的能力：21
+- Skill 数：13；被引用能力数：74；被 2 个及以上 Skill 复用的能力：22
 
 | 适配器 | 使用它的 Skill 数 |
 | --- | --- |
+| kubernetes-api | jenkins-rest | 3 |
 | registry | 3 |
 | docker-engine-api | kubernetes-api | 3 |
-| kubernetes-api | jenkins-rest | 2 |
 | plan-store | 2 |
 | binding-file | 2 |
 | docker-engine-api + http-probe | 2 |
@@ -95,6 +95,7 @@
 | etcd-v3-gateway|nacos-open-api|consul-http-api | 2 |
 | mysql-driver | 2 |
 | airflow-rest-v1|v2 | 2 |
+| pg-driver | 2 |
 | redis-client | 2 |
 | prometheus-http-api | 2 |
 | file-catalog | 1 |
@@ -103,7 +104,6 @@
 | kafka-admin | 1 |
 | file-catalog+airflow-rest-v1|v2 | 1 |
 | airflow-pool | 1 |
-| pg-driver | 1 |
 | opensearch-http | 1 |
 
 ## 能力组合（代码层复用）

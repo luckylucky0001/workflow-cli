@@ -1,6 +1,6 @@
 ---
 name: offline-delay-investigation
-description: 排查离线数据延迟或缺失：某个业务日期的表没按时产出、报表数据没更新、任务一直在等、跑成功了但没数据、写错分区。按产出时效 → 运行分层状态 → 上游依赖 → 计算日志的顺序取证，区分事实与假设（workctl offline freshness check / run get / dependency list / log get / compute ...）。
+description: 排查离线数据延迟或缺失的流程：当用户说某个业务日期的表没按时产出、日报/报表数据没更新、任务一直在等、跑成功了但没数据、写错分区时使用。按产出时效 → 运行分层状态 → 上游依赖 → 计算日志的顺序取证，区分事实与假设（workctl offline freshness check / run get / dependency list / log get / compute ...）。只核对分区/质量改用 data-validation；查看 DAG、补数等日常操作改用 offline-operations。
 ---
 
 # 离线数据延迟 / 缺失排查

@@ -1,6 +1,6 @@
 ---
 name: resource-capacity-review
-description: 评审环境内容器的资源上限与实际使用：找出未设上限、接近上限、OOM、频繁重启的容器，并用时间序列区分瞬时峰值与持续压力。适用于“资源够不够”“哪些容器没设限制”“上线前容量检查”“OOM 排查后的上限调整建议”。
+description: 评审容器资源上限与实际使用的流程：找出未设上限、接近上限、OOM、频繁重启的容器，用时间序列区分瞬时峰值与持续压力，并结合最近发布判断变化。当用户问“资源够不够”“哪些容器没设限制”“上线/大促前容量检查”“流量翻倍扛不扛得住”“OOM 后上限怎么调”时使用（workctl capacity summary / container ... / metric query）。单个服务变慢改用 service-latency-investigation。
 ---
 
 # 资源容量评审
@@ -46,7 +46,14 @@ workctl metric query --resource <svc> --promql 'process_resident_memory_bytes{se
 ```
 负载（请求速率）与资源使用一起看：资源上升是否伴随负载上升？没有容器级时序指标（如 cAdvisor）时，明确说明 CPU 趋势不可得。
 
-### 5. 卷与磁盘
+### 5. 最近发布（解释变化）
+使用量或上限在窗口内突变时，先确认是否有发布（镜像/资源配置变更），细节见 `skills/deploy-operations/SKILL.md`：
+```bash
+workctl deploy release list --service <svc> --window 7d
+```
+“流量翻倍扛不扛得住”这类问题：只能给出当前负载下的使用量与上限的余量（事实），线性外推是假设，须写明并建议压测验证。
+
+### 6. 卷与磁盘
 ```bash
 workctl storage volume get --id <volume>
 ```

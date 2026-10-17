@@ -112,6 +112,18 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 
 合计 57 个（此前各领域交叉审查 58 个，累计 115 个）。最终模糊测试轮次 0 违例，完整复位后复跑（2011 + 254 + 143 个 CLI 用例）仍 0 违例；未修复的“疑似”项（如 Consul 检查输出可能含 token、PostgreSQL 数值表达式可绕过按列名脱敏）记录在各领域指南的限制中。
 
+### 4.5 Skill 测评与优化（2026-10-17）
+
+- **静态**：`scripts/skill-lint.mjs`（契约测试 `test/contract/skills.test.ts` 强制）检查 13 个 Skill 的 frontmatter（何时使用、不适用于什么）、正文中 116 处 `workctl` 命令与参数是否真实存在、待接入能力是否标注、引用路径是否存在、是否含疑似凭据。首轮 10 个问题全部在 description（9 个没写“不适用/该转给哪个 Skill”，1 个没写何时使用），命令与参数 0 错；已全部修复。
+- **动态（触发准确率）**：`node demo/agent-host/skill-trigger-eval.mjs` 让每条任务提示在独立的 Claude Code 无头会话中运行（只读 profile、最多 3 轮），记录实际加载的 Skill。
+
+| 轮次 | 13 条明确提示 | 6 条模糊提示 | 合计 | 未命中 |
+| --- | --- | --- | --- | --- |
+| 优化前 | 12/13 | 5/6 | 17/19 | “配置中心里的配置改了什么”只加载入口 Skill；“注册实例里几个不健康”未加载任何 Skill（`infra-operations` 的 description 没提配置中心/服务发现） |
+| 优化后 | 13/13 | 6/6 | **19/19** | — |
+
+优化内容：13 个 description 全部改写为“何时使用 + 不适用时转给哪个 Skill”（MySQL ↔ PostgreSQL、infra ↔ deploy、offline-operations ↔ offline-delay-investigation ↔ data-validation、领域 ↔ 流程），补充口语化触发词（接口超时、日报没出来、发版后报错、流量翻倍）；延迟排查流程按依赖选择 MySQL/PostgreSQL 并加入最近发布检查，容量盘点加入发布检查与“翻倍推算是假设”。详见 [runs/skill-trigger.baseline.md](agent-host/runs/skill-trigger.baseline.md)、[runs/skill-trigger.baseline-vague.md](agent-host/runs/skill-trigger.baseline-vague.md)、[runs/skill-trigger.optimized.md](agent-host/runs/skill-trigger.optimized.md)。单次运行有非确定性，只说明趋势。
+
 ## 5. 验收结论（设计稿 §12.3）
 
 | 验收项 | 结论 | 证据 |

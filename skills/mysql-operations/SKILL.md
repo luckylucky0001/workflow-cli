@@ -1,6 +1,6 @@
 ---
 name: mysql-operations
-description: 排查 MySQL 慢查询、锁等待、全表扫描与索引问题，并生成加索引的变更计划（只读诊断 + 计划，不执行 DDL）。当用户提到 MySQL/数据库慢、慢 SQL、慢日志、锁等待/死锁/事务卡住、连接数、执行计划/EXPLAIN、缺索引、某条 SQL 要不要加索引、或想对业务库做只读查询时使用。
+description: 排查 MySQL 慢查询、锁等待、全表扫描与索引问题，并生成加索引的变更计划（只读诊断 + 计划，不执行 DDL）。当用户提到 MySQL 慢、慢 SQL、慢日志、锁等待/死锁/事务卡住、连接数、执行计划/EXPLAIN、缺索引、某条 SQL 要不要加索引、或想对 MySQL 业务库做只读查询时使用（workctl mysql ...）。PostgreSQL/PG 库改用 postgres-operations；库类型不明时先用 workctl resource list 看绑定。
 ---
 
 # MySQL 诊断与变更计划
