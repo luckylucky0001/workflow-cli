@@ -112,13 +112,13 @@
       {
         "kind": "trino",
         "name": "demo-trino",
-        "auth_provider": "plugin-defined",
+        "auth_provider": "trino-basic",
         "credential_refs": [],
         "probe": {
           "ok": true,
           "identity": "workctl（无密码，X-Trino-User 声明身份；/v1/info 不校验身份，授权由查询时的访问控制决定）",
           "version": "476",
-          "detail": "http://127.0.0.1:18085/ GET /v1/info：environment=docker，coordinator=true，starting=false，uptime=10.94m；默认 catalog=tpch，schema=tiny"
+          "detail": "http://127.0.0.1:18085/ GET /v1/info：environment=docker，coordinator=true，starting=false，uptime=25.41s；默认 catalog=tpch，schema=tiny"
         }
       },
       {
@@ -147,7 +147,7 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-17T14:42:09.437Z",
+        "observed_at": "2026-10-17T14:44:15.758Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/workctl.yaml",
         "relation": "explicit"
       }
@@ -159,7 +159,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvci9f3l-f359cd",
+    "request_id": "req-mvcic4kl-a8b509",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -167,7 +167,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:42:09.201Z",
-    "duration_ms": 239
+    "started_at": "2026-10-17T14:44:15.525Z",
+    "duration_ms": 234
   }
 }

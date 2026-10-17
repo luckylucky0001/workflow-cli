@@ -9,8 +9,8 @@
     "hint": "检查 SQL 语法、列名和类型；状态文件已记录错误，可用 sql query get 查看",
     "retryable": false,
     "details": {
-      "query_id": "q-20261017-930692",
-      "engine_query_id": "20261017_144212_00022_bmsfx",
+      "query_id": "q-20261017-11a730",
+      "engine_query_id": "20261017_144422_00003_y79yt",
       "error_name": "SYNTAX_ERROR",
       "error_type": "USER_ERROR",
       "line": 1,
@@ -23,7 +23,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvci9hof-58e4e1",
+    "request_id": "req-mvcica70-53989d",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -31,7 +31,7 @@
     "adapter": "spark-submit-local|trino-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T14:42:12.543Z",
-    "duration_ms": 46
+    "started_at": "2026-10-17T14:44:22.812Z",
+    "duration_ms": 83
   }
 }
