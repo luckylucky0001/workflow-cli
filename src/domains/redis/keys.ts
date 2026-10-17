@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { WorkError } from '../../core/output';
 import { defineCapability } from '../../core/registry';
 import type { Ctx } from '../../core/runtime';
-import { ADAPTER, AUTH_PROVIDER, GUIDE, mapRedisError, maxmemoryPolicy, tryConfigGet, withRedis, type RedisSession } from './client';
+import { ADAPTER, AUTH_PROVIDER, GUIDE, maxmemoryPolicy, tryConfigGet, withRedis, type RedisSession } from './client';
 import { percentile } from './info';
 import { COMMON_PREREQS, INSTANCE } from './server';
 
@@ -119,7 +119,7 @@ async function perKey(s: RedisSession, keys: string[], build: (key: string) => (
     try {
       res = ((await p.exec()) ?? []) as Array<[Error | null, unknown]>;
     } catch (e) {
-      throw mapRedisError(e, s.ep) ?? e;
+      throw s.fail(e);
     }
     for (let j = 0; j < part.length; j++) out.push(res.slice(j * per, j * per + per));
   }
@@ -166,7 +166,7 @@ export const keySample = defineCapability({
       const { scan, meta } = await runScan(ctx, s, i);
       const rows = await perKey(s, scan.keys, (k) => [['TYPE', k], ['MEMORY', 'USAGE', k, 'SAMPLES', 5]]);
       const denied = firstNoPerm(rows);
-      if (denied) throw mapRedisError(denied, s.ep) ?? denied;
+      if (denied) throw s.fail(denied);
       const typeCounts: Record<string, number> = {};
       const sized: { key: string; type: string; memory_bytes: number | null }[] = [];
       let vanished = 0;
@@ -259,7 +259,7 @@ export const keyHot = defineCapability({
       const { scan, meta } = await runScan(ctx, s, i);
       const rows = await perKey(s, scan.keys, (k) => [['OBJECT', 'FREQ', k]]);
       const denied = firstNoPerm(rows);
-      if (denied) throw mapRedisError(denied, s.ep) ?? denied;
+      if (denied) throw s.fail(denied);
       const freq: { key: string; lfu_counter: number }[] = [];
       rows.forEach((r, idx) => {
         if (!r[0]?.[0] && r[0]?.[1] !== null && r[0]?.[1] !== undefined) freq.push({ key: scan.keys[idx], lfu_counter: Number(r[0][1]) });
@@ -361,10 +361,10 @@ export const keyInspect = defineCapability({
         try {
           return await p.exec();
         } catch (e) {
-          throw mapRedisError(e, s.ep) ?? e;
+          throw s.fail(e);
         }
       })()) ?? []) as Array<[Error | null, unknown]>;
-      for (const e of [e1, e2, e4]) if (e) throw mapRedisError(e, s.ep) ?? e;
+      for (const e of [e1, e2, e4]) if (e) throw s.fail(e);
       if (type === 'none' || Number(pttl) === -2) {
         throw new WorkError('NOT_FOUND', `键不存在: ${key}`, { hint: '键可能已过期、被删除或被淘汰；用 redis key sample --pattern 查看现有键' });
       }

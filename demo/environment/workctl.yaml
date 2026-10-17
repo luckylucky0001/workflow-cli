@@ -77,6 +77,7 @@ profiles:
           event_log_dir: ./.runtime/spark/events
           query_state_dir: ./.runtime/spark/queries
           warehouse_root: ./.runtime/warehouse
+          submit_script: ../offline-workflows/spark/spark-submit.sh
       catalog:
         demo:
           provider: file

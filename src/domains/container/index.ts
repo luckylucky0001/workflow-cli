@@ -73,7 +73,7 @@ const workloadGet = defineCapability({
         },
       },
       sources: [
-        await docker.source('GET /containers/json?all=1&filters={label}', sc.selector.origin === 'binding-file' ? 'explicit' : 'explicit'),
+        await docker.source(`GET /containers/json?all=1&filters={label:${sc.selector.label}}`),
         await docker.source('GET /containers/{id}/json'),
         ...(sc.selector.origin === 'binding-file' ? [source('workctl', 'resource-bindings', { method: sc.selector.evidence, relation: 'explicit' })] : []),
       ],

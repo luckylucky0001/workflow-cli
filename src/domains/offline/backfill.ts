@@ -52,7 +52,7 @@ export function writeModeCheck(writeMode: string | null, actions: { action: Back
 export const BackfillTargetSchema = z.object({
   business_date: z.string(),
   data_interval: z.object({ start_local: z.string(), end_local: z.string(), start_utc: z.string(), end_utc: z.string() }),
-  existing_runs: z.array(z.object({ run_id: z.string(), state: z.string().nullable(), run_type: z.string().nullable(), match: z.string() })),
+  existing_runs: z.array(z.object({ run_id: z.string(), state: z.string().nullable(), run_type: z.string().nullable(), match: z.string(), conf: z.record(z.string(), z.unknown()) })),
   action: z.enum(['skip_succeeded', 'skip_in_progress', 'trigger_new', 'clear_failed', 'rerun']),
   run_id: z.string().nullable(),
   reason: z.string(),
@@ -98,7 +98,13 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
   for (const d of dates) {
     const iv = businessInterval(d, tz);
     const r = await runsForBusinessDate(af, dagId, iv);
-    const existing = r.matched.map((m) => ({ run_id: String(m.run.dag_run_id), state: m.run.state ?? null, run_type: m.run.run_type ?? null, match: m.match }));
+    const existing = r.matched.map((m) => ({
+      run_id: String(m.run.dag_run_id),
+      state: m.run.state ?? null,
+      run_type: m.run.run_type ?? null,
+      match: m.match,
+      conf: m.run.conf && typeof m.run.conf === 'object' ? (m.run.conf as Record<string, unknown>) : {},
+    }));
     const dec = decideAction({ existing, rerunSucceeded: rerun });
     const spec = table ? partitionSpec(table, d) : null;
     let pstate = 'unknown';
@@ -121,6 +127,11 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
       }
     }
     let reasonText = dec.reason;
+    const reused = existing.find((e) => e.run_id === dec.run_id);
+    if ((dec.action === 'rerun' || dec.action === 'clear_failed') && reused && Object.keys(reused.conf).length) {
+      reasonText = `${reasonText}；清理重跑沿用原 run 的 conf ${JSON.stringify(reused.conf)}`;
+      warnings.push(`${d}: ${dec.action} 会沿用 run ${reused.run_id} 的 conf ${JSON.stringify(reused.conf)}；如 conf 是问题来源，应改为删除该 run 后 trigger_new`);
+    }
     if (dec.action === 'skip_succeeded' && table && pstate !== 'present' && pstate !== 'unknown') {
       reasonText = `${dec.reason}；注意：调度成功但目标分区 ${spec} 状态为 ${pstate}，重跑前先确认原因（同一 run 的 conf/代码会被沿用）`;
       warnings.push(`${d}: 调度层 success 但目标分区 ${pstate}`);

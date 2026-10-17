@@ -1,10 +1,14 @@
-import { defineDomain } from '../../core/registry';
-import { GUIDE, mapMysqlError, withMysql } from './client';
+import { defineCapability, defineDomain } from '../../core/registry';
+import { ADAPTER, AUTH_PROVIDER, GUIDE, mapMysqlError, withMysql } from './client';
 import { lockList, sessionList } from './capabilities/activity';
 import { indexCreatePlanner, indexPlan } from './capabilities/index-plan';
 import { indexList, instanceGet, tableGet } from './capabilities/inventory';
 import { queryAnalyze, queryExecute, queryExplain } from './capabilities/query';
 import { slowlogList, statementSummary } from './capabilities/statements';
+
+/** In the catalog but not callable yet (no handler → status planned). */
+const planned = (name: string, summary: string, operation: 'read' | 'diagnose' = 'read') =>
+  defineCapability({ name, command: name.replace(/\./g, ' '), summary, domain: 'mysql', adapter: ADAPTER, operation, auth_provider: AUTH_PROVIDER, guide: GUIDE, status: 'planned' });
 
 /**
  * MySQL domain (adapter mysql-driver / mysql2). Read-only diagnostics through a dedicated
@@ -29,6 +33,8 @@ export default defineDomain({
     queryAnalyze,
     queryExecute,
     indexPlan,
+    planned('mysql.replication.get', '查看主从复制状态与延迟（replication_applier_status、SHOW REPLICA STATUS；需 REPLICATION CLIENT）'),
+    planned('mysql.deadlock.get', '读取最近一次死锁信息（SHOW ENGINE INNODB STATUS 的 LATEST DETECTED DEADLOCK）', 'diagnose'),
   ],
   planners: [indexCreatePlanner],
   probes: {

@@ -36,6 +36,7 @@ service ──(容器标签)──▶ container ──(Docker logs)──▶ 结
 | 选择器没有匹配的容器 | `log query` 返回 `NOT_FOUND` |
 | trace 在窗口内没有 span 记录 | `NOT_FOUND`，hint 提示扩大 `--window` |
 
+- 延迟分位数来自 `histogram_quantile`：结果受桶边界限制，落在最大有限桶（demo-order 为 10s）之外时返回该边界值，应解读为“≥ 边界”。
 - `metric query` 的窗口终点对齐到 step，`coverage.window` 是实际查询的起止时间。窗口值来自时间序列（`rate()` 已处理计数器重置），不要用累计计数器的当前值代替窗口值。
 - `log query` 默认 `order=newest`：返回窗口内**最新**的 `limit` 条，按时间倒序；`order=oldest` 返回最早的 `limit` 条、按时间正序。`coverage.truncated=true` 表示匹配条数超过 limit；`data.stats` 给出扫描行数、匹配数、非 JSON 行数、被省略的 span 记录数。
 - 非 JSON 行保留原文（`raw`），级别未知；使用 `--level` 时它们会被排除并计入 `unparsed_excluded_by_level`。

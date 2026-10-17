@@ -15,6 +15,8 @@ export interface RedisSession {
   version(): Promise<string | undefined>;
   /** Run a raw command; errors are mapped to WorkError. */
   cmd<T = unknown>(name: string, ...args: (string | number | Buffer)[]): Promise<T>;
+  /** Map an error from this connection (prefers an earlier connection-level reply error such as WRONGPASS). */
+  fail(e: unknown): unknown;
   src(method: string, relation?: Source['relation']): Promise<Source>;
 }
 
@@ -50,7 +52,7 @@ export function mapRedisError(e: unknown, ep?: Endpoint): WorkError | undefined 
   if (['ECONNREFUSED', 'ENOTFOUND', 'EHOSTUNREACH', 'ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'EPIPE'].includes(code)) {
     return new WorkError('UPSTREAM_UNAVAILABLE', `Redis 不可达${where}: ${msg}`, { details, cause: e });
   }
-  if (!isRedisError(e) && !/connect|Connection|timed out/i.test(msg)) return undefined;
+  if (!isRedisError(e) && !/connect|Connection|timed out|isn't writeable/i.test(msg)) return undefined;
   if (/^NOPERM/.test(msg)) {
     return new WorkError('PERMISSION_DENIED', `Redis ACL 拒绝该命令${where}: ${msg}`, { hint: '账号已认证，但 ACL 未授权该命令或键；见 docs/guides/redis.md 的权限前提', details, cause: e });
   }
@@ -66,7 +68,7 @@ export function mapRedisError(e: unknown, ep?: Endpoint): WorkError | undefined 
   if (/Command timed out|timed out/i.test(msg)) {
     return new WorkError('TIMEOUT', `Redis 命令超时${where}: ${msg}`, { hint: '增大 --timeout 或缩小扫描预算', details, cause: e });
   }
-  if (msg === 'Connection is closed.' || /connect/i.test(msg) || err?.name === 'MaxRetriesPerRequestError') {
+  if (msg === 'Connection is closed.' || /connect|isn't writeable/i.test(msg) || err?.name === 'MaxRetriesPerRequestError') {
     return new WorkError('UPSTREAM_UNAVAILABLE', `Redis 连接失败${where}: ${msg}`, { details, cause: e });
   }
   if (/^(WRONGTYPE|ERR syntax|ERR wrong number)/.test(msg)) {
@@ -104,17 +106,24 @@ export async function withRedis<T>(ctx: Ctx, instance: string | undefined, fn: (
   }
   let version: string | undefined;
   let versionFetched = false;
+  // AUTH failures arrive asynchronously as an 'error' event; later commands then fail with a
+  // generic "stream isn't writeable" error, so the earlier reply error is the real cause.
+  const fail = (e: unknown): unknown => {
+    const cause = lastError && isRedisOriginError(lastError) && !isRedisOriginError(e) ? lastError : e;
+    return mapRedisError(cause, ep) ?? e;
+  };
   const cmd = async <R = unknown>(name: string, ...args: (string | number | Buffer)[]): Promise<R> => {
     try {
       return (await client.call(name, ...args)) as R;
     } catch (e) {
-      throw mapRedisError(e, ep) ?? e;
+      throw fail(e);
     }
   };
   const session: RedisSession = {
     ep,
     client,
     cmd,
+    fail,
     version: async () => {
       if (!versionFetched) {
         versionFetched = true;

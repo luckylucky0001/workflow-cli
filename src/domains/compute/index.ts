@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { z } from 'zod';
 import { source, WorkError } from '../../core/output';
 import { defineCapability, defineDomain } from '../../core/registry';
@@ -376,6 +377,17 @@ export default defineDomain({
   summary: 'Spark 应用（history server REST）、阶段、driver 日志与计算资源池',
   pillar: 'offline',
   guide: COMPUTE_GUIDE,
-  skill: 'skills/offline-delay-investigation/SKILL.md',
+  skill: 'skills/offline-operations/SKILL.md',
   capabilities: [jobGet, stageList, logGet, queueGet, yarnQueue, instanceGet],
+  probes: {
+    spark: async (ctx, name) => {
+      const sh = new SparkHistory(ctx, name);
+      const version = await sh.get<{ spark?: string }>('/version').then((v) => v?.spark);
+      const dirs = (['event_log_dir', 'driver_log_dir', 'query_state_dir'] as const).map((k) => {
+        const p = sh.ep.path(k);
+        return `${k}=${p ? (existsSync(p) ? '存在' : '不存在') : '未配置'}`;
+      });
+      return { ok: true, identity: 'anonymous (history server 无认证)', version, detail: `history server 可达；${dirs.join('，')}` };
+    },
+  },
 });

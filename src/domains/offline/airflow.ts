@@ -102,6 +102,11 @@ export class AirflowClient {
   async dag(dagId: string): Promise<any> {
     const d = await this.getOrNull(`/dags/${encodeURIComponent(dagId)}/details`);
     if (!d) throw new WorkError('NOT_FOUND', `Airflow 中没有 DAG ${dagId}`, { hint: '用 Airflow UI 或 GET /api/v1/dags 确认 dag_id；DAG 文件可能有导入错误' });
+    if (!Array.isArray(d.owners) || d.owners.length === 0) {
+      // Airflow 2.10 /details returns owners=[]; the plain DAG endpoint carries them.
+      const basic = await this.getOrNull(`/dags/${encodeURIComponent(dagId)}`);
+      if (basic?.owners) d.owners = basic.owners;
+    }
     return d;
   }
 

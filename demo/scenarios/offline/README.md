@@ -40,3 +40,10 @@ workctl --json offline backfill plan --workflow demo-daily-orders --from 2026-10
 
 `demo/environment/reset.sh` 删除 `.runtime`（Airflow 元数据库、仓库目录、事件日志）。只想重做场景时可以在 Airflow 中删除对应 run
 并删除 `.runtime/warehouse/analytics/daily_orders/dt=*` 后重新运行脚本。
+
+## 注意
+
+- 两个 DAG 恢复（unpause）后由调度器正常调度：每天 00:00（Asia/Shanghai）之后会为前一业务日期创建定时 run。
+  例如 2026-10-18 00:00 +08:00 起会自动运行业务日期 2026-10-17，`analytics/daily_orders/dt=2026-10-17` 会被正确数据覆盖，
+  wrong_partition 场景留下的 dt=2026-10-17 证据随之消失（dt=2026-10-16 仍为 missing）。需要固定现场时，在场景跑完后暂停 `demo-ods-orders`。
+- 不要执行 ODS 2026-10-14 的补数计划，否则“缺上游”场景的传感器会放行。

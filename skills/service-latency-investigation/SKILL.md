@@ -18,7 +18,8 @@ description: 排查在线服务延迟升高或错误增多。按 资源绑定 �
 
 ### 1. 范围与依赖（事实）
 ```bash
-workctl resource get --id <service>            # 绑定的依赖：depends_on mysql/redis，runs_on 容器
+workctl resource get --id <service>                 # 绑定的上下游关系及来源（depends_on mysql/redis，runs_on 容器）
+workctl service dependency list --service <service> # 传递依赖
 workctl container workload get --service <service>
 ```
 记录：容器是否 running、health、restart_count、oom_killed、started_at（是否刚重启/重建）。
@@ -37,32 +38,32 @@ workctl metric query --resource <service> --metric error_rate --window 30m
 workctl metric query --resource <service> --metric cache_hit_ratio --window 30m
 workctl metric query --resource <service> --metric db_query_rate --window 30m
 ```
-- 用数据点找出延迟上升的时间点 T（不是只看 avg）。
+- 用数据点找出延迟上升的时间点 T（不是只看 avg）。p95 来自直方图：落在最大有限桶之外时只返回桶边界（demo-order 为 10s），应读作“≥ 该值”。
 - 同一时间点 `cache_hit_ratio` 下降、`db_query_rate` 上升 → 指向“缓存未起作用，请求落到数据库”（假设，继续验证）。
-- `cache_hit_ratio` 为 null（NaN）表示窗口内没有缓存请求或缓存被绕过（`result=bypass` 不算命中也不算未命中时要看原始计数）：
+- `cache_hit_ratio` 的分母包含 `result=bypass/error`：缓存被绕过时比值为 0；为 null（NaN）只表示窗口内没有任何缓存请求。拆开看原始计数：
   `workctl metric query --resource <service> --promql 'sum by (result) (rate(cache_requests_total{service="<service>"}[1m]))'`
 - 延迟按路由拆分：`--promql 'histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket{service="<service>"}[1m])))'`
 
 ### 4. 日志与调用链：慢请求花在哪
 ```bash
 workctl log query --service <service> --window 15m --level warn
-workctl log query --service <service> --window 15m --contains '"cache_mode"' --limit 20
+workctl log query --service <service> --window 1h --contains 'cache mode changed'   # 配置/模式变更记录
 workctl trace get --id <trace_id> --window 1h
 ```
 - trace_id 来自日志或响应头 `x-trace-id`。看 `breakdown` 的 `self_ms`：`mysql.pool.acquire` 高＝排队等连接（并发/连接池饱和），`mysql.query` 高＝语句本身慢，`redis.get` 缺失＝该请求没走缓存。
 - 找“变化”日志：如 `cache mode changed`（level warn）给出了时间与前后值——这是事实，可与指标起点 T 对齐。
 
-### 5. 缓存（Redis，由 redis 领域提供）
+### 5. 缓存（Redis，由 redis 领域提供；采样窗口是“现在”的几秒，故障仍在时才有意义）
 ```bash
-workctl redis stats sample --instance <redis> --duration 10s   # 命中/未命中、ops、内存、驱逐的窗口差分
-workctl redis key sample --instance <redis> --pattern 'demo:*' # 抽样键与 TTL（SCAN 抽样，非全量）
+workctl redis stats sample --instance <redis> --duration 10s      # 两次 INFO 差分：命中/未命中、ops、淘汰/过期
+workctl redis key sample --instance <redis> --pattern 'demo:order:*' # 有预算的 SCAN 抽样（非全量）
 ```
 区分：Redis 本身无命中（键过期/被驱逐）与应用根本没去查 Redis（应用侧 `result=bypass`）。
 
 ### 6. 数据库（MySQL，由 mysql 领域提供）
 ```bash
-workctl mysql statement summary --instance <mysql> --window 15m   # 语句摘要：执行次数、平均/总耗时、无索引扫描
-workctl mysql query explain --instance <mysql> --sql-file q.sql     # 普通 EXPLAIN，不执行语句
+workctl mysql statement summary --instance <mysql> --sample-window 10s   # 两次快照差分：执行次数、耗时、扫描行数、未用索引
+workctl mysql query explain --instance <mysql> --database <db> --sql-file q.sql   # 普通 EXPLAIN，不执行语句
 ```
 对 trace/日志中出现的慢语句做 EXPLAIN：`type=ALL`、`key=NULL`、rows≈全表 → 全表扫描（事实）；“加索引能修复”是假设，需方案评审（mysql 的 plan 能力）后验证。
 

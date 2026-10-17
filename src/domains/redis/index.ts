@@ -1,8 +1,12 @@
-import { defineDomain } from '../../core/registry';
-import { GUIDE, isRedisOriginError, mapRedisError, withRedis } from './client';
+import { defineCapability, defineDomain } from '../../core/registry';
+import { ADAPTER, AUTH_PROVIDER, GUIDE, isRedisOriginError, mapRedisError, withRedis } from './client';
 import { parseInfo } from './info';
 import { keyHot, keyInspect, keySample } from './keys';
 import { configGet, infoGet, instanceGet, slowlogList, statsSample } from './server';
+
+/** In the catalog but not callable yet (no handler → status planned). */
+const planned = (name: string, summary: string) =>
+  defineCapability({ name, command: name.replace(/\./g, ' '), summary, domain: 'redis', adapter: ADAPTER, operation: 'read', auth_provider: AUTH_PROVIDER, guide: GUIDE, status: 'planned' });
 
 /**
  * Redis domain (adapter redis-client / ioredis). Read-only diagnostics: INFO, window
@@ -16,7 +20,18 @@ export default defineDomain({
   pillar: 'middleware',
   guide: GUIDE,
   skill: 'skills/redis-operations/SKILL.md',
-  capabilities: [instanceGet, infoGet, statsSample, slowlogList, keyInspect, keySample, keyHot, configGet],
+  capabilities: [
+    instanceGet,
+    infoGet,
+    statsSample,
+    slowlogList,
+    keyInspect,
+    keySample,
+    keyHot,
+    configGet,
+    planned('redis.latency.get', '读取 LATENCY LATEST / HISTORY 事件延迟（需开启 latency-monitor-threshold）'),
+    planned('redis.cluster.get', '查看 Redis Cluster 节点、槽位分布与故障转移状态'),
+  ],
   probes: {
     redis: async (ctx, name) =>
       withRedis(ctx, name, async (s) => {

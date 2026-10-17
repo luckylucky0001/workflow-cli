@@ -109,7 +109,10 @@ export function deriveStatus(app: any, jobs: any[]): { status: 'running' | 'succ
       ? { status: 'failed', basis: `应用已结束（attempt.completed=true），${failedJobs} 个作业失败` }
       : { status: 'succeeded', basis: '应用已结束（attempt.completed=true）且没有失败作业；history server 不记录驱动进程退出码' };
   }
-  const idleMs = Date.now() - Number(attempt.lastUpdatedEpoch ?? Date.parse(attempt.lastUpdated ?? '') ?? 0);
-  if (runningJobs || idleMs < 10 * 60_000) return { status: 'running', basis: `事件日志仍在写入（in-progress），${runningJobs} 个作业运行中` };
-  return { status: 'incomplete', basis: `事件日志未正常结束且 ${Math.round(idleMs / 60000)} 分钟无更新：驱动可能被终止或崩溃` };
+  const last = Number(attempt.lastUpdatedEpoch ?? Date.parse(String(attempt.lastUpdated ?? '').replace(/GMT$/, 'Z')));
+  const idleS = Number.isFinite(last) ? Math.round((Date.now() - last) / 1000) : null;
+  if (idleS !== null && idleS < 600) {
+    return { status: 'running', basis: `事件日志未结束（in-progress），最近一次写入 ${idleS} 秒前，${runningJobs} 个作业为 RUNNING；被强制终止的驱动在 10 分钟内也会显示为 running` };
+  }
+  return { status: 'incomplete', basis: `事件日志未正常结束且 ${idleS === null ? '未知时长' : `${Math.round(idleS / 60)} 分钟`}无写入：驱动可能被终止或崩溃（history 中残留的 RUNNING 作业不代表仍在执行）` };
 }

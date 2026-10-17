@@ -13,6 +13,7 @@ import {
   partitionLayer,
   qualityLayer,
   RunSchema,
+  runBusinessDate,
   runsForBusinessDate,
   targetPartition,
   targetsOf,
@@ -430,7 +431,7 @@ const runGet = defineCapability({
     '四个检查项分别验证：scheduler（Airflow run 状态）、compute（Spark 应用，通过任务记录的 application id 关联）、output（目标分区，经 data.partition.get）、quality（最近一次质量检查结果）',
     '目标表与分区由目录元数据 produced_by 推导，分区值取 data_interval_start 在分区时区的日期',
   ],
-  examples: ['workctl offline run get --workflow demo-daily-orders --id "manual__2026-10-16T00:00:00+08:00"'],
+  examples: ['workctl offline run get --workflow demo-daily-orders --id demo__2026-10-16__wrong_partition'],
   handler: async (ctx, inp) => {
     const af = new AirflowClient(ctx);
     const d = await buildRunDetail(ctx, af, checkId(inp.id, '--id'), inp.workflow ? checkId(inp.workflow, '--workflow') : undefined);
@@ -472,7 +473,7 @@ const dependencyList = defineCapability({
     direction: z.enum(['upstream', 'downstream']),
     business_date: z.string().nullable(),
     task_edges: z.array(z.object({ from: z.string(), to: z.string(), from_state: z.string().nullable(), to_state: z.string().nullable(), edge_source: EdgeSource })),
-    data_dependencies: z.array(z.object({ table: z.string(), partition: z.string().nullable(), role: z.enum(['input', 'output', 'consumer_input']), state: z.string(), detail: z.string().optional(), edge_source: EdgeSource })),
+    data_dependencies: z.array(z.object({ table: z.string(), partition: z.string().nullable(), role: z.enum(['input', 'output', 'downstream_table']), state: z.string(), detail: z.string().optional(), edge_source: EdgeSource })),
     workflow_dependencies: z.array(z.object({
       workflow: z.string(),
       relation: z.string(),
@@ -487,7 +488,7 @@ const dependencyList = defineCapability({
   }),
   prerequisites: [...PREREQ, '数据依赖需要 catalog 端点（upstream/consumers）；跨工作流关系来自 resources_file 绑定'],
   notes: ['只报告平台显式记录的关系（调度元数据、目录元数据、绑定文件），不根据相似名称推断依赖'],
-  examples: ['workctl offline dependency list --workflow demo-daily-orders --run-id "manual__2026-10-14T00:00:00+08:00" --direction upstream'],
+  examples: ['workctl offline dependency list --workflow demo-daily-orders --run-id demo__2026-10-14__missing_upstream --direction upstream'],
   handler: async (ctx, inp) => {
     const af = new AirflowClient(ctx);
     const runId = checkId(inp.run_id, '--run-id');
@@ -503,7 +504,7 @@ const dependencyList = defineCapability({
     const notes: string[] = [];
     const taskEdges = tasks.flatMap((t) => (t.downstream_task_ids ?? []).map((d: string) => ({ from: t.task_id, to: d, from_state: stateOf.get(t.task_id) ?? null, to_state: stateOf.get(d) ?? null, edge_source: 'scheduler-metadata' as const })));
 
-    const businessDateFor = (t?: { partition_key?: { timezone?: string } }) => normRun({ ...found.run, data_interval_start: found.run.data_interval_start }, t?.partition_key?.timezone ?? tz).business_date;
+    const businessDateFor = (t?: { partition_key?: { timezone?: string } }) => runBusinessDate(found.run, t?.partition_key?.timezone ?? tz);
     const bd = businessDateFor();
     const data: any[] = [];
     const targets = targetsOf(ctx, dagId);
@@ -530,7 +531,16 @@ const dependencyList = defineCapability({
           if (layer.source) sources.push(layer.source);
           data.push({ table: t.name, partition: spec, role: 'output', state: layer.state, ...(layer.detail ? { detail: layer.detail } : {}), edge_source: 'catalog-metadata' });
           for (const down of downstreamTables(targets.catalog, t.name)) {
-            data.push({ table: down.name, partition: tbd ? partitionSpec(down, tbd) : null, role: 'consumer_input', state: 'not_checked', detail: `${down.name} 以 ${t.name} 为上游（产出流程 ${down.produced_by?.workflow ?? '未知'}）`, edge_source: 'catalog-metadata' });
+            const dspec = tbd ? partitionSpec(down, tbd) : null;
+            const dl = dspec ? await partitionLayer(ctx, targets.catalog.name, down.name, dspec) : { state: 'unknown', detail: '无分区键', source: null };
+            data.push({
+              table: down.name,
+              partition: dspec,
+              role: 'downstream_table',
+              state: dl.state,
+              detail: `${down.name} 以 ${t.name} 为上游（产出流程 ${down.produced_by?.workflow ?? '未知'}${down.produced_by?.status === 'planned' ? '，尚未接入调度' : ''}）`,
+              edge_source: 'catalog-metadata',
+            });
           }
         }
       }
@@ -641,7 +651,7 @@ const logGet = defineCapability({
   }),
   prerequisites: PREREQ,
   notes: ['日志由 Airflow webserver 从任务日志存储读取；reschedule 模式的传感器每次 poke 都追加到同一 try 的日志', '日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述'],
-  examples: ['workctl offline log get --workflow demo-daily-orders --run-id "manual__2026-10-16T00:00:00+08:00" --task aggregate_orders --limit-lines 50'],
+  examples: ['workctl offline log get --workflow demo-daily-orders --run-id demo__2026-10-16__wrong_partition --task aggregate_orders --limit-lines 50'],
   handler: async (ctx, inp) => {
     const af = new AirflowClient(ctx);
     const runId = checkId(inp.run_id, '--run-id');
@@ -848,4 +858,17 @@ export default defineDomain({
   capabilities: [workflowGet, taskGet, runList, runGet, dependencyList, logGet, backfillPlanCap, backfillGetCap, freshnessCheck],
   planners: [backfillPlanner],
   executors: { 'offline.backfill': backfillExecutor },
+  probes: {
+    airflow: async (ctx, name) => {
+      const af = new AirflowClient(ctx, name);
+      const version = await af.version();
+      const dags = await af.get<{ total_entries: number }>('/dags', { limit: 1 });
+      return {
+        ok: true,
+        identity: af.ep.str('username'),
+        version,
+        detail: `basic auth 通过，可读取 DAG 列表（${dags.total_entries ?? 0} 个 DAG）；触发/清理等写权限只在执行时由 Airflow 校验`,
+      };
+    },
+  },
 });

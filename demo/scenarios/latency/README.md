@@ -34,12 +34,12 @@ workctl metric query --resource demo-order --metric db_query_rate --window 15m
 workctl metric query --resource demo-order --promql 'sum by (result) (rate(cache_requests_total{service="demo-order"}[1m]))'
 workctl log query --service demo-order --window 15m --level warn             # “cache mode changed”与超时/连接池错误
 workctl trace get --id <loadgen 输出 slowest[].trace_id>                     # mysql.pool.acquire vs mysql.query 的耗时
-workctl redis stats sample --instance demo-redis                             # redis 领域
-workctl mysql statement summary --instance demo-mysql --window 15m           # mysql 领域：全表扫描语句
-workctl mysql query explain --instance demo-mysql --sql-file customer_recent.sql
+workctl redis stats sample --instance demo-redis --duration 10s              # redis 领域（负载进行中采样）
+workctl mysql statement summary --instance demo-mysql --sample-window 10s    # mysql 领域：全表扫描语句（负载进行中采样）
+workctl mysql query explain --instance demo-mysql --database demo --sql-file customer_recent.sql
 ```
 
-预期能被证据支撑的链条（以实测为准）：注入时刻之后 `cache_requests_total{result="bypass"}` 出现、`cache_hit_ratio` 变为 NaN/下降、`db_query_rate` 上升、p95 上升；日志中有 `cache mode changed`（warn，含前后值）；慢 trace 的耗时集中在 `mysql.pool.acquire`（排队）和 `mysql.query`（全表扫描）；EXPLAIN 显示 `customer_id` 条件无可用索引。
+预期能被证据支撑的链条（以实测为准）：注入时刻之后 `cache_requests_total{result="bypass"}` 出现、`cache_hit_ratio` 变为 NaN/下降、`db_query_rate` 上升、p95 上升；日志中有 `cache mode changed`（warn，含前后值）；慢 trace 的耗时集中在 `mysql.pool.acquire`（排队）和 `mysql.query`（全表扫描）；EXPLAIN 显示 `customer_id` 条件没有可用索引（`possible_keys` 为空，优化器沿 `idx_created_at` 全索引扫描并逐行过滤）。
 
 ## 实测记录（隔离环境，2026-10-17，单机 Docker，4 vCPU）
 
@@ -49,7 +49,9 @@ workctl mysql query explain --instance demo-mysql --sql-file customer_recent.sql
 |---|---|---|---|---|---|---|---|
 | 1 | 20 rps | 基线（无预热，缓存冷） | 2400 | 3.3 ms | 3015.7 ms | 5628.3 ms | 200×2400 |
 | 1 | 20 rps | bypass | 2399 | 10000.8 ms | 10007.3 ms | 10017.2 ms | 200×313，503×625，客户端超时×1461 |
-| 2 | 10 rps | 基线（预热 30s） | 见下方 | | | | |
-| 2 | 10 rps | bypass | 见下方 | | | | |
+| 2 | 10 rps | 基线（预热 30s） | 1200 | 3.2 ms | 8.4 ms | 432.6 ms | 200×1200 |
+| 2 | 10 rps | bypass | 1200 | 5.2 ms | 1373.1 ms | 1900.9 ms | 200×1200 |
+
+运行 2 bypass 阶段按路由：`/orders/:id` p95 11.9 ms；`/customers/:id/orders` p50 545.4 ms、p95 1801.5 ms（380 次）。同期 workctl 观测（`metric query --window 12m --step 30s`）：`cache_hit_ratio` 从 0.80–0.95 降到 0，`db_query_rate` 从约 0.2–2 req/s 升到约 10 req/s，`request_latency`（p95）从约 0.005 s 升到 1.83 s；`log query --contains "cache mode changed"` 返回 12:47:21Z 的 warn 记录（before normal → after bypass）；最慢请求的 `trace get` 显示 2660.9 ms 中 `mysql.query` 自身耗时 2659.9 ms、`mysql.pool.acquire` 0.05 ms、没有 `redis.get` span；`mysql statement summary --sample-window 10s` 中该语句平均 456 ms、平均扫描约 22 万行。
 
 运行 1 的 503 来自 demo-order 连接池排队上限（`mysql connection unavailable`），客户端超时为 loadgen 的 10s 上限。运行 1 基线的 p95 偏高是因为没有预热（缓存过期后的冷启动），所以 `experiment.sh` 增加了不计入的预热阶段。

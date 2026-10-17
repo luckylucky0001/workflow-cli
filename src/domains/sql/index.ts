@@ -395,5 +395,6 @@ export default defineDomain({
   summary: '向计算引擎异步提交只读 SQL 查询并跟踪状态（Spark SQL）',
   pillar: 'offline',
   guide: GUIDE,
+  skill: 'skills/offline-operations/SKILL.md',
   capabilities: [submit, get, cancel, trino, hive],
 });
