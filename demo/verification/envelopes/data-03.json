@@ -32,7 +32,7 @@
         "business_date": {
           "value": "2026-10-16",
           "timezone": "Asia/Shanghai",
-          "today": "2026-10-17",
+          "today": "2026-10-18",
           "day_ended": true,
           "expected_ready_by": "2026-10-17T06:00:00+08:00",
           "deadline_passed": true
@@ -76,7 +76,7 @@
       {
         "system": "file-catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T15:39:08.329Z",
+        "observed_at": "2026-10-17T16:58:29.952Z",
         "endpoint": "catalog/demo",
         "method": "read tables/analytics.daily_orders.yaml (partition_keys)",
         "relation": "explicit"
@@ -84,7 +84,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T15:39:08.329Z",
+        "observed_at": "2026-10-17T16:58:29.952Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "stat+readdir analytics/daily_orders/dt=2026-10-16",
         "relation": "derived"
@@ -99,7 +99,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvckap9a-f42d21",
+    "request_id": "req-mvcn4rdg-96e34b",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -107,7 +107,7 @@
     "adapter": "file-catalog",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:39:08.254Z",
-    "duration_ms": 76
+    "started_at": "2026-10-17T16:58:29.908Z",
+    "duration_ms": 46
   }
 }

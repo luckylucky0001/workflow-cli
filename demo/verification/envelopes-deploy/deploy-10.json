@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "deploy.rollback.plan",
   "data": {
-    "id": "op-20261017-0f865a",
+    "id": "op-20261017-5e094a",
     "kind": "deploy.rollback",
     "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #3（v1.4.2-bad）",
     "params": {
@@ -26,8 +26,8 @@
       {
         "provider": "jenkins",
         "job": "deploy-demo-order",
-        "current_build": 8,
-        "current_version": "v1.4.0",
+        "current_build": 4,
+        "current_version": "v1.4.1",
         "target_build": 3,
         "target_version": "v1.4.2-bad",
         "target_result": "FAILURE",
@@ -42,7 +42,7 @@
       "service": "demo-order",
       "env": "sandbox",
       "provider": "jenkins",
-      "version_change": "v1.4.0 → v1.4.2-bad",
+      "version_change": "v1.4.1 → v1.4.2-bad",
       "expected_interruption": "由部署 job 自身的发布流程决定（workctl 不了解 job 内部步骤）；执行即用目标构建的参数重新触发部署 job（Jenkins 中产生新构建）",
       "dependents_of_service": [
         {
@@ -88,7 +88,7 @@
       {
         "check": "target_differs_from_current",
         "ok": true,
-        "detail": "当前 v1.4.0（#8）→ 目标 v1.4.2-bad"
+        "detail": "当前 v1.4.1（#4）→ 目标 v1.4.2-bad"
       },
       {
         "check": "no_deploy_in_progress",
@@ -109,7 +109,7 @@
     "steps": [
       {
         "name": "recheck",
-        "detail": "执行前重读 job：当前成功构建仍为 #8、没有进行中的部署构建（否则拒绝执行）"
+        "detail": "执行前重读 job：当前成功构建仍为 #4、没有进行中的部署构建（否则拒绝执行）"
       },
       {
         "name": "trigger deploy job",
@@ -120,18 +120,18 @@
         "detail": "轮询队列项直到分配构建号，再轮询构建直到结束；结果 SUCCESS 才算成功（最多 300s，且不超过 --timeout）。部署 job 的成功不等于服务健康：再用 container workload get / 指标核对"
       }
     ],
-    "rollback": "再生成回滚计划 --to 8，用当前版本 v1.4.0 再次触发部署 job",
+    "rollback": "再生成回滚计划 --to 4，用当前版本 v1.4.1 再次触发部署 job",
     "idempotent": false,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-17T16:44:03.464Z",
-    "expires_at": "2026-10-17T17:14:03.464Z",
+    "created_at": "2026-10-17T16:59:43.712Z",
+    "expires_at": "2026-10-17T17:29:43.712Z",
     "profile": "demo",
     "env": "sandbox",
     "executable": true,
     "history": [
       {
-        "at": "2026-10-17T16:44:03.464Z",
+        "at": "2026-10-17T16:59:43.712Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
@@ -143,7 +143,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:44:03.465Z",
+        "observed_at": "2026-10-17T16:59:43.712Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/api/json",
         "relation": "explicit"
@@ -151,7 +151,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T16:44:03.465Z",
+        "observed_at": "2026-10-17T16:59:43.713Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/state/operations",
         "relation": "derived"
       }
@@ -166,7 +166,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmm6mc-d22f76",
+    "request_id": "req-mvcn6c5y-7d462c",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -174,7 +174,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:44:03.204Z",
-    "duration_ms": 261
+    "started_at": "2026-10-17T16:59:43.510Z",
+    "duration_ms": 203
   }
 }

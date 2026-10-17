@@ -6,9 +6,9 @@
     "instance": "demo-postgres",
     "aggregation": "window_delta",
     "window": {
-      "start": "2026-10-17T16:46:52.942Z",
-      "end": "2026-10-17T16:46:55.953Z",
-      "duration_ms": 3011
+      "start": "2026-10-17T16:59:08.966Z",
+      "end": "2026-10-17T16:59:11.973Z",
+      "duration_ms": 3007
     },
     "cumulative_since": null,
     "database": "demo_orders",
@@ -35,7 +35,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-17T16:46:55.959Z",
+        "observed_at": "2026-10-17T16:59:11.977Z",
         "endpoint": "postgres/demo-postgres",
         "method": "public.pg_stat_statements (t1 − t0)",
         "version": "16.15",
@@ -47,18 +47,18 @@
       "limit": 5,
       "truncated": false,
       "window": {
-        "start": "2026-10-17T16:46:52.942Z",
-        "end": "2026-10-17T16:46:55.953Z"
+        "start": "2026-10-17T16:59:08.966Z",
+        "end": "2026-10-17T16:59:11.973Z"
       },
       "notes": [
         "窗口内没有语句执行完成（采集正常开启；不是 COLLECTION_DISABLED）",
-        "窗口值（t1 − t0），窗口 3011ms；t0 中不存在的语句按其全部计数计入（窗口内首次出现）"
+        "窗口值（t1 − t0），窗口 3007ms；t0 中不存在的语句按其全部计数计入（窗口内首次出现）"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmptip-9b226d",
+    "request_id": "req-mvcn5lfy-316cbe",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -66,7 +66,7 @@
     "adapter": "pg-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:46:52.849Z",
-    "duration_ms": 3114
+    "started_at": "2026-10-17T16:59:08.878Z",
+    "duration_ms": 3103
   }
 }

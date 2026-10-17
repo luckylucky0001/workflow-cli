@@ -6,12 +6,12 @@
     "path": "demo/environment/workctl.yaml",
     "absolute_path": "/home/user/workflow-cli/demo/environment/workctl.yaml",
     "type": "file",
-    "size_bytes": 4192,
+    "size_bytes": 5562,
     "mode": "0644",
     "uid": 0,
     "gid": 0,
-    "mtime": "2026-10-17T15:22:01.041Z",
-    "ctime": "2026-10-17T15:22:01.047Z",
+    "mtime": "2026-10-17T16:08:56.665Z",
+    "ctime": "2026-10-17T16:08:56.670Z",
     "readable": true,
     "writable": true,
     "symlink_target": null,
@@ -24,7 +24,7 @@
       {
         "system": "local-filesystem",
         "adapter": "node-fs",
-        "observed_at": "2026-10-17T15:38:30.819Z",
+        "observed_at": "2026-10-17T16:57:49.896Z",
         "method": "lstat/stat/access",
         "endpoint": "local-filesystem",
         "relation": "explicit"
@@ -38,7 +38,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvck9wcs-33c408",
+    "request_id": "req-mvcn3wh5-000165",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -46,7 +46,7 @@
     "adapter": "node-fs",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:38:30.796Z",
-    "duration_ms": 23
+    "started_at": "2026-10-17T16:57:49.865Z",
+    "duration_ms": 32
   }
 }

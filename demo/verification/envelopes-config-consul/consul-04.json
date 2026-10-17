@@ -11,9 +11,9 @@
     "details": {
       "provider": "consul",
       "key": "config/sandbox/demo-inventory/db.password",
-      "create_index": 275,
-      "modify_index": 279,
-      "observed_index": 279,
+      "create_index": 26,
+      "modify_index": 30,
+      "observed_index": 30,
       "changed_since_creation": true
     }
   },
@@ -23,7 +23,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmkl4j-2f69b8",
+    "request_id": "req-mvcn65cu-ec519b",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -31,7 +31,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:42:48.691Z",
-    "duration_ms": 52
+    "started_at": "2026-10-17T16:59:34.686Z",
+    "duration_ms": 72
   }
 }

@@ -21,7 +21,7 @@
         "area": "resources",
         "item": "bindings",
         "ok": true,
-        "detail": "16 个资源，12 条关系"
+        "detail": "22 个资源，12 条关系"
       },
       {
         "area": "endpoints",
@@ -42,6 +42,18 @@
         "detail": "127.0.0.1:13306 可达 (3ms)"
       },
       {
+        "area": "credentials",
+        "item": "postgres/demo-postgres.password_ref",
+        "ok": true,
+        "detail": "file 引用可解析"
+      },
+      {
+        "area": "endpoints",
+        "item": "postgres/demo-postgres",
+        "ok": true,
+        "detail": "127.0.0.1:15432 可达 (1ms)"
+      },
+      {
         "area": "endpoints",
         "item": "redis/demo-redis",
         "ok": true,
@@ -51,13 +63,13 @@
         "area": "endpoints",
         "item": "prometheus/demo-prometheus",
         "ok": true,
-        "detail": "127.0.0.1:19090 可达 (1ms)"
+        "detail": "127.0.0.1:19090 可达 (0ms)"
       },
       {
         "area": "endpoints",
         "item": "loki/demo-loki",
         "ok": true,
-        "detail": "127.0.0.1:13100 可达 (1ms)"
+        "detail": "127.0.0.1:13100 可达 (2ms)"
       },
       {
         "area": "credentials",
@@ -69,7 +81,7 @@
         "area": "endpoints",
         "item": "airflow/demo-airflow",
         "ok": true,
-        "detail": "127.0.0.1:18080 可达 (1ms)"
+        "detail": "127.0.0.1:18080 可达 (0ms)"
       },
       {
         "area": "endpoints",
@@ -93,19 +105,43 @@
         "area": "endpoints",
         "item": "kafka/demo-mq",
         "ok": true,
-        "detail": "127.0.0.1:19092 可达 (2ms)"
+        "detail": "127.0.0.1:19092 可达 (3ms)"
       },
       {
         "area": "endpoints",
         "item": "opensearch/demo-search",
         "ok": true,
-        "detail": "127.0.0.1:19200 可达 (1ms)"
+        "detail": "127.0.0.1:19200 可达 (3ms)"
       },
       {
         "area": "endpoints",
         "item": "etcd/demo-etcd",
         "ok": true,
-        "detail": "127.0.0.1:12379 可达 (5ms)"
+        "detail": "127.0.0.1:12379 可达 (0ms)"
+      },
+      {
+        "area": "endpoints",
+        "item": "nacos/demo-nacos",
+        "ok": true,
+        "detail": "127.0.0.1:18848 可达 (1ms)"
+      },
+      {
+        "area": "endpoints",
+        "item": "consul/demo-consul",
+        "ok": true,
+        "detail": "127.0.0.1:18500 可达 (0ms)"
+      },
+      {
+        "area": "credentials",
+        "item": "jenkins/demo-jenkins.password_ref",
+        "ok": true,
+        "detail": "file 引用可解析"
+      },
+      {
+        "area": "endpoints",
+        "item": "jenkins/demo-jenkins",
+        "ok": true,
+        "detail": "127.0.0.1:18091 可达 (0ms)"
       },
       {
         "area": "plugins",
@@ -123,7 +159,7 @@
         "area": "registry",
         "item": "capabilities",
         "ok": true,
-        "detail": "76 个可调用，19 个待接入"
+        "detail": "89 个可调用，25 个待接入"
       }
     ]
   },
@@ -133,15 +169,19 @@
       {
         "system": "workctl",
         "adapter": "local",
-        "observed_at": "2026-10-17T15:38:21.555Z",
+        "observed_at": "2026-10-17T16:57:39.681Z",
         "relation": "derived"
       }
     ],
-    "coverage": null,
+    "coverage": {
+      "complete": true,
+      "scope": "本机 workctl 安装、配置与端点",
+      "notes": []
+    },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvck9p6e-706a92",
+    "request_id": "req-mvcn3okg-808956",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -149,7 +189,7 @@
     "adapter": "local",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:38:21.494Z",
-    "duration_ms": 61
+    "started_at": "2026-10-17T16:57:39.616Z",
+    "duration_ms": 65
   }
 }

@@ -17,8 +17,8 @@
       "version": "v1.4.2-bad",
       "images": [],
       "revision": 3,
-      "started_at": "2026-10-17T16:04:19.721Z",
-      "finished_at": "2026-10-17T16:04:21.734Z",
+      "started_at": "2026-10-17T16:56:28.253Z",
+      "finished_at": "2026-10-17T16:56:30.266Z",
       "timestamps": "explicit",
       "duration_ms": 2013,
       "status": "failed",
@@ -38,7 +38,7 @@
       "number": 3,
       "result": "FAILURE",
       "building": false,
-      "estimated_duration_ms": 2016,
+      "estimated_duration_ms": 2029,
       "built_on": null,
       "parameters": {
         "SERVICE": "demo-order",
@@ -56,7 +56,7 @@
           "Started by user admin",
           "Running as SYSTEM",
           "Building in workspace /var/jenkins_home/workspace/deploy-demo-order",
-          "[deploy-demo-order] $ /bin/sh /tmp/jenkins12596645040018779054.sh",
+          "[deploy-demo-order] $ /bin/sh /tmp/jenkins3484780194960298348.sh",
           "deploying demo-order version v1.4.2-bad to sandbox",
           "image: workctl-demo/demo-order:v1.4.2-bad",
           "registry token: ******",
@@ -76,7 +76,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:43:58.752Z",
+        "observed_at": "2026-10-17T16:59:39.979Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/3/api/json",
         "relation": "explicit",
@@ -85,7 +85,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:43:58.753Z",
+        "observed_at": "2026-10-17T16:59:39.979Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/3/consoleText",
         "relation": "explicit",
@@ -94,7 +94,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:43:58.753Z",
+        "observed_at": "2026-10-17T16:59:39.979Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100}",
         "relation": "derived",
@@ -111,7 +111,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmm2vs-a3f16c",
+    "request_id": "req-mvcn6941-c8654e",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -119,7 +119,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:43:58.360Z",
-    "duration_ms": 394
+    "started_at": "2026-10-17T16:59:39.553Z",
+    "duration_ms": 426
   }
 }

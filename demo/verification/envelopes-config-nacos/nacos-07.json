@@ -5,12 +5,12 @@
   "data": null,
   "error": {
     "code": "DATA_UNAVAILABLE",
-    "message": "--from-rev 0 早于保留的最早历史记录 4，该时刻的内容不可知",
-    "hint": "Nacos 历史只保留 30 天；用 --from-rev 4 或更大的历史 ID",
+    "message": "--from-rev 0 早于保留的最早历史记录 1，该时刻的内容不可知",
+    "hint": "Nacos 历史只保留 30 天；用 --from-rev 1 或更大的历史 ID",
     "retryable": false,
     "details": {
       "requested_revision": 0,
-      "oldest_history_id": 4,
+      "oldest_history_id": 1,
       "retention_days": 30,
       "history_truncated": false
     }
@@ -21,7 +21,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmkhdb-de436d",
+    "request_id": "req-mvcn61in-8f3c1b",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -29,7 +29,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:42:43.823Z",
-    "duration_ms": 78
+    "started_at": "2026-10-17T16:59:29.711Z",
+    "duration_ms": 131
   }
 }

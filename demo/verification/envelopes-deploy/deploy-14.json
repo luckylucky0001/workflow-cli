@@ -13,15 +13,15 @@
     },
     "provider": "jenkins",
     "state": "complete",
-    "detail": "没有进行中的部署；最近一次构建 #9 结果 SUCCESS",
+    "detail": "没有进行中的部署；最近一次构建 #5 结果 SUCCESS",
     "current_release": {
-      "id": "9",
+      "id": "5",
       "provider": "jenkins",
-      "version": "v1.4.1",
+      "version": "v1.4.0",
       "images": [],
-      "revision": 9,
-      "started_at": "2026-10-17T16:44:15.309Z",
-      "finished_at": "2026-10-17T16:44:17.320Z",
+      "revision": 5,
+      "started_at": "2026-10-17T16:59:53.288Z",
+      "finished_at": "2026-10-17T16:59:55.299Z",
       "timestamps": "explicit",
       "duration_ms": 2011,
       "status": "succeeded",
@@ -32,8 +32,8 @@
       "source_ref": {
         "system": "jenkins",
         "kind": "jenkins.build",
-        "name": "deploy-demo-order#9",
-        "url": "http://127.0.0.1:18091/job/deploy-demo-order/9/"
+        "name": "deploy-demo-order#5",
+        "url": "http://127.0.0.1:18091/job/deploy-demo-order/5/"
       }
     },
     "in_progress": false,
@@ -43,13 +43,13 @@
       "running": [],
       "queued": [],
       "last_build": {
-        "id": "9",
+        "id": "5",
         "provider": "jenkins",
-        "version": "v1.4.1",
+        "version": "v1.4.0",
         "images": [],
-        "revision": 9,
-        "started_at": "2026-10-17T16:44:15.309Z",
-        "finished_at": "2026-10-17T16:44:17.320Z",
+        "revision": 5,
+        "started_at": "2026-10-17T16:59:53.288Z",
+        "finished_at": "2026-10-17T16:59:55.299Z",
         "timestamps": "explicit",
         "duration_ms": 2011,
         "status": "succeeded",
@@ -60,8 +60,8 @@
         "source_ref": {
           "system": "jenkins",
           "kind": "jenkins.build",
-          "name": "deploy-demo-order#9",
-          "url": "http://127.0.0.1:18091/job/deploy-demo-order/9/"
+          "name": "deploy-demo-order#5",
+          "url": "http://127.0.0.1:18091/job/deploy-demo-order/5/"
         }
       }
     }
@@ -72,7 +72,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:44:19.060Z",
+        "observed_at": "2026-10-17T16:59:57.233Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100}",
         "relation": "explicit",
@@ -81,7 +81,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:44:19.060Z",
+        "observed_at": "2026-10-17T16:59:57.233Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /queue/api/json",
         "relation": "explicit",
@@ -92,14 +92,14 @@
       "complete": true,
       "scope": "Jenkins job deploy-demo-order 的构建与队列",
       "notes": [
-        "按构建参数过滤：SERVICE=demo-order, ENV=sandbox（1 个构建属于其他服务/环境，已排除）",
+        "按构建参数过滤：SERVICE=demo-order, ENV=sandbox（0 个构建属于其他服务/环境，已排除）",
         "current=最近一次成功的部署构建；Jenkins 不观测目标环境实际运行的版本，需要与容器/工作负载的镜像核对"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmmil2-a53813",
+    "request_id": "req-mvcn6mj4-ca763f",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -107,7 +107,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:44:18.710Z",
-    "duration_ms": 351
+    "started_at": "2026-10-17T16:59:56.944Z",
+    "duration_ms": 289
   }
 }

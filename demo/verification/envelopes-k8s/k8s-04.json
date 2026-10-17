@@ -13,107 +13,12 @@
       "matched_by": "label selector app=demo-order（binding demo-order-k8s.labels，namespace workctl-demo）"
     },
     "window": {
-      "start": "2026-10-17T16:13:42.425Z",
-      "end": "2026-10-17T16:43:42.425Z"
+      "start": "2026-10-17T16:32:04.924Z",
+      "end": "2026-10-17T17:02:04.924Z"
     },
-    "visible_since": "2026-10-17T16:13:42.425Z",
+    "visible_since": "2026-10-17T16:32:04.924Z",
     "daemon_buffer_full": false,
     "events": [
-      {
-        "time": "2026-10-17T16:18:05.000Z",
-        "type": "deployment",
-        "action": "ScalingReplicaSet",
-        "container_id": "e32abd5e1d03",
-        "container_name": "demo-order",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "Deployment",
-          "event_type": "Normal",
-          "message": "Scaled up replica set demo-order-6cfc5699dd to 2 from 1",
-          "count": "1",
-          "first_timestamp": "2026-10-17T16:18:05Z",
-          "reporting_component": "deployment-controller"
-        }
-      },
-      {
-        "time": "2026-10-17T16:30:45.000Z",
-        "type": "deployment",
-        "action": "ScalingReplicaSet",
-        "container_id": "e32abd5e1d03",
-        "container_name": "demo-order",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "Deployment",
-          "event_type": "Normal",
-          "message": "Scaled up replica set demo-order-64ffbf5bfc to 1",
-          "count": "1",
-          "first_timestamp": "2026-10-17T16:30:45Z",
-          "reporting_component": "deployment-controller"
-        }
-      },
-      {
-        "time": "2026-10-17T16:30:50.000Z",
-        "type": "deployment",
-        "action": "ScalingReplicaSet",
-        "container_id": "e32abd5e1d03",
-        "container_name": "demo-order",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "Deployment",
-          "event_type": "Normal",
-          "message": "Scaled down replica set demo-order-5f7bdfbf76 to 1 from 2",
-          "count": "1",
-          "first_timestamp": "2026-10-17T16:30:50Z",
-          "reporting_component": "deployment-controller"
-        }
-      },
-      {
-        "time": "2026-10-17T16:38:42.000Z",
-        "type": "replicaset",
-        "action": "SuccessfulCreate",
-        "container_id": "a65359614460",
-        "container_name": "demo-order-6f447f6944",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "ReplicaSet",
-          "event_type": "Normal",
-          "message": "Created pod: demo-order-6f447f6944-9rn2r",
-          "count": "1",
-          "first_timestamp": "2026-10-17T16:38:42Z",
-          "reporting_component": "replicaset-controller"
-        }
-      },
-      {
-        "time": "2026-10-17T16:38:43.000Z",
-        "type": "replicaset",
-        "action": "SuccessfulCreate",
-        "container_id": "a65359614460",
-        "container_name": "demo-order-6f447f6944",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "ReplicaSet",
-          "event_type": "Normal",
-          "message": "Created pod: demo-order-6f447f6944-xw54g",
-          "count": "1",
-          "first_timestamp": "2026-10-17T16:38:43Z",
-          "reporting_component": "replicaset-controller"
-        }
-      },
       {
         "time": "2026-10-17T16:42:45.000Z",
         "type": "deployment",
@@ -134,49 +39,11 @@
         }
       },
       {
-        "time": "2026-10-17T16:42:46.000Z",
-        "type": "replicaset",
-        "action": "SuccessfulDelete",
-        "container_id": "a65359614460",
-        "container_name": "demo-order-6f447f6944",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "ReplicaSet",
-          "event_type": "Normal",
-          "message": "Deleted pod: demo-order-6f447f6944-xw54g",
-          "count": "1",
-          "first_timestamp": "2026-10-17T16:42:46Z",
-          "reporting_component": "replicaset-controller"
-        }
-      },
-      {
-        "time": "2026-10-17T16:42:47.000Z",
-        "type": "replicaset",
-        "action": "SuccessfulDelete",
-        "container_id": "a65359614460",
-        "container_name": "demo-order-6f447f6944",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "ReplicaSet",
-          "event_type": "Normal",
-          "message": "Deleted pod: demo-order-6f447f6944-9rn2r",
-          "count": "1",
-          "first_timestamp": "2026-10-17T16:42:47Z",
-          "reporting_component": "replicaset-controller"
-        }
-      },
-      {
-        "time": "2026-10-17T16:42:48.000Z",
+        "time": "2026-10-17T16:43:45.000Z",
         "type": "pod",
         "action": "Pulled",
-        "container_id": "dcbe49e4a5ce",
-        "container_name": "demo-order-6f447f6944-p9ckq",
+        "container_id": "660d6ec3ac9e",
+        "container_name": "demo-order-7bf586db7c-cmgfx",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -186,18 +53,18 @@
           "event_type": "Normal",
           "message": "Container image \"nginx:1.27-alpine\" already present on machine",
           "count": "1",
-          "first_timestamp": "2026-10-17T16:42:48Z",
+          "first_timestamp": "2026-10-17T16:43:45Z",
           "field_path": "spec.containers{nginx}",
           "reporting_component": "kubelet",
           "reporting_instance": "vm"
         }
       },
       {
-        "time": "2026-10-17T16:42:48.000Z",
+        "time": "2026-10-17T16:43:45.000Z",
         "type": "pod",
         "action": "Created",
-        "container_id": "dcbe49e4a5ce",
-        "container_name": "demo-order-6f447f6944-p9ckq",
+        "container_id": "660d6ec3ac9e",
+        "container_name": "demo-order-7bf586db7c-cmgfx",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -207,18 +74,18 @@
           "event_type": "Normal",
           "message": "Created container nginx",
           "count": "1",
-          "first_timestamp": "2026-10-17T16:42:48Z",
+          "first_timestamp": "2026-10-17T16:43:45Z",
           "field_path": "spec.containers{nginx}",
           "reporting_component": "kubelet",
           "reporting_instance": "vm"
         }
       },
       {
-        "time": "2026-10-17T16:42:48.000Z",
+        "time": "2026-10-17T16:43:45.000Z",
         "type": "pod",
         "action": "Started",
-        "container_id": "dcbe49e4a5ce",
-        "container_name": "demo-order-6f447f6944-p9ckq",
+        "container_id": "660d6ec3ac9e",
+        "container_name": "demo-order-7bf586db7c-cmgfx",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -228,18 +95,18 @@
           "event_type": "Normal",
           "message": "Started container nginx",
           "count": "1",
-          "first_timestamp": "2026-10-17T16:42:48Z",
+          "first_timestamp": "2026-10-17T16:43:45Z",
           "field_path": "spec.containers{nginx}",
           "reporting_component": "kubelet",
           "reporting_instance": "vm"
         }
       },
       {
-        "time": "2026-10-17T16:42:48.000Z",
+        "time": "2026-10-17T16:43:45.000Z",
         "type": "replicaset",
         "action": "SuccessfulCreate",
-        "container_id": "a65359614460",
-        "container_name": "demo-order-6f447f6944",
+        "container_id": "90d2985cf12e",
+        "container_name": "demo-order-7bf586db7c",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -247,18 +114,18 @@
           "namespace": "workctl-demo",
           "kind": "ReplicaSet",
           "event_type": "Normal",
-          "message": "Created pod: demo-order-6f447f6944-p9ckq",
+          "message": "Created pod: demo-order-7bf586db7c-cmgfx",
           "count": "1",
-          "first_timestamp": "2026-10-17T16:42:48Z",
+          "first_timestamp": "2026-10-17T16:43:45Z",
           "reporting_component": "replicaset-controller"
         }
       },
       {
-        "time": "2026-10-17T16:42:48.163Z",
+        "time": "2026-10-17T16:43:45.207Z",
         "type": "pod",
         "action": "Scheduled",
-        "container_id": "dcbe49e4a5ce",
-        "container_name": "demo-order-6f447f6944-p9ckq",
+        "container_id": "660d6ec3ac9e",
+        "container_name": "demo-order-7bf586db7c-cmgfx",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -266,17 +133,17 @@
           "namespace": "workctl-demo",
           "kind": "Pod",
           "event_type": "Normal",
-          "message": "Successfully assigned workctl-demo/demo-order-6f447f6944-p9ckq to vm",
+          "message": "Successfully assigned workctl-demo/demo-order-7bf586db7c-cmgfx to vm",
           "reporting_component": "default-scheduler",
           "reporting_instance": "default-scheduler-vm"
         }
       },
       {
-        "time": "2026-10-17T16:42:49.000Z",
+        "time": "2026-10-17T16:43:46.000Z",
         "type": "replicaset",
         "action": "SuccessfulCreate",
-        "container_id": "a65359614460",
-        "container_name": "demo-order-6f447f6944",
+        "container_id": "90d2985cf12e",
+        "container_name": "demo-order-7bf586db7c",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -284,18 +151,18 @@
           "namespace": "workctl-demo",
           "kind": "ReplicaSet",
           "event_type": "Normal",
-          "message": "Created pod: demo-order-6f447f6944-9mx6l",
+          "message": "Created pod: demo-order-7bf586db7c-kb294",
           "count": "1",
-          "first_timestamp": "2026-10-17T16:42:49Z",
+          "first_timestamp": "2026-10-17T16:43:46Z",
           "reporting_component": "replicaset-controller"
         }
       },
       {
-        "time": "2026-10-17T16:42:49.708Z",
+        "time": "2026-10-17T16:43:46.879Z",
         "type": "pod",
         "action": "Scheduled",
-        "container_id": "7dedb6199ed1",
-        "container_name": "demo-order-6f447f6944-9mx6l",
+        "container_id": "1d4c49673efc",
+        "container_name": "demo-order-7bf586db7c-kb294",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -303,17 +170,17 @@
           "namespace": "workctl-demo",
           "kind": "Pod",
           "event_type": "Normal",
-          "message": "Successfully assigned workctl-demo/demo-order-6f447f6944-9mx6l to vm",
+          "message": "Successfully assigned workctl-demo/demo-order-7bf586db7c-kb294 to vm",
           "reporting_component": "default-scheduler",
           "reporting_instance": "default-scheduler-vm"
         }
       },
       {
-        "time": "2026-10-17T16:42:50.000Z",
+        "time": "2026-10-17T16:43:47.000Z",
         "type": "pod",
         "action": "Pulled",
-        "container_id": "7dedb6199ed1",
-        "container_name": "demo-order-6f447f6944-9mx6l",
+        "container_id": "1d4c49673efc",
+        "container_name": "demo-order-7bf586db7c-kb294",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -323,18 +190,18 @@
           "event_type": "Normal",
           "message": "Container image \"nginx:1.27-alpine\" already present on machine",
           "count": "1",
-          "first_timestamp": "2026-10-17T16:42:50Z",
+          "first_timestamp": "2026-10-17T16:43:47Z",
           "field_path": "spec.containers{nginx}",
           "reporting_component": "kubelet",
           "reporting_instance": "vm"
         }
       },
       {
-        "time": "2026-10-17T16:42:50.000Z",
+        "time": "2026-10-17T16:43:47.000Z",
         "type": "pod",
         "action": "Created",
-        "container_id": "7dedb6199ed1",
-        "container_name": "demo-order-6f447f6944-9mx6l",
+        "container_id": "1d4c49673efc",
+        "container_name": "demo-order-7bf586db7c-kb294",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -344,18 +211,18 @@
           "event_type": "Normal",
           "message": "Created container nginx",
           "count": "1",
-          "first_timestamp": "2026-10-17T16:42:50Z",
+          "first_timestamp": "2026-10-17T16:43:47Z",
           "field_path": "spec.containers{nginx}",
           "reporting_component": "kubelet",
           "reporting_instance": "vm"
         }
       },
       {
-        "time": "2026-10-17T16:42:50.000Z",
+        "time": "2026-10-17T16:43:47.000Z",
         "type": "pod",
         "action": "Started",
-        "container_id": "7dedb6199ed1",
-        "container_name": "demo-order-6f447f6944-9mx6l",
+        "container_id": "1d4c49673efc",
+        "container_name": "demo-order-7bf586db7c-kb294",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -365,7 +232,7 @@
           "event_type": "Normal",
           "message": "Started container nginx",
           "count": "1",
-          "first_timestamp": "2026-10-17T16:42:50Z",
+          "first_timestamp": "2026-10-17T16:43:47Z",
           "field_path": "spec.containers{nginx}",
           "reporting_component": "kubelet",
           "reporting_instance": "vm"
@@ -373,12 +240,11 @@
       }
     ],
     "counts_by_action": {
-      "ScalingReplicaSet": 4,
-      "SuccessfulCreate": 4,
-      "SuccessfulDelete": 2,
+      "ScalingReplicaSet": 1,
       "Pulled": 2,
       "Created": 2,
       "Started": 2,
+      "SuccessfulCreate": 2,
       "Scheduled": 2
     },
     "provider": "kubernetes",
@@ -394,7 +260,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T16:43:42.449Z",
+        "observed_at": "2026-10-17T17:02:04.950Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/deployments",
         "relation": "explicit",
@@ -403,7 +269,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T16:43:42.449Z",
+        "observed_at": "2026-10-17T17:02:04.950Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/statefulsets",
         "relation": "explicit",
@@ -412,7 +278,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T16:43:42.449Z",
+        "observed_at": "2026-10-17T17:02:04.950Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/namespaces/workctl-demo/pods?labelSelector=app=demo-order",
         "relation": "explicit",
@@ -421,7 +287,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T16:43:42.449Z",
+        "observed_at": "2026-10-17T17:02:04.950Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/namespaces/workctl-demo/events（本地按 involvedObject uid 过滤）",
         "relation": "explicit",
@@ -430,7 +296,7 @@
       {
         "system": "workctl",
         "adapter": "resource-bindings",
-        "observed_at": "2026-10-17T16:43:42.449Z",
+        "observed_at": "2026-10-17T17:02:04.950Z",
         "method": "bindings: demo-order runs_on demo-order-k8s（endpoint kubernetes/k3s）",
         "relation": "explicit"
       }
@@ -438,8 +304,8 @@
     "coverage": {
       "complete": true,
       "window": {
-        "start": "2026-10-17T16:13:42.425Z",
-        "end": "2026-10-17T16:43:42.425Z"
+        "start": "2026-10-17T16:32:04.924Z",
+        "end": "2026-10-17T17:02:04.924Z"
       },
       "scope": "API server 保留的事件（窗口 30m，event-ttl 1h）",
       "notes": [
@@ -448,13 +314,13 @@
         "同类事件会被聚合：count 为自 first_timestamp 起的累计次数，时间取最近一次（lastTimestamp / series.lastObservedTime）",
         "只包含当前匹配的 Pod、其 ReplicaSet/StatefulSet 和工作负载的事件；已被替换/删除的旧 Pod 的事件不按名称推断归属，未包含",
         "--include-exec 对 Kubernetes 不适用（没有 exec 事件）",
-        "9 条相关事件的时间不在窗口内，已排除"
+        "12 条相关事件的时间不在窗口内，已排除"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmlqib-1a64d4",
+    "request_id": "req-mvcn9d7v-5e8ef1",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -462,7 +328,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:43:42.323Z",
-    "duration_ms": 126
+    "started_at": "2026-10-17T17:02:04.843Z",
+    "duration_ms": 107
   }
 }

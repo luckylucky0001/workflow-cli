@@ -41,27 +41,27 @@
     },
     "code_version": {
       "source_sha256": "11501b7deba7b46586851c578bd6b8202e9210d2e053a20da5852f3fe3bc0317",
-      "file_token": ".eJw1ydEKgCAMBdB_8d3uJ4m0raTpYiPEvw-CzutJOK0znmDHNL9EbeZdG4i7wUS0Dc7_BKge8V2h2nQVc2KP7V7pBRP6HDQ.enSsd0FGbvIK_CSLukWb1c5fZio",
+      "file_token": ".eJw1ydEKgCAMBdB_8d3uJ4m0raTpYiPEvw-CzutJOK0znmDHNL9EbeZdG4i7wUS0Dc7_BKge8V2h2nQVc2KP7V7pBRP6HDQ.883vzQSPFsApVxxaNh8NK4JEmIk",
       "fileloc": "/home/user/workflow-cli/demo/offline-workflows/dags/demo_daily_orders.py",
-      "last_parsed_time": "2026-10-17T15:38:49.062176+00:00",
+      "last_parsed_time": "2026-10-17T16:58:14.219727+00:00",
       "basis": "source_sha256 = sha256(GET /api/v1/dagSources/{file_token})，即调度器当前解析到的 DAG 文件内容；file_token 只标识文件位置，不代表内容版本"
     },
     "next_run": {
       "logical_date": {
-        "utc": "2026-10-15T16:00:00.000Z",
-        "local": "2026-10-16T00:00:00+08:00"
+        "utc": "2026-10-17T16:00:00.000Z",
+        "local": "2026-10-18T00:00:00+08:00"
       },
       "data_interval_start": {
-        "utc": "2026-10-15T16:00:00.000Z",
-        "local": "2026-10-16T00:00:00+08:00"
+        "utc": "2026-10-17T16:00:00.000Z",
+        "local": "2026-10-18T00:00:00+08:00"
       },
       "data_interval_end": {
-        "utc": "2026-10-16T16:00:00.000Z",
-        "local": "2026-10-17T00:00:00+08:00"
+        "utc": "2026-10-18T16:00:00.000Z",
+        "local": "2026-10-19T00:00:00+08:00"
       },
       "create_after": {
-        "utc": "2026-10-16T16:00:00.000Z",
-        "local": "2026-10-17T00:00:00+08:00"
+        "utc": "2026-10-18T16:00:00.000Z",
+        "local": "2026-10-19T00:00:00+08:00"
       }
     },
     "tasks": [
@@ -102,7 +102,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T15:38:56.041Z",
+        "observed_at": "2026-10-17T16:58:16.628Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/details",
         "version": "2.10.5",
@@ -111,7 +111,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T15:38:56.041Z",
+        "observed_at": "2026-10-17T16:58:16.628Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/tasks",
         "version": "2.10.5",
@@ -120,7 +120,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T15:38:56.041Z",
+        "observed_at": "2026-10-17T16:58:16.628Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dagSources/{file_token}",
         "version": "2.10.5",
@@ -129,7 +129,7 @@
       {
         "system": "catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T15:38:56.050Z",
+        "observed_at": "2026-10-17T16:58:16.636Z",
         "endpoint": "catalog/demo",
         "method": "tables/*.yaml produced_by.workflow",
         "relation": "explicit"
@@ -144,7 +144,7 @@
     ]
   },
   "context": {
-    "request_id": "req-mvckafif-a9a96d",
+    "request_id": "req-mvcn4grm-41c2a4",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -152,7 +152,7 @@
     "adapter": "airflow-rest-v1|v2",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:38:55.623Z",
-    "duration_ms": 434
+    "started_at": "2026-10-17T16:58:16.162Z",
+    "duration_ms": 481
   }
 }

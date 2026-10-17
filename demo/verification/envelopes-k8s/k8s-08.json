@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.execute",
   "data": {
-    "id": "op-20261017-3a1146",
+    "id": "op-20261017-21360d",
     "kind": "container.restart",
     "title": "滚动重启服务 demo-order（sandbox）的 1 个 Kubernetes 工作负载",
     "status": "succeeded",
-    "created_at": "2026-10-17T16:43:44.339Z",
-    "expires_at": "2026-10-17T17:13:44.339Z",
+    "created_at": "2026-10-17T17:02:06.237Z",
+    "expires_at": "2026-10-17T17:32:06.237Z",
     "profile": "k8s-demo",
     "env": "sandbox",
     "params": {
@@ -26,8 +26,8 @@
         "namespace": "workctl-demo",
         "name": "demo-order",
         "uid": "e32abd5e-1d03-4697-a778-107a8fc6df2b",
-        "generation": 35,
-        "observed_generation": 35,
+        "generation": 36,
+        "observed_generation": 36,
         "replicas": 2,
         "ready_replicas": 2,
         "updated_replicas": 2,
@@ -100,27 +100,27 @@
     "executable": true,
     "history": [
       {
-        "at": "2026-10-17T16:43:44.339Z",
+        "at": "2026-10-17T17:02:06.237Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       },
       {
-        "at": "2026-10-17T16:43:45.055Z",
+        "at": "2026-10-17T17:02:06.622Z",
         "status": "running",
-        "note": "由 req-mvcmlsl4-5e3c9c 开始执行"
+        "note": "由 req-mvcn9ekr-a39359 开始执行"
       },
       {
-        "at": "2026-10-17T16:43:45.124Z",
+        "at": "2026-10-17T17:02:06.666Z",
         "status": "running",
         "note": "rollout restart deployment/demo-order (namespace workctl-demo)"
       },
       {
-        "at": "2026-10-17T16:43:49.243Z",
+        "at": "2026-10-17T17:02:10.711Z",
         "status": "running",
         "note": "deployment/demo-order: rollout 完成：2/2 个副本已更新并可用"
       },
       {
-        "at": "2026-10-17T16:43:49.251Z",
+        "at": "2026-10-17T17:02:10.718Z",
         "status": "succeeded",
         "note": "执行器返回成功"
       }
@@ -133,16 +133,16 @@
           "kind": "Deployment",
           "namespace": "workctl-demo",
           "name": "demo-order",
-          "restarted_at": "2026-10-17T16:43:45Z",
-          "generation_before": 35,
-          "generation_after": 36,
+          "restarted_at": "2026-10-17T17:02:06Z",
+          "generation_before": 36,
+          "generation_after": 37,
           "status": {
             "kind": "Deployment",
             "name": "demo-order",
             "namespace": "workctl-demo",
             "uid": "e32abd5e-1d03-4697-a778-107a8fc6df2b",
-            "generation": 36,
-            "observed_generation": 36,
+            "generation": 37,
+            "observed_generation": 37,
             "replicas": 2,
             "ready_replicas": 2,
             "updated_replicas": 2,
@@ -152,10 +152,10 @@
               "status": "True",
               "reason": "NewReplicaSetAvailable"
             },
-            "restarted_at": "2026-10-17T16:43:45Z"
+            "restarted_at": "2026-10-17T17:02:06Z"
           },
           "verified": true,
-          "duration_ms": 4118,
+          "duration_ms": 4044,
           "detail": "rollout 完成：2/2 个副本已更新并可用"
         }
       ],
@@ -170,7 +170,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T16:43:49.252Z",
+        "observed_at": "2026-10-17T17:02:10.719Z",
         "relation": "explicit"
       }
     ],
@@ -178,7 +178,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmlsl4-5e3c9c",
+    "request_id": "req-mvcn9ekr-a39359",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -186,7 +186,7 @@
     "adapter": "plan-store",
     "operation": "execute",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:43:45.016Z",
-    "duration_ms": 4237
+    "started_at": "2026-10-17T17:02:06.603Z",
+    "duration_ms": 4117
   }
 }

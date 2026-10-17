@@ -37,7 +37,7 @@
             "column": "created_at",
             "expression": null,
             "sub_part": null,
-            "cardinality_estimate": 299145,
+            "cardinality_estimate": 288548,
             "nullable": false
           }
         ],
@@ -71,7 +71,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T15:38:33.598Z",
+        "observed_at": "2026-10-17T16:57:53.022Z",
         "endpoint": "mysql/demo-mysql",
         "method": "information_schema.STATISTICS",
         "version": "8.4.11",
@@ -80,7 +80,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T15:38:33.603Z",
+        "observed_at": "2026-10-17T16:57:53.028Z",
         "endpoint": "mysql/demo-mysql",
         "method": "performance_schema.table_io_waits_summary_by_index_usage",
         "version": "8.4.11",
@@ -96,7 +96,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvck9yh4-1c1e78",
+    "request_id": "req-mvcn3yvm-cf6899",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -104,7 +104,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:38:33.544Z",
-    "duration_ms": 59
+    "started_at": "2026-10-17T16:57:52.978Z",
+    "duration_ms": 51
   }
 }

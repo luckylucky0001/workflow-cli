@@ -224,6 +224,7 @@ resources:
 - 键名（相对名）或 JSON 字段名按分段匹配 `password/passwd/pwd/secret/token/key/apikey/dsn/credential/private_key/access_key` 等时，值替换为 `"***"`，`masked=true`，`masked_paths` 标出位置（`$` 为整个值，`$.token` 为字段）。只按名称判断，不分析值内容；宁可多遮（如 `cache.key_prefix` 也会被遮）。
 - `config diff` 中被遮蔽的项两侧都显示 `***`，`changed` 依据原始字节判断，所以“密码轮换过”可见而值不可见。`value_bytes` 是原始字节数；**整个值或其中任一 JSON 字段被遮蔽时为 `null`**（否则会泄露密钥长度及轮换前后的长度变化：其余字段明文可见时，整个值的字节数减去其余部分即密钥长度）。
 - 遮蔽是展示层保护，不替代 etcd 的权限控制：只读账号应只授予所需前缀（`etcdctl role grant-permission --prefix <role> read <prefix>`）。
+- 已知限制（审查记录，未修复）：值内容里嵌着的凭据（如名为 `db.url` 的 `jdbc:...user:pass@host`）不会被遮蔽；Consul 健康检查的 `Output`（最多 300 字符）原样返回，若检查 URL 含 token 会被带出；Nacos 的 `--healthy-only` / `summary.healthy` 把 `enabled=false`（已下线但健康）的实例计为健康；xml/html 或无扩展名的整段文本文档不做内容级遮蔽。
 
 ### 服务注册与租约
 

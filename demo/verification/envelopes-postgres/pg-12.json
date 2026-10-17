@@ -19,7 +19,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmpw7y-ac489f",
+    "request_id": "req-mvcn5o3u-eaa09a",
     "profile": "demo-pg-nostats",
     "env": "sandbox",
     "data_mode": "live",
@@ -27,7 +27,7 @@
     "adapter": "pg-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:46:56.350Z",
-    "duration_ms": 44
+    "started_at": "2026-10-17T16:59:12.330Z",
+    "duration_ms": 61
   }
 }

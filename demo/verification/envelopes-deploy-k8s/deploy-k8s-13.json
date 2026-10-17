@@ -15,33 +15,33 @@
     "state": "complete",
     "detail": "Deployment rollout 完成（2/2 个副本已更新并可用；Progressing=True NewReplicaSetAvailable）",
     "current_release": {
-      "id": "demo-order-6f447f6944",
+      "id": "demo-order-d6579cc56",
       "provider": "kubernetes",
       "version": "1.27-alpine",
       "images": [
         "nginx:1.27-alpine"
       ],
-      "revision": 30,
-      "started_at": "2026-10-17T16:38:42Z",
-      "finished_at": "2026-10-17T16:43:35Z",
+      "revision": 36,
+      "started_at": "2026-10-17T17:02:06Z",
+      "finished_at": "2026-10-17T17:02:58Z",
       "timestamps": "derived",
-      "duration_ms": 293000,
+      "duration_ms": 52000,
       "status": "succeeded",
-      "status_basis": "Deployment rollout 完成（2/2 个副本已更新并可用；Progressing=True NewReplicaSetAvailable）；该 ReplicaSet 曾是修订 26,28（回滚复用），started_at 为首次创建时间",
+      "status_basis": "Deployment rollout 完成（2/2 个副本已更新并可用；Progressing=True NewReplicaSetAvailable）；该 ReplicaSet 曾是修订 32,34（回滚复用），started_at 为首次创建时间",
       "current": true,
       "triggered_by": null,
-      "cause": "workctl deploy rollback to revision 28 (demo-order-6f447f6944, plan op-20261017-c9fd0b)",
+      "cause": "workctl deploy rollback to revision 34 (demo-order-d6579cc56, plan op-20261017-367586)",
       "source_ref": {
         "system": "kubernetes",
         "kind": "ReplicaSet",
-        "name": "workctl-demo/demo-order-6f447f6944",
+        "name": "workctl-demo/demo-order-d6579cc56",
         "url": null
       }
     },
     "in_progress": false,
     "kubernetes": {
-      "generation": 34,
-      "observed_generation": 34,
+      "generation": 41,
+      "observed_generation": 41,
       "paused": false,
       "progress_deadline_seconds": 30,
       "replicas": {
@@ -64,14 +64,14 @@
           "type": "Progressing",
           "status": "True",
           "reason": "NewReplicaSetAvailable",
-          "message": "ReplicaSet \"demo-order-6f447f6944\" has successfully progressed.",
-          "last_update": "2026-10-17T16:43:35Z"
+          "message": "ReplicaSet \"demo-order-d6579cc56\" has successfully progressed.",
+          "last_update": "2026-10-17T17:02:58Z"
         }
       ],
       "pods": [
         {
-          "name": "demo-order-6f447f6944-9mx6l",
-          "revision": 30,
+          "name": "demo-order-d6579cc56-mczft",
+          "revision": 36,
           "phase": "Running",
           "ready": true,
           "waiting_reasons": [],
@@ -79,8 +79,8 @@
           "terminating": false
         },
         {
-          "name": "demo-order-6f447f6944-p9ckq",
-          "revision": 30,
+          "name": "demo-order-d6579cc56-vkv9v",
+          "revision": 36,
           "phase": "Running",
           "ready": true,
           "waiting_reasons": [],
@@ -97,7 +97,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T16:43:38.205Z",
+        "observed_at": "2026-10-17T17:03:01.240Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/deployments/demo-order",
         "relation": "explicit",
@@ -106,7 +106,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T16:43:38.206Z",
+        "observed_at": "2026-10-17T17:03:01.241Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/replicasets?labelSelector=app=demo-order",
         "relation": "explicit",
@@ -115,7 +115,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T16:43:38.206Z",
+        "observed_at": "2026-10-17T17:03:01.241Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/namespaces/workctl-demo/pods?labelSelector=app=demo-order",
         "relation": "explicit",
@@ -130,7 +130,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmln6u-8d234a",
+    "request_id": "req-mvcnakno-433590",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -138,7 +138,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:43:38.022Z",
-    "duration_ms": 184
+    "started_at": "2026-10-17T17:03:01.140Z",
+    "duration_ms": 101
   }
 }

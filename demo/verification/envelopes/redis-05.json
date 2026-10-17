@@ -26,57 +26,57 @@
       "p90": 256,
       "p99": 1608,
       "max": 1608,
-      "mean": 289,
-      "sum_sampled": 14432
+      "mean": 371,
+      "sum_sampled": 18544
     },
     "top_keys": [
       {
-        "key": "demo:customer:179:recent",
+        "key": "demo:customer:174:recent",
         "type": "string",
         "memory_bytes": 1608
       },
       {
-        "key": "demo:customer:212:recent",
+        "key": "demo:customer:234:recent",
         "type": "string",
         "memory_bytes": 1608
       },
       {
-        "key": "demo:order:2441",
+        "key": "demo:customer:255:recent",
+        "type": "string",
+        "memory_bytes": 1608
+      },
+      {
+        "key": "demo:customer:119:recent",
+        "type": "string",
+        "memory_bytes": 1608
+      },
+      {
+        "key": "demo:customer:254:recent",
+        "type": "string",
+        "memory_bytes": 1608
+      },
+      {
+        "key": "demo:order:2160",
         "type": "string",
         "memory_bytes": 256
       },
       {
-        "key": "demo:order:2023",
+        "key": "demo:order:1126",
         "type": "string",
         "memory_bytes": 256
       },
       {
-        "key": "demo:order:2685",
+        "key": "demo:order:2636",
         "type": "string",
         "memory_bytes": 256
       },
       {
-        "key": "demo:order:2181",
+        "key": "demo:order:2002",
         "type": "string",
         "memory_bytes": 256
       },
       {
-        "key": "demo:order:2957",
-        "type": "string",
-        "memory_bytes": 256
-      },
-      {
-        "key": "demo:order:1917",
-        "type": "string",
-        "memory_bytes": 256
-      },
-      {
-        "key": "demo:order:2011",
-        "type": "string",
-        "memory_bytes": 256
-      },
-      {
-        "key": "demo:order:2436",
+        "key": "demo:order:2365",
         "type": "string",
         "memory_bytes": 256
       }
@@ -88,7 +88,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-17T15:38:52.982Z",
+        "observed_at": "2026-10-17T16:58:12.939Z",
         "endpoint": "redis/demo-redis",
         "method": "SCAN MATCH demo:* COUNT 100 + TYPE + MEMORY USAGE SAMPLES 5",
         "version": "7.4.11",
@@ -110,7 +110,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvckadfu-c1dfdf",
+    "request_id": "req-mvcn4e8n-8d9167",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -118,7 +118,7 @@
     "adapter": "redis-client",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:38:52.938Z",
-    "duration_ms": 45
+    "started_at": "2026-10-17T16:58:12.887Z",
+    "duration_ms": 53
   }
 }

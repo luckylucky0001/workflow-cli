@@ -3,9 +3,9 @@
   "status": "success",
   "capability": "deploy.rollback.plan",
   "data": {
-    "id": "op-20261017-c9fd0b",
+    "id": "op-20261017-367586",
     "kind": "deploy.rollback",
-    "title": "回滚服务 demo-order（sandbox）的 Deployment workctl-demo/demo-order 到修订 28",
+    "title": "回滚服务 demo-order（sandbox）的 Deployment workctl-demo/demo-order 到修订 34",
     "params": {
       "service": "demo-order",
       "env": "sandbox",
@@ -22,15 +22,15 @@
         "namespace": "workctl-demo",
         "name": "demo-order",
         "uid": "e32abd5e-1d03-4697-a778-107a8fc6df2b",
-        "generation": 33,
-        "current_revision": 29,
-        "current_replicaset": "demo-order-7d7f69f6bc",
+        "generation": 40,
+        "current_revision": 35,
+        "current_replicaset": "demo-order-68d9c877bc",
         "current_images": [
           "nginx:1.27-alpine-workctl-missing"
         ],
-        "target_release": "demo-order-6f447f6944",
-        "target_revision": 28,
-        "target_replicaset_uid": "a6535961-4460-4b6f-bfe4-ca83a5bcd933",
+        "target_release": "demo-order-d6579cc56",
+        "target_revision": 34,
+        "target_replicaset_uid": "15cc5158-3ca8-4ec8-a848-4e58335b71c2",
         "target_images": [
           "nginx:1.27-alpine"
         ],
@@ -62,12 +62,12 @@
       {
         "check": "target_release_retained",
         "ok": true,
-        "detail": "目标 ReplicaSet workctl-demo/demo-order-6f447f6944（修订 28）仍保留"
+        "detail": "目标 ReplicaSet workctl-demo/demo-order-d6579cc56（修订 34）仍保留"
       },
       {
         "check": "target_differs_from_current",
         "ok": true,
-        "detail": "当前修订 29 → 目标修订 28"
+        "detail": "当前修订 35 → 目标修订 34"
       },
       {
         "check": "deployment_not_paused",
@@ -77,7 +77,7 @@
       {
         "check": "no_rollout_in_progress",
         "ok": true,
-        "detail": "当前修订的 rollout 已失败（Progressing=False ProgressDeadlineExceeded: ReplicaSet \"demo-order-7d7f69f6bc\" has timed out progressing.），没有进行中的 rollout"
+        "detail": "当前修订的 rollout 已失败（Progressing=False ProgressDeadlineExceeded: ReplicaSet \"demo-order-68d9c877bc\" has timed out progressing.），没有进行中的 rollout"
       },
       {
         "check": "profile_allow_execute",
@@ -93,7 +93,7 @@
     "steps": [
       {
         "name": "recheck",
-        "detail": "GET Deployment 与目标 ReplicaSet：uid 与计划一致、当前修订仍为 29（否则拒绝执行）"
+        "detail": "GET Deployment 与目标 ReplicaSet：uid 与计划一致、当前修订仍为 35（否则拒绝执行）"
       },
       {
         "name": "patch template",
@@ -104,18 +104,18 @@
         "detail": "轮询 Deployment 直到 observedGeneration ≥ 新 generation、updatedReplicas=availableReplicas=replicas；ProgressDeadlineExceeded 视为失败（最多 300s，且不超过 --timeout）"
       }
     ],
-    "rollback": "再次回滚：workctl deploy rollback plan --service demo-order --to demo-order-7d7f69f6bc（回滚后原当前修订会成为旧修订）",
+    "rollback": "再次回滚：workctl deploy rollback plan --service demo-order --to demo-order-68d9c877bc（回滚后原当前修订会成为旧修订）",
     "idempotent": false,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-17T16:43:34.586Z",
-    "expires_at": "2026-10-17T17:13:34.586Z",
+    "created_at": "2026-10-17T17:02:58.249Z",
+    "expires_at": "2026-10-17T17:32:58.249Z",
     "profile": "k8s-demo",
     "env": "sandbox",
     "executable": true,
     "history": [
       {
-        "at": "2026-10-17T16:43:34.586Z",
+        "at": "2026-10-17T17:02:58.249Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
@@ -127,7 +127,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T16:43:34.591Z",
+        "observed_at": "2026-10-17T17:02:58.254Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/deployments/demo-order + replicasets",
         "relation": "explicit",
@@ -136,7 +136,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T16:43:34.591Z",
+        "observed_at": "2026-10-17T17:02:58.254Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/k8s/state/operations",
         "relation": "derived"
       }
@@ -145,13 +145,13 @@
       "complete": true,
       "scope": "计划生成时解析出的目标",
       "notes": [
-        "执行: workctl operation execute --id op-20261017-c9fd0b --confirm op-20261017-c9fd0b"
+        "执行: workctl operation execute --id op-20261017-367586 --confirm op-20261017-367586"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmlkh9-174eb7",
+    "request_id": "req-mvcnaidm-020138",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -159,7 +159,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:43:34.509Z",
-    "duration_ms": 82
+    "started_at": "2026-10-17T17:02:58.186Z",
+    "duration_ms": 68
   }
 }

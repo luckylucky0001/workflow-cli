@@ -20,8 +20,8 @@
       "version": "8.4.11",
       "version_comment": "MySQL Community Server - GPL",
       "current_user": "workctl_ro@%",
-      "uptime_s": 157,
-      "started_at": "2026-10-17T15:35:55.925Z",
+      "uptime_s": 212,
+      "started_at": "2026-10-17T16:54:20.308Z",
       "read_only": false,
       "super_read_only": false
     },
@@ -42,14 +42,14 @@
       "version_comment": "MySQL Community Server - GPL"
     },
     "status": {
-      "Uptime": 157,
+      "Uptime": 212,
       "Threads_connected": 3,
       "Threads_running": 2,
-      "Questions": 85,
+      "Questions": 95,
       "Slow_queries": 7,
       "Aborted_connects": 4,
       "Aborted_clients": 0,
-      "Connections": 49,
+      "Connections": 59,
       "Max_used_connections": 3
     },
     "status_semantics": {
@@ -75,7 +75,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T15:38:32.925Z",
+        "observed_at": "2026-10-17T16:57:52.308Z",
         "endpoint": "mysql/demo-mysql",
         "method": "SHOW GLOBAL VARIABLES; SHOW GLOBAL STATUS; SELECT VERSION(), CURRENT_USER()",
         "version": "8.4.11",
@@ -84,7 +84,7 @@
       {
         "system": "workctl",
         "adapter": "binding-file",
-        "observed_at": "2026-10-17T15:38:32.925Z",
+        "observed_at": "2026-10-17T16:57:52.307Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "method": "resources.forEndpoint(mysql, demo-mysql)",
         "relation": "explicit"
@@ -97,7 +97,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvck9xy8-ba5778",
+    "request_id": "req-mvcn3yap-ef58b2",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -105,7 +105,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:38:32.864Z",
-    "duration_ms": 62
+    "started_at": "2026-10-17T16:57:52.225Z",
+    "duration_ms": 84
   }
 }

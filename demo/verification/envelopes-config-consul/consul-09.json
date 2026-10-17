@@ -9,11 +9,11 @@
     "service": "demo-inventory",
     "env": "sandbox",
     "prefix": "/v1/health/service/demo-inventory",
-    "observed_revision": 283,
+    "observed_revision": 34,
     "instances": [
       {
         "instance_id": "inventory-1",
-        "key": "f3f661f1fe62/inventory-1",
+        "key": "c7b64ef06d6b/inventory-1",
         "payload": {
           "meta": {
             "env": "sandbox",
@@ -32,11 +32,11 @@
         "healthy": true,
         "health_basis": "registry_checks",
         "registered_at": null,
-        "create_revision": 281,
-        "mod_revision": 281,
+        "create_revision": 32,
+        "mod_revision": 32,
         "lease": null,
         "consul": {
-          "node": "f3f661f1fe62",
+          "node": "c7b64ef06d6b",
           "status": "passing",
           "tags": [
             "sandbox",
@@ -62,7 +62,7 @@
       },
       {
         "instance_id": "inventory-3",
-        "key": "f3f661f1fe62/inventory-3",
+        "key": "c7b64ef06d6b/inventory-3",
         "payload": {
           "meta": {
             "env": "sandbox",
@@ -81,11 +81,11 @@
         "healthy": true,
         "health_basis": "registry_checks",
         "registered_at": null,
-        "create_revision": 283,
-        "mod_revision": 283,
+        "create_revision": 34,
+        "mod_revision": 34,
         "lease": null,
         "consul": {
-          "node": "f3f661f1fe62",
+          "node": "c7b64ef06d6b",
           "status": "warning",
           "tags": [
             "sandbox",
@@ -131,7 +131,7 @@
       {
         "system": "consul",
         "adapter": "consul-http-api",
-        "observed_at": "2026-10-17T16:42:51.084Z",
+        "observed_at": "2026-10-17T16:59:36.815Z",
         "endpoint": "consul/demo-consul (http://127.0.0.1:18500)",
         "method": "GET /v1/health/service/demo-inventory",
         "relation": "explicit",
@@ -140,7 +140,7 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "Consul consul/demo-consul 服务 demo-inventory，索引 283",
+      "scope": "Consul consul/demo-consul 服务 demo-inventory，索引 34",
       "notes": [
         "1 个实例存在 warning 检查，计为 healthy（与 Consul DNS 默认一致）；?passing 过滤会排除它们",
         "healthy 由 Consul 健康检查聚合（含节点级检查，任一 critical → false），不是 workctl 的探测"
@@ -149,7 +149,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmkmxn-0bd007",
+    "request_id": "req-mvcn66yz-b5c38e",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -157,7 +157,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:42:51.035Z",
-    "duration_ms": 51
+    "started_at": "2026-10-17T16:59:36.779Z",
+    "duration_ms": 37
   }
 }

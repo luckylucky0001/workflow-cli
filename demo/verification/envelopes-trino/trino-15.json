@@ -5,7 +5,7 @@
   "data": null,
   "error": {
     "code": "CONFLICT",
-    "message": "查询 q-20261017-19972d 已处于 cancelled，无需取消",
+    "message": "查询 q-20261017-9a0baf 已处于 cancelled，无需取消",
     "retryable": false
   },
   "meta": {
@@ -14,7 +14,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvckb8j0-1c91df",
+    "request_id": "req-mvcn5bqv-89b78a",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -22,7 +22,7 @@
     "adapter": "spark-submit-local|trino-http",
     "operation": "execute",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:39:33.228Z",
-    "duration_ms": 19
+    "started_at": "2026-10-17T16:58:56.311Z",
+    "duration_ms": 28
   }
 }

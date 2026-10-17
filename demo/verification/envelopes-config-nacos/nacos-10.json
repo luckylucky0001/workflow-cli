@@ -36,7 +36,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-17T16:42:45.014Z",
+        "observed_at": "2026-10-17T16:59:31.066Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/cs/configs?show=all dataId=demo-refund.properties group=DEFAULT_GROUP tenant=sandbox",
         "relation": "explicit",
@@ -45,7 +45,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-17T16:42:45.018Z",
+        "observed_at": "2026-10-17T16:59:31.073Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v2/cs/history/list",
         "relation": "explicit",
@@ -65,7 +65,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmki92-984cd6",
+    "request_id": "req-mvcn62im-8c1b81",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -73,7 +73,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:42:44.966Z",
-    "duration_ms": 53
+    "started_at": "2026-10-17T16:59:31.006Z",
+    "duration_ms": 68
   }
 }

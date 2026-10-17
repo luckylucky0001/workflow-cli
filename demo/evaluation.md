@@ -84,14 +84,30 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 | 维度 | 实测 |
 | --- | --- |
 | 消费者复用 | `same-contract.mjs`：`redis.info.get` 与插件能力 `mq.consumer.lag` 经 CLI、脚本 API、MCP 三种入口返回相同的能力名、版本、适配器、数据字段和来源 |
-| 流程复用 | [reuse-matrix.md](../docs/reuse-matrix.md)：11 个 Skill 引用 61 个能力，其中 18 个能力被 2 个及以上 Skill 复用（新接入的 `config get/diff` 同时被基础设施 Skill 与延迟排查流程引用）；`offline run get` 在代码层通过 `ctx.call` 复用 `data.partition.get`、`compute.job.get` |
+| 流程复用 | [reuse-matrix.md](../docs/reuse-matrix.md)：13 个 Skill 引用 74 个能力，其中 21 个能力被 2 个及以上 Skill 复用（新接入的 `config get/diff`、`deploy release list` 同时被领域 Skill 与延迟排查流程引用）；`offline run get` 在代码层通过 `ctx.call` 复用 `data.partition.get`、`compute.job.get` |
 | 共享代码 | `scripts/maintenance-report.mjs`：共享运行时（core）约 1.5k 行、CLI+MCP 约 0.7k 行，被 11 个内置领域和 2 个插件共用；领域适配器 0.3k–2.8k 行（容器域含 Docker 与 Kubernetes 两个 provider） |
-| 新系统接入（插件） | demo-mq：约 1.1k 行插件代码 + 清单/指南/Skill，无需为消息队列修改核心（开发过程中修复了插件加载器 2 个通用缺陷：重装校验、Schema 路径）；安装后命令、帮助、目录、MCP 工具自动出现，真实 Kafka 结果与 `kafka-consumer-groups.sh` 一致。demo-search：约 1.2k 行插件代码，实现内置目录中 planned 的 `search.index.get` / `search.query`；为此核心改动约 30 行（允许插件实现内置 planned 能力；文件参数在校验时转为绝对路径），OpenSearch 2.19.3 上 19/19 |
+| 新系统接入（插件） | demo-mq：约 1.1k 行插件代码 + 清单/指南/Skill，无需为消息队列修改核心（开发过程中修复了插件加载器 2 个通用缺陷：重装校验、Schema 路径）；安装后命令、帮助、目录、MCP 工具自动出现，真实 Kafka 结果与 `kafka-consumer-groups.sh` 一致。demo-search：约 1.2k 行插件代码，实现内置目录中 planned 的 `search.index.get` / `search.query`；为此核心改动约 30 行（允许插件实现内置 planned 能力；文件参数在校验时转为绝对路径），OpenSearch 2.19.3 上 21/21 |
 | 文档一致性 | 契约测试在 CI 中强制：生成文档逐字一致、示例命令/参数存在、设计稿命令全覆盖 |
 | 接口版本替换（设计稿 §10.4） | `version-swap.mjs`：9 个离线/计算能力（10 次调用）分别对 Airflow 2.10.5（REST v1）与 Airflow 3.3.2（REST v2）真实调用，两侧 `data` 通过同一 zod 输出 schema、顶层字段与 `run get` 四层状态一致，差异只在 `meta.sources`（adapter/method/version）；适配器侧新增 `airflow-v2.ts` 约 250 行 + 客户端约 130 行改动，能力代码改动约 40 行、输出 schema 未改；v2 补数执行器真实执行成功。见 [version-swap.md](verification/version-swap.md) |
-| 新系统接入（内置领域） | config/discovery（etcd v3 网关）：约 0.76k 行领域代码，复用核心的资源绑定、凭据引用、HTTP 客户端与错误映射，`src/core` 未改（只在 doctor 的端点类型表登记 etcd，2 行）；etcd 3.5.21 上 16/16 |
+| 新系统接入（内置领域） | config/discovery：etcd 约 0.76k 行，之后加入 Nacos 与 Consul 两个 provider 后整个领域约 1.9k 行（同一输出 Schema，按绑定选择 provider）；deploy（Kubernetes + Jenkins）约 1.3k 行；PostgreSQL 约 2.3k 行。都复用核心的资源绑定、凭据引用、HTTP 客户端、计划存储与错误映射，接入时 `src/core` 未改，只在 doctor 的端点类型表（`src/domains/core`）登记新端点类型；验证 etcd 16、Nacos 13、Consul 12、Jenkins 15、Kubernetes 发布 14、PostgreSQL 34 |
 | 多 provider 同一契约 | Docker ↔ Kubernetes（k3s v1.31.4，10/10）、Airflow 2 ↔ 3（REST v1 ↔ v2）、Spark ↔ Trino 476（15/15）、Docker 日志 ↔ Loki 3.5.5：每组都由同一能力定义与输出 Schema 承载，差异只在 `meta.sources` 与可选的 provider 专有字段 |
 | 分发 | `npm pack` 后全局安装，CLI 可运行并找到随包 Skill；包大小 2.2 MB（依赖已打包进单文件；含 Skill 与文档，不含教程截图） |
+
+### 4.4 缺陷测评（2026-10-17 晚间一轮）
+
+方法：每个新接入的领域/插件由**非作者**审查（对真实服务复现或用假服务器单测复现后才算“确认”），每个确认缺陷都有先失败后通过的回归测试；另用 `scripts/contract-fuzz.mjs` 对整个目录做黑盒契约模糊测试（每个可调用能力：缺参、错类型、超长、Unicode、路径穿越、上游全部不可达、全部枚举值；检查单信封、错误码与退出码映射、输出 Schema、来源与覆盖、无堆栈、无密钥值；MCP 同参对照）。
+
+| 对象 | 确认并修复 | 典型缺陷 |
+| --- | --- | --- |
+| etcd 配置中心 | 5 | 嵌套在秘密字段下的值明文输出；超过 2^53 的整数被改写；快照截断时 diff 报出不存在的新增/删除 |
+| OpenSearch 插件 + 插件加载 | 8 | `wrapper`（base64）与 `terms_set` 脚本绕过 DSL 白名单；聚合内跨索引读取；`top_hits` 绕过命中上限；红色分片报完整；URL 内凭据回显；插件加载失败后半注册 |
+| Nacos / Consul | 12 | 未声明类型的 `.properties` 与解析失败的文档整段明文（含密码）；`value_bytes`/`md5` 可推出密钥长度；Consul 单键索引误当全局索引；ACL 过滤结果报完整 |
+| 部署系统 | 14 | 非 http URL、Basic 头、环境变量值中的凭据明文；脱敏后比较导致密码变更被隐藏；回滚复用 ReplicaSet 后时间窗口漏掉修订；Jenkins 过期计划检查可绕过；回滚补丁竞态（改为条件补丁，冲突返回 `CONFLICT`） |
+| PostgreSQL | 5 | `U&"..."` Unicode 转义标识符与 `ts_rewrite` 绕过只读防护执行任意文本；`standard_conforming_strings=off` 时语句切分与服务端不一致；错误消息带出敏感列原值 |
+| 契约模糊测试（87 个能力，2366 个 CLI 用例 + 1179 次 MCP 调用） | 10 | `--timeout` 超范围立即超时并打印 Node 警告；不完整命令退出码 0 且无输出；上游不可达时 `freshness check` 报成功且空列表；一个领域的错误映射冒领其他领域的连接错误；部分核心能力缺 `meta.coverage` |
+| 其他（集成时发现） | 2 | PostgreSQL 领域级错误映射认领所有网络错误；`--dsl-file` 指向非 JSON 文件时回显文件开头 |
+
+合计 56 个（此前各领域交叉审查 58 个，累计 114 个）。最终模糊测试轮次 0 违例；未修复的“疑似”项（如 Consul 检查输出可能含 token、PostgreSQL 数值表达式可绕过按列名脱敏）记录在各领域指南的限制中。
 
 ## 5. 验收结论（设计稿 §12.3）
 
@@ -106,11 +122,11 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 | 调度成功、计算成功、数据产出和质量检查分别验证 | ✅ | 同上四层各带来源；wrong_partition 场景 success/succeeded/missing/fail |
 | 重跑或补数计划包含区间、范围、影响和写入策略 | ✅ | `offline backfill plan`；执行器经 `operation execute` 真实运行过（离线任务报告） |
 | 空结果、未采集、无权限、部分结果和任务执行中可区分 | ✅ | 错误码与 `status=partial`；如 slowlog 关闭→`COLLECTION_DISABLED`、`workctl_ro` 访问 mysql.user→`PERMISSION_DENIED`、sensor 等待→`data.state` |
-| 相同领域能力被多条 Skill 复用 | ✅ | [reuse-matrix.md](../docs/reuse-matrix.md)：18 个能力被 ≥2 个 Skill 引用 |
+| 相同领域能力被多条 Skill 复用 | ✅ | [reuse-matrix.md](../docs/reuse-matrix.md)：21 个能力被 ≥2 个 Skill 引用 |
 | 新插件按统一机制进入目录并完成实际调用 | ✅ | demo-mq：`plugin install` → `capability list --domain mq` → 真实 Kafka lag；demo-search：planned 的 `search.*` 安装后变为可调用，真实 OpenSearch 查询与部分分片失败 |
 | 人、脚本和 Agent 使用相同执行实现与结果契约 | ✅ | `same-contract.mjs`：CLI == 脚本 API == MCP |
 | 文档、Skill、CLI 与后端兼容信息一致 | ✅ | 契约测试（生成文档一致、示例有效）；[compatibility.md](../docs/compatibility.md) 记录实测版本 |
 | 真实引擎、模拟回包、合成数据和分析判断分开标识 | ✅ | `context.data_mode`、`sources[].relation`（explicit/inferred/derived/sampled）、插件 `backend_mode`；Agent 输出区分事实与假设 |
-| 演示可复位，结果可追溯且材料中没有凭据或真实业务标识 | ✅ | 完整复位实测（`verify-all.sh`，2026-10-17）：`reset.sh` → `up.sh`（36 s）→ 场景重放（124 s）→ 主 74、Trino 15、配置 16、搜索 19、Kubernetes 10 全部通过 → 集成测试 540/540，整轮约 7 分钟；结果信封含 request_id 与来源；git 历史中检索不到任何实际密钥值 |
+| 演示可复位，结果可追溯且材料中没有凭据或真实业务标识 | ✅ | 完整复位实测（`verify-all.sh`，2026-10-17 17:04 UTC）：`reset.sh` → `up.sh`（45 s）→ 场景重放（170 s）→ 10 个套件 224 个用例全部通过 → 集成测试 731/731，整轮约 10.5 分钟；结果信封含 request_id 与来源；git 历史中检索不到任何实际密钥值 |
 
 未覆盖或未测量：人工对照组；客户环境；Kubernetes 仅在单节点 k3s（嵌套于 Docker，含演示专用 runc 规避）上验证，未在多节点或托管集群验证；Jaeger/Tempo、Hive Metastore、对象存储、HDFS、YARN、文档/KV、分析数据库、托管中间件生命周期等 provider（目录中为“待接入”）；etcd 与 OpenSearch 的认证路径只在假服务器单测中验证。

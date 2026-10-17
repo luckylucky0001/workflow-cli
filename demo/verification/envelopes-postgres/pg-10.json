@@ -7,79 +7,28 @@
     "aggregation": "cumulative_since",
     "window": null,
     "cumulative_since": {
-      "stats_reset": "2026-10-17T16:11:49.359687Z",
-      "server_started_at": "2026-10-17T16:00:29.908661Z"
+      "stats_reset": "2026-10-17T16:57:07.929591Z",
+      "server_started_at": "2026-10-17T16:54:20.223455Z"
     },
     "database": null,
     "order_by": "total_time",
     "top": 5,
     "statements": [
       {
-        "queryid": "-6957086096547831732",
+        "queryid": "-4783095677841162496",
         "database": "demo_orders",
         "user": "postgres",
-        "query": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = $1 ORDER BY created_at DESC LIMIT $2",
+        "query": "UPDATE orders SET updated_at = updated_at + interval $1 WHERE id % $2 = $3",
         "query_truncated": false,
-        "calls": 19552,
-        "total_exec_ms": 76559.932,
-        "mean_exec_ms": 3.916,
-        "max_exec_ms": 90.076,
-        "rows": 391040,
-        "rows_per_call": 20,
-        "shared_blks_hit": 11498540,
-        "shared_blks_read": 0,
-        "cache_hit_ratio": 1,
-        "temp_blks_written": 0
-      },
-      {
-        "queryid": "7940650401572002162",
-        "database": "demo_orders",
-        "user": "postgres",
-        "query": "SELECT count(*) FROM orders WHERE customer_id = $1",
-        "query_truncated": false,
-        "calls": 7195,
-        "total_exec_ms": 18256.378,
-        "mean_exec_ms": 2.537,
-        "max_exec_ms": 42.357,
-        "rows": 7195,
-        "rows_per_call": 1,
-        "shared_blks_hit": 3935665,
-        "shared_blks_read": 0,
-        "cache_hit_ratio": 1,
-        "temp_blks_written": 0
-      },
-      {
-        "queryid": "-1870832129061638783",
-        "database": "demo_orders",
-        "user": "postgres",
-        "query": "UPDATE orders SET status = $1 WHERE id = $2",
-        "query_truncated": false,
-        "calls": 11,
-        "total_exec_ms": 13977.424,
-        "mean_exec_ms": 1270.675,
-        "max_exec_ms": 8009.514,
-        "rows": 11,
-        "rows_per_call": 1,
-        "shared_blks_hit": 132,
-        "shared_blks_read": 0,
-        "cache_hit_ratio": 1,
-        "temp_blks_written": 0
-      },
-      {
-        "queryid": "-5668101472451585722",
-        "database": "demo_orders",
-        "user": "postgres",
-        "query": "SELECT id, customer_id, status, amount FROM orders WHERE id = $1",
-        "query_truncated": false,
-        "calls": 19552,
-        "total_exec_ms": 1154.128,
-        "mean_exec_ms": 0.059,
-        "max_exec_ms": 12.886,
-        "rows": 19552,
-        "rows_per_call": 1,
-        "shared_blks_hit": 58972,
-        "shared_blks_read": 0,
-        "cache_hit_ratio": 1,
+        "calls": 1,
+        "total_exec_ms": 43.869,
+        "mean_exec_ms": 43.869,
+        "max_exec_ms": 43.869,
+        "rows": 5000,
+        "rows_per_call": 5000,
+        "shared_blks_hit": 45332,
+        "shared_blks_read": 775,
+        "cache_hit_ratio": 0.9832,
         "temp_blks_written": 0
       },
       {
@@ -88,22 +37,73 @@
         "user": "workctl_ro",
         "query": "SELECT c.oid, c.relkind, c.reltuples, obj_description(c.oid, $3) AS comment,\n                  has_table_privilege(c.oid, $4) AS can_select,\n                  pg_relation_size(c.oid) AS heap_bytes, pg_table_size(c.oid) AS table_bytes,\n                  pg_indexes_size(c.oid) AS indexes_bytes, pg_total_relation_size(c.oid) AS total_bytes\n             FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\n            WHERE n.nspname = $1 AND c.relname = $2 AND c.relkind IN ($5,$6,$7,$8,$9)",
         "query_truncated": false,
-        "calls": 67,
-        "total_exec_ms": 70.946,
-        "mean_exec_ms": 1.059,
-        "max_exec_ms": 5.654,
-        "rows": 49,
-        "rows_per_call": 0.731,
-        "shared_blks_hit": 6632,
+        "calls": 3,
+        "total_exec_ms": 2.475,
+        "mean_exec_ms": 0.825,
+        "max_exec_ms": 1.325,
+        "rows": 2,
+        "rows_per_call": 0.667,
+        "shared_blks_hit": 268,
+        "shared_blks_read": 8,
+        "cache_hit_ratio": 0.971,
+        "temp_blks_written": 0
+      },
+      {
+        "queryid": "-3093458972318043262",
+        "database": "demo_orders",
+        "user": "workctl_ro",
+        "query": "SELECT ic.relname AS name, pg_get_indexdef(x.indexrelid) AS def, x.indisprimary, x.indisunique, x.indisvalid,\n                  pg_relation_size(x.indexrelid) AS size_bytes, su.idx_scan, su.idx_tup_read, su.idx_tup_fetch, su.last_idx_scan AS last_idx_scan,\n                  ARRAY(SELECT CASE WHEN k.attnum = $2 THEN pg_get_indexdef(x.indexrelid, k.ord::int, $3) ELSE a.attname::text END\n                          FROM unnest(x.indkey::int2[]) WITH ORDINALITY AS k(attnum, ord)\n                          LEFT JOI…",
+        "query_truncated": true,
+        "calls": 2,
+        "total_exec_ms": 1.364,
+        "mean_exec_ms": 0.682,
+        "max_exec_ms": 1.02,
+        "rows": 3,
+        "rows_per_call": 1.5,
+        "shared_blks_hit": 167,
+        "shared_blks_read": 0,
+        "cache_hit_ratio": 1,
+        "temp_blks_written": 0
+      },
+      {
+        "queryid": "-6286591329754125024",
+        "database": "demo_orders",
+        "user": "workctl_ro",
+        "query": "SELECT name, setting, unit, source, pending_restart, current_setting(name) AS display FROM pg_settings WHERE name = ANY($1::text[])",
+        "query_truncated": false,
+        "calls": 1,
+        "total_exec_ms": 1.172,
+        "mean_exec_ms": 1.172,
+        "max_exec_ms": 1.172,
+        "rows": 21,
+        "rows_per_call": 21,
+        "shared_blks_hit": 4,
+        "shared_blks_read": 0,
+        "cache_hit_ratio": 1,
+        "temp_blks_written": 0
+      },
+      {
+        "queryid": "2563235474036727028",
+        "database": "demo_orders",
+        "user": "workctl_ro",
+        "query": "SELECT d.datname, pg_get_userbyid(d.datdba) AS owner, pg_encoding_to_char(d.encoding) AS encoding, d.datcollate,\n                d.datistemplate, d.datallowconn, d.datconnlimit, has_database_privilege(d.oid, $2) AS can_connect,\n                CASE WHEN has_database_privilege(d.oid, $3) OR pg_has_role(current_user, $4, $5)\n                     THEN pg_database_size(d.oid) END AS size_bytes,\n                sd.numbackends, sd.xact_commit, sd.xact_rollback, sd.blks_read, sd.blks_hit, sd.deadlocks, sd.temp_byt…",
+        "query_truncated": true,
+        "calls": 1,
+        "total_exec_ms": 1.13,
+        "mean_exec_ms": 1.13,
+        "max_exec_ms": 1.13,
+        "rows": 2,
+        "rows_per_call": 2,
+        "shared_blks_hit": 8,
         "shared_blks_read": 0,
         "cache_hit_ratio": 1,
         "temp_blks_written": 0
       }
     ],
     "totals": {
-      "statements_with_activity": 138,
-      "calls": 48941,
-      "total_exec_ms": 110559.142
+      "statements_with_activity": 23,
+      "calls": 47,
+      "total_exec_ms": 54.414
     },
     "collection": {
       "extension_version": "1.10",
@@ -112,7 +112,7 @@
       "dealloc": 0,
       "text_visible": true
     },
-    "excluded_self": 16
+    "excluded_self": 1
   },
   "error": null,
   "meta": {
@@ -120,7 +120,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-17T16:46:52.382Z",
+        "observed_at": "2026-10-17T16:59:08.488Z",
         "endpoint": "postgres/demo-postgres",
         "method": "public.pg_stat_statements (cumulative)",
         "version": "16.15",
@@ -132,13 +132,13 @@
       "limit": 5,
       "truncated": true,
       "notes": [
-        "累计值：自 2026-10-17T16:11:49.359687Z 以来，不是窗口值"
+        "累计值：自 2026-10-17T16:57:07.929591Z 以来，不是窗口值"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmpt3v-1b03da",
+    "request_id": "req-mvcn5l2z-8d2bdc",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -146,7 +146,7 @@
     "adapter": "pg-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:46:52.315Z",
-    "duration_ms": 72
+    "started_at": "2026-10-17T16:59:08.411Z",
+    "duration_ms": 82
   }
 }

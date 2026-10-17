@@ -25,7 +25,7 @@
       {
         "check": "identity:etcd/demo-etcd",
         "ok": true,
-        "detail": "身份 anonymous；版本 3.5.21；leader 10276657743932975437（即本成员）；db 53248 字节（使用中 53248）；集群版本 3.5.0；认证未开启"
+        "detail": "身份 anonymous；版本 3.5.21；leader 10276657743932975437（即本成员）；db 20480 字节（使用中 20480）；集群版本 3.5.0；认证未开启"
       },
       {
         "check": "endpoint:nacos",
@@ -45,7 +45,7 @@
       {
         "check": "identity:consul/demo-consul",
         "ok": true,
-        "detail": "身份 anonymous；版本 1.20.6；数据中心 dc1；节点 f3f661f1fe62；leader 127.0.0.1:8300；ACL 未开启"
+        "detail": "身份 anonymous；版本 1.20.6；数据中心 dc1；节点 c7b64ef06d6b；leader 127.0.0.1:8300；ACL 未开启"
       }
     ]
   },
@@ -55,7 +55,7 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-17T16:42:40.583Z",
+        "observed_at": "2026-10-17T16:59:03.225Z",
         "relation": "derived"
       }
     ],
@@ -67,7 +67,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmkeu2-3dd72f",
+    "request_id": "req-mvcn5h0t-879819",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -75,7 +75,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:42:40.538Z",
-    "duration_ms": 45
+    "started_at": "2026-10-17T16:59:03.149Z",
+    "duration_ms": 77
   }
 }

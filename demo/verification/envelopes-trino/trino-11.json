@@ -3,17 +3,17 @@
   "status": "success",
   "capability": "sql.query.submit",
   "data": {
-    "query_id": "q-20261017-19972d",
+    "query_id": "q-20261017-9a0baf",
     "engine": "trino",
     "state": "submitted",
-    "submitted_at": "2026-10-17T15:39:26.370Z",
+    "submitted_at": "2026-10-17T16:58:49.166Z",
     "pid": null,
     "sql_sha256": "63d5a4dd1798943eb693b7e3f681f3ec732ede38d717b9804cf0be25c10efd2f",
-    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/state/sql/trino/demo-trino/q-20261017-19972d/result",
-    "state_file": "/home/user/workflow-cli/demo/environment/.runtime/state/sql/trino/demo-trino/q-20261017-19972d.json",
+    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/state/sql/trino/demo-trino/q-20261017-9a0baf/result",
+    "state_file": "/home/user/workflow-cli/demo/environment/.runtime/state/sql/trino/demo-trino/q-20261017-9a0baf.json",
     "tables": "Trino 表名 <catalog>.<schema>.<table>；默认 catalog=tpch，schema=tiny",
-    "next": "workctl sql query get --id q-20261017-19972d",
-    "engine_query_id": "20261017_153926_00005_zpn9m",
+    "next": "workctl sql query get --id q-20261017-9a0baf",
+    "engine_query_id": "20261017_165849_00005_ppu8n",
     "engine_state": "RUNNING"
   },
   "error": null,
@@ -22,7 +22,7 @@
       {
         "system": "trino",
         "adapter": "trino-http",
-        "observed_at": "2026-10-17T15:39:26.489Z",
+        "observed_at": "2026-10-17T16:58:49.327Z",
         "endpoint": "trino/demo-trino",
         "method": "POST /v1/statement → GET nextUri (/v1/statement/{queued|executing}/{queryId}/{slug}/{token})",
         "version": "476",
@@ -31,7 +31,7 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "q-20261017-19972d",
+      "scope": "q-20261017-9a0baf",
       "notes": [
         "提交返回时 Trino 状态 RUNNING；结果页由 sql query get 继续拉取"
       ]
@@ -39,7 +39,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvckb37p-8883f5",
+    "request_id": "req-mvcn567m-768327",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -47,7 +47,7 @@
     "adapter": "spark-submit-local|trino-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:39:26.341Z",
-    "duration_ms": 148
+    "started_at": "2026-10-17T16:58:49.138Z",
+    "duration_ms": 189
   }
 }

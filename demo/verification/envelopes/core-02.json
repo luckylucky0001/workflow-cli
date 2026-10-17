@@ -60,6 +60,39 @@
         "origin": "builtin"
       },
       {
+        "name": "deploy.app.history",
+        "command": "deploy app history",
+        "summary": "查看 Argo CD Application 的同步历史（修订、时间、发起人）",
+        "domain": "deploy",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "argocd (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "deploy.app.sync_status",
+        "command": "deploy app sync-status",
+        "summary": "查看 Argo CD Application 的同步/健康状态与目标修订",
+        "domain": "deploy",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "argocd (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "deploy.pipeline.execution.list",
+        "command": "deploy pipeline execution list",
+        "summary": "列出 Spinnaker / 内部发布平台的流水线执行与阶段状态",
+        "domain": "deploy",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "spinnaker | internal-release-platform (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
         "name": "document.collection.get",
         "command": "document collection get",
         "summary": "查看文档数据库集合与索引",
@@ -144,6 +177,39 @@
         "status": "planned",
         "operation": "read",
         "adapter": "quota-provider (待接入)",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "postgres.index.plan",
+        "command": "pg index plan",
+        "summary": "为指定表/列生成 CREATE INDEX CONCURRENTLY 变更计划并附 EXPLAIN 前后对比（只生成计划，不执行）",
+        "domain": "postgres",
+        "status": "planned",
+        "operation": "plan",
+        "adapter": "pg-driver",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "postgres.replication.get",
+        "command": "pg replication get",
+        "summary": "查看流复制状态与延迟（pg_stat_replication 的 write/flush/replay lag、复制槽保留的 WAL；需 pg_read_all_stats / pg_monitor）",
+        "domain": "postgres",
+        "status": "planned",
+        "operation": "read",
+        "adapter": "pg-driver",
+        "capability_version": "1.0.0",
+        "origin": "builtin"
+      },
+      {
+        "name": "postgres.vacuum.plan",
+        "command": "pg vacuum plan",
+        "summary": "根据死元组比例、事务 ID 年龄与最近 autovacuum 生成 VACUUM / ANALYZE 变更计划（只生成计划，不执行）",
+        "domain": "postgres",
+        "status": "planned",
+        "operation": "plan",
+        "adapter": "pg-driver",
         "capability_version": "1.0.0",
         "origin": "builtin"
       },
@@ -282,6 +348,17 @@
         "origin": "builtin"
       },
       {
+        "name": "postgres",
+        "title": "PostgreSQL",
+        "pillar": "middleware",
+        "summary": "PostgreSQL 实例、数据库、表结构与统计、会话与锁等待、语句统计（pg_stat_statements）、执行计划与受限只读查询",
+        "guide": "docs/guides/postgres.md",
+        "skill": "skills/postgres-operations",
+        "available": 9,
+        "planned": 3,
+        "origin": "builtin"
+      },
+      {
         "name": "redis",
         "title": "Redis",
         "pillar": "middleware",
@@ -340,11 +417,22 @@
         "name": "config",
         "title": "配置与服务发现",
         "pillar": "infrastructure",
-        "summary": "配置中心与服务注册（etcd v3 JSON 网关）：配置读取、修订间差异、注册实例与租约",
+        "summary": "配置中心与服务注册（etcd v3 JSON 网关 / Nacos Open API / Consul HTTP API，按端点类型选择）：配置读取、修订间差异、注册实例与健康",
         "guide": "docs/guides/infrastructure.md",
         "skill": "skills/infra-operations",
         "available": 3,
         "planned": 0,
+        "origin": "builtin"
+      },
+      {
+        "name": "deploy",
+        "title": "部署系统",
+        "pillar": "infrastructure",
+        "summary": "发布/rollout 历史、发布详情、当前发布状态与回滚计划（Kubernetes Deployment 修订、Jenkins 部署 job；按资源绑定选择 provider）",
+        "guide": "docs/guides/deploy.md",
+        "skill": "skills/deploy-operations",
+        "available": 4,
+        "planned": 3,
         "origin": "builtin"
       },
       {
@@ -410,7 +498,7 @@
       {
         "system": "workctl",
         "adapter": "registry",
-        "observed_at": "2026-10-17T15:38:21.893Z",
+        "observed_at": "2026-10-17T16:57:40.139Z",
         "method": "builtin + installed plugins",
         "relation": "explicit"
       }
@@ -422,7 +510,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvck9pgu-1213ec",
+    "request_id": "req-mvcn3oyc-e9c9db",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -430,7 +518,7 @@
     "adapter": "registry",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:38:21.870Z",
-    "duration_ms": 24
+    "started_at": "2026-10-17T16:57:40.116Z",
+    "duration_ms": 23
   }
 }

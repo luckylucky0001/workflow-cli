@@ -5,31 +5,31 @@
   "data": null,
   "error": {
     "code": "DATA_UNAVAILABLE",
-    "message": "Consul KV 不保留历史，无法重建索引 277 时的值；已知事实见 details.changed_since（ModifyIndex > 277 的键，旧值不可知），删除的键无法发现",
+    "message": "Consul KV 不保留历史，无法重建索引 28 时的值；已知事实见 details.changed_since（ModifyIndex > 28 的键，旧值不可知），删除的键无法发现",
     "hint": "Consul KV 不保留历史版本；当前值用 workctl config get 查看。需要变更历史请在写入侧留痕（如 git2consul / consul-template 的版本库、审计日志），或改用 etcd / Nacos provider",
     "retryable": false,
     "details": {
       "provider": "consul",
-      "from_revision": 277,
-      "current_index": 280,
+      "from_revision": 28,
+      "current_index": 31,
       "keys_now": 6,
       "changed_since": [
         {
           "key": "config/sandbox/demo-inventory/cache.ttl_seconds",
-          "create_index": 273,
-          "modify_index": 278,
+          "create_index": 24,
+          "modify_index": 29,
           "created_after": false
         },
         {
           "key": "config/sandbox/demo-inventory/db.password",
-          "create_index": 275,
-          "modify_index": 279,
+          "create_index": 26,
+          "modify_index": 30,
           "created_after": false
         },
         {
           "key": "config/sandbox/demo-inventory/feature.flags",
-          "create_index": 280,
-          "modify_index": 280,
+          "create_index": 31,
+          "modify_index": 31,
           "created_after": true
         }
       ],
@@ -42,7 +42,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmklg3-14ce79",
+    "request_id": "req-mvcn65re-9c8a3c",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -50,7 +50,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:42:49.107Z",
-    "duration_ms": 42
+    "started_at": "2026-10-17T16:59:35.210Z",
+    "duration_ms": 52
   }
 }

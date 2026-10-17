@@ -12,9 +12,9 @@
     "key": "db.password",
     "revision_space": "nacos-history-id",
     "mode": "previous_version",
-    "from_revision": 46,
-    "to_revision": 47,
-    "current_revision": 47,
+    "from_revision": 2,
+    "to_revision": 3,
+    "current_revision": 3,
     "changes": [
       {
         "name": "db.password",
@@ -59,19 +59,19 @@
       "group": "DEFAULT_GROUP",
       "data_id": "demo-payment.properties",
       "from_history": {
-        "id": 46,
+        "id": 2,
         "op_type": "U",
-        "modified_at": "2026-10-18T00:42:18.598+08:00",
+        "modified_at": "2026-10-18T00:55:54.051+08:00",
         "src_user": null
       },
       "to_history": {
-        "id": 47,
+        "id": 3,
         "op_type": "U",
-        "modified_at": "2026-10-18T00:42:18.921+08:00",
+        "modified_at": "2026-10-18T00:55:54.414+08:00",
         "src_user": null
       },
-      "history_records": 39,
-      "oldest_history_id": 4
+      "history_records": 3,
+      "oldest_history_id": 1
     }
   },
   "error": null,
@@ -80,7 +80,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-17T16:42:43.484Z",
+        "observed_at": "2026-10-17T16:59:29.234Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/cs/configs?show=all dataId=demo-payment.properties",
         "relation": "explicit",
@@ -89,7 +89,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-17T16:42:43.485Z",
+        "observed_at": "2026-10-17T16:59:29.234Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v2/cs/history/list + GET /v2/cs/history?nid=（前像记录）",
         "relation": "explicit",
@@ -99,9 +99,9 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "Nacos nacos/demo-nacos 键 sandbox/DEFAULT_GROUP/demo-payment.properties#db.password，历史 ID 46 → 47",
+      "scope": "Nacos nacos/demo-nacos 键 sandbox/DEFAULT_GROUP/demo-payment.properties#db.password，历史 ID 2 → 3",
       "notes": [
-        "该键最近一次变化发生在历史记录 47（U，2026-10-18T00:42:18.921+08:00）；与其前像比较",
+        "该键最近一次变化发生在历史记录 3（U，2026-10-18T00:55:54.414+08:00）；与其前像比较",
         "部分差异项的值已遮蔽（***），changed 依据原始内容判断",
         "修订空间为 Nacos 配置历史 ID（全局递增的 nid）：起点/终点表示“不晚于该 ID 的最后一次变更生效后”的文档；只比较两个时刻，中间值不可见。历史保留 30 天"
       ]
@@ -109,7 +109,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcmkh24-c038de",
+    "request_id": "req-mvcn613i-a36173",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -117,7 +117,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:42:43.420Z",
-    "duration_ms": 70
+    "started_at": "2026-10-17T16:59:29.166Z",
+    "duration_ms": 75
   }
 }

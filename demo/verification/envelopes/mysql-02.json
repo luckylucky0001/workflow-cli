@@ -17,8 +17,8 @@
     "auto_increment": "300001",
     "collation": "utf8mb4_0900_ai_ci",
     "comment": "synthetic orders (workctl demo); customer_id intentionally not indexed",
-    "create_time": "2026-10-17T15:35:50Z",
-    "update_time": "2026-10-17T15:35:54Z",
+    "create_time": "2026-10-17T16:54:14Z",
+    "update_time": "2026-10-17T16:54:17Z",
     "columns": [
       {
         "name": "id",
@@ -126,7 +126,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T15:38:33.279Z",
+        "observed_at": "2026-10-17T16:57:52.649Z",
         "endpoint": "mysql/demo-mysql",
         "method": "information_schema.TABLES + information_schema.COLUMNS",
         "version": "8.4.11",
@@ -142,7 +142,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvck9y80-efc30d",
+    "request_id": "req-mvcn3yk7-1d728b",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -150,7 +150,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:38:33.216Z",
-    "duration_ms": 64
+    "started_at": "2026-10-17T16:57:52.567Z",
+    "duration_ms": 83
   }
 }
