@@ -9,9 +9,9 @@
     "prefix": "/config/sandbox/demo-order/",
     "key": "cache.ttl_seconds",
     "mode": "previous_version",
-    "from_revision": 11,
-    "to_revision": 19,
-    "current_revision": 19,
+    "from_revision": 60,
+    "to_revision": 68,
+    "current_revision": 68,
     "changes": [
       {
         "name": "cache.ttl_seconds",
@@ -24,9 +24,9 @@
           "value_bytes": 3,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 3,
+          "mod_revision": 52,
           "version": 1,
-          "create_revision": 3
+          "create_revision": 52
         },
         "new": {
           "value": 60,
@@ -34,9 +34,9 @@
           "value_bytes": 2,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 12,
+          "mod_revision": 61,
           "version": 2,
-          "create_revision": 3
+          "create_revision": 52
         }
       }
     ],
@@ -54,9 +54,9 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-17T15:39:35.622Z",
+        "observed_at": "2026-10-17T15:59:29.080Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
-        "method": "POST /v3/kv/range key=/config/sandbox/demo-order/cache.ttl_seconds revision=11 / revision=19",
+        "method": "POST /v3/kv/range key=/config/sandbox/demo-order/cache.ttl_seconds revision=60 / revision=68",
         "relation": "explicit",
         "version": "3.5.21"
       }
@@ -64,7 +64,7 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "etcd etcd/demo-etcd 键 /config/sandbox/demo-order/cache.ttl_seconds，修订 11 → 19",
+      "scope": "etcd etcd/demo-etcd 键 /config/sandbox/demo-order/cache.ttl_seconds，修订 60 → 68",
       "notes": [
         "只比较两个修订的快照；区间内的中间值不可见。历史只保留到最近一次压缩"
       ]
@@ -72,7 +72,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvckbabz-5b15ef",
+    "request_id": "req-mvcl0v80-a6d99d",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -80,7 +80,7 @@
     "adapter": "etcd-v3-gateway",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:39:35.567Z",
-    "duration_ms": 55
+    "started_at": "2026-10-17T15:59:29.040Z",
+    "duration_ms": 41
   }
 }

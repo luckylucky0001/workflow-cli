@@ -71,6 +71,24 @@ describe('demo-search DSL guard', () => {
     for (let i = 0; i < 60; i++) deep = { bool: { must: [deep] } };
     expect(() => scanDsl({ query: deep })).toThrow(invalid);
   });
+
+  it('review: closes guard bypasses confirmed on OpenSearch 2.19.3', () => {
+    // wrapper = base64-encoded query, ran a script query live
+    const wrapped = Buffer.from(JSON.stringify({ script: { script: { source: 'true' } } })).toString('base64');
+    expect(() => scanDsl({ query: { wrapper: { query: wrapped } } })).toThrow(expect.objectContaining({ code: 'INVALID_ARGUMENT', details: expect.objectContaining({ forbidden_key: 'wrapper' }) }));
+    // terms_set runs Painless through minimum_should_match_script
+    expect(() => scanDsl({ query: { terms_set: { status: { terms: ['paid'], minimum_should_match_script: { source: '1' } } } } })).toThrow(invalid);
+    // cross-index reads inside query-bearing aggregations (filter / filters / significant_terms.background_filter)
+    expect(() => scanDsl({ aggs: { f: { filter: { terms: { status: { index: 'other', id: '1', path: 'status' } } } } } })).toThrow(invalid);
+    expect(() => scanDsl({ aggs: { f: { filters: { filters: { a: { more_like_this: { fields: ['note'], like: [{ _index: 'other', _id: '1' }] } } } } } } })).toThrow(invalid);
+    // OpenSearch accepts numeric strings for bucket sizes ("5000" returned 3000 buckets live)
+    expect(() => scanDsl({ aggs: { c: { terms: { field: 'order_id', size: '5000' } } } })).toThrow(invalid);
+    expect(() => scanDsl({ aggs: { c: { terms: { field: 'order_id', shard_size: ' 1001 ' } } } })).toThrow(invalid);
+    // top_hits returned 1000 untruncated documents in aggregations, past the 100-hit cap
+    expect(() => scanDsl({ size: 0, aggs: { c: { terms: { field: 'order_id', size: 1000 }, aggs: { h: { top_hits: { size: 100 } } } } } })).toThrow(invalid);
+    // still allowed: terms aggregation with ordinary options, filter aggregation with a plain terms query, field named size
+    expect(() => scanDsl({ aggs: { c: { terms: { field: 'city', size: '20', order: { _count: 'desc' } } }, f: { filter: { terms: { status: ['paid'] } } }, s: { filter: { term: { size: 'large' } } } } })).not.toThrow();
+  });
 });
 
 describe('demo-search request building', () => {
@@ -244,6 +262,14 @@ describe('demo-search response shaping', () => {
     const skipped = shapeSearchResponse({ cluster: 'c', index: 'i', guarded, maxHits: 2, observedAt: 't', res: { ...base, timed_out: false, _shards: { total: 3, successful: 3, skipped: 2, failed: 0 } } });
     expect(skipped.status).toBe('success');
     expect(skipped.notes.join(' ')).toContain('can_match');
+  });
+
+  it('review: shards without an active copy (red index) are partial although failed=0', () => {
+    // live answer of OpenSearch 2.19.3 for a red 2-shard index + demo-orders with allow_partial_search_results=true
+    const res = { took: 10, timed_out: false, _shards: { total: 4, successful: 2, skipped: 0, failed: 0 }, hits: { total: { value: 3000, relation: 'eq' }, hits: [] } };
+    const s = shapeSearchResponse({ cluster: 'c', index: 'red,demo-orders', guarded, maxHits: 2, res, observedAt: 't' });
+    expect(s.status).toBe('partial');
+    expect(s.warnings.join(' ')).toContain('2/4 个分片没有可用副本');
   });
 
   it('cluster red/yellow stays success with a warning', () => {

@@ -32,20 +32,28 @@ export interface DecodedValue {
 
 const utf8 = new TextDecoder('utf-8', { fatal: true });
 
-/** Recursively replace values of secret-like object properties; returns the masked JSON paths. */
-function maskJson(v: unknown, path: string, out: string[]): unknown {
-  if (Array.isArray(v)) return v.map((x, i) => maskJson(x, `${path}[${i}]`, out));
+/**
+ * Recursively replace values of secret-like object properties; returns the masked JSON paths.
+ * Below a secret-like property every scalar leaf is masked (e.g. "credentials": {...}, "api_keys": [...]).
+ */
+function maskJson(v: unknown, path: string, out: string[], secret = false): unknown {
+  if (Array.isArray(v)) return v.map((x, i) => maskJson(x, `${path}[${i}]`, out, secret));
   if (v && typeof v === 'object') {
     const o: Record<string, unknown> = {};
-    for (const [k, x] of Object.entries(v)) {
-      if (isSecretName(k) && x !== null && typeof x !== 'object') {
-        o[k] = MASK;
-        out.push(`${path}.${k}`);
-      } else o[k] = maskJson(x, `${path}.${k}`, out);
-    }
+    for (const [k, x] of Object.entries(v)) o[k] = maskJson(x, `${path}.${k}`, out, secret || isSecretName(k));
     return o;
   }
+  if (secret && v !== null) {
+    out.push(path);
+    return MASK;
+  }
   return v;
+}
+
+/** Integer literals outside ±2^53 lose digits in JSON.parse; quote them (outside strings) to keep the exact digits. */
+const BIG_INT = /"(?:[^"\\]|\\.)*"|(?<![\d.eE+-])-?\d{16,}(?![\d.eE])/g;
+function quoteUnsafeInts(t: string): string {
+  return t.replace(BIG_INT, (m) => (m.startsWith('"') || Number.isSafeInteger(Number(m)) ? m : `"${m}"`));
 }
 
 /**
@@ -67,7 +75,21 @@ export function decodeValue(raw: Buffer, name: string): DecodedValue {
   const t = text.trim();
   if (/^[[{]/.test(t) || /^(true|false|null|-?\d+(\.\d+)?([eE][+-]?\d+)?)$/.test(t)) {
     try {
-      const parsed = JSON.parse(t);
+      let parsed = JSON.parse(t);
+      // a bare number that JSON cannot carry exactly (> 2^53 or overflow) stays text: never show rounded digits
+      if (typeof parsed === 'number' && (!Number.isFinite(parsed) || (/^-?\d+$/.test(t) && !Number.isSafeInteger(parsed)))) {
+        return { value: text, value_format: 'text', value_bytes: bytes, masked: false, masked_paths: [] };
+      }
+      if (typeof parsed === 'object' && parsed !== null) {
+        const exact = quoteUnsafeInts(t);
+        if (exact !== t) {
+          try {
+            parsed = JSON.parse(exact);
+          } catch {
+            /* keep the first parse: masking must still apply */
+          }
+        }
+      }
       const paths: string[] = [];
       const value = maskJson(parsed, '$', paths);
       return { value, value_format: 'json', value_bytes: bytes, masked: paths.length > 0, masked_paths: paths };

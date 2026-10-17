@@ -334,11 +334,17 @@ export function shapeSearchResponse(input: {
     };
   });
   const timedOut = !!res?.timed_out;
-  const partial = shards.failed > 0 || timedOut;
+  // shards with no active copy (red index) are left out of `failed` and `failures`: only
+  // successful (which includes skipped) < total reveals them
+  const unavailable = Math.max(0, shards.total - shards.successful - shards.failed);
+  const partial = shards.failed > 0 || unavailable > 0 || timedOut;
   const truncated = total.relation === 'gte' || total.value > hits.length;
   const warnings: string[] = [];
   if (shards.failed > 0) {
     warnings.push(`${shards.failed}/${shards.total} 个分片查询失败，命中数与聚合只来自成功的分片（见 data.shard_failures）`);
+  }
+  if (unavailable > 0) {
+    warnings.push(`${unavailable}/${shards.total} 个分片没有可用副本（索引 red / 主分片未分配），未参与查询，命中数与聚合不含这些分片的数据；用 search index get 查看分片分配`);
   }
   if (timedOut) warnings.push(`搜索在 ${guarded.body.timeout} 内未完成（timed_out=true），结果只包含超时前已收集的命中`);
   if (total.relation === 'gte') warnings.push(`total.relation=gte：命中数至少 ${total.value}（达到 track_total_hits=${tth} 后停止精确计数），不是精确值`);

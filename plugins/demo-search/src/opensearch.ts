@@ -10,7 +10,8 @@ export const ENDPOINT_KIND = 'opensearch';
  * `password_ref` is resolved by core and arrives as `password` (stdin only).
  */
 export const OpenSearchEndpointSchema = z.object({
-  url: z.string().regex(/^https?:\/\/[^\s/]+(\/.*)?$/, { message: '须为 http(s)://host:port' }),
+  // no user:password@ in the url: credentials only via username + password_ref (fetch would echo the url in its error)
+  url: z.string().regex(/^https?:\/\/[^\s/@]+(\/.*)?$/, { message: '须为 http(s)://host:port，且不能内嵌 user:password@（用 username + password_ref）' }),
   username: z.string().min(1).optional(),
   password: z.string().optional(),
   connect_timeout_ms: z.number().int().positive().optional(),

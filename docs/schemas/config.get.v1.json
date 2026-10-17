@@ -48,7 +48,7 @@
             "description": "服务前缀下的相对键名"
           },
           "value": {
-            "description": "JSON 可解析时为解析后的值，否则为文本；binary_base64 时为 base64；被遮蔽时为 \"***\""
+            "description": "JSON 可解析时为解析后的值，否则为文本；超出 ±2^53 的整数不做有损转换（单值为文本，JSON 内为数字字符串）；binary_base64 时为 base64；被遮蔽时为 \"***\""
           },
           "value_format": {
             "type": "string",

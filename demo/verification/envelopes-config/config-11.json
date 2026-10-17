@@ -15,7 +15,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvckbbvc-c3498d",
+    "request_id": "req-mvcl0wvp-b5f24d",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -23,7 +23,7 @@
     "adapter": "etcd-v3-gateway",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:39:37.560Z",
-    "duration_ms": 26
+    "started_at": "2026-10-17T15:59:31.189Z",
+    "duration_ms": 25
   }
 }

@@ -16,9 +16,11 @@ export const ALLOWED_TOP_LEVEL = ['query', 'size', 'sort', '_source', 'aggs'] as
  * runtime fields. Pipeline aggregations such as bucket_script / bucket_selector carry a
  * `script` key and are rejected through it.
  */
-export const FORBIDDEN_KEYS = new Set(['script', 'script_score', 'scripted_metric', '_script', 'script_fields', 'runtime_mappings', 'stored_script', 'bucket_script', 'bucket_selector']);
+export const FORBIDDEN_KEYS = new Set(['script', 'script_score', 'scripted_metric', '_script', 'script_fields', 'runtime_mappings', 'stored_script', 'bucket_script', 'bucket_selector', 'minimum_should_match_script']);
 /** Constructs that read documents from other indices than the search target. */
 const CROSS_INDEX_KEYS = new Set(['indexed_shape']);
+/** `wrapper` carries a base64-encoded query that this scan cannot inspect (it may contain scripts). */
+const OPAQUE_KEYS = new Set(['wrapper']);
 
 const MAX_DEPTH = 40;
 const MAX_NODES = 5000;
@@ -57,8 +59,14 @@ export function scanDsl(value: unknown): void {
       const p = path ? `${path}.${k}` : k;
       if (FORBIDDEN_KEYS.has(k)) throw bad(`DSL 含有禁止的脚本相关字段 ${k}（位置 ${p}）`, { forbidden_key: k, path: p }, '脚本查询/脚本聚合/运行时字段会在集群上执行任意代码，受限查询不允许；改用普通 query/aggs');
       if (CROSS_INDEX_KEYS.has(k)) throw bad(`DSL 含有跨索引读取 ${k}（位置 ${p}）`, { forbidden_key: k, path: p });
+      if (OPAQUE_KEYS.has(k)) throw bad(`DSL 含有 ${k} 查询（位置 ${p}）：其内容为 base64 编码，无法检查`, { forbidden_key: k, path: p }, '直接写出 query 结构，不要用 wrapper 包装');
+      // top_hits returns documents inside aggregation buckets: bypasses the hit cap and _source truncation
+      if (k === 'top_hits' && inAggs) {
+        throw bad(`聚合 ${p} 会在聚合结果中返回文档，受限查询不允许`, { forbidden_key: k, path: p }, `文档只通过命中列表返回（最多 ${MAX_HITS_CAP} 条）；用 query 过滤 + sort + size 取样本`);
+      }
       // terms lookup: {"terms": {"field": {"index": "...", "id": "...", "path": "..."}}} reads another index
-      if (k === 'terms' && x && typeof x === 'object' && !Array.isArray(x) && !inAggs) {
+      // (also inside aggregations: filter / filters / significant_terms.background_filter carry queries)
+      if (k === 'terms' && x && typeof x === 'object' && !Array.isArray(x)) {
         for (const [f, spec] of Object.entries(x as Record<string, unknown>)) {
           if (spec && typeof spec === 'object' && !Array.isArray(spec) && ('index' in spec || 'id' in spec || 'path' in spec)) {
             throw bad(`DSL 含有 terms lookup（${p}.${f}），会读取其他索引的文档`, { path: `${p}.${f}` });
@@ -66,10 +74,12 @@ export function scanDsl(value: unknown): void {
         }
       }
       // more_like_this / percolate referencing stored documents of (possibly) other indices
-      if ((k === '_index' || k === 'index') && !inAggs && /(^|\.)(like|unlike|percolate)(\[|\.|$)/.test(path)) {
+      if ((k === '_index' || k === 'index') && /(^|\.)(like|unlike|percolate)(\[|\.|$)/.test(path)) {
         throw bad(`DSL 引用了其他索引的文档（${p}）`, { path: p });
       }
-      if (inAggs && (k === 'size' || k === 'shard_size') && typeof x === 'number' && x > MAX_AGG_BUCKETS) {
+      // OpenSearch also accepts numeric strings ("size": "5000")
+      const num = typeof x === 'number' ? x : typeof x === 'string' && x.trim() !== '' ? Number(x) : NaN;
+      if (inAggs && (k === 'size' || k === 'shard_size') && num > MAX_AGG_BUCKETS) {
         throw bad(`聚合 ${p} 超过桶数上限 ${MAX_AGG_BUCKETS}`, { path: p, value: x, limit: MAX_AGG_BUCKETS });
       }
       walk(x, p, depth + 1, inAggs || k === 'aggs' || k === 'aggregations');

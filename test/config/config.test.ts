@@ -66,6 +66,22 @@ describe('etcd helpers (pure)', () => {
     expect(JSON.stringify(nested)).not.toContain('abc');
   });
 
+  it('masks every scalar below a secret-named JSON object/array field (regression: nested leak)', () => {
+    const d = decodeValue(Buffer.from(JSON.stringify({ url: 'http://x', credentials: { user: 'u', pass: 'LEAK-1' }, api_keys: ['LEAK-2', null], secrets: [{ v: 'LEAK-3' }] })), 'upstream.auth');
+    expect(d.value).toEqual({ url: 'http://x', credentials: { user: '***', pass: '***' }, api_keys: ['***', null], secrets: [{ v: '***' }] });
+    expect(d.masked_paths).toEqual(['$.credentials.user', '$.credentials.pass', '$.api_keys[0]', '$.secrets[0].v']);
+    expect(JSON.stringify(d)).not.toContain('LEAK');
+  });
+
+  it('never rounds integers beyond 2^53 (regression: 7587898288280331665 shown as ...331000)', () => {
+    expect(decodeValue(Buffer.from('7587898288280331665'), 'snowflake.id')).toMatchObject({ value: '7587898288280331665', value_format: 'text' });
+    expect(decodeValue(Buffer.from('1e400'), 'x')).toMatchObject({ value: '1e400', value_format: 'text' });
+    expect(decodeValue(Buffer.from('9007199254740991'), 'x')).toMatchObject({ value: 9007199254740991, value_format: 'json' });
+    const nested = decodeValue(Buffer.from('{"id": 7587898288280331665, "s": "12345678901234567890", "f": 0.12345678901234567890, "token": 12345678901234567890}'), 'x');
+    expect(nested.value).toEqual({ id: '7587898288280331665', s: '12345678901234567890', f: 0.12345678901234568, token: '***' });
+    expect(nested.masked_paths).toEqual(['$.token']);
+  });
+
   it('parses revisions strictly', () => {
     expect(parseRev('--to-rev', 'current')).toBe('current');
     expect(parseRev('--to-rev', '12')).toBe(12);
@@ -251,6 +267,43 @@ describe('config / discovery against a fake etcd gateway', () => {
     expect(res).toMatchObject({ ok: true, identity: 'anonymous', version: '3.5.99-fake' });
     expect(res.detail).toContain('24576');
     expect(res.detail).toContain('认证未开启');
+  });
+});
+
+describe('config / discovery edge cases (regressions)', () => {
+  const fake = new FakeEtcd();
+  const r = registry();
+  let configPath: string;
+  const BULK = '/config/sandbox/bulk/';
+  let fromRev = 0;
+  beforeAll(async () => {
+    configPath = writeEtcdConfig(await fake.start());
+    for (let n = 0; n <= 1000; n++) fake.put(`${BULK}k${String(n).padStart(4, '0')}`, String(n));
+    fromRev = fake.rev;
+    fake.del(`${BULK}k0000`);
+    for (let n = 0; n <= 1000; n++) fake.put(`/services/bulk/i-${String(n).padStart(4, '0')}`, '{}');
+    fake.put('/services/tokenizer/tokenizer-1', JSON.stringify({ address: '10.0.0.7', port: 9000, healthy: true, password: 'LEAK' }));
+  });
+  afterAll(() => fake.stop());
+  const call = (cap: string, inputs: Record<string, unknown>) => invoke(r, cap, inputs, { configPath });
+
+  it('config diff with a truncated snapshot does not report keys past the truncation point as added/removed', async () => {
+    const env = await call('config.diff', { service: 'bulk', from_rev: fromRev });
+    expect(env.status).toBe('partial');
+    expect((env.data as any).changes.map((c: any) => [c.name, c.change])).toEqual([['k0000', 'removed']]);
+    expect(env.meta.coverage).toMatchObject({ complete: false, truncated: true });
+  });
+
+  it('discovery list: registered counts all keys under the prefix even when truncated', async () => {
+    const env = await call('discovery.list', { service: 'bulk' });
+    expect(env.status).toBe('partial');
+    expect((env.data as any).summary).toMatchObject({ registered: 1001, returned: 1000 });
+  });
+
+  it('discovery list: an instance id that looks secret-like (tokenizer-1) is still parsed; payload fields still masked', async () => {
+    const env = await call('discovery.list', { service: 'tokenizer' });
+    expect((env.data as any).instances[0]).toMatchObject({ address: '10.0.0.7', port: 9000, healthy: true, payload_error: null, payload: { password: '***' } });
+    expect(JSON.stringify(env)).not.toContain('LEAK');
   });
 });
 

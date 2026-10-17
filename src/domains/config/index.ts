@@ -12,7 +12,7 @@ const MAX_KEYS = 1000;
 const MASK_NOTE = `键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "${MASK}" 替代，masked=true，masked_paths 标出位置`;
 
 const ValueFields = {
-  value: z.unknown().describe('JSON 可解析时为解析后的值，否则为文本；binary_base64 时为 base64；被遮蔽时为 "***"'),
+  value: z.unknown().describe('JSON 可解析时为解析后的值，否则为文本；超出 ±2^53 的整数不做有损转换（单值为文本，JSON 内为数字字符串）；binary_base64 时为 base64；被遮蔽时为 "***"'),
   value_format: z.enum(['json', 'text', 'binary_base64', 'empty']),
   value_bytes: z.number().describe('原始值字节数（遮蔽前）'),
   masked: z.boolean(),
@@ -264,7 +264,9 @@ const configDiff = defineCapability({
     const toRaw = rawOf(toSnap.kvs);
     const fromMap = new Map(fromItems.map((x) => [x.key, x]));
     const toMap = new Map(toItems.map((x) => [x.key, x]));
-    const keys = [...new Set([...fromMap.keys(), ...toMap.keys()])].sort();
+    // a truncated snapshot only covers keys up to its last returned key; keys past that are not compared (else false added/removed)
+    const bounds = [fromSnap, toSnap].filter((s) => s.more && s.kvs?.length).map((s) => unb64(s.kvs![s.kvs!.length - 1].key));
+    const keys = [...new Set([...fromMap.keys(), ...toMap.keys()])].filter((k) => bounds.every((b) => Buffer.compare(Buffer.from(k, 'utf8'), b) <= 0)).sort();
     const changes = [];
     const summary = { added: 0, removed: 0, changed: 0, unchanged: 0, rewritten_same_value: 0 };
     for (const k of keys) {
@@ -383,7 +385,8 @@ const discoveryList = defineCapability({
     for (const kv of r.kvs ?? []) {
       const key = unb64(kv.key).toString('utf8');
       const id = key.slice(prefix.length);
-      const dv = decodeValue(unb64(kv.value), id);
+      // instance ids are not config names: mask by JSON field names only (payload is never shown unless it is a JSON object)
+      const dv = decodeValue(unb64(kv.value), '');
       const p = dv.value_format === 'json' && dv.value && typeof dv.value === 'object' && !Array.isArray(dv.value) ? (dv.value as Record<string, unknown>) : null;
       const str = (v: unknown) => (v === undefined || v === null ? null : String(v));
       const instEnv = str(p?.env);
@@ -435,7 +438,7 @@ const discoveryList = defineCapability({
       });
     }
     if (leaseQueried) sources.push(await client.source('POST /v3/lease/timetolive', 'sampled'));
-    const registered = r.kvs?.length ?? 0;
+    const registered = Math.max(int(r.count), r.kvs?.length ?? 0); // etcd count = total under the prefix, even when truncated
     const truncated = !!r.more;
     const notes: string[] = [];
     if (!registered) notes.push(`前缀 ${prefix} 下没有注册（修订 ${observed}）：服务未注册、已全部下线（租约过期）或前缀不同`);

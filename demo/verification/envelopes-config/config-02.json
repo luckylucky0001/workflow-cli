@@ -8,7 +8,7 @@
     "env": "sandbox",
     "prefix": "/config/sandbox/demo-order/",
     "key": null,
-    "observed_revision": 19,
+    "observed_revision": 68,
     "count": 7,
     "truncated": false,
     "items": [
@@ -20,8 +20,8 @@
         "value_bytes": 5,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 13,
-        "mod_revision": 13,
+        "create_revision": 62,
+        "mod_revision": 62,
         "version": 1,
         "lease": null
       },
@@ -33,8 +33,8 @@
         "value_bytes": 12,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 2,
-        "mod_revision": 16,
+        "create_revision": 51,
+        "mod_revision": 65,
         "version": 2,
         "lease": null
       },
@@ -46,8 +46,8 @@
         "value_bytes": 2,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 3,
-        "mod_revision": 12,
+        "create_revision": 52,
+        "mod_revision": 61,
         "version": 2,
         "lease": null
       },
@@ -61,8 +61,8 @@
         "masked_paths": [
           "$"
         ],
-        "create_revision": 5,
-        "mod_revision": 14,
+        "create_revision": 54,
+        "mod_revision": 63,
         "version": 2,
         "lease": null
       },
@@ -74,8 +74,8 @@
         "value_bytes": 2,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 4,
-        "mod_revision": 10,
+        "create_revision": 53,
+        "mod_revision": 59,
         "version": 2,
         "lease": null
       },
@@ -91,8 +91,8 @@
         "value_bytes": 61,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 6,
-        "mod_revision": 9,
+        "create_revision": 55,
+        "mod_revision": 58,
         "version": 2,
         "lease": null
       },
@@ -110,8 +110,8 @@
         "masked_paths": [
           "$.token"
         ],
-        "create_revision": 8,
-        "mod_revision": 15,
+        "create_revision": 57,
+        "mod_revision": 64,
         "version": 2,
         "lease": null
       }
@@ -123,7 +123,7 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-17T15:39:34.233Z",
+        "observed_at": "2026-10-17T15:59:27.362Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
         "method": "POST /v3/kv/range prefix=/config/sandbox/demo-order/",
         "relation": "explicit",
@@ -134,7 +134,7 @@
       "complete": true,
       "truncated": false,
       "limit": 200,
-      "scope": "etcd etcd/demo-etcd 键前缀 /config/sandbox/demo-order/，修订 19",
+      "scope": "etcd etcd/demo-etcd 键前缀 /config/sandbox/demo-order/，修订 68",
       "notes": [
         "2 个配置项的值或字段已遮蔽（按名称匹配敏感模式）"
       ]
@@ -142,7 +142,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvckb99v-11897f",
+    "request_id": "req-mvcl0tvu-64ffef",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -150,7 +150,7 @@
     "adapter": "etcd-v3-gateway",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:39:34.195Z",
-    "duration_ms": 39
+    "started_at": "2026-10-17T15:59:27.306Z",
+    "duration_ms": 56
   }
 }

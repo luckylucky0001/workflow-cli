@@ -211,5 +211,36 @@ services:
       interval: 5s
       retries: 20
 
+  # Nacos 2.x (standalone, embedded Derby) as a second config center / registry provider
+  # (`config get|diff`, `discovery list` via the v1 Open API). Auth is off in the sandbox
+  # (the login path is covered by unit tests). Seed: demo/scenarios/config/seed-nacos.mjs.
+  nacos:
+    image: nacos/nacos-server:v2.4.3
+    container_name: demo-nacos
+    labels:
+      workctl.resource: demo-nacos
+      workctl.env: sandbox
+    environment:
+      MODE: standalone
+      PREFER_HOST_MODE: hostname
+      NACOS_AUTH_ENABLE: "false"
+      JVM_XMS: 256m
+      JVM_XMX: 512m
+      JVM_XMN: 128m
+    ports:
+      - "18848:8848"
+
+  # Consul dev agent (in-memory, ACL off) as the third provider: KV under config/ and the
+  # catalog/health API. KV keeps no history. Seed: demo/scenarios/config/seed-consul.mjs.
+  consul:
+    image: hashicorp/consul:1.20
+    container_name: demo-consul
+    command: ["agent", "-dev", "-client=0.0.0.0"]
+    labels:
+      workctl.resource: demo-consul
+      workctl.env: sandbox
+    ports:
+      - "18500:8500"
+
 volumes:
   mysql-data:
