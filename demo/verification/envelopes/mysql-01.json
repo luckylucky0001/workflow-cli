@@ -20,8 +20,8 @@
       "version": "8.4.11",
       "version_comment": "MySQL Community Server - GPL",
       "current_user": "workctl_ro@%",
-      "uptime_s": 421,
-      "started_at": "2026-10-17T14:57:02.142Z",
+      "uptime_s": 487,
+      "started_at": "2026-10-17T14:57:02.627Z",
       "read_only": false,
       "super_read_only": false
     },
@@ -42,14 +42,14 @@
       "version_comment": "MySQL Community Server - GPL"
     },
     "status": {
-      "Uptime": 421,
-      "Threads_connected": 2,
+      "Uptime": 487,
+      "Threads_connected": 1,
       "Threads_running": 2,
-      "Questions": 347,
+      "Questions": 432,
       "Slow_queries": 15,
-      "Aborted_connects": 11,
-      "Aborted_clients": 2,
-      "Connections": 139,
+      "Aborted_connects": 15,
+      "Aborted_clients": 3,
+      "Connections": 168,
       "Max_used_connections": 4
     },
     "status_semantics": {
@@ -75,7 +75,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-17T15:04:03.142Z",
+        "observed_at": "2026-10-17T15:05:09.627Z",
         "endpoint": "mysql/demo-mysql",
         "method": "SHOW GLOBAL VARIABLES; SHOW GLOBAL STATUS; SELECT VERSION(), CURRENT_USER()",
         "version": "8.4.11",
@@ -84,7 +84,7 @@
       {
         "system": "workctl",
         "adapter": "binding-file",
-        "observed_at": "2026-10-17T15:04:03.142Z",
+        "observed_at": "2026-10-17T15:05:09.626Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "method": "resources.forEndpoint(mysql, demo-mysql)",
         "relation": "explicit"
@@ -97,7 +97,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcj1kwj-4ca8fe",
+    "request_id": "req-mvcj306v-eb3ccc",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -105,7 +105,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T15:04:03.091Z",
-    "duration_ms": 52
+    "started_at": "2026-10-17T15:05:09.559Z",
+    "duration_ms": 69
   }
 }
