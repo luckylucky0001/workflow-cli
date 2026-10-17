@@ -214,7 +214,9 @@ function comparable(v: unknown): unknown {
     }
     return out;
   }
-  return typeof v === 'string' ? v.replace(/\/api\/v[12]\//g, '/api/vN/').replace(/op-\d{8}-[0-9a-f]+/g, 'op-X') : v;
+  if (typeof v !== 'string') return v;
+  // raw API instants pass through unchanged: v1 renders UTC as +00:00, v2 as Z (same instant)
+  return v.replace(/\/api\/v[12]\//g, '/api/vN/').replace(/op-\d{8}-[0-9a-f]+/g, 'op-X').replace(/^(\d{4}-\d\d-\d\dT[\d:.]+)(\+00:00|Z)$/, '$1Z');
 }
 
 async function both(cap: string, inputs: Record<string, unknown>) {

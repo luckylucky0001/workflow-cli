@@ -44,6 +44,7 @@ EMPTY_DIR="$(mktemp -d)"
 start_fault
 for key in $ONLY; do
   suffix=""; [ "$MODE" = "cli-only" ] && suffix=".cli-only"
+  [ -n "${RUN_TAG:-}" ] && suffix="${suffix}.${RUN_TAG}"
   out="$RUNS/${key}${suffix}.json"
   echo "== ${key} (${MODE})"
   # Independent session: do not inherit the caller's session id.
