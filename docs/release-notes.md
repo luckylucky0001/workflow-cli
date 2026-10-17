@@ -29,7 +29,7 @@
 
 ## 质量
 
-- 单元 + 契约测试 423 个通过；开启全部开关的真实环境集成测试 483/483；逐能力真实调用用例：主套件 74、Trino 15、Kubernetes 10，均全部通过（`demo/verify-all.sh` 一键复现）。
+- 单元 + 契约测试 425 个通过；开启全部开关的真实环境集成测试 483/483；逐能力真实调用用例：主套件 74、Trino 15、Kubernetes 10，均全部通过（`demo/verify-all.sh` 一键复现）。
 - 各领域由非作者交叉审查，修复的缺陷均有回归测试（见 git 历史 “Cross-review fixes”）。
 - 完整复位：`reset.sh` 后 `up.sh` 约 1 分钟重建，场景重放约 2 分钟，主套件全部通过。
 - Agent 宿主：Claude Code 无头模式经 Skill + MCP 跑三条主线（只读 profile）均达到验收标准；仅 CLI 对照组与回归运行记录见 `demo/evaluation.md`。

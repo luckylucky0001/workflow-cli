@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { httpJson } from '../../core/http';
 import { WorkError } from '../../core/output';
 import type { Ctx } from '../../core/runtime';
@@ -39,7 +40,8 @@ function jwtExpiry(token: string): number {
 
 /** Bearer token for (url, user). Cached per process; `force` drops the cached one (after a 401). */
 export async function airflowToken(ctx: Ctx, url: string, user: string, password: string, force = false): Promise<string> {
-  const key = `${url}|${user}`;
+  // the password digest is part of the key so a rotated password never reuses an old token
+  const key = `${url}|${user}|${createHash('sha256').update(password).digest('hex').slice(0, 16)}`;
   let p = force ? undefined : tokenCache.get(key);
   if (p) {
     const t = await p.catch(() => undefined);

@@ -86,6 +86,27 @@ export class AirflowClient {
    * One REST call. `path` and `query` use the v1 route table; for v2 they are translated and the
    * JSON response is normalised to the v1 shape (task logs come back as text in `text`/`body`).
    */
+  private v2Probe?: Promise<boolean>;
+
+  /** A v1 404 can mean "wrong API version" rather than "object missing": ask the v2 version endpoint once. */
+  private serverSpeaksV2(): Promise<boolean> {
+    // mismatch only when the v1 API is absent AND the v2 API answers (Airflow 3); a real Airflow 2
+    // with a missing object keeps its NOT_FOUND
+    const status = (path: string) =>
+      httpJson<any>(this.ctx, `${this.url}${path}`, { allowStatus: [401, 403, 404] }).then((r) => ({ status: r.status, body: r.body }));
+    this.v2Probe ??= Promise.all([status('/api/v1/version'), status('/api/v2/version')])
+      .then(([v1, v2]) => v1.status === 404 && v2.status === 200 && /^3\./.test(String(v2.body?.version ?? '')))
+      .catch(() => false);
+    return this.v2Probe;
+  }
+
+  private versionMismatch(path: string): WorkError {
+    return new WorkError('NOT_CONFIGURED', `端点 ${this.ep.id} 配置为 api_version v1，但服务端是 Airflow 3（REST v2），v1 路径返回 404`, {
+      hint: '把该端点的 api_version 改为 v2（Airflow 3 通过 POST /auth/token 换取 JWT）',
+      details: { path },
+    });
+  }
+
   async request<T = any>(method: string, path: string, opts: { query?: Record<string, string | number | boolean | undefined>; body?: unknown; accept?: string; allowStatus?: number[] } = {}): Promise<HttpResponse<T>> {
     const v2 = this.apiVersion === 'v2';
     const route = v2 ? toV2Route(path, opts.query) : { path, query: opts.query ?? {} };
@@ -112,6 +133,7 @@ export class AirflowClient {
         if (v2 && !this.staticToken && e instanceof WorkError && e.code === 'UNAUTHENTICATED' && e.details?.stage !== 'auth/token') r = await send(true);
         else throw e;
       }
+      if (!v2 && r.status === 404 && (await this.serverSpeaksV2())) throw this.versionMismatch(route.path);
       if (!v2 || r.status >= 400) return r;
       if (log) {
         const text = structuredLogToText(r.body);
@@ -119,6 +141,7 @@ export class AirflowClient {
       }
       return { ...r, body: normalizeV2(path, r.body) as T };
     } catch (e) {
+      if (!v2 && e instanceof WorkError && e.code === 'NOT_FOUND' && (await this.serverSpeaksV2())) throw this.versionMismatch(route.path);
       if (e instanceof WorkError && e.code === 'UNAUTHENTICATED' && e.details?.stage !== 'auth/token') {
         throw new WorkError('UNAUTHENTICATED', `Airflow 认证失败 (${this.ep.id})`, {
           hint: v2
