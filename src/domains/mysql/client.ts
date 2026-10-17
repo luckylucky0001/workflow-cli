@@ -109,6 +109,13 @@ export function mapMysqlError(e: unknown, ep?: Endpoint): WorkError | undefined 
   if (UNAVAILABLE_CODES.has(code) || e.fatal) {
     return new WorkError('UPSTREAM_UNAVAILABLE', `MySQL 不可达或连接中断${where}: ${e.message}`, { details, cause: e });
   }
+  if (code === 'ER_LOCK_WAIT_TIMEOUT') {
+    return new WorkError('TIMEOUT', `等待行锁超时${where}: ${e.sqlMessage ?? e.message}`, { hint: '用 workctl mysql lock list 查看阻塞方', details, cause: e });
+  }
+  // SQLSTATE classes 21/22/23/42: the statement itself is wrong for this schema/data
+  if (e.sqlState && /^(21|22|23|42)/.test(e.sqlState)) {
+    return new WorkError('INVALID_ARGUMENT', `MySQL 拒绝该语句${where}: ${e.sqlMessage ?? e.message}`, { details, cause: e });
+  }
   return new WorkError('UPSTREAM_UNAVAILABLE', `MySQL 返回错误${where}: ${e.sqlMessage ?? e.message}`, { details, cause: e });
 }
 

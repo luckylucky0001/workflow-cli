@@ -24,6 +24,7 @@ const VERSION = process.env.SERVICE_VERSION ?? '1.0.0';
 const PORT = Number(process.env.PORT ?? 8080);
 const DB_TIMEOUT_MS = Number(process.env.DB_QUERY_TIMEOUT_MS ?? 5000);
 const REDIS_TIMEOUT_MS = Number(process.env.REDIS_COMMAND_TIMEOUT_MS ?? 300);
+const POOL_SIZE = Number(process.env.MYSQL_POOL_SIZE ?? 10);
 
 let cacheMode: 'normal' | 'bypass' = process.env.CACHE_MODE === 'bypass' ? 'bypass' : 'normal';
 let cacheTtl = Number(process.env.CACHE_TTL_SECONDS ?? 300);
@@ -144,7 +145,8 @@ const httpRequests = new Counter('http_requests_total', 'HTTP requests by route 
 const httpDuration = new Histogram('http_request_duration_seconds', 'HTTP request latency', LATENCY_BUCKETS);
 const cacheRequests = new Counter('cache_requests_total', 'Cache lookups by result (hit|miss|bypass|error)');
 const dbQueries = new Counter('db_queries_total', 'Database queries by logical query name and outcome');
-const dbDuration = new Histogram('db_query_duration_seconds', 'Database query latency', LATENCY_BUCKETS);
+const dbDuration = new Histogram('db_query_duration_seconds', 'Database statement execution latency (excludes pool wait)', LATENCY_BUCKETS);
+const dbPoolWait = new Histogram('db_pool_wait_seconds', 'Time spent waiting for a database connection from the pool', LATENCY_BUCKETS);
 
 function renderMetrics(): string {
   const mem = process.memoryUsage();
@@ -165,7 +167,7 @@ function renderMetrics(): string {
     '# TYPE service_build_info gauge',
     `service_build_info${labelStr({ service: SERVICE, version: VERSION })} 1`,
   ];
-  return [httpRequests, httpDuration, cacheRequests, dbQueries, dbDuration].map((m) => m.render()).concat(gauges).join('\n') + '\n';
+  return [httpRequests, httpDuration, cacheRequests, dbQueries, dbDuration, dbPoolWait].map((m) => m.render()).concat(gauges).join('\n') + '\n';
 }
 
 // ---------------------------------------------------------------------------
@@ -189,7 +191,7 @@ const pool = mysql.createPool({
   user: process.env.MYSQL_USER ?? 'demo_app',
   password: mysqlPassword(),
   database: process.env.MYSQL_DATABASE ?? 'demo',
-  connectionLimit: Number(process.env.MYSQL_POOL_SIZE ?? 10),
+  connectionLimit: POOL_SIZE,
   connectTimeout: 3000,
   decimalNumbers: true,
   dateStrings: true,
@@ -254,10 +256,28 @@ async function cacheSet(parent: Span, key: string, value: unknown): Promise<void
 }
 
 async function dbQuery<T>(parent: Span, queryName: string, sql: string, params: unknown[]): Promise<T[]> {
+  // connection pool wait and statement execution are separate spans, so a trace shows
+  // whether time went into queueing for a connection or into the query itself
+  const acquire = parent.child('mysql.pool.acquire', { 'db.system': 'mysql', pool_size: POOL_SIZE });
+  const tw = process.hrtime.bigint();
+  let conn: mysql.PoolConnection;
+  try {
+    conn = await pool.getConnection();
+    dbPoolWait.observe({}, Number(process.hrtime.bigint() - tw) / 1e9);
+    acquire.end();
+  } catch (e) {
+    const err = e as Error & { code?: string };
+    dbPoolWait.observe({}, Number(process.hrtime.bigint() - tw) / 1e9);
+    dbQueries.inc({ query: queryName, outcome: 'error' });
+    acquire.status = 'error';
+    acquire.end({ error: err.message, error_code: err.code });
+    log('error', 'mysql connection unavailable', { ...acquire.ctx, dependency: 'mysql', query: queryName, err: err.message, err_code: err.code });
+    throw new HttpError(503, 'database unavailable', err.code);
+  }
   const span = parent.child('mysql.query', { 'db.system': 'mysql', 'db.name': 'demo', query: queryName, statement: sql });
   const t0 = process.hrtime.bigint();
   try {
-    const [rows] = await pool.query({ sql, timeout: DB_TIMEOUT_MS }, params);
+    const [rows] = await conn.query({ sql, timeout: DB_TIMEOUT_MS }, params);
     const seconds = Number(process.hrtime.bigint() - t0) / 1e9;
     dbQueries.inc({ query: queryName, outcome: 'ok' });
     dbDuration.observe({ query: queryName }, seconds);
@@ -279,7 +299,9 @@ async function dbQuery<T>(parent: Span, queryName: string, sql: string, params: 
       err_code: err.code,
       timeout_ms: DB_TIMEOUT_MS,
     });
-    throw new HttpError(timeout ? 504 : 503, timeout ? 'database timeout' : 'database unavailable', err.code);
+    throw new HttpError(timeout ? 504 : 503, timeout ? 'database timeout' : 'database error', err.code);
+  } finally {
+    conn.release();
   }
 }
 

@@ -108,14 +108,15 @@ export function validatePlugin(dir: string, registry: Registry, replacing?: stri
   const problems: string[] = [];
   if (!existsSync(join(dir, manifest.entry))) problems.push(`入口文件不存在: ${manifest.entry}`);
   if (!existsSync(join(dir, manifest.domain.guide))) problems.push(`领域指南不存在: ${manifest.domain.guide}`);
+  const ownedBySelf = (origin?: string) => !!replacing && !!origin?.startsWith(`plugin:${replacing}@`);
   const existingDomain = registry.domains.get(manifest.domain.name);
-  if (existingDomain && existingDomain.capabilities.some((c) => c.origin !== `plugin:${replacing}`) && manifest.domain.name !== replacing) {
-    if (!existingDomain.capabilities.every((c) => c.status === 'planned')) problems.push(`领域 ${manifest.domain.name} 已由内置能力提供`);
+  if (existingDomain && existingDomain.capabilities.some((c) => c.status !== 'planned' && !ownedBySelf(c.origin))) {
+    problems.push(`领域 ${manifest.domain.name} 已由其他来源提供`);
   }
   for (const c of manifest.capabilities) {
     if (!c.name.startsWith(`${manifest.domain.name}.`)) problems.push(`能力 ${c.name} 不在领域 ${manifest.domain.name} 下`);
     const clash = registry.get(c.name);
-    if (clash && clash.origin !== `plugin:${replacing}`) problems.push(`能力名冲突: ${c.name}`);
+    if (clash && !ownedBySelf(clash.origin)) problems.push(`能力名冲突: ${c.name}`);
     if (c.output_schema && !existsSync(join(dir, c.output_schema))) problems.push(`输出 Schema 不存在: ${c.output_schema}`);
   }
   return { manifest, problems };
@@ -191,6 +192,7 @@ function pluginDomain(p: InstalledPlugin, m: PluginManifest): DomainDef {
       backend_modes: [m.backend_mode],
       origin: `plugin:${m.name}@${m.version}`,
       output_json_schema: schemaFile && existsSync(schemaFile) ? JSON.parse(readFileSync(schemaFile, 'utf8')) : undefined,
+      output_schema_path: schemaFile,
       handler: c.status === 'planned' ? undefined : (ctx: Ctx, inputs: Record<string, any>) => execPlugin(ctx, p, m, c.name, inputs),
     };
   });

@@ -46,6 +46,8 @@ export interface CapabilityDef {
   origin?: string;
   /** JSON schema supplied directly (plugins), used when `output` is absent. */
   output_json_schema?: Record<string, unknown>;
+  /** Where that schema lives (plugins ship schemas inside the plugin directory). */
+  output_schema_path?: string;
 }
 
 export interface Probe {
@@ -139,6 +141,7 @@ export class Registry {
 }
 
 export function outputSchemaPath(c: CapabilityDef): string | undefined {
+  if (c.output_schema_path) return c.output_schema_path;
   if (!c.output && !c.output_json_schema) return undefined;
   return `docs/schemas/${c.name}.v${c.capability_version.split('.')[0]}.json`;
 }

@@ -81,7 +81,8 @@ export function parseLogLine(line: string, container: string, stream: 'stdout' |
         let level: string | null = null;
         if (typeof lvRaw === 'string') level = lvRaw.toLowerCase();
         else if (typeof lvRaw === 'number') level = PINO_LEVELS[lvRaw] ?? String(lvRaw);
-        const fields: Record<string, unknown> = { ...rest };
+        const { kind: _k, trace_id: _t, span_id: _s, ...others } = rest;
+        const fields: Record<string, unknown> = { ...others };
         if (_appTs !== undefined) fields.app_ts = _appTs;
         return {
           ts,

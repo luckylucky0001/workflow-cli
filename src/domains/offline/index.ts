@@ -3,7 +3,7 @@ import { source, WorkError, type Source } from '../../core/output';
 import { defineCapability, defineDomain } from '../../core/registry';
 import type { Ctx } from '../../core/runtime';
 import { AIRFLOW_ADAPTER, AIRFLOW_AUTH, AirflowClient, checkId, OFFLINE_GUIDE, sparkAppIds } from './airflow';
-import { backfillExecutor, backfillGet, backfillPlan, backfillPlanner } from './backfill';
+import { backfillExecutor, backfillGet, BackfillGetOut, backfillPlan, BackfillPlanOut, backfillPlanner } from './backfill';
 import { catalogSource, downstreamTables, loadOfflineCatalog, partitionSpec, tableByName } from './catalog';
 import {
   computeLayer,
@@ -804,7 +804,7 @@ const backfillPlanCap = defineCapability({
     max_active_runs: { type: 'int', description: '执行时同时在途的 run 上限（默认 min(DAG max_active_runs, 2)）' },
     allow_append_duplicates: { type: 'bool', default: false, description: '目标表为 append 写入时，明确接受重跑可能产生重复数据' },
   },
-  output: z.any(),
+  output: BackfillPlanOut,
   idempotent: false,
   cancellable: false,
   prerequisites: [...PREREQ, '执行需要 profile allow_execute=true，并通过 workctl operation execute --id <plan> 确认'],
@@ -826,7 +826,7 @@ const backfillGetCap = defineCapability({
   domain: 'offline',
   operation: 'read',
   inputs: { id: { type: 'string', required: true, description: '计划 ID（op-YYYYMMDD-xxxxxx）' } },
-  output: z.any(),
+  output: BackfillGetOut,
   prerequisites: PREREQ,
   examples: ['workctl offline backfill get --id op-20261017-abc123'],
   handler: backfillGet,

@@ -181,7 +181,13 @@ export function mapKafkaError(e: unknown, ctx: { cluster: string; topic?: string
   const details: Record<string, unknown> = { cluster: ctx.cluster, kafka_error: names.find((n) => n.startsWith('KafkaJS')) ?? names[0] ?? null };
   if (types.length) details.kafka_error_type = types[0];
 
-  if (types.includes('SASL_AUTHENTICATION_FAILED') || types.includes('ILLEGAL_SASL_STATE') || names.includes('KafkaJSSASLAuthenticationError')) {
+  if (types.includes('ILLEGAL_SASL_STATE') || types.includes('UNSUPPORTED_SASL_MECHANISM')) {
+    return new PluginError('UNAUTHENTICATED', `Kafka 集群 ${ctx.cluster} SASL 握手失败（${types.find((t) => t.includes('SASL'))}）`, {
+      hint: '确认 brokers 指向的 listener 启用了 SASL，且 sasl_mechanism 与 broker 配置一致',
+      details,
+    });
+  }
+  if (types.includes('SASL_AUTHENTICATION_FAILED') || names.includes('KafkaJSSASLAuthenticationError')) {
     return new PluginError('UNAUTHENTICATED', `Kafka 集群 ${ctx.cluster} 认证失败`, { hint: '检查 sasl_mechanism / sasl_username / sasl_password_ref', details });
   }
   if (types.some((t) => AUTHZ_TYPES.has(t))) {

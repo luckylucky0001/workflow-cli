@@ -177,7 +177,10 @@ export interface PlanSummary {
   tables: PlanTable[];
   using_filesort: boolean;
   using_temporary_table: boolean;
+  /** access_type=ALL: full table scan. */
   full_scans: string[];
+  /** access_type=index: full scan of an index (all index entries read). */
+  full_index_scans: string[];
 }
 
 function n(v: unknown): number | null {
@@ -236,6 +239,7 @@ export function flattenExplain(plan: unknown): PlanSummary {
     using_filesort: anyFilesort,
     using_temporary_table: anyTemp,
     full_scans: tables.filter((t) => t.access_type === 'ALL').map((t) => t.table),
+    full_index_scans: tables.filter((t) => t.access_type === 'index').map((t) => `${t.table}${t.key ? ` (${t.key})` : ''}`),
   };
 }
 

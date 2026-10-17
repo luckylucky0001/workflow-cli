@@ -625,7 +625,7 @@ export async function evaluateRuleset(inp: EvaluateInput): Promise<Evaluation> {
   return {
     quality_state: qualityState,
     conclusive,
-    precondition: { ok: preOk, partition_state: state, path: scan.path, ...(preReason ? { reason: preReason } : {}) },
+    precondition: { ok: preOk, partition_state: state === 'present' && parseErrors > 0 ? 'unreadable' : state, path: scan.path, ...(preReason ? { reason: preReason } : {}) },
     summary,
     results,
     scan: {

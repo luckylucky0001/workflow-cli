@@ -1,9 +1,12 @@
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { Kafka, logLevel, type Admin } from 'kafkajs';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { PluginManifestSchema } from '../../src/core/plugins';
+import { invoke } from '../../src/core/engine';
+import { installPlugin, loadPlugins, PluginManifestSchema } from '../../src/core/plugins';
+import { Registry } from '../../src/core/registry';
 import { HANDLERS } from '../../plugins/demo-mq/src/capabilities';
 import { mapKafkaError, requireTopicName, resolveEndpoint } from '../../plugins/demo-mq/src/kafka';
 import { computePartitionLag, parseOffset, summarizeTopic, summarizeTotals } from '../../plugins/demo-mq/src/lag';
@@ -13,6 +16,7 @@ import { OUTPUT_SCHEMAS } from '../../plugins/demo-mq/src/schemas';
 
 const pluginDir = resolve(__dirname, '..', '..', 'plugins', 'demo-mq');
 const entry = join(pluginDir, 'dist', 'plugin.mjs');
+const tgz = join(pluginDir, 'dist', 'demo-mq-plugin.tgz');
 
 describe('demo-mq lag arithmetic', () => {
   it('parses kafkajs offsets; -1 means no committed offset', () => {
@@ -187,7 +191,7 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('demo-mq live (WORKCTL_IT=1, dem
   let admin: Admin;
 
   beforeAll(async () => {
-    if (!existsSync(entry)) execFileSync(process.execPath, [join(pluginDir, 'build.mjs')], { stdio: 'inherit' });
+    if (!existsSync(entry) || !existsSync(tgz)) execFileSync(process.execPath, [join(pluginDir, 'build.mjs')], { stdio: 'inherit' });
     const kafka = new Kafka({ brokers, clientId: 'workctl-it-setup', logLevel: logLevel.NOTHING });
     admin = kafka.admin();
     await admin.connect();
@@ -272,9 +276,54 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('demo-mq live (WORKCTL_IT=1, dem
     expect(r.json.error.code).toBe('UPSTREAM_UNAVAILABLE');
   });
 
+  it('installs the packaged tgz through core and answers through the same engine', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'workctl-demo-mq-'));
+    const prevHome = process.env.WORKCTL_HOME;
+    process.env.WORKCTL_HOME = join(dir, 'home');
+    process.env.WORKCTL_IT_KAFKA_PW = 'pw-should-not-leak-123';
+    try {
+      const installed = installPlugin(tgz, new Registry());
+      expect(installed.manifest.name).toBe('demo-mq');
+      const reg = new Registry();
+      expect(loadPlugins(reg).loaded).toEqual(['demo-mq@0.1.0']);
+      expect(reg.get('mq.consumer.lag')?.origin).toBe('plugin:demo-mq@0.1.0');
+      expect(reg.get('mq.queue.get')?.status).toBe('planned');
+      const configPath = join(dir, 'workctl.yaml');
+      writeFileSync(
+        configPath,
+        [
+          'current_profile: it',
+          'profiles:',
+          '  it:',
+          '    env: sandbox',
+          '    defaults: { kafka: demo-mq }',
+          '    endpoints:',
+          '      kafka:',
+          `        demo-mq: { brokers: [${brokers.join(', ')}], client_id: workctl-it }`,
+          `        sasl-mq: { brokers: [${brokers.join(', ')}], sasl_mechanism: plain, sasl_username: u, sasl_password_ref: "env:WORKCTL_IT_KAFKA_PW" }`,
+          '',
+        ].join('\n'),
+      );
+      const env = await invoke(reg, 'mq.consumer.lag', { cluster: 'demo-mq', group }, { configPath, requestId: 'req-it-core' });
+      expect(env.status, JSON.stringify(env.error)).toBe('success');
+      expect(env.context).toMatchObject({ request_id: 'req-it-core', adapter: 'kafka-admin', operation: 'read', env: 'sandbox' });
+      expect((env.data as any).totals.total_lag).toBe(11);
+      expect(env.meta.sources.length).toBeGreaterThan(0);
+      const missing = await invoke(reg, 'mq.consumer.lag', { cluster: 'demo-mq', group: `${group}-missing` }, { configPath });
+      expect(missing.error?.code).toBe('NOT_FOUND');
+      const planned = await invoke(reg, 'mq.queue.get', { cluster: 'demo-mq', queue: 'q' }, { configPath });
+      expect(planned.error?.code).toBe('CAPABILITY_PLANNED');
+      // credential resolved by core, passed via stdin only, never echoed back
+      const sasl = await invoke(reg, 'mq.topic.list', { cluster: 'sasl-mq' }, { configPath });
+      expect(sasl.error?.code).toBe('UNAUTHENTICATED');
+      expect(JSON.stringify(sasl)).not.toContain('pw-should-not-leak-123');
+    } finally {
+      process.env.WORKCTL_HOME = prevHome;
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('packaged tgz has the manifest, entry, schemas, guide and skill at its root', () => {
-    const tgz = join(pluginDir, 'dist', 'demo-mq-plugin.tgz');
-    if (!existsSync(tgz)) return;
     const list = execFileSync('tar', ['-tzf', tgz], { encoding: 'utf8' }).split('\n');
     for (const f of ['workctl-plugin.json', 'dist/plugin.mjs', 'schemas/mq.consumer.lag.v1.json', 'guides/mq.md', 'skills/mq-operations/SKILL.md', 'README.md']) {
       expect(list).toContain(f);

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { WorkError } from '../../../core/output';
 import { defineCapability } from '../../../core/registry';
-import { formatDuration, sleep } from '../../../core/runtime';
+import { formatDuration, parseDuration, sleep } from '../../../core/runtime';
 import { diffDigests, statFromRow, psToMs, big, type DigestRow, type DigestStat } from '../analysis';
 import { ADAPTER, AUTH_PROVIDER, GUIDE, globalStatus, globalVariables, isoFromMysql, num, withMysql, type MysqlSession } from '../client';
 import { COMMON_PREREQS, INSTANCE } from '../inputs';
@@ -70,7 +70,7 @@ export const statementSummary = defineCapability({
   domain: 'mysql',
   inputs: {
     instance: INSTANCE,
-    sample_window: { type: 'duration', default: '10s', description: '采样窗口；0 表示返回累计值（不是窗口值）。窗口须小于 --timeout' },
+    sample_window: { type: 'string', default: '10s', description: '采样窗口，如 5s、30s；0 表示返回累计值（不是窗口值）。窗口须小于 --timeout' },
     top: { type: 'int', default: 10, description: '按总耗时取前 N 个摘要' },
     database: { type: 'string', description: '只看该默认库（SCHEMA_NAME）下的语句' },
   },
@@ -106,7 +106,7 @@ export const statementSummary = defineCapability({
   ],
   handler: async (ctx, i) =>
     withMysql(ctx, i.instance, async (s) => {
-      const windowMs = Number(i.sample_window);
+      const windowMs = parseWindow(i.sample_window);
       const top = Math.max(1, Math.min(Number(i.top), 100));
       const info = await assertDigestCollection(s);
       const notes: string[] = [];
@@ -200,6 +200,13 @@ export const statementSummary = defineCapability({
       };
     }),
 });
+
+/** `0` (or 0s/0ms) means cumulative; otherwise a duration such as 5s / 30s / 2m. */
+export function parseWindow(v: unknown): number {
+  const t = String(v ?? '').trim();
+  if (/^0+(ms|s|m)?$/.test(t)) return 0;
+  return parseDuration(t);
+}
 
 function isoRow(r: DigestStat): DigestStat {
   return { ...r, first_seen: isoFromMysql(r.first_seen), last_seen: isoFromMysql(r.last_seen) };

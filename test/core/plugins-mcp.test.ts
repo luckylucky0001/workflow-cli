@@ -90,13 +90,24 @@ describe('plugins', () => {
     removePlugin('fake-q');
   });
 
-  it('rejects plugins that collide with built-in capabilities', () => {
+  it('rejects plugins that collide with capabilities from other sources', () => {
+    const d4 = tempDir();
+    const reg = testRegistry();
+    // 'fake' domain is built in; a plugin claiming it must be rejected
+    const tgz = buildFakePlugin(d4);
+    spawnSync('sh', ['-c', `cd ${d4}/pkg && sed -i 's/"name":"q"/"name":"fake"/; s/"q\\.lag"/"fake.lag"/; s/"q\\.other"/"fake.other"/' workctl-plugin.json && tar -czf ${tgz} .`]);
+    expect(() => installPlugin(tgz, reg)).toThrow(/fake/);
+  });
+
+  it('allows reinstalling a loaded plugin', () => {
     const d3 = tempDir();
     const tgz = buildFakePlugin(d3);
     const reg = testRegistry();
     installPlugin(tgz, reg);
     loadPlugins(reg);
-    expect(() => installPlugin(tgz, testRegistry())).not.toThrow(); // reinstall same plugin is an upgrade
+    // reinstall/upgrade while the plugin is loaded in the running registry (as in the CLI)
+    expect(() => installPlugin(tgz, reg)).not.toThrow();
+    expect(reg.get('q.lag')?.output_schema_path).toContain('schemas/q.lag.v1.json');
     removePlugin('fake-q');
   });
 });

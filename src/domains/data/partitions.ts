@@ -204,8 +204,9 @@ export async function* readRecords(file: string, format: 'json' | 'csv', maxReco
   let emitted = 0;
   try {
     if (format === 'json') {
-      for await (const line of rl) {
+      for await (const raw of rl) {
         lineNo++;
+        const line = lineNo === 1 ? raw.replace(/^\uFEFF/, '') : raw;
         if (!line.trim()) continue;
         let item: RecordItem;
         try {
@@ -222,8 +223,9 @@ export async function* readRecords(file: string, format: 'json' | 'csv', maxReco
     let header: string[] | null = null;
     let pending = '';
     let startLine = 0;
-    for await (const line of rl) {
+    for await (const raw of rl) {
       lineNo++;
+      const line = lineNo === 1 ? raw.replace(/^\uFEFF/, '') : raw;
       if (!pending && !line.trim()) continue;
       if (!pending) startLine = lineNo;
       pending = pending ? `${pending}\n${line}` : line;

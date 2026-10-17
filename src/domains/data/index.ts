@@ -24,7 +24,7 @@ import {
 import { refName, SqlInferenceCache, type Evidence, type LineageEdge, type LineageNode, type NodeType } from './lineage';
 import { checkReadability, listPartitionDirs, physicalState, scanPartitionDir, totalBytes, updatedAtMs, type PartitionState } from './partitions';
 import { evaluateRuleset, loadRuleset, qualityResultPath, QualityResultSchema, writeQualityResult, type QualityResult, type StoredQualityResult } from './quality';
-import { formatInZone } from './time';
+import { addDays, dateInZone, formatInZone, zonedToInstant } from './time';
 
 export { TableMetaSchema, PartitionKeySchema, ColumnSchema, openCatalog, requireTable, parsePartition, resolveDataset } from './catalog';
 export { readLatestQualityResult, qualityResultPath, RulesetSchema, RuleSchema, type StoredQualityResult } from './quality';
@@ -258,10 +258,21 @@ const partitionGet = defineCapability({
     storage: StorageOut,
     state: PartitionStateEnum,
     explanation: z.string(),
+    nearby_partitions: z.array(z.string()).optional().describe('分区缺失时列出相邻的已存在分区（各最多 3 个），帮助发现写错日期'),
     checks: z.object({
       defined: z.object({
         ok: z.boolean(),
         keys: z.array(z.object({ name: z.string(), value: z.string(), type: z.string(), timezone: z.string().optional(), semantics: z.string() })),
+        business_date: z
+          .object({
+            value: z.string(),
+            timezone: z.string(),
+            today: z.string().describe('检查时刻在业务时区的日期'),
+            day_ended: z.boolean().describe('业务日期是否已结束；未结束时分区不存在通常是正常的'),
+            expected_ready_by: z.string().nullable().describe('表元数据 freshness 推出的产出期限（业务时区）'),
+            deadline_passed: z.boolean().nullable(),
+          })
+          .optional(),
       }),
       exists: z.object({ ok: z.boolean(), path: z.string() }),
       files: z.object({
@@ -302,6 +313,21 @@ const partitionGet = defineCapability({
     const tz = businessTimezone(meta);
     const updated = updatedAtMs(scan);
     let state: PartitionState = physicalState(scan);
+    const dateKey = part.values.find((v) => v.type === 'date');
+    let businessDate: Record<string, unknown> | undefined;
+    if (dateKey && tz) {
+      const now = Date.now();
+      const today = dateInZone(now, tz);
+      const deadline = meta.freshness ? zonedToInstant(addDays(dateKey.value, meta.freshness.day_offset), meta.freshness.expected_by, meta.freshness.timezone ?? tz) : null;
+      businessDate = {
+        value: dateKey.value,
+        timezone: tz,
+        today,
+        day_ended: dateKey.value < today,
+        expected_ready_by: deadline === null ? null : formatInZone(deadline, tz),
+        deadline_passed: deadline === null ? null : now > deadline,
+      };
+    }
     let readable: { ok: boolean | null; files: z.infer<typeof ReadableFile>[]; observed: string[] } = { ok: null, files: [], observed: [] };
     if (scan.files.length) {
       const r = await checkReadability(scan.files, meta.format, n);
@@ -311,8 +337,11 @@ const partitionGet = defineCapability({
       if (state === 'present' && readable.ok && fullyRead && r.results.every((x) => x.records_parsed === 0)) state = 'empty';
     }
     const declared = new Set([...meta.columns.map((c) => c.name), ...meta.partition_keys.map((k) => k.name)]);
+    const notYetDue = businessDate && (businessDate.day_ended === false || businessDate.deadline_passed === false);
     const explanation: Record<PartitionState, string> = {
-      missing: '分区目录不存在（未产出、产出到其他位置，或分区值/业务日期不对）',
+      missing: notYetDue
+        ? `分区目录不存在；业务日期${businessDate!.day_ended ? '已结束但尚未到产出期限' : '尚未结束'}，可能只是还没到产出时间`
+        : '分区目录不存在（未产出、产出到其他位置，或分区值/业务日期不对）',
       empty: '分区目录存在但没有数据记录',
       incomplete: `有数据文件但缺少完成标记 ${meta.success_marker}，可能仍在写入或写入中断`,
       unreadable: '数据文件存在但部分记录无法解析或文件无法打开',
@@ -320,6 +349,13 @@ const partitionGet = defineCapability({
     };
     const warnings: string[] = [];
     if (scan.in_progress_markers.length) warnings.push(`分区目录中有写入中间目录 ${scan.in_progress_markers.join(', ')}，可能有写入正在进行或残留`);
+    let nearby: string[] | undefined;
+    if (state === 'missing') {
+      const all = listPartitionDirs(tableDir(cat, meta), meta).partitions.map((p) => p.spec).sort();
+      const before = all.filter((x) => x < part.spec).slice(-3);
+      const after = all.filter((x) => x > part.spec).slice(0, 3);
+      nearby = [...before, ...after];
+    }
     const sources: Source[] = [catalogSource(cat, `read tables/${meta.name}.yaml (partition_keys)`), fsSource(cat, `stat+readdir ${rel(cat, dir)}`)];
     if (scan.files.length) sources.push(fsSource(cat, `open+parse first ${n} records per file`, 'sampled'));
     return {
@@ -330,8 +366,9 @@ const partitionGet = defineCapability({
         storage: storageInfo(cat),
         state,
         explanation: explanation[state],
+        ...(nearby ? { nearby_partitions: nearby } : {}),
         checks: {
-          defined: { ok: true, keys: part.values },
+          defined: { ok: true, keys: part.values, ...(businessDate ? { business_date: businessDate as any } : {}) },
           exists: { ok: scan.exists && scan.is_dir, path: dir },
           files: {
             ok: scan.exists ? scan.files.length > 0 && totalBytes(scan) > 0 : null,
@@ -591,7 +628,7 @@ async function lineage(ctx: Ctx, i: Record<string, any>) {
       scope: `${root.name} ${direction} depth ${depth}`,
       notes: [...(truncated ? [`深度 ${depth} 之外还有关系，增大 --depth 查看`] : []), ...notes],
     },
-    warnings,
+    warnings: [...new Set(warnings)],
   };
 }
 
