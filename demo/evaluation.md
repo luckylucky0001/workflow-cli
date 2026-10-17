@@ -53,6 +53,8 @@
 | B | 16 | 19 | 49.1 s | $0.27 | 合格 | 同样定位缓存旁路 + 无索引全扫描，给出注入时刻前后的指标对照 |
 | C | 9 | 11 | 30.6 s | $0.26 | 合格 | 同样定位写错分区；注明日志只取了部分行 |
 
+交付版本（全部交叉审查修复之后，`RUN_TAG=final`）：A 10 次 workctl 调用 / 21.2 s / $0.16；B 16 / 52.0 s / $0.27；C 11 / 32.3 s / $0.26，三条均合格（A 线这次从日志中直接定位到当前的缓存旁路故障注入）。
+
 同一 Skill 在 Kubernetes provider 下（k3s，只读 profile，主线 A 提示相同）：5 次 workctl 调用、25.3 s、$0.26，合格——Pod/Deployment 状态、事件按 1h event-ttl 标注覆盖不完整、metrics-server 快照、只按绑定认定依赖；并识别出验证用例做过的真实滚动更新（[A-infra.k8s.summary.md](agent-host/runs/A-infra.k8s.summary.md)）。
 
 同一任务两次运行的调用次数与成本有波动（LLM 非确定性），只能说明量级，不能作为精确对比。
