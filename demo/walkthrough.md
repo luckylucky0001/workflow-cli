@@ -102,6 +102,12 @@ workctl --timeout 60s offline backfill plan --workflow demo-daily-orders --from 
 | 更换日志来源 | `node demo/scenarios/reuse/log-provider-swap.mjs` | Docker 日志与 Loki 对同一流量返回一致的条目、统计与调用树（[verification/log-provider-swap.md](verification/log-provider-swap.md)） |
 | Agent 宿主 | `./demo/agent-host/run-agent-demo.sh` | Claude Code 通过 Skill + CLI / MCP 完成三条主线的转录与摘要 |
 
+## 一键全量验证
+
+```bash
+WITH_K8S=1 WITH_AF3=1 K3S_EXTRA_CA=... ./demo/verify-all.sh   # 复位 → 重建 → 场景 → 各验证套件 → 版本/来源替换 → 全量集成测试
+```
+
 ## 复位
 
 ```bash
