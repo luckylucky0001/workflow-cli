@@ -29,12 +29,12 @@ profile.endpoints.mysql.<instance>  ──(资源绑定 forEndpoint)──▶ my
 | `mysql lock list` | read | `data_lock_waits` ⋈ `data_locks` ⟕ `INNODB_TRX`；`metadata_locks`(PENDING) | 谁在等、被谁阻塞、`root_blockers`；无等待 → `success` + 空列表 |
 | `mysql statement summary --sample-window 10s [--top 10] [--database]` | diagnose | `events_statements_summary_by_digest` 两次快照差分 | 见下文“窗口与累计” |
 | `mysql slowlog list [--since 1h] [--limit 20]` | read | `mysql.slow_log` | 未开启/只写文件 → `COLLECTION_DISABLED`；开启但无记录 → `success` + 空列表 + `coverage.window` |
-| `mysql query explain --database --sql-file` | read | `EXPLAIN FORMAT=JSON` | **优化器估计，非实际执行**；返回原始 JSON + 扁平摘要（access_type、key、rows_examined_per_scan、filtered、filesort/temporary、full_scans / full_index_scans） |
-| `mysql query analyze --database --sql-file` | diagnose | `EXPLAIN ANALYZE` | **会实际执行语句**；只允许 SELECT；只读事务 + MAX_EXECUTION_TIME；返回 TREE 原文与逐算子实际耗时/行数 |
-| `mysql query execute --database --sql-file [--max-rows 20]` | read | 受限只读查询 | 见下文“受限查询” |
+| `mysql query explain --database --sql "..." \| --sql-file q.sql` | read | `EXPLAIN FORMAT=JSON` | **优化器估计，非实际执行**；返回原始 JSON + 扁平摘要（access_type、key、rows_examined_per_scan、filtered、filesort/temporary、full_scans / full_index_scans） |
+| `mysql query analyze --database --sql "..." \| --sql-file q.sql` | diagnose | `EXPLAIN ANALYZE` | **会实际执行语句**；只允许 SELECT；只读事务 + MAX_EXECUTION_TIME；返回 TREE 原文与逐算子实际耗时/行数 |
+| `mysql query execute --database --sql "..." \| --sql-file q.sql [--max-rows 20]` | read | 受限只读查询 | 见下文“受限查询” |
 | `mysql index plan --database --table --columns c1[,c2] [--name]` | plan | information_schema + INNODB_TRX + 摘要统计 | 生成 `mysql.index.create` 计划；**无执行器**（`executable=false`） |
 
-`--instance` 缺省取 profile 的 `defaults.mysql`。`--sql-file` 只接受单条语句（≤256KB）。
+`--instance` 缺省取 profile 的 `defaults.mysql`。SQL 来源二选一：`--sql "SELECT ..."`（内联，适合 Agent / MCP 调用，无需写临时文件）或 `--sql-file q.sql`；同时给出或都不给 → `INVALID_ARGUMENT`。两种来源走同一静态检查，都只接受单条语句，大小上限都是 256KB。
 
 ### 窗口与累计（statement summary）
 
@@ -55,11 +55,11 @@ profile.endpoints.mysql.<instance>  ──(资源绑定 forEndpoint)──▶ my
 
 程序层与数据库层同时落实，**数据库账号才是真正的权限边界**：
 
-1. 静态检查（词法分析，不受引号/注释干扰）：单条语句；首关键字只允许 `SELECT / WITH(…SELECT) / SHOW / DESCRIBE / EXPLAIN`；拒绝 `INTO OUTFILE/DUMPFILE`、`SELECT … INTO @var`、`FOR UPDATE/SHARE`、`LOCK IN SHARE MODE`、`:=` 赋值、`GET_LOCK/LOAD_FILE` 等、可执行注释 `/*! */`、`EXPLAIN ANALYZE`。
+1. 静态检查（词法分析，不受引号/注释干扰）：单条语句；首关键字只允许 `SELECT / WITH(…SELECT) / SHOW / DESCRIBE / EXPLAIN`；拒绝 `INTO OUTFILE/DUMPFILE`、`SELECT … INTO @var`、`FOR UPDATE/SHARE`、`LOCK IN SHARE MODE`、`:=` 赋值、`GET_LOCK/LOAD_FILE` 等（含反引号/双引号引用的函数名）、可执行注释 `/*! */`、`EXPLAIN ANALYZE`，以及会覆盖防线的优化器提示 `/*+ MAX_EXECUTION_TIME(…) */`、`SET_VAR(…)`、`RESOURCE_GROUP(…)`（execute / analyze）。词法规则与 MySQL 一致：`--` 后只有 ASCII 空白/控制字符才是注释；含反斜杠转义的语句还要按 `NO_BACKSLASH_ESCAPES` 解析再检查一遍（字符串里的引号请用 `''` 转义）。
 2. `SET SESSION TRANSACTION READ ONLY` + `START TRANSACTION READ ONLY`。
 3. `SET SESSION MAX_EXECUTION_TIME = <endpoint.max_execution_time_ms，默认 5000>`（只约束 SELECT；`SLEEP()` 被中断时返回 1 而不是报错，此时会给出 warning）。
 4. `sql_select_limit = max_rows+1`，并流式读取，超过 `max_rows` 立即停止读取（`truncated=true`）。
-5. 敏感列脱敏：列名或原始列名（含别名场景，如 `email AS mail`）命中端点 `sensitive_columns` → `138****0000` / `u***@example.com` / `***`，`masked_columns` 列出。表达式（`CONCAT(phone,'')`）无法识别——需要数据库侧列权限或脱敏视图兜底。
+5. 敏感列脱敏：列名或原始列名（含别名场景，如 `email AS mail`）命中端点 `sensitive_columns`；另外按语句结构保守脱敏——选择列表中引用敏感列的表达式/别名（`CONCAT(phone,'') AS x`）、UNION 各分支的对应位置；FROM 中的派生表或 CTE 引用了敏感列、或 `*` 与敏感表达式同时出现时整组结果脱敏。只在 WHERE/ON/GROUP BY/ORDER BY 中引用不触发。值形如 `138****0000`（≥11 字符）/ `1****7`（6–10 字符）/ `u***@example.com` / `***`，`masked_columns` 列出并在 coverage.notes 说明原因。这仍是程序层防线，数据库侧列权限或脱敏视图才是兜底。
 
 ## 索引变更计划（mysql index plan / operation plan --action mysql.index.create）
 

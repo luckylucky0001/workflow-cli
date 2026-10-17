@@ -119,6 +119,37 @@ function alive(pid: unknown): boolean {
   }
 }
 
+/**
+ * The recorded pid still belongs to this query's submit process. PIDs are reused after a
+ * process exits; where /proc is available the command line must mention the query id, so a
+ * dead query is not reported as running and `cancel` never signals an unrelated process group.
+ */
+export function ownsPid(pid: unknown, queryId: string, procRoot = '/proc'): boolean {
+  if (!alive(pid)) return false;
+  if (!existsSync(procRoot)) return true; // no /proc (e.g. macOS): best effort
+  try {
+    return readFileSync(join(procRoot, String(pid), 'cmdline'), 'utf8').includes(queryId);
+  } catch {
+    return false;
+  }
+}
+
+/** Environment for the child: drop variables that hold credentials referenced by the profile (`*_ref: env:NAME`). */
+export function childEnv(ctx: Ctx, extra: Record<string, string | undefined>): NodeJS.ProcessEnv {
+  const secretVars = new Set<string>();
+  for (const named of Object.values(ctx.profile?.endpoints ?? {})) {
+    for (const ep of Object.values(named)) {
+      for (const [k, v] of Object.entries(ep)) {
+        if (k.endsWith('_ref') && typeof v === 'string' && v.startsWith('env:')) secretVars.add(v.slice(4));
+      }
+    }
+  }
+  const env: NodeJS.ProcessEnv = {};
+  for (const [k, v] of Object.entries(process.env)) if (!secretVars.has(k)) env[k] = v;
+  for (const [k, v] of Object.entries(extra)) if (v !== undefined) env[k] = v;
+  return env;
+}
+
 function submitScript(ctx: Ctx, ep: Endpoint): string {
   const configured = ep.path('submit_script');
   const p = configured ?? resolve(ctx.loaded.baseDir, '..', 'offline-workflows', 'spark', 'spark-submit.sh');
@@ -159,9 +190,9 @@ const StateOut = z.object({
 function view(st: Record<string, any>, previewRows: number): z.infer<typeof StateOut> {
   let state = st.state as z.infer<typeof StateOut>['state'];
   let basis = '状态文件由 Spark 运行器写入';
-  if ((state === 'submitted' || state === 'running') && !alive(st.pid)) {
+  if ((state === 'submitted' || state === 'running') && !ownsPid(st.pid, String(st.query_id ?? ''))) {
     state = 'lost';
-    basis = `提交进程 ${st.pid} 已退出但状态文件未写入终态（进程被终止或运行器启动失败），见 ${st.submit_log ?? '提交日志'}`;
+    basis = `提交进程 ${st.pid ?? '(未记录)'} 已退出（或 pid 已被其他进程复用）但状态文件未写入终态（进程被终止或运行器启动失败），见 ${st.submit_log ?? '提交日志'}`;
   } else if (state === 'cancelled') basis = '由 workctl sql query cancel 终止';
   const preview = Array.isArray(st.preview) ? st.preview.slice(0, previewRows) : [];
   return {
@@ -255,22 +286,36 @@ const submit = defineCapability({
     const state = statePath(ep, id);
     writeState(ep, id, { query_id: id, engine: 'spark', state: 'submitted', submitted_at: now.toISOString(), sql_file: resolve(inp.file), sql_snapshot: sqlCopy, sql_sha256: sha, result_location: out, submit_log: submitLog, request_id: ctx.requestId });
     const fd = openSync(submitLog, 'a');
-    const env: NodeJS.ProcessEnv = {
-      ...process.env,
-      ...(ep.path('spark_home') ? { WORKCTL_SPARK_HOME: ep.path('spark_home') } : {}),
-      ...(ep.str('python') ? { WORKCTL_SPARK_PYTHON: ep.path('python') } : {}),
-      ...(ep.path('event_log_dir') ? { WORKCTL_SPARK_EVENT_DIR: ep.path('event_log_dir') } : {}),
-      ...(ep.path('driver_log_dir') ? { WORKCTL_SPARK_DRIVER_LOG_DIR: ep.path('driver_log_dir') } : {}),
-      ...(warehouse ? { WORKCTL_WAREHOUSE_ROOT: warehouse } : {}),
-    };
-    const child = spawn(script, [`workctl-sql.${id}`, '--mode', 'query', '--sql-file', sqlCopy, '--query-id', id, '--state-file', state, '--output', out, '--preview-rows', String(Math.min(20, Math.max(0, inp.preview_rows)))], {
-      detached: true,
-      stdio: ['ignore', fd, fd],
-      env,
+    const env = childEnv(ctx, {
+      WORKCTL_SPARK_HOME: ep.path('spark_home'),
+      WORKCTL_SPARK_PYTHON: ep.str('python') ? ep.path('python') : undefined,
+      WORKCTL_SPARK_EVENT_DIR: ep.path('event_log_dir'),
+      WORKCTL_SPARK_DRIVER_LOG_DIR: ep.path('driver_log_dir'),
+      WORKCTL_WAREHOUSE_ROOT: warehouse,
     });
-    closeSync(fd);
+    let child: ReturnType<typeof spawn>;
+    try {
+      child = spawn(script, [`workctl-sql.${id}`, '--mode', 'query', '--sql-file', sqlCopy, '--query-id', id, '--state-file', state, '--output', out, '--preview-rows', String(Math.min(20, Math.max(0, inp.preview_rows)))], {
+        detached: true,
+        stdio: ['ignore', fd, fd],
+        env,
+      });
+    } finally {
+      closeSync(fd);
+    }
+    // spawn failures (ENOENT/EACCES) arrive as an async 'error' event: without a listener they
+    // would crash the process (CLI or MCP server)
+    const spawnError = await new Promise<Error | null>((res) => {
+      child.once('spawn', () => res(null));
+      child.once('error', (e) => res(e));
+    });
+    child.on('error', () => undefined);
     const pid = child.pid;
-    if (!pid) throw new WorkError('INTERNAL', 'spark-submit 进程未能启动');
+    if (spawnError || !pid) {
+      const msg = spawnError ? spawnError.message : 'no pid';
+      writeState(ep, id, { state: 'failed', error: { type: 'SpawnError', message: msg }, finished_at: new Date().toISOString() });
+      throw new WorkError('INTERNAL', `spark-submit 进程未能启动: ${msg}`, { hint: `检查提交脚本 ${script} 是否存在且可执行` });
+    }
     child.unref();
     writeState(ep, id, { pid });
     return {
@@ -353,7 +398,11 @@ const cancel = defineCapability({
     try {
       process.kill(-pid, 'SIGTERM');
     } catch {
-      process.kill(pid, 'SIGTERM');
+      try {
+        process.kill(pid, 'SIGTERM');
+      } catch {
+        /* exited between the check and the signal */
+      }
     }
     for (let i = 0; i < 10 && alive(pid); i++) await sleep(500, ctx.signal);
     if (alive(pid)) {

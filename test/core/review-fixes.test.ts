@@ -147,6 +147,22 @@ describe('operation execute: plan locking and expiry', () => {
     expect((await call('operation.execute', { id: plan.id, confirm: plan.id })).error?.code).toBe('CONFLICT');
   });
 
+  it('refuses to execute or cancel a plan locked by another process', async () => {
+    executorRuns = 0;
+    const plan = (await call('operation.plan', { action: 'rv.slow' })).data as any;
+    // another workctl process holds the plan (same lock file in the shared state dir)
+    const release = new PlanStore(join(dir, 'state', 'operations')).lock(plan.id);
+    const exec = await call('operation.execute', { id: plan.id, confirm: plan.id });
+    expect(exec.error?.code).toBe('CONFLICT');
+    expect(exec.error?.hint).toContain('.lock');
+    expect((await call('operation.cancel', { id: plan.id })).error?.code).toBe('CONFLICT');
+    expect(executorRuns).toBe(0);
+    expect(((await call('operation.get', { id: plan.id })).data as any).status).toBe('planned');
+    release();
+    expect(((await call('operation.execute', { id: plan.id, confirm: plan.id })).data as any).status).toBe('succeeded');
+    expect(executorRuns).toBe(1);
+  });
+
   it('cancel is refused while an execution holds the plan', async () => {
     const plan = (await call('operation.plan', { action: 'rv.slow' })).data as any;
     const exec = call('operation.execute', { id: plan.id, confirm: plan.id });

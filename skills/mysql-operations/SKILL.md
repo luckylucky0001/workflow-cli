@@ -31,12 +31,12 @@ workctl --json mysql slowlog list --instance <i> --since 1h --limit 20
 
 ## 场景 2：某条 SQL 为什么慢
 
-把语句写入文件（单条），然后：
+单条语句直接用 `--sql` 传入（或写入文件用 `--sql-file`，二者只能给一个）：
 ```bash
-workctl --json mysql query explain --instance <i> --database <db> --sql-file q.sql
+workctl --json mysql query explain --instance <i> --database <db> --sql "SELECT ... WHERE customer_id = 42"
 workctl --json mysql table get   --instance <i> --database <db> --table <t>
 workctl --json mysql index list  --instance <i> --database <db> --table <t>
-workctl --json mysql query analyze --instance <i> --database <db> --sql-file q.sql   # 会实际执行，先确认
+workctl --json mysql query analyze --instance <i> --database <db> --sql "SELECT ..."   # 会实际执行，先确认
 ```
 - 看 `summary.full_scans`（ALL）与 `full_index_scans`（index）、`key`、`rows_examined_per_scan`、`filtered`、`using_filesort`。
 - `analyze` 的 `nodes[].actual_rows` 与 `estimated_rows` 差距大 → 统计/分布导致估计失真，结论以实际值为准。
@@ -65,11 +65,12 @@ workctl --json mysql index plan --instance <i> --database <db> --table <t> --col
 ## 场景 5：只读核对数据
 
 ```bash
-workctl --json mysql query execute --instance <i> --database <db> --sql-file q.sql --max-rows 20
+workctl --json mysql query execute --instance <i> --database <db> --sql "SELECT id, status FROM orders WHERE id = 1" --max-rows 20
 ```
 - 只允许单条 SELECT/WITH/SHOW/DESCRIBE/EXPLAIN；被拒绝时按提示改写，不要尝试绕过。
 - `truncated=true` 表示还有更多行；`masked_columns` 中的值已脱敏，不要尝试还原。
-- 表达式可能绕过列名脱敏；不要为了拿到敏感值构造表达式。
+- 引用敏感列的表达式、UNION、派生表会被保守地整列脱敏；不要为了拿到敏感值改写语句或构造表达式。
+- 优化器提示 `MAX_EXECUTION_TIME` / `SET_VAR` / `RESOURCE_GROUP` 会被拒绝（会绕过执行时间上限）。
 
 ## 常见错误
 
