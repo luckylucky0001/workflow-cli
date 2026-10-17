@@ -41,7 +41,7 @@ profile.endpoints.mysql.<instance>  ──(资源绑定 forEndpoint)──▶ my
 - `--sample-window 10s`（默认）：t0 快照 → 等待窗口 → t1 快照，按 `(SCHEMA_NAME, DIGEST)` 求差，`aggregation=window_delta`，`coverage.window` 为实际起止时间。命令会等待整个窗口：窗口须小于 `--timeout`（默认 30s），否则在连接前直接返回 `INVALID_ARGUMENT` 并提示 `--timeout`。
 - `--sample-window 0`：返回累计值，`aggregation=cumulative_since`，附 `cumulative_since.server_started_at` 与每行 `first_seen`。**累计值不能当作窗口值或速率。**
 - 每个摘要输出 `count`、`total_latency_ms`/`avg_latency_ms`（皮秒换算为毫秒）、`rows_examined`、`rows_sent`、`no_index_used_count`、`digest_text`（字面量为 `?`，最长 `max_digest_length` 字节）。累计模式另有 `max_latency_ms`（窗口模式没有：`MAX_TIMER_WAIT` 不可差分）。
-- 部分结果（`status=partial`）：窗口内有摘要消失（表被 TRUNCATE/重置）、计数回退（只计入重置后部分，`reset_detected=true`）、`Performance_schema_digest_lost` 增加或活动被归入 `DIGEST=NULL` 行（摘要表满，容量见 `performance_schema_digests_size`）。
+- 部分结果（`status=partial`）：窗口内有摘要消失（表被 TRUNCATE/重置）、计数回退或 `FIRST_SEEN` 变化（摘要行被重建：只计入重建后的部分，`reset_detected=true`；只看 COUNT_STAR 会把重建后又涨回来的计数误当成窗口增量）、`Performance_schema_digest_lost` 增加或活动被归入 `DIGEST=NULL` 行（摘要表满，容量见 `performance_schema_digests_size`）。
 - 查询 `events_statements_summary_by_digest` 的语句（含 workctl 自身采样）会被排除，数量见 `excluded_self_digests`。
 - `no_index_used_count=0` 不代表扫描少：例如 Demo 中 `WHERE customer_id=? ORDER BY created_at DESC LIMIT 20` 走 `idx_created_at` 反向全索引扫描，Demo 中 `avg_rows_examined` 约 22 万～30 万行、每次只返回不到 20 行。要同时看 `avg_rows_examined / rows_sent`。
 

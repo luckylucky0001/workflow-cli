@@ -89,6 +89,47 @@ function capabilityHelp(c: CapabilityDef): string {
   return lines.join('\n');
 }
 
+/**
+ * Long flags of the global options. Commander recognises program options anywhere on
+ * the command line, so a capability input with the same name (e.g. sql query submit
+ * --output <dir>) would be swallowed by the global option. Such inputs are registered
+ * as `--input-<flag>` and `--<flag>` after the subcommand is rewritten to it.
+ */
+const GLOBAL_LONG_FLAGS = new Set(['output', 'profile', 'config', 'timeout', 'json', 'debug', 'request-id', 'fail-on-partial', 'version', 'help']);
+
+export function inputFlag(name: string): string {
+  const f = kebab(name);
+  return GLOBAL_LONG_FLAGS.has(f) ? `input-${f}` : f;
+}
+
+/** Rewrite `--<flag>` tokens that follow a capability command when the flag is one of its shadowed inputs. */
+export function rewriteShadowedFlags(argv: string[], registry: Registry): string[] {
+  const head = argv.slice(0, 2);
+  const tokens = argv.slice(2);
+  for (const c of registry.list()) {
+    if (c.status === 'planned' || !c.handler) continue;
+    const shadowed = Object.keys(c.inputs).map(kebab).filter((f) => GLOBAL_LONG_FLAGS.has(f));
+    if (!shadowed.length) continue;
+    const words = c.command.split(' ');
+    for (let i = 0; i + words.length <= tokens.length; i++) {
+      if (!words.every((w, k) => tokens[i + k] === w)) continue;
+      const start = i + words.length;
+      const out = tokens.slice(0, start);
+      for (let k = start; k < tokens.length; k++) {
+        const t = tokens[k];
+        if (t === '--') {
+          out.push(...tokens.slice(k));
+          break;
+        }
+        const m = /^--([a-z][a-z0-9-]*)(=.*)?$/.exec(t);
+        out.push(m && shadowed.includes(m[1]) ? `--input-${m[1]}${m[2] ?? ''}` : t);
+      }
+      return [...head, ...out];
+    }
+  }
+  return argv;
+}
+
 function addCapabilityCommand(root: Command, registry: Registry, c: CapabilityDef, groups: Map<string, Command>): void {
   const parts = c.command.split(' ');
   let parent = root;
@@ -105,8 +146,9 @@ function addCapabilityCommand(root: Command, registry: Registry, c: CapabilityDe
   }
   const cmd = parent.command(parts[parts.length - 1]).description(c.summary);
   for (const [name, spec] of Object.entries(c.inputs)) {
-    const flag = kebab(name);
-    const desc = `${spec.description}${spec.required ? '（必填）' : ''}${spec.default !== undefined ? ` [默认 ${JSON.stringify(spec.default)}]` : ''}`;
+    const flag = inputFlag(name);
+    const shadowNote = flag !== kebab(name) ? `（写在子命令之后的 --${kebab(name)} 即此参数）` : '';
+    const desc = `${spec.description}${spec.required ? '（必填）' : ''}${spec.default !== undefined ? ` [默认 ${JSON.stringify(spec.default)}]` : ''}${shadowNote}`;
     if (spec.type === 'bool') {
       if (spec.default === true) cmd.addOption(new Option(`--no-${flag}`, `关闭: ${desc}`));
       else cmd.addOption(new Option(`--${flag}`, desc));
@@ -123,7 +165,7 @@ function addCapabilityCommand(root: Command, registry: Registry, c: CapabilityDe
     const g = command.optsWithGlobals() as GlobalOpts & Record<string, unknown>;
     const raw: Record<string, unknown> = {};
     for (const [name, spec] of Object.entries(c.inputs)) {
-      const v = g[camel(kebab(name))];
+      const v = g[camel(inputFlag(name))];
       if (spec.type === 'bool' && spec.default === true) {
         raw[name] = v === false ? false : undefined;
       } else raw[name] = v;
@@ -315,9 +357,10 @@ export function buildProgram(registry: Registry, pluginErrors: string[] = [], qu
   return program;
 }
 
-export async function main(argv = process.argv): Promise<void> {
+export async function main(rawArgv = process.argv): Promise<void> {
   const registry = builtinRegistry();
   const { errors } = loadPlugins(registry);
+  const argv = rewriteShadowedFlags(rawArgv, registry);
   const wantsJson = argv.includes('--json') || argv.some((a, i) => (a === '-o' || a === '--output') && argv[i + 1] === 'json') || argv.includes('--output=json');
   const program = buildProgram(registry, errors, wantsJson);
   try {
