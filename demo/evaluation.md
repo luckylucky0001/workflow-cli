@@ -84,6 +84,24 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 | 文档一致性 | 契约测试在 CI 中强制：生成文档逐字一致、示例命令/参数存在、设计稿命令全覆盖 |
 | 分发 | `npm pack` 后全局安装，CLI 可运行并找到随包 Skill；包大小 1.8 MB（依赖已打包进单文件） |
 
-## 5. 验收结论
+## 5. 验收结论（设计稿 §12.3）
 
-（随实测更新）
+| 验收项 | 结论 | 证据 |
+| --- | --- | --- |
+| 基础设施、中间件、离线链路均有实际演示路径 | ✅ | [walkthrough.md](walkthrough.md) 主线 A/B/C；Agent 宿主实跑 |
+| MySQL 与 Redis 作为独立领域被发现和调用 | ✅ | `capability list --domain mysql|redis`；verification mysql-*/redis-* |
+| 实例管理、原生访问、观测接口及权限前置条件清晰 | ✅ | 能力 `prerequisites`；`access check`；`auth status --probe` 显示实际身份与 SHOW GRANTS |
+| MySQL 计划估计、真实执行和采样统计语义正确 | ✅ | `query explain`（估计，不执行）/ `query analyze`（会执行，只读限时）/ `statement summary`（窗口差分，0 为累计并标注） |
+| Redis 命中统计、采样覆盖、大小和热度分别表达 | ✅ | `stats sample`（差分、重启检测、分母为 0 时为 null）、`key sample`（SCAN 预算与覆盖）、`key inspect`（MEMORY USAGE）、`key hot`（LFU 计数，非 QPS） |
+| 调度实例、计算作业、数据区间和目标分区可以关联 | ✅ | `offline run get` 分层摘要：data_interval、Spark app id、target_partition |
+| 调度成功、计算成功、数据产出和质量检查分别验证 | ✅ | 同上四层各带来源；wrong_partition 场景 success/succeeded/missing/fail |
+| 重跑或补数计划包含区间、范围、影响和写入策略 | ✅ | `offline backfill plan`；执行器经 `operation execute` 真实运行过（离线任务报告） |
+| 空结果、未采集、无权限、部分结果和任务执行中可区分 | ✅ | 错误码与 `status=partial`；如 slowlog 关闭→`COLLECTION_DISABLED`、`workctl_ro` 访问 mysql.user→`PERMISSION_DENIED`、sensor 等待→`data.state` |
+| 相同领域能力被多条 Skill 复用 | ✅ | [reuse-matrix.md](../docs/reuse-matrix.md)：16 个能力被 ≥2 个 Skill 引用 |
+| 新插件按统一机制进入目录并完成实际调用 | ✅ | demo-mq：`plugin install` → `capability list --domain mq` → 真实 Kafka lag |
+| 人、脚本和 Agent 使用相同执行实现与结果契约 | ✅ | `same-contract.mjs`：CLI == 脚本 API == MCP |
+| 文档、Skill、CLI 与后端兼容信息一致 | ✅ | 契约测试（生成文档一致、示例有效）；[compatibility.md](../docs/compatibility.md) 记录实测版本 |
+| 真实引擎、模拟回包、合成数据和分析判断分开标识 | ✅ | `context.data_mode`、`sources[].relation`（explicit/inferred/derived/sampled）、插件 `backend_mode`；Agent 输出区分事实与假设 |
+| 演示可复位，结果可追溯且材料中没有凭据或真实业务标识 | ✅（Docker 部分实测；完整复位见下） | `reset.sh`/`up.sh`；结果信封含 request_id 与来源；git 历史中检索不到任何实际密钥值 |
+
+未覆盖或未测量：人工对照组；客户环境；Kubernetes、Loki/Jaeger、Hive Metastore、对象存储、YARN、Trino 等 provider（目录中为“待接入”）。
