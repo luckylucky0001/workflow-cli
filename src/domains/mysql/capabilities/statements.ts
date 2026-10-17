@@ -104,10 +104,16 @@ export const statementSummary = defineCapability({
     'workctl --timeout 60s mysql statement summary --instance demo-mysql --sample-window 30s --database demo',
     'workctl mysql statement summary --instance demo-mysql --sample-window 0',
   ],
-  handler: async (ctx, i) =>
-    withMysql(ctx, i.instance, async (s) => {
-      const windowMs = parseWindow(i.sample_window);
-      const top = Math.max(1, Math.min(Number(i.top), 100));
+  handler: async (ctx, i) => {
+    const windowMs = parseWindow(i.sample_window);
+    const top = Math.max(1, Math.min(Number(i.top), 100));
+    // refuse before connecting when the window cannot fit in the time budget
+    if (windowMs > 0 && windowMs + 3000 > ctx.remainingMs()) {
+      throw new WorkError('INVALID_ARGUMENT', `采样窗口 ${formatDuration(windowMs)} 超过剩余时间预算 ${Math.floor(ctx.remainingMs() / 1000)}s`, {
+        hint: `增大 --timeout（如 --timeout ${Math.ceil((windowMs + 10_000) / 1000)}s）或缩小 --sample-window`,
+      });
+    }
+    return withMysql(ctx, i.instance, async (s) => {
       const info = await assertDigestCollection(s);
       const notes: string[] = [];
       if (info.max_digest_length !== null) notes.push(`digest_text 最长 ${info.max_digest_length} 字节（max_digest_length），超出部分被截断`);
@@ -148,12 +154,6 @@ export const statementSummary = defineCapability({
         };
       }
 
-      const budget = ctx.remainingMs();
-      if (windowMs + 2000 > budget) {
-        throw new WorkError('INVALID_ARGUMENT', `采样窗口 ${formatDuration(windowMs)} 超过剩余时间预算 ${Math.floor(budget / 1000)}s`, {
-          hint: `增大 --timeout（如 --timeout ${Math.ceil((windowMs + 10_000) / 1000)}s）或缩小 --sample-window`,
-        });
-      }
       const lost0 = await globalStatus(s, ['Performance_schema_digest_lost']);
       const t0 = await snapshot(s, i.database);
       const start = new Date();
@@ -198,7 +198,8 @@ export const statementSummary = defineCapability({
           ],
         },
       };
-    }),
+    });
+  },
 });
 
 /** `0` (or 0s/0ms) means cumulative; otherwise a duration such as 5s / 30s / 2m. */

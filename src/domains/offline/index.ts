@@ -374,7 +374,7 @@ export async function buildRunDetail(ctx: Ctx, af: AirflowClient, runId: string,
   // compute
   const apps = await findSparkApps(af, found.dagId, runId, tis);
   if (apps.length) sources.push(await af.source(`GET .../taskInstances/{task}/xcomEntries/return_value | logs`, 'derived'));
-  const compute = await computeLayer(ctx, apps);
+  const compute = await computeLayer(ctx, apps, tis);
   if (compute.source) sources.push(compute.source);
 
   // output + quality via catalog metadata

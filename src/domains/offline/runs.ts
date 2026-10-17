@@ -170,8 +170,17 @@ export async function findSparkApps(af: AirflowClient, dagId: string, runId: str
   return found;
 }
 
-export async function computeLayer(ctx: Ctx, apps: { task_id: string; app_id: string; via: string }[]): Promise<LayerState> {
+export async function computeLayer(ctx: Ctx, apps: { task_id: string; app_id: string; via: string }[], tis: any[] = []): Promise<LayerState> {
   if (!apps.length) {
+    const candidates = tis.filter((t) => /Bash|Spark/i.test(String(t.operator ?? '')));
+    const notStarted = candidates.length > 0 && candidates.every((t) => !t.try_number || [null, 'none', 'scheduled', 'queued', 'upstream_failed', 'skipped', 'removed'].includes(t.state ?? null));
+    if (notStarted) {
+      return {
+        state: 'not_started',
+        detail: `计算任务尚未执行（${candidates.map((t) => `${t.task_id}=${t.state ?? 'none'}`).join(', ')}）`,
+        source: null,
+      };
+    }
     return { state: 'unknown', detail: '本次 run 的任务未记录 Spark application id（XCom / 任务日志中无 WORKCTL_SPARK_APP_ID）', source: null };
   }
   const last = apps[apps.length - 1];

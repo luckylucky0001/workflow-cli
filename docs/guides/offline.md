@@ -65,7 +65,7 @@ Airflow 需要启用 `[api] auth_backends = airflow.api.auth.backend.basic_auth,
 | 层 | 来源 | 状态取值 | 说明 |
 |---|---|---|---|
 | scheduler | Airflow `GET /dags/{id}/dagRuns/{run}` | queued/running/success/failed | 只代表调度层任务全部成功 |
-| compute | Spark history server（经 `compute.job.get`） | running/succeeded/failed/incomplete/unknown | application id 取自任务 XCom `return_value` 或任务日志中的 `WORKCTL_SPARK_APP_ID=` |
+| compute | Spark history server（经 `compute.job.get`） | running/succeeded/failed/incomplete/not_started/unknown | application id 取自任务 XCom `return_value` 或任务日志中的 `WORKCTL_SPARK_APP_ID=` |
 | output | `data.partition.get`（目录 + 文件系统） | present/missing/empty/incomplete/unreadable/unknown | 目标表 = 目录中 `produced_by.workflow` 为该 DAG 的表；分区值 = data_interval_start 在分区时区的日期 |
 | quality | `data quality check` 最近一次落盘结果 | pass/fail/error/not_run/unknown | 结果带 `checked_at`，不会随分区重写自动失效 |
 

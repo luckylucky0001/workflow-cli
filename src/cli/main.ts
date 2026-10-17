@@ -59,6 +59,20 @@ function localEnvelope(capability: string, data: unknown, error: WorkError | nul
   };
 }
 
+/** Descriptions for command groups that are not a domain name. */
+const GROUP_DESCRIPTIONS: Record<string, string> = {
+  access: '授权检查：调用某能力前的前置条件（执行授权、端点、凭据、目标系统身份）',
+  auth: '身份：当前 profile 的认证方式与凭据引用状态',
+  capability: '能力发现：能力目录、单个能力定义与输出 Schema',
+  capacity: '容量盘点：容器资源限制与当前使用（快照）',
+  log: '日志：按服务和时间窗口查询结构化日志',
+  metric: '指标：按资源和指标名查询时间序列（Prometheus）',
+  trace: '调用链：按 trace ID 重建请求调用树',
+  operation: '受控操作：生成计划、查看状态、执行与取消',
+  resource: '资源目录：已绑定资源及其关系',
+  service: '服务：依赖资源与被依赖关系',
+};
+
 function capabilityHelp(c: CapabilityDef): string {
   const d = describeCapability(c);
   const lines = [
@@ -83,7 +97,7 @@ function addCapabilityCommand(root: Command, registry: Registry, c: CapabilityDe
     let g = groups.get(key);
     if (!g) {
       const domain = idx === 0 ? registry.domains.get(parts[0]) : undefined;
-      g = parent.command(parts[idx]).description(domain ? `${domain.title}：${domain.summary}` : `${key} 相关命令`);
+      g = parent.command(parts[idx]).description(domain ? `${domain.title}：${domain.summary}` : GROUP_DESCRIPTIONS[key] ?? `${key} 相关命令`);
       g.helpCommand(false);
       groups.set(key, g);
     }

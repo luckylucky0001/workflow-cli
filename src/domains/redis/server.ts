@@ -201,16 +201,16 @@ export const statsSample = defineCapability({
     'total_commands_processed 包含 workctl 自身的 1 条 INFO 命令',
   ],
   examples: ['workctl redis stats sample --instance demo-redis --duration 10s', 'workctl --timeout 60s redis stats sample --instance demo-redis --duration 30s'],
-  handler: async (ctx, i) =>
-    withRedis(ctx, i.instance, async (s) => {
-      const ms = Number(i.duration);
-      if (ms <= 0) throw new WorkError('INVALID_ARGUMENT', '--duration 必须大于 0', { hint: '累计值请用 redis info get --section stats' });
-      const budget = ctx.remainingMs();
-      if (ms + 1500 > budget) {
-        throw new WorkError('INVALID_ARGUMENT', `采样窗口 ${Math.round(ms / 1000)}s 超过剩余时间预算 ${Math.floor(budget / 1000)}s`, {
-          hint: `增大 --timeout（如 --timeout ${Math.ceil((ms + 10_000) / 1000)}s）或缩小 --duration`,
-        });
-      }
+  handler: async (ctx, i) => {
+    const ms = Number(i.duration);
+    if (ms <= 0) throw new WorkError('INVALID_ARGUMENT', '--duration 必须大于 0', { hint: '累计值请用 redis info get --section stats' });
+    const budget = ctx.remainingMs();
+    if (ms + 2000 > budget) {
+      throw new WorkError('INVALID_ARGUMENT', `采样窗口 ${Math.round(ms / 1000)}s 超过剩余时间预算 ${Math.floor(budget / 1000)}s`, {
+        hint: `增大 --timeout（如 --timeout ${Math.ceil((ms + 10_000) / 1000)}s）或缩小 --duration`,
+      });
+    }
+    return withRedis(ctx, i.instance, async (s) => {
       const t0 = Date.now();
       const a = parseInfo(String(await s.cmd('INFO', 'server', 'stats', 'memory', 'clients')));
       await sleep(ms, ctx.signal);
@@ -245,7 +245,8 @@ export const statsSample = defineCapability({
         sources: [await s.src(`INFO stats ×2 (Δ ${WINDOW_COUNTERS.join(', ')})`, 'derived')],
         coverage: { complete: !partial, window: { start: new Date(t0).toISOString(), end: new Date(t1).toISOString() }, notes },
       };
-    }),
+    });
+  },
 });
 
 export const slowlogList = defineCapability({
