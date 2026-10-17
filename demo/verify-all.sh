@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # One-shot verification of the whole demo, from a clean slate:
-#   reset → up → scenarios → per-capability suites → provider swaps → live test suite.
+#   build + plugins → reset → up → scenarios → per-capability suites → provider swaps → live test suite.
 # Results land in demo/verification/ (reports + raw envelopes) and the step log on stdout.
 #
 # Options (env):
@@ -18,7 +18,9 @@ check() { if "$@"; then echo "   ok"; else echo "   FAILED: $*"; STATUS=1; fi; }
 
 step "build"
 check npm run -s build
-node plugins/demo-mq/build.mjs >/dev/null && node dist/workctl.js --json plugin install --file plugins/demo-mq/dist/demo-mq-plugin.tgz >/dev/null
+for p in demo-mq demo-search; do
+  check sh -c "node plugins/$p/build.mjs >/dev/null && node dist/workctl.js --json plugin install --file plugins/$p/dist/$p-plugin.tgz >/dev/null"
+done
 
 if [ -z "${SKIP_RESET:-}" ]; then
   step "reset"
@@ -32,6 +34,7 @@ if [ -z "${SKIP_RESET:-}" ]; then
   check node demo/scenarios/mysql-redis/scenario.mjs warm-cache >/dev/null
   check node demo/scenarios/mq/produce-and-consume.mjs --reset >/dev/null
   check node demo/scenarios/config/seed.mjs >/dev/null
+  check node demo/scenarios/search/seed.mjs >/dev/null
   node demo/scenarios/latency/loadgen.mjs --rps 8 --duration 30 --seed 9 --label verify >/dev/null 2>&1
   echo "   scenarios: $(( $(date +%s) - t0 ))s"
 fi
@@ -39,6 +42,7 @@ fi
 step "per-capability suite (main)";  check node scripts/verify-demo.mjs demo/verification/cases.json
 step "per-capability suite (trino)"; check node scripts/verify-demo.mjs demo/verification/cases.trino.json
 step "per-capability suite (config)"; check node scripts/verify-demo.mjs demo/verification/cases.config.json
+step "per-capability suite (search plugin)"; check node scripts/verify-demo.mjs demo/verification/cases.search.json
 step "consumers: cli == script == mcp"
 check node demo/scenarios/reuse/same-contract.mjs >/dev/null
 check node demo/scenarios/reuse/same-contract.mjs mq.consumer.lag '{"cluster":"demo-mq","group":"demo-consumer"}' >/dev/null

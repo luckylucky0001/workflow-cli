@@ -82,11 +82,12 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 | 维度 | 实测 |
 | --- | --- |
 | 消费者复用 | `same-contract.mjs`：`redis.info.get` 与插件能力 `mq.consumer.lag` 经 CLI、脚本 API、MCP 三种入口返回相同的能力名、版本、适配器、数据字段和来源 |
-| 流程复用 | [reuse-matrix.md](../docs/reuse-matrix.md)：10 个 Skill 引用 55 个能力，其中 16 个能力被 2 个及以上 Skill 复用；`offline run get` 在代码层通过 `ctx.call` 复用 `data.partition.get`、`compute.job.get` |
-| 共享代码 | `scripts/maintenance-report.mjs`：共享运行时（core）约 1.5k 行、CLI+MCP 约 0.7k 行，被 10 个内置领域和插件共用；领域适配器 0.3k–2.7k 行（容器域含 Docker 与 Kubernetes 两个 provider） |
-| 新系统接入（插件） | demo-mq：约 1.1k 行插件代码 + 清单/指南/Skill，无需为消息队列修改核心（开发过程中修复了插件加载器 2 个通用缺陷：重装校验、Schema 路径）；安装后命令、帮助、目录、MCP 工具自动出现，真实 Kafka 结果与 `kafka-consumer-groups.sh` 一致 |
+| 流程复用 | [reuse-matrix.md](../docs/reuse-matrix.md)：11 个 Skill 引用 61 个能力，其中 18 个能力被 2 个及以上 Skill 复用（新接入的 `config get/diff` 同时被基础设施 Skill 与延迟排查流程引用）；`offline run get` 在代码层通过 `ctx.call` 复用 `data.partition.get`、`compute.job.get` |
+| 共享代码 | `scripts/maintenance-report.mjs`：共享运行时（core）约 1.5k 行、CLI+MCP 约 0.7k 行，被 11 个内置领域和 2 个插件共用；领域适配器 0.3k–2.8k 行（容器域含 Docker 与 Kubernetes 两个 provider） |
+| 新系统接入（插件） | demo-mq：约 1.1k 行插件代码 + 清单/指南/Skill，无需为消息队列修改核心（开发过程中修复了插件加载器 2 个通用缺陷：重装校验、Schema 路径）；安装后命令、帮助、目录、MCP 工具自动出现，真实 Kafka 结果与 `kafka-consumer-groups.sh` 一致。demo-search：约 1.2k 行插件代码，实现内置目录中 planned 的 `search.index.get` / `search.query`；为此核心改动约 30 行（允许插件实现内置 planned 能力；文件参数在校验时转为绝对路径），OpenSearch 2.19.3 上 19/19 |
 | 文档一致性 | 契约测试在 CI 中强制：生成文档逐字一致、示例命令/参数存在、设计稿命令全覆盖 |
 | 接口版本替换（设计稿 §10.4） | `version-swap.mjs`：9 个离线/计算能力（10 次调用）分别对 Airflow 2.10.5（REST v1）与 Airflow 3.3.2（REST v2）真实调用，两侧 `data` 通过同一 zod 输出 schema、顶层字段与 `run get` 四层状态一致，差异只在 `meta.sources`（adapter/method/version）；适配器侧新增 `airflow-v2.ts` 约 250 行 + 客户端约 130 行改动，能力代码改动约 40 行、输出 schema 未改；v2 补数执行器真实执行成功。见 [version-swap.md](verification/version-swap.md) |
+| 新系统接入（内置领域） | config/discovery（etcd v3 网关）：约 0.76k 行领域代码，复用核心的资源绑定、凭据引用、HTTP 客户端与错误映射，`src/core` 未改（只在 doctor 的端点类型表登记 etcd，2 行）；etcd 3.5.21 上 16/16 |
 | 多 provider 同一契约 | Docker ↔ Kubernetes（k3s v1.31.4，10/10）、Airflow 2 ↔ 3（REST v1 ↔ v2）、Spark ↔ Trino 476（15/15）、Docker 日志 ↔ Loki 3.5.5：每组都由同一能力定义与输出 Schema 承载，差异只在 `meta.sources` 与可选的 provider 专有字段 |
 | 分发 | `npm pack` 后全局安装，CLI 可运行并找到随包 Skill；包大小 1.8 MB（依赖已打包进单文件） |
 
@@ -103,11 +104,11 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 | 调度成功、计算成功、数据产出和质量检查分别验证 | ✅ | 同上四层各带来源；wrong_partition 场景 success/succeeded/missing/fail |
 | 重跑或补数计划包含区间、范围、影响和写入策略 | ✅ | `offline backfill plan`；执行器经 `operation execute` 真实运行过（离线任务报告） |
 | 空结果、未采集、无权限、部分结果和任务执行中可区分 | ✅ | 错误码与 `status=partial`；如 slowlog 关闭→`COLLECTION_DISABLED`、`workctl_ro` 访问 mysql.user→`PERMISSION_DENIED`、sensor 等待→`data.state` |
-| 相同领域能力被多条 Skill 复用 | ✅ | [reuse-matrix.md](../docs/reuse-matrix.md)：16 个能力被 ≥2 个 Skill 引用 |
-| 新插件按统一机制进入目录并完成实际调用 | ✅ | demo-mq：`plugin install` → `capability list --domain mq` → 真实 Kafka lag |
+| 相同领域能力被多条 Skill 复用 | ✅ | [reuse-matrix.md](../docs/reuse-matrix.md)：18 个能力被 ≥2 个 Skill 引用 |
+| 新插件按统一机制进入目录并完成实际调用 | ✅ | demo-mq：`plugin install` → `capability list --domain mq` → 真实 Kafka lag；demo-search：planned 的 `search.*` 安装后变为可调用，真实 OpenSearch 查询与部分分片失败 |
 | 人、脚本和 Agent 使用相同执行实现与结果契约 | ✅ | `same-contract.mjs`：CLI == 脚本 API == MCP |
 | 文档、Skill、CLI 与后端兼容信息一致 | ✅ | 契约测试（生成文档一致、示例有效）；[compatibility.md](../docs/compatibility.md) 记录实测版本 |
 | 真实引擎、模拟回包、合成数据和分析判断分开标识 | ✅ | `context.data_mode`、`sources[].relation`（explicit/inferred/derived/sampled）、插件 `backend_mode`；Agent 输出区分事实与假设 |
 | 演示可复位，结果可追溯且材料中没有凭据或真实业务标识 | ✅ | 完整复位实测：`reset.sh` → `up.sh`（54 s）→ 场景重放（117 s）→ 74/74；结果信封含 request_id 与来源；git 历史中检索不到任何实际密钥值 |
 
-未覆盖或未测量：人工对照组；客户环境；Kubernetes 仅在单节点 k3s（嵌套于 Docker，含演示专用 runc 规避）上验证，未在多节点或托管集群验证；Loki/Jaeger、Hive Metastore、对象存储、YARN、Trino 等 provider（目录中为“待接入”）。
+未覆盖或未测量：人工对照组；客户环境；Kubernetes 仅在单节点 k3s（嵌套于 Docker，含演示专用 runc 规避）上验证，未在多节点或托管集群验证；Jaeger/Tempo、Hive Metastore、对象存储、HDFS、YARN、文档/KV、分析数据库、托管中间件生命周期等 provider（目录中为“待接入”）；etcd 与 OpenSearch 的认证路径只在假服务器单测中验证。

@@ -1,0 +1,154 @@
+{
+  "schema_version": "1.0",
+  "status": "partial",
+  "capability": "search.query",
+  "data": {
+    "cluster": "demo-search",
+    "index": "demo-orders-all",
+    "query_source": "dsl",
+    "request": {
+      "size": 5,
+      "requested_size": 5,
+      "max_hits": 20,
+      "timeout": "27997ms",
+      "track_total_hits": 10000,
+      "sort": true,
+      "aggs": false
+    },
+    "took_ms": 9,
+    "timed_out": false,
+    "shards": {
+      "total": 3,
+      "successful": 2,
+      "skipped": 0,
+      "failed": 1
+    },
+    "shard_failures": [
+      {
+        "index": "demo-orders-archive",
+        "shard": 0,
+        "type": "query_shard_exception",
+        "reason": "No mapping found for [created_at] in order to sort on"
+      }
+    ],
+    "total": {
+      "value": 115,
+      "relation": "eq"
+    },
+    "returned": 5,
+    "hits": [
+      {
+        "index": "demo-orders",
+        "id": "ORD-000160",
+        "score": null,
+        "sort": [
+          1792078083000
+        ],
+        "source": {
+          "created_at": "2026-10-15T15:28:03.000Z",
+          "order_id": "ORD-000160",
+          "status": "refunded"
+        },
+        "source_truncated": false
+      },
+      {
+        "index": "demo-orders",
+        "id": "ORD-001312",
+        "score": null,
+        "sort": [
+          1792017364000
+        ],
+        "source": {
+          "created_at": "2026-10-14T22:36:04.000Z",
+          "order_id": "ORD-001312",
+          "status": "refunded"
+        },
+        "source_truncated": false
+      },
+      {
+        "index": "demo-orders",
+        "id": "ORD-001643",
+        "score": null,
+        "sort": [
+          1792008003000
+        ],
+        "source": {
+          "created_at": "2026-10-14T20:00:03.000Z",
+          "order_id": "ORD-001643",
+          "status": "refunded"
+        },
+        "source_truncated": false
+      },
+      {
+        "index": "demo-orders",
+        "id": "ORD-002116",
+        "score": null,
+        "sort": [
+          1791872778000
+        ],
+        "source": {
+          "created_at": "2026-10-13T06:26:18.000Z",
+          "order_id": "ORD-002116",
+          "status": "refunded"
+        },
+        "source_truncated": false
+      },
+      {
+        "index": "demo-orders",
+        "id": "ORD-000640",
+        "score": null,
+        "sort": [
+          1791841337000
+        ],
+        "source": {
+          "created_at": "2026-10-12T21:42:17.000Z",
+          "order_id": "ORD-000640",
+          "status": "refunded"
+        },
+        "source_truncated": false
+      }
+    ],
+    "aggregations": null,
+    "observed_at": "2026-10-17T15:32:16.797Z"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "opensearch",
+        "adapter": "opensearch-http",
+        "endpoint": "opensearch/demo-search",
+        "method": "POST /demo-orders-all/_search",
+        "observed_at": "2026-10-17T15:32:16.797Z",
+        "version": "opensearch 2.19.3",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": false,
+      "truncated": true,
+      "limit": 5,
+      "scope": "demo-orders-all 上匹配查询的文档（dsl）",
+      "notes": [
+        "total 关系为 eq：精确命中数；track_total_hits=10000（上限 10000）",
+        "只返回前 5 条命中（--max-hits 上限 100）；匹配文档多于返回条数，命中列表是截断的",
+        "近实时：最近一次 refresh（默认 1s）之后写入的文档不可见"
+      ]
+    },
+    "warnings": [
+      "1/3 个分片查询失败，命中数与聚合只来自成功的分片（见 data.shard_failures）"
+    ]
+  },
+  "context": {
+    "request_id": "req-mvck1vn6-9a4164",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:32:16.626Z",
+    "duration_ms": 181
+  }
+}

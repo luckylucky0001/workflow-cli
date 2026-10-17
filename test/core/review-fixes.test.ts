@@ -1,7 +1,7 @@
 // Regression tests for the core cross-review fixes (engine, plan store, MCP, plugins, config).
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, symlinkSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { isAbsolute, join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { invoke } from '../../src/core/engine';
@@ -244,6 +244,21 @@ describe('engine guards and input parsing', () => {
     const env = await invoke(reg, 'rv.inputs', { f: dir }, { configPath });
     expect(env.error?.code).toBe('INVALID_ARGUMENT');
     expect(env.error?.message).toContain('不是普通文件');
+  });
+
+  it('relative file inputs reach the handler as absolute paths (plugins run in their own directory)', async () => {
+    const file = join(dir, 'q.json');
+    writeFileSync(file, '{}');
+    const prev = process.cwd();
+    process.chdir(dir);
+    try {
+      const env = await invoke(reg, 'rv.inputs', { f: 'q.json' }, { configPath });
+      expect(env.status).toBe('success');
+      expect((env.data as any).f).toBe(resolve('q.json'));
+      expect(isAbsolute((env.data as any).f)).toBe(true);
+    } finally {
+      process.chdir(prev);
+    }
   });
 });
 

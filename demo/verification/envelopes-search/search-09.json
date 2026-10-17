@@ -1,0 +1,297 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "search.query",
+  "data": {
+    "cluster": "demo-search",
+    "index": "demo-orders",
+    "query_source": "dsl",
+    "request": {
+      "size": 5,
+      "requested_size": 5,
+      "max_hits": 20,
+      "timeout": "27996ms",
+      "track_total_hits": 10000,
+      "sort": true,
+      "aggs": true
+    },
+    "took_ms": 13,
+    "timed_out": false,
+    "shards": {
+      "total": 2,
+      "successful": 2,
+      "skipped": 0,
+      "failed": 0
+    },
+    "shard_failures": [],
+    "total": {
+      "value": 327,
+      "relation": "eq"
+    },
+    "returned": 5,
+    "hits": [
+      {
+        "index": "demo-orders",
+        "id": "ORD-000555",
+        "score": null,
+        "sort": [
+          1874.8
+        ],
+        "source": {
+          "amount": 1874.8,
+          "city": "nanjing",
+          "created_at": "2026-10-15T17:40:29.000Z",
+          "order_id": "ORD-000555",
+          "status": "paid"
+        },
+        "source_truncated": false
+      },
+      {
+        "index": "demo-orders",
+        "id": "ORD-000204",
+        "score": null,
+        "sort": [
+          1813.19
+        ],
+        "source": {
+          "amount": 1813.19,
+          "city": "shanghai",
+          "created_at": "2026-10-04T12:37:14.000Z",
+          "order_id": "ORD-000204",
+          "status": "paid"
+        },
+        "source_truncated": false
+      },
+      {
+        "index": "demo-orders",
+        "id": "ORD-000042",
+        "score": null,
+        "sort": [
+          1778.96
+        ],
+        "source": {
+          "amount": 1778.96,
+          "city": "chengdu",
+          "created_at": "2026-10-09T19:54:44.000Z",
+          "order_id": "ORD-000042",
+          "status": "paid"
+        },
+        "source_truncated": false
+      },
+      {
+        "index": "demo-orders",
+        "id": "ORD-000377",
+        "score": null,
+        "sort": [
+          1748.07
+        ],
+        "source": {
+          "amount": 1748.07,
+          "city": "wuhan",
+          "created_at": "2026-10-11T18:39:25.000Z",
+          "order_id": "ORD-000377",
+          "status": "paid"
+        },
+        "source_truncated": false
+      },
+      {
+        "index": "demo-orders",
+        "id": "ORD-001299",
+        "score": null,
+        "sort": [
+          1704.16
+        ],
+        "source": {
+          "amount": 1704.16,
+          "city": "beijing",
+          "created_at": "2026-10-08T13:52:10.000Z",
+          "order_id": "ORD-001299",
+          "status": "paid"
+        },
+        "source_truncated": false
+      }
+    ],
+    "aggregations": {
+      "by_city": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "hangzhou",
+            "doc_count": 47,
+            "amount_sum": {
+              "value": 23478.98
+            }
+          },
+          {
+            "key": "beijing",
+            "doc_count": 44,
+            "amount_sum": {
+              "value": 24297.46
+            }
+          },
+          {
+            "key": "shanghai",
+            "doc_count": 43,
+            "amount_sum": {
+              "value": 21433.32
+            }
+          },
+          {
+            "key": "wuhan",
+            "doc_count": 41,
+            "amount_sum": {
+              "value": 24303.53
+            }
+          },
+          {
+            "key": "nanjing",
+            "doc_count": 40,
+            "amount_sum": {
+              "value": 18719.379999999997
+            }
+          },
+          {
+            "key": "xian",
+            "doc_count": 39,
+            "amount_sum": {
+              "value": 17117.120000000003
+            }
+          },
+          {
+            "key": "chengdu",
+            "doc_count": 37,
+            "amount_sum": {
+              "value": 24005.26
+            }
+          },
+          {
+            "key": "shenzhen",
+            "doc_count": 36,
+            "amount_sum": {
+              "value": 18876.309999999998
+            }
+          }
+        ]
+      },
+      "per_day": {
+        "buckets": [
+          {
+            "key_as_string": "2026-10-01T00:00:00.000Z",
+            "key": 1790812800000,
+            "doc_count": 17
+          },
+          {
+            "key_as_string": "2026-10-02T00:00:00.000Z",
+            "key": 1790899200000,
+            "doc_count": 28
+          },
+          {
+            "key_as_string": "2026-10-03T00:00:00.000Z",
+            "key": 1790985600000,
+            "doc_count": 31
+          },
+          {
+            "key_as_string": "2026-10-04T00:00:00.000Z",
+            "key": 1791072000000,
+            "doc_count": 23
+          },
+          {
+            "key_as_string": "2026-10-05T00:00:00.000Z",
+            "key": 1791158400000,
+            "doc_count": 14
+          },
+          {
+            "key_as_string": "2026-10-06T00:00:00.000Z",
+            "key": 1791244800000,
+            "doc_count": 25
+          },
+          {
+            "key_as_string": "2026-10-07T00:00:00.000Z",
+            "key": 1791331200000,
+            "doc_count": 21
+          },
+          {
+            "key_as_string": "2026-10-08T00:00:00.000Z",
+            "key": 1791417600000,
+            "doc_count": 23
+          },
+          {
+            "key_as_string": "2026-10-09T00:00:00.000Z",
+            "key": 1791504000000,
+            "doc_count": 22
+          },
+          {
+            "key_as_string": "2026-10-10T00:00:00.000Z",
+            "key": 1791590400000,
+            "doc_count": 20
+          },
+          {
+            "key_as_string": "2026-10-11T00:00:00.000Z",
+            "key": 1791676800000,
+            "doc_count": 27
+          },
+          {
+            "key_as_string": "2026-10-12T00:00:00.000Z",
+            "key": 1791763200000,
+            "doc_count": 14
+          },
+          {
+            "key_as_string": "2026-10-13T00:00:00.000Z",
+            "key": 1791849600000,
+            "doc_count": 17
+          },
+          {
+            "key_as_string": "2026-10-14T00:00:00.000Z",
+            "key": 1791936000000,
+            "doc_count": 19
+          },
+          {
+            "key_as_string": "2026-10-15T00:00:00.000Z",
+            "key": 1792022400000,
+            "doc_count": 26
+          }
+        ]
+      }
+    },
+    "observed_at": "2026-10-17T15:32:15.745Z"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "opensearch",
+        "adapter": "opensearch-http",
+        "endpoint": "opensearch/demo-search",
+        "method": "POST /demo-orders/_search",
+        "observed_at": "2026-10-17T15:32:15.745Z",
+        "version": "opensearch 2.19.3",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": false,
+      "truncated": true,
+      "limit": 5,
+      "scope": "demo-orders 上匹配查询的文档（dsl）",
+      "notes": [
+        "total 关系为 eq：精确命中数；track_total_hits=10000（上限 10000）",
+        "只返回前 5 条命中（--max-hits 上限 100）；匹配文档多于返回条数，命中列表是截断的",
+        "近实时：最近一次 refresh（默认 1s）之后写入的文档不可见"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvck1utw-b61f1e",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:32:15.571Z",
+    "duration_ms": 186
+  }
+}

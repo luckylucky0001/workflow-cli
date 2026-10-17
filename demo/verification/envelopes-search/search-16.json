@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "search.query",
+  "data": null,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "索引或别名不存在: no-such-index",
+    "hint": "用 workctl search cluster get --cluster demo-search 查看索引数量；核对索引/别名名称",
+    "retryable": false,
+    "details": {
+      "cluster": "demo-search",
+      "http_status": 404,
+      "request": "POST /no-such-index/_search?allow_partial_search_results=true&expand_wildcards=open&ignore_unavailable=false",
+      "opensearch_error_type": "index_not_found_exception",
+      "index": "no-such-index"
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvck1xnd-25bdcd",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:32:19.225Z",
+    "duration_ms": 184
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "search.query",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "DSL 含有不允许的顶层字段: from",
+    "hint": "from/search_after/timeout/track_total_hits 等由 workctl 控制；分页与脚本不在受限查询范围内",
+    "retryable": false,
+    "details": {
+      "disallowed": [
+        "from"
+      ],
+      "allowed": [
+        "query",
+        "size",
+        "sort",
+        "_source",
+        "aggs"
+      ]
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvck1wt5-c976b8",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:32:18.137Z",
+    "duration_ms": 126
+  }
+}

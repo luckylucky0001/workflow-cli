@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, statSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { z } from 'zod';
 import { loadConfig, resolveProfileName, type LoadedConfig } from './config';
 import { ERROR_CODES, SCHEMA_VERSION, WorkError, type Envelope, type Result } from './output';
@@ -58,7 +59,9 @@ function inputZod(name: string, spec: InputSpec): z.ZodType {
         .string()
         .min(1)
         .refine((p) => existsSync(p), { message: `文件不存在 (${name})` })
-        .refine((p) => !existsSync(p) || statSync(p).isFile(), { message: `不是普通文件 (${name})` });
+        .refine((p) => !existsSync(p) || statSync(p).isFile(), { message: `不是普通文件 (${name})` })
+        // absolute from here on: plugins run in their own directory, adapters may chdir
+        .transform((p) => resolve(p));
       break;
     default:
       s = z.string().min(1);

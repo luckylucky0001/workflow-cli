@@ -17,6 +17,6 @@ for (const d of readdirSync('src/domains')) {
   const p = join('src/domains', d);
   if (statSync(p).isDirectory()) rows.push([`domain: ${d}`, loc(p)]);
 }
-rows.push(['plugin: demo-mq', loc('plugins/demo-mq/src')]);
+for (const p of ['demo-mq', 'demo-search']) rows.push([`plugin: ${p}`, loc(`plugins/${p}/src`)]);
 console.log('| 模块 | 代码行（不含空行/注释） |\n| --- | --- |');
 for (const [k, v] of rows) console.log(`| ${k} | ${v} |`);

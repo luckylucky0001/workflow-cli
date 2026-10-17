@@ -1,6 +1,6 @@
 ---
 name: enterprise-infra
-description: 当任务涉及计算/容器、网络、存储、数据库（MySQL）、缓存（Redis）、消息队列，或离线调度、计算作业、数据分区、血缘和数据质量时使用。提供 workctl 能力发现、结果解读和跨系统组合的入口流程。
+description: 当任务涉及计算/容器、网络、存储、配置中心与服务发现、数据库（MySQL）、缓存（Redis）、消息队列、搜索引擎，或离线调度、计算作业、数据分区、血缘和数据质量时使用。提供 workctl 能力发现、结果解读和跨系统组合的入口流程。
 ---
 
 # 企业基础设施 / 中间件 / 离线链路入口
@@ -15,11 +15,12 @@ workctl 是统一 CLI：`workctl <domain> [resource] <action> [options]`，加 `
    - `workctl --json capability list [--domain mysql]`：能力目录；`status=planned` 的能力不可调用，如实告诉用户“待接入”。
    - `workctl capability get --name <cap>` 或 `workctl <command> --help`：参数、口径说明、前置条件。
 3. **按需读取领域指南与 Skill**（只读需要的）：
-   - 基础设施/可观测：`skills/infra-operations`、`docs/guides/infrastructure.md`、`docs/guides/observability.md`
+   - 基础设施/可观测/配置中心与服务发现：`skills/infra-operations`、`docs/guides/infrastructure.md`、`docs/guides/observability.md`
    - MySQL / Redis：`skills/mysql-operations`、`skills/redis-operations`
    - 离线链路：`skills/offline-operations`、`skills/data-validation`
    - 跨系统流程：`skills/service-latency-investigation`、`skills/offline-delay-investigation`、`skills/resource-capacity-review`
    - 消息队列（插件）：安装 demo-mq 插件后见 `capability get --name mq.consumer.lag`
+   - 搜索引擎（插件）：安装 demo-search 插件前 `search.*` 为 planned；安装后见 `skills/search-operations` 与 `capability get --name search.query`
 4. **执行查询并读懂信封**
    - `status`: success / partial / error。partial = 结果不完整，看 `meta.coverage.notes`。
    - `data` 里的业务状态（如任务 `state=running`）与调用状态无关。

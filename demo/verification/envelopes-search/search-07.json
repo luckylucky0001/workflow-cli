@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "search.index.get",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "demo-orders-all 是别名，指向 2 个索引；search index get 只描述单个索引",
+    "hint": "对其中一个索引调用，例如 --index demo-orders",
+    "retryable": false,
+    "details": {
+      "cluster": "demo-search",
+      "alias": "demo-orders-all",
+      "resolved_indices": [
+        "demo-orders",
+        "demo-orders-archive"
+      ]
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvck1tzx-8750ba",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:32:14.493Z",
+    "duration_ms": 156
+  }
+}

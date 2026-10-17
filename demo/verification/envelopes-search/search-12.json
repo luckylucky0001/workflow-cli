@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "search.query",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "DSL 含有禁止的脚本相关字段 script_score（位置 query.script_score）",
+    "hint": "脚本查询/脚本聚合/运行时字段会在集群上执行任意代码，受限查询不允许；改用普通 query/aggs",
+    "retryable": false,
+    "details": {
+      "forbidden_key": "script_score",
+      "path": "query.script_score"
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvck1w0y-d635c0",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:32:17.122Z",
+    "duration_ms": 126
+  }
+}

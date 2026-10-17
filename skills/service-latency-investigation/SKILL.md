@@ -30,6 +30,13 @@ workctl container event list --service <service> --window 1h
 ```
 看 die/oom/restart/health_status。注意 `daemon_buffer_full` 与 `visible_since`：缓冲已满时更早的事件**不可见**，不能据此说“没有重启”，改用 workload 的 `started_at` 判断。
 
+服务在配置中心有绑定时，再看配置变更（未绑定返回 `NOT_CONFIGURED`，跳过即可）：
+```bash
+workctl config get --service <service>                       # 各键 mod_revision；修订号越大越新（etcd 不记录时间）
+workctl config diff --service <service> --key <name>         # 与该键上一版本比较；敏感值只显示 ***
+```
+修订号不是时间：配置变更与指标起点 T 的先后，要靠服务日志中的变更记录（第 4 步）对齐。
+
 ### 3. 指标：确认现象与起点
 ```bash
 workctl metric list --resource <service>

@@ -5,8 +5,10 @@
 | 能力 | 适配器 | 被引用的 Skill 数 | Skill |
 | --- | --- | --- | --- |
 | `capability.get` | registry | 1 | enterprise-infra |
-| `capability.list` | registry | 2 | enterprise-infra, mq-operations |
+| `capability.list` | registry | 3 | enterprise-infra, mq-operations, search-operations |
 | `compute.queue.get` | airflow-pool | 1 | offline-operations |
+| `config.diff` | etcd-v3-gateway | 2 | infra-operations, service-latency-investigation |
+| `config.get` | etcd-v3-gateway | 2 | infra-operations, service-latency-investigation |
 | `container.capacity.summary` | docker-engine-api | kubernetes-api | 1 | resource-capacity-review |
 | `container.event.list` | docker-engine-api | kubernetes-api | 2 | infra-operations, service-latency-investigation |
 | `container.stats.get` | docker-engine-api | kubernetes-api | 2 | resource-capacity-review, service-latency-investigation |
@@ -17,6 +19,7 @@
 | `data.partition.list` | file-catalog | 1 | data-validation |
 | `data.quality.check` | file-catalog | 1 | data-validation |
 | `data.table.get` | file-catalog | 1 | data-validation |
+| `discovery.list` | etcd-v3-gateway | 1 | infra-operations |
 | `mq.consumer.lag` | kafka-admin | 1 | mq-operations |
 | `mq.topic.get` | kafka-admin | 1 | mq-operations |
 | `mq.topic.list` | kafka-admin | 1 | mq-operations |
@@ -56,21 +59,25 @@
 | `redis.stats.sample` | redis-client | 2 | redis-operations, service-latency-investigation |
 | `resource.get` | binding-file | 1 | service-latency-investigation |
 | `resource.list` | binding-file | 1 | enterprise-infra |
+| `search.cluster.get` | opensearch-http | 1 | search-operations |
+| `search.index.get` | opensearch-http | 1 | search-operations |
+| `search.query` | opensearch-http | 1 | search-operations |
 | `service.dependency.list` | binding-file | 2 | enterprise-infra, service-latency-investigation |
 | `storage.file.stat` | node-fs | 1 | infra-operations |
 | `storage.volume.get` | docker-engine-api | 2 | infra-operations, resource-capacity-review |
 
-- Skill 数：10；被引用能力数：55；被 2 个及以上 Skill 复用的能力：16
+- Skill 数：11；被引用能力数：61；被 2 个及以上 Skill 复用的能力：18
 
 | 适配器 | 使用它的 Skill 数 |
 | --- | --- |
+| registry | 3 |
 | docker-engine-api | kubernetes-api | 3 |
 | binding-file | 2 |
-| registry | 2 |
 | docker-engine-api + http-probe | 2 |
 | docker-engine-api|loki-http-api | 2 |
 | node-net | 2 |
 | docker-engine-api | 2 |
+| etcd-v3-gateway | 2 |
 | mysql-driver | 2 |
 | airflow-rest-v1|v2 | 2 |
 | redis-client | 2 |
@@ -82,6 +89,7 @@
 | kafka-admin | 1 |
 | file-catalog+airflow-rest-v1|v2 | 1 |
 | airflow-pool | 1 |
+| opensearch-http | 1 |
 
 ## 能力组合（代码层复用）
 

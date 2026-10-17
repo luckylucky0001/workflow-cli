@@ -1,0 +1,278 @@
+[
+ {
+  "id": "search-01",
+  "args": [
+   "capability",
+   "list",
+   "--domain",
+   "search"
+  ],
+  "note": "插件实现内置 planned 能力：search.index.get / search.query 为 available，origin=plugin:demo-search@0.1.0；search.snapshot.list 仍为 planned"
+ },
+ {
+  "id": "search-02",
+  "args": [
+   "search",
+   "cluster",
+   "get",
+   "--cluster",
+   "demo-search"
+  ],
+  "note": "GET / + _cluster/health + _cat/indices：实际版本、节点、分片；集群 yellow（archive 副本无法在单节点分配）仍为 success + warning"
+ },
+ {
+  "id": "search-03",
+  "args": [
+   "search",
+   "index",
+   "get",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders"
+  ],
+  "note": "_cat/indices + _settings + _mapping + _stats + _cat/shards：3000 文档、8 个字段、2 主分片 STARTED，累计统计标注 cumulative"
+ },
+ {
+  "id": "search-04",
+  "args": [
+   "search",
+   "index",
+   "get",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders-current"
+  ],
+  "note": "单索引别名解析为 demo-orders（resolved_from_alias + warning）"
+ },
+ {
+  "id": "search-05",
+  "args": [
+   "search",
+   "index",
+   "get",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders-archive"
+  ],
+  "note": "索引 yellow：副本 0r UNASSIGNED（INDEX_CREATED），shards.unassigned 列出"
+ },
+ {
+  "id": "search-06",
+  "args": [
+   "search",
+   "index",
+   "get",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "no-such-index"
+  ],
+  "expect": "NOT_FOUND",
+  "note": "404 index_not_found_exception → NOT_FOUND"
+ },
+ {
+  "id": "search-07",
+  "args": [
+   "search",
+   "index",
+   "get",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders-all"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "别名指向 2 个索引：index get 只描述单个索引，details.resolved_indices 列出"
+ },
+ {
+  "id": "search-08",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--query",
+   "status:paid AND city:shanghai",
+   "--max-hits",
+   "5"
+  ],
+  "note": "query_string：total relation=eq（精确），只返回 5 条 → coverage.truncated=true"
+ },
+ {
+  "id": "search-09",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--dsl-file",
+   "demo/scenarios/search/dsl/paid_by_city.json"
+  ],
+  "note": "受限 DSL：bool filter + sort amount desc + _source + terms/date_histogram 聚合"
+ },
+ {
+  "id": "search-10",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--query",
+   "*:*",
+   "--track-total-hits",
+   "1000",
+   "--max-hits",
+   "1"
+  ],
+  "note": "3000 文档、track_total_hits=1000 → total={1000, gte}（下限，非精确）+ warning"
+ },
+ {
+  "id": "search-11",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders-all",
+   "--dsl-file",
+   "demo/scenarios/search/dsl/latest_across_archive.json"
+  ],
+  "expect": "partial",
+  "note": "别名跨 2 个索引按 created_at 排序；archive 映射无该字段 → 1/3 分片失败，status=partial，shard_failures 给出原因"
+ },
+ {
+  "id": "search-12",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--dsl-file",
+   "demo/scenarios/search/dsl/script_score.json"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "DSL 含 script_score → 插件内拒绝，不发往 OpenSearch"
+ },
+ {
+  "id": "search-13",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--dsl-file",
+   "demo/scenarios/search/dsl/size_too_large.json"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "DSL size=500 > 100 上限"
+ },
+ {
+  "id": "search-14",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--dsl-file",
+   "demo/scenarios/search/dsl/disallowed_from.json"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "顶层 from 不在允许列表（query/size/sort/_source/aggs）"
+ },
+ {
+  "id": "search-15",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--query",
+   "status:(paid"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "OpenSearch 400 query_shard_exception（all shards failed）→ INVALID_ARGUMENT，带 parse 错误原文"
+ },
+ {
+  "id": "search-16",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "no-such-index",
+   "--query",
+   "*:*"
+  ],
+  "expect": "NOT_FOUND",
+  "note": "查询不存在的索引 → NOT_FOUND"
+ },
+ {
+  "id": "search-17",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "_all",
+   "--query",
+   "*:*"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "禁止 _all / * / . 开头的系统索引"
+ },
+ {
+  "id": "search-18",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--query",
+   "*:*",
+   "--max-hits",
+   "500"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "--max-hits 上限 100"
+ },
+ {
+  "id": "search-19",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--dsl-file",
+   "demo/scenarios/search/dsl/paid_by_city.json"
+  ],
+  "expect": [
+   "success",
+   "partial"
+  ],
+  "note": "相对路径的 --dsl-file：核心在校验时转为绝对路径再交给插件（插件在自己的安装目录运行）"
+ }
+]

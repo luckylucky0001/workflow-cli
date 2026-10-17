@@ -7,7 +7,7 @@
 | `search.cluster.get` | `search cluster get --cluster` | available | 集群健康、节点数、分片分配、实际版本、索引数量 |
 | `search.index.get` | `search index get --cluster --index` | available | 设置、映射摘要、文档数/容量、累计读写统计、分片分配；别名解析 |
 | `search.query` | `search query --cluster --index (--query \| --dsl-file) [--max-hits] [--track-total-hits]` | available | 受限只读查询：命中数、命中、聚合 |
-| `search.snapshot.list` | `search snapshot list --cluster --repository` | planned | 快照列表，仅出现在目录中，调用返回 `CAPABILITY_PLANNED` |
+| `search.snapshot.list` | `search snapshot list --cluster --repository` | planned | 快照列表，仅出现在目录中：CLI 不生成该命令，经引擎/MCP 调用返回 `CAPABILITY_PLANNED` |
 
 ## 1. 对象模型（OpenSearch）
 

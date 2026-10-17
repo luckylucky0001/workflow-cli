@@ -108,6 +108,22 @@ async function bulk(index, docs) {
   }
 }
 
+// a freshly started container takes a while to open the HTTP port and reach yellow
+async function waitReady(timeoutMs = 120_000) {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    try {
+      const r = await os('GET', '/_cluster/health?wait_for_status=yellow&timeout=5s');
+      if (r.status === 200) return;
+    } catch {
+      // connection refused while the node boots
+    }
+    if (Date.now() > deadline) throw new Error(`OpenSearch at ${BASE} not ready after ${timeoutMs / 1000}s`);
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+}
+
+await waitReady();
 const info = await must('GET', '/');
 console.log(`OpenSearch ${info.version?.distribution ?? '?'} ${info.version?.number ?? '?'} at ${BASE}`);
 

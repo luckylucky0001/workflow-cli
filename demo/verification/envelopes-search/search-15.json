@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "search.query",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "OpenSearch 拒绝了查询（query_shard_exception）: Failed to parse query [status:(paid]: Cannot parse 'status:(paid': Encountered \"<EOF>\" at line 1, column 12. Was expecting one of: <AND> ... <OR> ... <NOT> ... \"+\" ... \"-\" ... <BAREOPER> ... \"(\" ... \")\" ... \"*\" ... \"^\" ... <QUOTED> ... <TERM> ... <FUZZY_SLOP> ... <PREFIXTERM> ... <WILDTERM> ... <REGEXPTERM> ... \"[\" ... \"{\" ... <NUMBER> ... ",
+    "hint": "检查 query_string 语法（括号、引号、字段名:值）或 DSL 结构",
+    "retryable": false,
+    "details": {
+      "cluster": "demo-search",
+      "http_status": 400,
+      "request": "POST /demo-orders/_search?allow_partial_search_results=true&expand_wildcards=open&ignore_unavailable=false",
+      "opensearch_error_type": "query_shard_exception"
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvck1x8d-408375",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:32:18.685Z",
+    "duration_ms": 204
+  }
+}

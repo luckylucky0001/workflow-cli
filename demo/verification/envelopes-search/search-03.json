@@ -1,0 +1,193 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "search.index.get",
+  "data": {
+    "cluster": "demo-search",
+    "requested": "demo-orders",
+    "index": "demo-orders",
+    "resolved_from_alias": null,
+    "uuid": "Ouw_eWgyTAe8oocEbH5ckA",
+    "health": "green",
+    "status": "open",
+    "aliases": [
+      {
+        "name": "demo-orders-all",
+        "is_write_index": null
+      },
+      {
+        "name": "demo-orders-current",
+        "is_write_index": true
+      }
+    ],
+    "settings": {
+      "number_of_shards": 2,
+      "number_of_replicas": 0,
+      "refresh_interval": "1s",
+      "creation_date": "2026-10-17T15:19:51.250Z",
+      "version_created": "136408127"
+    },
+    "mapping": {
+      "dynamic": "strict",
+      "field_count": 8,
+      "top_level_fields": [
+        {
+          "name": "amount",
+          "type": "double"
+        },
+        {
+          "name": "city",
+          "type": "keyword"
+        },
+        {
+          "name": "created_at",
+          "type": "date"
+        },
+        {
+          "name": "customer_id",
+          "type": "long"
+        },
+        {
+          "name": "note",
+          "type": "text"
+        },
+        {
+          "name": "order_id",
+          "type": "keyword"
+        },
+        {
+          "name": "status",
+          "type": "keyword"
+        },
+        {
+          "name": "synthetic",
+          "type": "boolean"
+        }
+      ]
+    },
+    "docs": {
+      "count": 3000,
+      "deleted": 0
+    },
+    "store": {
+      "primaries_bytes": 334158,
+      "total_bytes": 334158
+    },
+    "cumulative_stats": {
+      "basis": "cumulative_since_shard_start",
+      "scope": "total",
+      "search_query_total": 50,
+      "search_query_time_ms": 265,
+      "search_fetch_total": 33,
+      "indexing_index_total": 3000,
+      "indexing_index_time_ms": 860,
+      "indexing_index_failed": 0,
+      "refresh_total": 12
+    },
+    "shards": {
+      "primaries": 2,
+      "replicas_per_primary": 0,
+      "copies_total": 2,
+      "by_state": {
+        "STARTED": 2
+      },
+      "unassigned": [],
+      "nodes": [
+        "80c6f139a307"
+      ],
+      "rows": [
+        {
+          "shard": 0,
+          "prirep": "p",
+          "state": "STARTED",
+          "node": "80c6f139a307",
+          "docs": 1498,
+          "store_bytes": 167438,
+          "unassigned_reason": null
+        },
+        {
+          "shard": 1,
+          "prirep": "p",
+          "state": "STARTED",
+          "node": "80c6f139a307",
+          "docs": 1502,
+          "store_bytes": 166720,
+          "unassigned_reason": null
+        }
+      ]
+    },
+    "observed_at": "2026-10-17T15:32:12.489Z"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "opensearch",
+        "adapter": "opensearch-http",
+        "endpoint": "opensearch/demo-search",
+        "method": "GET /_cat/indices/demo-orders?bytes=b",
+        "observed_at": "2026-10-17T15:32:12.446Z",
+        "version": "opensearch 2.19.3",
+        "relation": "explicit"
+      },
+      {
+        "system": "opensearch",
+        "adapter": "opensearch-http",
+        "endpoint": "opensearch/demo-search",
+        "method": "GET /demo-orders/_settings, /demo-orders/_mapping, /demo-orders/_alias",
+        "observed_at": "2026-10-17T15:32:12.476Z",
+        "version": "opensearch 2.19.3",
+        "relation": "explicit"
+      },
+      {
+        "system": "opensearch",
+        "adapter": "opensearch-http",
+        "endpoint": "opensearch/demo-search",
+        "method": "GET /demo-orders/_stats/docs,store,search,indexing,refresh",
+        "observed_at": "2026-10-17T15:32:12.482Z",
+        "version": "opensearch 2.19.3",
+        "relation": "explicit"
+      },
+      {
+        "system": "opensearch",
+        "adapter": "opensearch-http",
+        "endpoint": "opensearch/demo-search",
+        "method": "GET /_cat/shards/demo-orders?bytes=b",
+        "observed_at": "2026-10-17T15:32:12.489Z",
+        "version": "opensearch 2.19.3",
+        "relation": "explicit"
+      },
+      {
+        "system": "opensearch",
+        "adapter": "opensearch-http",
+        "endpoint": "opensearch/demo-search",
+        "method": "mapping.field_count / shards 汇总",
+        "observed_at": "2026-10-17T15:32:12.489Z",
+        "version": "opensearch 2.19.3",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "scope": "索引 demo-orders 的设置、映射、统计与分片分配",
+      "notes": [
+        "cumulative_stats 是自分片启动/重新分配以来的累计值（所有分片副本之和），不是时间窗口内的速率；求速率需两次采样差分",
+        "docs.count 来自 _stats primaries，是 Lucene 文档数（nested 子文档也计入）；刚写入、尚未 refresh 的文档不计入",
+        "各接口分次读取，不是原子快照"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvck1sao-ddd5cf",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:32:12.288Z",
+    "duration_ms": 271
+  }
+}

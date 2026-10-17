@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "search.query",
+  "data": {
+    "cluster": "demo-search",
+    "index": "demo-orders",
+    "query_source": "query_string",
+    "request": {
+      "size": 5,
+      "requested_size": 5,
+      "max_hits": 5,
+      "timeout": "27991ms",
+      "track_total_hits": 10000,
+      "sort": false,
+      "aggs": false
+    },
+    "took_ms": 14,
+    "timed_out": false,
+    "shards": {
+      "total": 2,
+      "successful": 2,
+      "skipped": 0,
+      "failed": 0
+    },
+    "shard_failures": [],
+    "total": {
+      "value": 121,
+      "relation": "eq"
+    },
+    "returned": 5,
+    "hits": [
+      {
+        "index": "demo-orders",
+        "id": "ORD-000118",
+        "score": 3.2085412,
+        "source": {
+          "order_id": "ORD-000118",
+          "customer_id": 10638,
+          "status": "paid",
+          "amount": 605.37,
+          "city": "shanghai",
+          "created_at": "2026-09-13T07:24:08.000Z",
+          "note": "synthetic order for demo",
+          "synthetic": true
+        },
+        "source_truncated": false
+      },
+      {
+        "index": "demo-orders",
+        "id": "ORD-000146",
+        "score": 3.2085412,
+        "source": {
+          "order_id": "ORD-000146",
+          "customer_id": 10757,
+          "status": "paid",
+          "amount": 699.61,
+          "city": "shanghai",
+          "created_at": "2026-10-10T14:41:37.000Z",
+          "note": "deliver after 6pm",
+          "synthetic": true
+        },
+        "source_truncated": false
+      },
+      {
+        "index": "demo-orders",
+        "id": "ORD-000198",
+        "score": 3.2085412,
+        "source": {
+          "order_id": "ORD-000198",
+          "customer_id": 10680,
+          "status": "paid",
+          "amount": 1255.03,
+          "city": "shanghai",
+          "created_at": "2026-10-09T23:55:25.000Z",
+          "note": "express delivery requested",
+          "synthetic": true
+        },
+        "source_truncated": false
+      },
+      {
+        "index": "demo-orders",
+        "id": "ORD-000204",
+        "score": 3.2085412,
+        "source": {
+          "order_id": "ORD-000204",
+          "customer_id": 10482,
+          "status": "paid",
+          "amount": 1813.19,
+          "city": "shanghai",
+          "created_at": "2026-10-04T12:37:14.000Z",
+          "note": "coupon applied at checkout",
+          "synthetic": true
+        },
+        "source_truncated": false
+      },
+      {
+        "index": "demo-orders",
+        "id": "ORD-000310",
+        "score": 3.2085412,
+        "source": {
+          "order_id": "ORD-000310",
+          "customer_id": 10428,
+          "status": "paid",
+          "amount": 697.48,
+          "city": "shanghai",
+          "created_at": "2026-09-11T17:27:43.000Z",
+          "note": "deliver after 6pm",
+          "synthetic": true
+        },
+        "source_truncated": false
+      }
+    ],
+    "aggregations": null,
+    "observed_at": "2026-10-17T15:32:15.169Z"
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "opensearch",
+        "adapter": "opensearch-http",
+        "endpoint": "opensearch/demo-search",
+        "method": "POST /demo-orders/_search",
+        "observed_at": "2026-10-17T15:32:15.169Z",
+        "version": "opensearch 2.19.3",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": false,
+      "truncated": true,
+      "limit": 5,
+      "scope": "demo-orders 上匹配查询的文档（query_string）",
+      "notes": [
+        "total 关系为 eq：精确命中数；track_total_hits=10000（上限 10000）",
+        "只返回前 5 条命中（--max-hits 上限 100）；匹配文档多于返回条数，命中列表是截断的",
+        "近实时：最近一次 refresh（默认 1s）之后写入的文档不可见"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvck1ud0-c031db",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-17T15:32:14.964Z",
+    "duration_ms": 217
+  }
+}
