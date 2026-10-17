@@ -184,9 +184,21 @@ export class AirflowClient {
     return this.getOrNull(`/dags/${encodeURIComponent(dagId)}/dagRuns/${encodeURIComponent(runId)}`);
   }
 
-  async taskInstances(dagId: string, runId: string): Promise<any[]> {
-    const r = await this.get<{ task_instances: any[] }>(`/dags/${encodeURIComponent(dagId)}/dagRuns/${encodeURIComponent(runId)}/taskInstances`, { limit: 100 });
-    return r.task_instances ?? [];
+  /**
+   * All task instances of a run. Both API versions page at most 100 entries (maximum_page_limit),
+   * so mapped tasks / large DAGs need offset paging; capped at `max` entries.
+   */
+  async taskInstances(dagId: string, runId: string, max = 2000): Promise<any[]> {
+    const path = `/dags/${encodeURIComponent(dagId)}/dagRuns/${encodeURIComponent(runId)}/taskInstances`;
+    const out: any[] = [];
+    for (let offset = 0; offset < max; ) {
+      const r = await this.get<{ task_instances: any[]; total_entries?: number }>(path, { limit: 100, offset });
+      const page = r.task_instances ?? [];
+      out.push(...page);
+      offset += page.length;
+      if (!page.length || offset >= Number(r.total_entries ?? 0)) break;
+    }
+    return out;
   }
 
   /**

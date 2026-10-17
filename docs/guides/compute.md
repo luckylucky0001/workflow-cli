@@ -92,6 +92,8 @@ reschedule 模式的传感器等待时不占槽。值为观测时刻的瞬时值
 
 ## 5. Trino（`sql query submit --engine trino`）
 
+> 权限边界（演示环境）：Trino 使用基于文件的访问控制（`demo/environment/trino/rules.json`），workctl 使用的 `workctl` 账号对所有目录只读；即使语句绕过了 workctl 的只读防护，`CREATE TABLE` 等写操作也会被 Trino 以 `PERMISSION_DENIED` 拒绝（`test/sql/trino-acl.live.test.ts`）。客户环境应同样为 workctl 配置只读账号，程序侧防护只是第一道。
+
 实现 Trino [client protocol](https://trino.io/docs/current/develop/client-protocol.html)（HTTP，不依赖驱动），已在 Trino 476（单节点 `trinodb/trino:476`，
 内置 `tpch` / `system` catalog）上验证，记录见 [demo/verification/report.trino.md](../../demo/verification/report.trino.md)。输出与 Spark 相同的契约，
 Trino 特有信息放在可选字段：`engine_query_id`（Trino query id）、`engine_state`（Trino 原始状态）、`stats`、`column_types`、`catalog`/`schema`、`engine_version`；

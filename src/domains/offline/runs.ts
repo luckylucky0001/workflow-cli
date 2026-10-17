@@ -63,7 +63,20 @@ export async function runsForBusinessDate(af: AirflowClient, dagId: string, iv: 
       ? { logical_date_gte: gte, logical_date_lte: lte, order_by: '-logical_date', limit }
       : { execution_date_gte: gte, execution_date_lte: lte, order_by: '-execution_date', limit };
   const r = await af.get<{ dag_runs: any[]; total_entries: number }>(`/dags/${encodeURIComponent(dagId)}/dagRuns`, query);
-  const all = r.dag_runs ?? [];
+  const all = [...(r.dag_runs ?? [])];
+  let total = Number(r.total_entries ?? all.length);
+  let truncated = total > all.length;
+  if (af.apiVersion === 'v2') {
+    // Airflow 3 runs may have logical_date = null (still with a data interval inferred from
+    // run_after); a logical_date filter never returns them, so look them up by run_after too —
+    // otherwise backfill would see "no run" for a date such a run already processed.
+    const extra = await af.get<{ dag_runs: any[]; total_entries: number }>(`/dags/${encodeURIComponent(dagId)}/dagRuns`, { run_after_gte: gte, run_after_lte: lte, order_by: '-run_after', limit });
+    const seen = new Set(all.map((x) => x.dag_run_id));
+    const nullLogical = (extra.dag_runs ?? []).filter((x) => (x.logical_date === null || x.logical_date === undefined) && !seen.has(x.dag_run_id));
+    all.push(...nullLogical);
+    total += nullLogical.length;
+    if (Number(extra.total_entries ?? 0) > (extra.dag_runs ?? []).length) truncated = true;
+  }
   const matched: { run: any; match: IntervalMatch }[] = [];
   for (const run of all) {
     const rs = Date.parse(run.data_interval_start ?? run.logical_date ?? run.execution_date);
@@ -71,7 +84,7 @@ export async function runsForBusinessDate(af: AirflowClient, dagId: string, iv: 
     const m = matchInterval(rs, re, iv.startMs, iv.endMs);
     if (m) matched.push({ run, match: m });
   }
-  return { matched, scanned: all.length, total: r.total_entries ?? all.length, query, window: { gte, lte }, truncated: (r.total_entries ?? all.length) > all.length };
+  return { matched, scanned: all.length, total, query, window: { gte, lte }, truncated };
 }
 
 // ---------------------------------------------------------------------------

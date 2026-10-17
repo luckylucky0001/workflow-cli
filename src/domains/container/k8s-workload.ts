@@ -157,6 +157,35 @@ export async function resolveKubeTargets(ctx: Ctx, b: KubeBinding, env: string |
     methods.push(`GET /api/v1/namespaces/${ns}/pods?labelSelector=${labelSelector}`);
     pods = (await client.get<KubeList<KubePod>>(podsPath)).items ?? [];
   }
+  // A workload's spec.selector also matches pods it does not own (bare pods, other controllers
+  // with overlapping labels). When the binding names a workload, keep only pods it controls:
+  // StatefulSet → pod.controller = the StatefulSet; Deployment → pod.controller = a ReplicaSet
+  // whose controller is the Deployment (old ReplicaSets of a rollout are still the Deployment's).
+  const w0 = b.workload && workloads[0];
+  if (w0 && w0.metadata.uid && pods.length) {
+    const controllerUid = (refs: KubePod['metadata']['ownerReferences']) => (refs ?? []).find((o) => o.controller)?.uid;
+    let owned: Set<string> | null = null;
+    if (b.workload!.kind === 'StatefulSet') owned = new Set([w0.metadata.uid]);
+    else {
+      const rsPath = `/apis/apps/v1/namespaces/${enc(ns)}/replicasets?labelSelector=${enc(labelSelector)}`;
+      const rs = await client.request<KubeList<{ metadata: KubePod['metadata'] }>>('GET', rsPath, { allowStatus: [403, 404] });
+      if (rs.status === 200) {
+        methods.push(`GET /apis/apps/v1/namespaces/${ns}/replicasets?labelSelector=${labelSelector}`);
+        owned = new Set((rs.body.items ?? []).filter((x) => controllerUid(x.metadata.ownerReferences) === w0.metadata.uid).map((x) => x.metadata.uid ?? ''));
+      } else {
+        notes.push(`未能列出 ReplicaSet（HTTP ${rs.status}），未按 ownerReferences 校验 Pod 是否属于 Deployment ${w0.metadata.name}；同标签的其他 Pod 可能混入`);
+      }
+    }
+    if (owned) {
+      const foreign = pods.filter((p) => !owned!.has(controllerUid(p.metadata.ownerReferences) ?? ''));
+      if (foreign.length) {
+        notes.push(`${foreign.length} 个 Pod 匹配选择器但不属于 ${b.workload!.kind} ${w0.metadata.name}（ownerReferences 指向其他控制器或没有控制器），已排除: ${foreign.map((p) => p.metadata.name).join(', ')}`);
+        pods = pods.filter((p) => !foreign.includes(p));
+      }
+    }
+  }
+  const terminating = pods.filter((p) => p.metadata.deletionTimestamp);
+  if (terminating.length) notes.push(`${terminating.length} 个 Pod 正在终止（metadata.deletionTimestamp 已设置，如滚动更新替换下来的旧 Pod）: ${terminating.map((p) => p.metadata.name).join(', ')}`);
   const kept: KubePod[] = [];
   const excluded: { name: string; env: string }[] = [];
   const missingEnv: string[] = [];

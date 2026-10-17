@@ -167,6 +167,10 @@ services:
     labels:
       workctl.resource: demo-trino
       workctl.env: sandbox
+    volumes:
+      # file-based access control: user `workctl` is read-only (database-side boundary)
+      - ./trino/access-control.properties:/etc/trino/access-control.properties:ro
+      - ./trino/rules.json:/etc/trino/rules.json:ro
     ports:
       - "18085:8080"
 

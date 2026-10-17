@@ -165,6 +165,23 @@ export function queryInfoStats(q: Record<string, any> | undefined): QueryStats |
 // HTTP client
 // ---------------------------------------------------------------------------
 
+/**
+ * Trino sends BIGINT values as JSON numbers; JSON.parse silently rounds integers beyond 2^53.
+ * Re-parse such pages keeping out-of-range integers exact as decimal strings (Node ≥ 21 passes
+ * the source text to the reviver; elsewhere the value stays a number, unchanged behaviour).
+ */
+export function parseTrinoJson<T>(text: string, parsed: T): T {
+  if (!text || !/\d{16,}/.test(text)) return parsed;
+  try {
+    return JSON.parse(text, function (this: unknown, _k: string, v: unknown, context?: { source?: string }) {
+      if (typeof v === 'number' && Number.isInteger(v) && !Number.isSafeInteger(v) && context?.source && /^-?\d+$/.test(context.source)) return context.source;
+      return v;
+    } as any) as T;
+  } catch {
+    return parsed;
+  }
+}
+
 export class TrinoClient {
   readonly base: URL;
 
@@ -219,7 +236,7 @@ export class TrinoClient {
     if (!r.body || typeof r.body !== 'object' || !(r.body as TrinoQueryResults).id) {
       throw new WorkError('UPSTREAM_UNAVAILABLE', 'Trino 返回的不是 QueryResults（缺少 id）', { details: { status: r.status, body: r.text.slice(0, 300) } });
     }
-    return r.body;
+    return parseTrinoJson(r.text, r.body);
   }
 
   /** GET nextUri. 404/410 → null (the query or the page token no longer exists). 502/503/504 are retried as the protocol requires. */
@@ -232,7 +249,7 @@ export class TrinoClient {
         await sleep(100 * 2 ** attempt, this.ctx.signal);
         continue;
       }
-      return r.body;
+      return parseTrinoJson(r.text, r.body);
     }
   }
 
@@ -363,8 +380,9 @@ export function absorbQueryInfo(st: Record<string, any>, info: Record<string, an
 // per-query lock (two concurrent `get` calls must not consume the same page token twice)
 // ---------------------------------------------------------------------------
 
-export async function withQueryLock<T>(statePath: string, ctx: Ctx, fn: () => Promise<T>, onBusy: () => T): Promise<T> {
+export async function withQueryLock<T>(statePath: string, ctx: Ctx, fn: () => Promise<T>, onBusy: () => T | Promise<T>, maxWaitMs = 2000): Promise<T> {
   const lock = `${statePath}.lock`;
+  const tries = Math.max(1, Math.ceil(maxWaitMs / 200));
   for (let i = 0; ; i++) {
     try {
       closeSync(openSync(lock, 'wx'));
@@ -381,7 +399,7 @@ export async function withQueryLock<T>(statePath: string, ctx: Ctx, fn: () => Pr
         rmSync(lock, { force: true });
         continue;
       }
-      if (i >= 10) return onBusy();
+      if (i >= tries) return onBusy();
       await sleep(200, ctx.signal);
     }
   }

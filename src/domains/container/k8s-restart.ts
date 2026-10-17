@@ -31,8 +31,12 @@ export function rolloutState(w: KubeWorkload, kind: string, minGeneration: numbe
   const want = w.spec.replicas ?? 1;
   const gen = w.metadata.generation ?? 0;
   const prog = st.conditions?.find((c) => c.type === 'Progressing');
-  if (prog?.reason === 'ProgressDeadlineExceeded') return { done: false, failed: true, detail: `Progressing=False ProgressDeadlineExceeded: ${prog.message ?? ''}`.trim() };
+  // conditions describe the generation the controller last observed: a ProgressDeadlineExceeded left
+  // over from an earlier rollout must not fail the new one before the controller has seen it
+  // (kubectl rollout status checks observedGeneration first, then the condition)
   if ((st.observedGeneration ?? 0) < Math.max(gen, minGeneration)) return { done: false, failed: false, detail: `等待控制器观察到 generation ${Math.max(gen, minGeneration)}（observedGeneration=${st.observedGeneration ?? 0}）` };
+  if (prog?.reason === 'ProgressDeadlineExceeded') return { done: false, failed: true, detail: `Progressing=False ProgressDeadlineExceeded: ${prog.message ?? ''}`.trim() };
+  if (kind === 'Deployment' && w.spec.paused) return { done: false, failed: true, detail: 'Deployment 处于暂停状态（spec.paused=true），控制器不会滚动更新；需先 rollout resume' };
   const updated = st.updatedReplicas ?? 0;
   if (updated < want) return { done: false, failed: false, detail: `${updated}/${want} 个副本已更新` };
   if (kind === 'StatefulSet') {
@@ -73,6 +77,8 @@ export async function planK8sRestart(ctx: Ctx, b: KubeBinding, service: string, 
     };
   });
   const unsupported = targets.filter((x) => x.kind === 'StatefulSet' && x.strategy === 'OnDelete');
+  // kubectl rollout restart refuses paused Deployments: the template change would not roll out
+  const paused = t.workloads.filter((w) => (w.kind ?? 'Deployment') === 'Deployment' && w.spec.paused).map((w) => w.metadata.name);
   const settled = targets.every((x) => {
     const w = t.workloads.find((y) => y.metadata.name === x.name)!;
     return (w.status?.observedGeneration ?? 0) >= (w.metadata.generation ?? 0) && (w.status?.updatedReplicas ?? 0) >= (w.spec.replicas ?? 1);
@@ -105,6 +111,7 @@ export async function planK8sRestart(ctx: Ctx, b: KubeBinding, service: string, 
       { check: 'kubernetes_reachable', ok: true, detail: `${t.client.endpointId} 可访问（计划生成时）` },
       { check: 'no_rollout_in_progress', ok: settled, detail: settled ? '计划生成时没有进行中的 rollout' : '存在尚未完成的 rollout（observedGeneration 落后或更新副本不足），先等待或排查' },
       ...(unsupported.length ? [{ check: 'rolling_update_strategy', ok: false, detail: `${unsupported.map((x) => x.name).join(', ')} 使用 OnDelete 更新策略，rollout restart 不会替换 Pod` }] : []),
+      ...(paused.length ? [{ check: 'deployment_not_paused', ok: false, detail: `${paused.join(', ')} 处于暂停状态（spec.paused=true），重启注解不会触发滚动更新；先 kubectl rollout resume` }] : []),
     ],
     steps: [
       ...targets.map((x) => ({
@@ -153,6 +160,9 @@ export async function k8sRestartExecutor(ctx: Ctx, plan: Plan, report: (note: st
     if (t.workload_selector !== undefined && selectorString(before.spec.selector) !== String(t.workload_selector)) {
       throw new WorkError('PRECONDITION_FAILED', `${kind} ${ns}/${name} 的 spec.selector 已变化（${t.workload_selector} → ${selectorString(before.spec.selector)}），拒绝执行`);
     }
+    if (kind === 'Deployment' && before.spec.paused) {
+      throw new WorkError('PRECONDITION_FAILED', `${kind} ${ns}/${name} 处于暂停状态（spec.paused=true），重启注解不会触发滚动更新，拒绝执行`, { hint: '先 kubectl rollout resume，再重新生成计划' });
+    }
     const restartedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
     const t0 = Date.now();
     report(`rollout restart ${kind.toLowerCase()}/${name} (namespace ${ns})`);
@@ -160,7 +170,16 @@ export async function k8sRestartExecutor(ctx: Ctx, plan: Plan, report: (note: st
       body: { spec: { template: { metadata: { annotations: { [RESTARTED_AT]: restartedAt } } } } },
       contentType: 'application/strategic-merge-patch+json',
     });
-    const genAfter = patched.body.metadata?.generation ?? (before.metadata.generation ?? 0) + 1;
+    const genBefore = before.metadata.generation ?? 0;
+    const genAfter = patched.body.metadata?.generation ?? genBefore + 1;
+    if (patched.body.metadata?.generation !== undefined && genAfter <= genBefore) {
+      // the PATCH did not change the pod template (e.g. same restartedAt value): no rollout was
+      // triggered, so the current (old) rollout status must not be reported as this restart
+      throw new WorkError('CONFLICT', `${kind} ${ns}/${name} 的 generation 未变化（${genBefore}），重启注解没有触发新的滚动更新`, {
+        hint: '稍后重新生成计划并执行；不要把当前状态当作重启结果',
+        details: { generation_before: genBefore, generation_after: genAfter, restarted_at: restartedAt },
+      });
+    }
     const deadline = Date.now() + Math.min(rolloutTiming.verifyMs, Math.max(0, ctx.remainingMs() - 1_000));
     let cur = patched.body;
     let st = rolloutState(cur, kind, genAfter);

@@ -1,0 +1,7 @@
+{
+  "catalogs": [
+    { "user": "admin", "allow": "all" },
+    { "user": "workctl", "catalog": "(tpch|tpcds|system|jmx|memory)", "allow": "read-only" },
+    { "allow": "none" }
+  ]
+}

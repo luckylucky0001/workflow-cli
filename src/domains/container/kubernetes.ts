@@ -171,7 +171,11 @@ export function loadKubeconfig(path: string, context?: string): ResolvedKubeconf
   try {
     kc = (YAML.parse(readFileSync(path, 'utf8')) ?? {}) as KubeconfigFile;
   } catch (e) {
-    throw new WorkError('INVALID_ARGUMENT', `kubeconfig 无法解析: ${path}`, { details: { reason: String(e) } });
+    // never echo the parser message: YAML errors quote the offending source line, which can be a token or key
+    const pos = (e as { linePos?: { line: number; col: number }[] }).linePos?.[0];
+    throw new WorkError('INVALID_ARGUMENT', `kubeconfig 无法解析: ${path}`, {
+      details: { code: (e as { code?: string }).code ?? 'YAML_PARSE_ERROR', ...(pos ? { line: pos.line, column: pos.col } : {}) },
+    });
   }
   const ctxName = context ?? kc['current-context'];
   if (!ctxName) throw new WorkError('NOT_CONFIGURED', `kubeconfig ${path} 没有 current-context，需要在端点中配置 context`);
@@ -317,8 +321,38 @@ export interface LabelSelectorSpec {
   matchExpressions?: { key: string; operator: 'In' | 'NotIn' | 'Exists' | 'DoesNotExist'; values?: string[] }[];
 }
 
-/** metav1.LabelSelector → the string form accepted by `?labelSelector=`. */
+// label key: optional DNS-subdomain prefix + '/' + name (≤63); value: empty or ≤63 alnum with -_. inside
+const LABEL_NAME = /^[A-Za-z0-9]([A-Za-z0-9_.-]{0,61}[A-Za-z0-9])?$/;
+const LABEL_PREFIX = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/;
+const LABEL_VALUE = /^([A-Za-z0-9]([A-Za-z0-9_.-]{0,61}[A-Za-z0-9])?)?$/;
+
+export function validLabelKey(k: string): boolean {
+  const i = k.lastIndexOf('/');
+  if (i < 0) return LABEL_NAME.test(k);
+  const prefix = k.slice(0, i);
+  return prefix.length <= 253 && LABEL_PREFIX.test(prefix) && LABEL_NAME.test(k.slice(i + 1));
+}
+
+export function validLabelValue(v: string): boolean {
+  return LABEL_VALUE.test(v);
+}
+
+/**
+ * metav1.LabelSelector → the string form accepted by `?labelSelector=`. Keys and values are
+ * validated (the selector syntax has no escaping): a value such as `a,env!=prod` from a binding
+ * file would otherwise change the meaning of the selector.
+ */
 export function selectorString(sel: LabelSelectorSpec): string {
+  const bad: string[] = [];
+  for (const [k, v] of Object.entries(sel.matchLabels ?? {})) {
+    if (!validLabelKey(k) || !validLabelValue(String(v))) bad.push(`${k}=${v}`);
+  }
+  for (const e of sel.matchExpressions ?? []) {
+    if (!validLabelKey(e.key) || (e.values ?? []).some((v) => !validLabelValue(String(v)))) bad.push(`${e.key} ${e.operator} (${(e.values ?? []).join(',')})`);
+  }
+  if (bad.length) {
+    throw new WorkError('INVALID_ARGUMENT', `标签选择器含不合法的标签键或值: ${bad.join('; ')}`, { hint: '标签值只能是字母数字及 - _ .（≤63 字符），不能包含逗号、空格、= ! ( ) 等' });
+  }
   const parts = Object.entries(sel.matchLabels ?? {}).map(([k, v]) => `${k}=${v}`);
   for (const e of sel.matchExpressions ?? []) {
     if (e.operator === 'In') parts.push(`${e.key} in (${(e.values ?? []).join(',')})`);
@@ -357,6 +391,7 @@ export interface ObjectMeta {
   generation?: number;
   resourceVersion?: string;
   creationTimestamp?: string;
+  deletionTimestamp?: string;
   labels?: Record<string, string>;
   annotations?: Record<string, string>;
   ownerReferences?: { kind: string; name: string; uid: string; controller?: boolean }[];
@@ -417,6 +452,7 @@ export interface KubeWorkload {
   metadata: ObjectMeta;
   spec: {
     replicas?: number;
+    paused?: boolean;
     selector: LabelSelectorSpec;
     template: { metadata?: { labels?: Record<string, string>; annotations?: Record<string, string> }; spec?: { containers?: KubeContainerSpec[] } };
     progressDeadlineSeconds?: number;

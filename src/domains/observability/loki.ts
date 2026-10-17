@@ -389,8 +389,12 @@ export async function pagedQuery(
   let start = win.startNs;
   let end = win.endNs;
   const maxPages = opts.maxPages ?? 20;
+  const cap = opts.pageSize ?? 5000;
+  // lines at the previous page's boundary timestamp come back again (the boundary is inclusive);
+  // the next page must be large enough to hold them plus at least one new line
+  let boundaryDup = 0;
   while (out.pages < maxPages) {
-    const size = Math.min(opts.pageSize ?? 5000, Math.max(1, want - out.matched.length));
+    const size = Math.min(cap, Math.max(1, want - out.matched.length) + boundaryDup);
     const streams = await loki.queryRange(query, start, end, size, direction);
     out.pages++;
     const lines = flattenStreams(streams, direction);
@@ -413,12 +417,19 @@ export async function pagedQuery(
       out.exhausted = true;
       break;
     }
+    const edge = lines[lines.length - 1].ns;
+    const atEdge = lines.filter((l) => l.ns === edge).length;
     if (!fresh) {
-      // a full page of lines sharing one timestamp: cannot move the boundary further
+      if (size < cap && atEdge === lines.length) {
+        // the whole page was the already-seen boundary group: retry with room for new lines
+        boundaryDup = lines.length;
+        continue;
+      }
+      // a full (capped) page of lines sharing one timestamp: cannot move the boundary further
       out.stoppedAtSameTimestamp = true;
       break;
     }
-    const edge = lines[lines.length - 1].ns;
+    boundaryDup = atEdge;
     if (direction === 'backward') end = edge + 1n;
     else start = edge;
   }

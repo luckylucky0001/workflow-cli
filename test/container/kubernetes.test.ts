@@ -425,6 +425,82 @@ contexts:
     expect((done.data as any).status).toBe('succeeded');
     expect((done.data as any).result.verified_all).toBe(true);
   });
+
+  // ---- review regressions -------------------------------------------------------------------
+  it('a stale ProgressDeadlineExceeded from an earlier rollout does not fail the new one before it is observed', async () => {
+    const { rolloutState } = await import('../../src/domains/container/k8s-restart');
+    const w = state.deployments[0] as any;
+    w.metadata.generation = 4;
+    w.status.observedGeneration = 3; // controller has not seen the restart yet
+    w.status.conditions = w.status.conditions.map((c: any) => (c.type === 'Progressing' ? { ...c, status: 'False', reason: 'ProgressDeadlineExceeded' } : c));
+    expect(rolloutState(w, 'Deployment', 4)).toMatchObject({ done: false, failed: false });
+    w.status.observedGeneration = 4;
+    expect(rolloutState(w, 'Deployment', 4)).toMatchObject({ done: false, failed: true });
+  });
+
+  it('a paused Deployment: failed plan precondition, executor refuses without patching', async () => {
+    state.deployments[0].spec.paused = true;
+    const env = await invoke(r, 'container.workload.restart_plan', { service: 'demo-order' }, { configPath });
+    const plan = env.data as Plan;
+    expect(plan.preconditions.find((p) => p.check === 'deployment_not_paused')?.ok).toBe(false);
+    const ctx = new Ctx({ registry: r, loaded: loadConfig(configPath), profileName: 't', requestId: 'req-test', timeoutMs: 20_000 });
+    const patches = fake.calls.filter((c) => c.startsWith('PATCH')).length;
+    const err = await (r.executors.get('container.restart')!(ctx, plan, () => undefined) as Promise<any>).catch((e) => e);
+    expect(err.code).toBe('PRECONDITION_FAILED');
+    expect(fake.calls.filter((c) => c.startsWith('PATCH')).length).toBe(patches);
+  });
+
+  it('a PATCH that does not bump the generation is not reported as a completed restart', async () => {
+    state.patchNoop = true;
+    const { run } = await planAndRun();
+    const err = await run().catch((e) => e);
+    expect(err.code).toBe('CONFLICT');
+    expect(err.message).toContain('generation');
+  });
+
+  it('pods matching a Deployment selector but owned by another controller (or none) are excluded', async () => {
+    const pay = state.deployments.find((d: any) => d.metadata.name === 'demo-pay')!;
+    const rsUid = state.pods.find((p: any) => p.metadata.name.startsWith('demo-pay-'))!.metadata.ownerReferences[0].uid;
+    state.replicasets = [
+      { kind: 'ReplicaSet', apiVersion: 'apps/v1', metadata: { name: 'demo-pay-5d4c7b9f8', namespace: 'demo', uid: rsUid, labels: { app: 'demo-pay', tier: 'api' }, ownerReferences: [{ apiVersion: 'apps/v1', kind: 'Deployment', name: 'demo-pay', uid: pay.metadata.uid, controller: true }] } },
+    ];
+    state.pods.push(pod({ name: 'debug-copy-of-pay', labels: { app: 'demo-pay', tier: 'api' } })); // bare pod, same labels
+    const env = await invoke(r, 'container.workload.get', { service: 'demo-pay' }, { configPath });
+    noSchemaWarnings(env);
+    const d = env.data as any;
+    expect(d.containers.map((c: any) => c.kubernetes.pod)).toEqual(['demo-pay-5d4c7b9f8-q1w2e']);
+    expect(env.meta.coverage?.notes?.join()).toContain('debug-copy-of-pay');
+  });
+
+  it('binding label values cannot inject selector syntax', async () => {
+    expect(() => selectorString({ matchLabels: { app: 'demo-order,workctl.env!=prod' } })).toThrow(/不合法/);
+    expect(() => selectorString({ matchLabels: { 'bad key': 'x' } })).toThrow(/不合法/);
+    expect(selectorString({ matchLabels: { 'app.kubernetes.io/name': 'demo-order', empty: '' } })).toBe('app.kubernetes.io/name=demo-order,empty=');
+    const bindings = readFileSync(join(fake.dir, 'bindings.yaml'), 'utf8');
+    writeFileSync(join(fake.dir, 'bindings.yaml'), bindings.replace('labels: { app: demo-order }', 'labels: { app: "demo-order,tier notin (x)" }'));
+    try {
+      const env = await invoke(r, 'container.workload.get', { service: 'demo-order' }, { configPath });
+      expect(env.error?.code).toBe('INVALID_ARGUMENT');
+      expect(fake.calls.some((c) => c.includes('notin'))).toBe(false);
+    } finally {
+      writeFileSync(join(fake.dir, 'bindings.yaml'), bindings);
+    }
+  });
+
+  it('a kubeconfig parse error does not echo file content (tokens, keys)', async () => {
+    const { loadKubeconfig } = await import('../../src/domains/container/kubernetes');
+    const kc = join(fake.dir, 'broken-kubeconfig.yaml');
+    writeFileSync(kc, 'users:\n- name: a\n  user:\n    token: [SUPERSECRETTOKEN\n'); // parser error points at the token line
+    const err = (() => {
+      try {
+        loadKubeconfig(kc);
+      } catch (e) {
+        return e as any;
+      }
+    })();
+    expect(err.code).toBe('INVALID_ARGUMENT');
+    expect(JSON.stringify({ m: err.message, d: err.details, h: err.hint })).not.toContain('SUPERSECRET');
+  });
 });
 
 function haveOpenssl(): boolean {

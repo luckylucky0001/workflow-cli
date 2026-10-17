@@ -21,6 +21,8 @@ export interface FakeK8sState {
   statefulsets?: Obj[];
   pods: Obj[];
   events: Obj[];
+  /** ReplicaSets; undefined → the replicasets endpoint answers 404. */
+  replicasets?: Obj[];
   /** null → metrics.k8s.io is not registered (404 like a cluster without metrics-server). */
   podMetrics: Obj[] | null;
   nodes: Obj[];
@@ -28,6 +30,8 @@ export interface FakeK8sState {
   forbidden?: Set<string>;
   /** Rollout behaviour after PATCH: complete after `afterMs`, never complete, or exceed the progress deadline. */
   rollout?: { mode: 'complete' | 'stuck' | 'deadline'; afterMs?: number };
+  /** PATCH changes nothing (e.g. the same restartedAt value was already set): generation stays. */
+  patchNoop?: boolean;
 }
 
 const now = () => new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
@@ -348,6 +352,7 @@ export async function startFakeK8s(
           if (req.headers['content-type'] !== 'application/strategic-merge-patch+json') return send(415, status(415, 'UnsupportedMediaType', 'unsupported patch type'));
           const patch = JSON.parse(bodyText);
           bodies.push(patch);
+          if (state.patchNoop) return send(200, obj);
           const ann = patch?.spec?.template?.metadata?.annotations ?? {};
           obj.spec.template.metadata.annotations = { ...(obj.spec.template.metadata.annotations ?? {}), ...ann };
           obj.metadata.generation += 1;
@@ -374,6 +379,10 @@ export async function startFakeK8s(
         }
         if (deny('get', plural, 'apps', ns, name)) return;
         return obj ? send(200, obj) : send(404, status(404, 'NotFound', `${plural}.apps "${name}" not found`, { name, group: 'apps', kind: plural }));
+      }
+      if ((m = /^\/apis\/apps\/v1\/namespaces\/([^/]+)\/replicasets$/.exec(p)) && state.replicasets) {
+        if (deny('list', 'replicasets', 'apps', m[1])) return;
+        return list('ReplicaSet', state.replicasets.filter((x) => x.metadata.namespace === m![1] && matchSelector(sel, x.metadata.labels)), 'apps/v1');
       }
       if ((m = /^\/apis\/metrics\.k8s\.io\/v1beta1\/namespaces\/([^/]+)\/pods$/.exec(p))) {
         if (!state.podMetrics) return send(404, status(404, 'NotFound', 'the server could not find the requested resource'));

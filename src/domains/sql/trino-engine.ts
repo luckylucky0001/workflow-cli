@@ -30,10 +30,12 @@ function statePath(dir: string, id: string): string {
   return join(dir, `${id}.json`);
 }
 
-function save(path: string, st: Record<string, any>): void {
+/** Atomic write; the temp name is unique per writer so concurrent processes never share it. */
+export function save(path: string, st: Record<string, any>): void {
   st.updated_at = new Date().toISOString();
-  writeFileSync(`${path}.tmp`, JSON.stringify(st, null, 2));
-  renameSync(`${path}.tmp`, path);
+  const tmp = `${path}.${process.pid}.${randomBytes(4).toString('hex')}.tmp`;
+  writeFileSync(tmp, JSON.stringify(st, null, 2));
+  renameSync(tmp, path);
 }
 
 async function version(client: TrinoClient, fallback?: string | null): Promise<string | undefined> {
@@ -289,6 +291,25 @@ export async function trinoGet(ctx: Ctx, ep: Endpoint, path: string, previewRows
 // ---------------------------------------------------------------------------
 
 export async function trinoCancel(ctx: Ctx, ep: Endpoint, path: string) {
+  // Hold the per-query lock: a concurrent `get` keeps its own copy of the state and saves it
+  // after every page, so an unlocked cancel would either be overwritten or overwrite pages.
+  const wait = Math.max(0, Math.min(8000, ctx.remainingMs() - 6000));
+  let busy = false;
+  const out = await withQueryLock(
+    path,
+    ctx,
+    () => cancelLocked(ctx, ep, path, false),
+    () => {
+      busy = true;
+      return cancelLocked(ctx, ep, path, true);
+    },
+    wait,
+  );
+  if (busy) out.coverage.notes = [...(out.coverage.notes ?? []), '另一个 sql query get 正在拉取结果页（未取得查询锁）：取消请求已发送，最终状态由该 get 写入，用 sql query get 复核'];
+  return out;
+}
+
+async function cancelLocked(ctx: Ctx, ep: Endpoint, path: string, unlocked: boolean) {
   const st = JSON.parse(readFileSync(path, 'utf8')) as Record<string, any>;
   if (terminal(st.state)) throw new WorkError('CONFLICT', `查询 ${st.query_id} 已处于 ${st.state}，无需取消`);
   const previous = st.state as string;
@@ -317,7 +338,7 @@ export async function trinoCancel(ctx: Ctx, ep: Endpoint, path: string) {
   if (info) absorbQueryInfo(st, info, '已发送取消请求');
   const confirmed = st.state === 'cancelled';
   if (confirmed) await finalize(client, st, methods);
-  save(path, st);
+  if (!unlocked) save(path, st);
   const ver = await version(client, st.trino_version);
   return {
     data: {
@@ -333,9 +354,9 @@ export async function trinoCancel(ctx: Ctx, ep: Endpoint, path: string) {
     sources: [trinoSource(ep, methods.join(' → '), ver)],
     coverage: {
       complete: true,
-      scope: st.query_id,
-      ...(confirmed ? {} : { notes: [`取消请求已发送，但协调节点尚未确认 USER_CANCELED（当前 ${st.engine_state ?? '未知'}）；用 sql query get 复核`] }),
-    },
+      scope: st.query_id as string,
+      notes: confirmed ? ([] as string[]) : [`取消请求已发送，但协调节点尚未确认 USER_CANCELED（当前 ${st.engine_state ?? '未知'}）；用 sql query get 复核`],
+    } as { complete: boolean; scope: string; notes?: string[] },
   };
 }
 

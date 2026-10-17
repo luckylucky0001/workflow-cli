@@ -8,6 +8,7 @@ import { invoke } from '../../src/core/engine';
 import { loadConfig } from '../../src/core/config';
 import { Registry } from '../../src/core/registry';
 import { Ctx } from '../../src/core/runtime';
+import { pagedQuery } from '../../src/domains/observability/loki';
 import container from '../../src/domains/container';
 import observability from '../../src/domains/observability';
 import { parseLogLine } from '../../src/domains/observability/logs';
@@ -394,5 +395,44 @@ describe('log query / trace get against a fake Loki', () => {
     const loaded = loadConfig(cfg);
     const ctx = new Ctx({ registry: r, loaded, profileName: 't', requestId: 't', timeoutMs: 5000 });
     expect(await probe(ctx, 'l')).toMatchObject({ ok: true, version: '3.5.5', detail: '/ready: ready' });
+  });
+});
+
+describe('Loki pagination (review regression)', () => {
+  // in-memory Loki: one stream, query_range semantics (start inclusive, end exclusive, limit, direction)
+  const fakeLoki = (nss: bigint[]) => {
+    const calls: { start: bigint; end: bigint; limit: number }[] = [];
+    const client = {
+      async queryRange(_q: string, start: bigint, end: bigint, limit: number, direction: 'backward' | 'forward') {
+        calls.push({ start, end, limit });
+        // stable line content per entry (index in the fixture), so re-returned lines are true duplicates
+        const hits = nss
+          .map((n, id) => ({ n, id }))
+          .filter(({ n }) => n >= start && n < end)
+          .sort((a, b) => (a.n === b.n ? a.id - b.id : (a.n < b.n) === (direction === 'forward') ? -1 : 1))
+          .slice(0, limit);
+        return [{ stream: { container: 'c', stream: 'stdout' }, values: hits.map(({ n, id }) => [n.toString(), `{"level":"info","msg":"m${id}"}`] as [string, string]) }];
+      },
+    };
+    return { client: client as unknown as Parameters<typeof pagedQuery>[0], calls };
+  };
+
+  it('a short follow-up page is not swallowed by the re-returned boundary line (no false "same timestamp" stop)', async () => {
+    const base = 1_700_000_000_000_000_000n;
+    const nss = Array.from({ length: 10 }, (_, i) => base + BigInt(i + 1) * 1_000_000n);
+    const { client } = fakeLoki(nss);
+    // the client-side filter drops one line of the first page (entry 8)
+    const r = await pagedQuery(client, '{x="y"}', { startNs: nss[0], endNs: nss[9] + 1n }, 'backward', 5, (e) => e.msg !== 'm8');
+    expect(r.matched).toHaveLength(5);
+    expect(r.stoppedAtSameTimestamp).toBe(false);
+    expect(r.matched.map((e) => e.ts)).toEqual([...r.matched.map((e) => e.ts)].sort().reverse());
+  });
+
+  it('stops (bounded pages) when more lines share one timestamp than a page can hold', async () => {
+    const same = Array.from({ length: 30 }, () => 1_700_000_000_000_000_000n);
+    const { client, calls } = fakeLoki(same);
+    const r = await pagedQuery(client, '{x="y"}', { startNs: 0n, endNs: same[0] + 1n }, 'backward', 100, () => true, { pageSize: 10, maxPages: 5 });
+    expect(r.stoppedAtSameTimestamp).toBe(true);
+    expect(calls.length).toBeLessThanOrEqual(5);
   });
 });
