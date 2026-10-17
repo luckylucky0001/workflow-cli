@@ -1,5 +1,9 @@
 import { z } from 'zod';
+import { existsSync } from 'node:fs';
+import { connect } from 'node:net';
+import { isAbsolute, resolve } from 'node:path';
 import { secretRefStatus } from '../../core/config';
+import { listInstalled, readManifest } from '../../core/plugins';
 import { source, WorkError } from '../../core/output';
 import { PlanSchema } from '../../core/operations';
 import { defineCapability, defineDomain, describeCapability, type CapabilityDef } from '../../core/registry';
@@ -497,7 +501,105 @@ const operationCancel = defineCapability({
   },
 });
 
+
+function tcpCheck(host: string, port: number, timeoutMs: number): Promise<{ ok: boolean; ms: number; error?: string }> {
+  const t0 = Date.now();
+  return new Promise((res) => {
+    const sock = connect({ host, port });
+    const done = (ok: boolean, error?: string) => {
+      sock.destroy();
+      res({ ok, ms: Date.now() - t0, ...(error ? { error } : {}) });
+    };
+    sock.setTimeout(timeoutMs, () => done(false, 'timeout'));
+    sock.once('connect', () => done(true));
+    sock.once('error', (e) => done(false, (e as NodeJS.ErrnoException).code ?? e.message));
+  });
+}
+
+function endpointTarget(cfg: Record<string, unknown>, baseDir: string): { kind: 'tcp'; host: string; port: number } | { kind: 'path'; path: string } | null {
+  const url = (cfg.url ?? cfg.history_url) as string | undefined;
+  if (url) {
+    const u = new URL(url);
+    return { kind: 'tcp', host: u.hostname, port: Number(u.port || (u.protocol === 'https:' ? 443 : 80)) };
+  }
+  if (cfg.host && cfg.port) return { kind: 'tcp', host: String(cfg.host), port: Number(cfg.port) };
+  const brokers = cfg.brokers as string[] | undefined;
+  if (brokers?.length) {
+    const [host, port] = String(brokers[0]).split(':');
+    return { kind: 'tcp', host, port: Number(port) };
+  }
+  const p = (cfg.socket ?? cfg.metadata_dir) as string | undefined;
+  if (p) return { kind: 'path', path: isAbsolute(p) ? p : resolve(baseDir, p) };
+  return null;
+}
+
+const doctor = defineCapability({
+  name: 'doctor.run',
+  command: 'doctor',
+  summary: '诊断 workctl 自身环境：配置、profile、资源绑定、凭据引用、端点可达性、插件与 Skill',
+  domain: 'core',
+  inputs: { skip_network: { type: 'bool', default: false, description: '跳过端点连通性检查' } },
+  output: z.object({
+    healthy: z.boolean(),
+    checks: z.array(z.object({ area: z.string(), item: z.string(), ok: z.boolean(), detail: z.string() })),
+  }),
+  adapter: 'local',
+  operation: 'diagnose',
+  auth_provider: 'none',
+  guide: 'docs/quickstart.md',
+  notes: ['端点可达只检查网络连通，不代表认证或授权成功；身份校验用 auth status --probe'],
+  handler: async (ctx, i) => {
+    const checks: { area: string; item: string; ok: boolean; detail: string }[] = [];
+    checks.push({ area: 'config', item: 'file', ok: !!ctx.loaded.path, detail: ctx.loaded.path ?? '未找到配置文件（--config / $WORKCTL_CONFIG / ./workctl.yaml / ~/.config/workctl/config.yaml）' });
+    const p = ctx.profile;
+    checks.push({ area: 'config', item: 'profile', ok: !!p, detail: p ? `${ctx.profileName} env=${p.env} data_mode=${p.data_mode} allow_execute=${p.allow_execute}` : '没有可用 profile' });
+    if (p?.resources_file) {
+      try {
+        const store = ctx.resources();
+        const dangling = store.relations.filter((r) => !store.get(r.from) || !store.get(r.to));
+        checks.push({ area: 'resources', item: 'bindings', ok: dangling.length === 0, detail: `${store.resources.length} 个资源，${store.relations.length} 条关系${dangling.length ? `；${dangling.length} 条关系指向未登记资源` : ''}` });
+      } catch (e) {
+        checks.push({ area: 'resources', item: 'bindings', ok: false, detail: e instanceof Error ? e.message : String(e) });
+      }
+    }
+    for (const [kind, named] of Object.entries(p?.endpoints ?? {})) {
+      for (const [name, cfg] of Object.entries(named)) {
+        for (const [k, v] of Object.entries(cfg).filter(([k]) => k.endsWith('_ref'))) {
+          const st = secretRefStatus(String(v), ctx.loaded.baseDir);
+          checks.push({ area: 'credentials', item: `${kind}/${name}.${k}`, ok: st.resolvable, detail: st.resolvable ? `${st.ref_type} 引用可解析` : st.reason ?? '' });
+        }
+        if (i.skip_network) continue;
+        const target = endpointTarget(cfg, ctx.loaded.baseDir);
+        if (!target) continue;
+        if (target.kind === 'path') {
+          checks.push({ area: 'endpoints', item: `${kind}/${name}`, ok: existsSync(target.path), detail: target.path });
+        } else {
+          const r = await tcpCheck(target.host, target.port, Math.min(2000, ctx.remainingMs()));
+          checks.push({ area: 'endpoints', item: `${kind}/${name}`, ok: r.ok, detail: `${target.host}:${target.port} ${r.ok ? `可达 (${r.ms}ms)` : `不可达: ${r.error}`}` });
+        }
+      }
+    }
+    for (const pl of listInstalled()) {
+      try {
+        const m = readManifest(pl.dir);
+        checks.push({ area: 'plugins', item: pl.name, ok: true, detail: `v${m.version} backend_mode=${m.backend_mode}，${m.capabilities.length} 个能力` });
+      } catch (e) {
+        checks.push({ area: 'plugins', item: pl.name, ok: false, detail: e instanceof Error ? e.message : String(e) });
+      }
+    }
+    const domains = [...ctx.registry.domains.values()].filter((d) => ctx.registry.list({ domain: d.name }).some((c) => c.status !== 'planned'));
+    const missingGuides = domains.filter((d) => !existsSync(d.guide)).map((d) => d.name);
+    checks.push({ area: 'registry', item: 'capabilities', ok: true, detail: `${ctx.registry.list().filter((c) => c.status !== 'planned').length} 个可调用，${ctx.registry.list({ status: 'planned' }).length} 个待接入` });
+    if (missingGuides.length) checks.push({ area: 'registry', item: 'guides', ok: true, detail: `当前目录下找不到指南（随 npm 包发布于 docs/）: ${missingGuides.join(', ')}` });
+    return {
+      data: { healthy: checks.every((c) => c.ok), checks },
+      sources: [source('workctl', 'local', { relation: 'derived' })],
+    };
+  },
+});
+
 export const CORE_CAPABILITIES: CapabilityDef[] = [
+  doctor,
   capabilityList,
   capabilityGet,
   resourceList,

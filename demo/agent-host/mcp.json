@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "workctl": {
+      "command": "node",
+      "args": ["dist/workctl.js", "mcp", "serve"],
+      "env": { "WORKCTL_CONFIG": "demo/environment/workctl.yaml" }
+    }
+  }
+}

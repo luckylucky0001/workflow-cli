@@ -5,3 +5,6 @@ dist/
 demo/environment/.runtime/
 demo/environment/.env
 coverage/
+.claude/skills/
+.workctl-bin/
+demo/agent-host/runs/*.json

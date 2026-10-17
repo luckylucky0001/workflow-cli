@@ -6,7 +6,7 @@ import { parseDuration } from '../core/runtime';
 import { installPlugin, listInstalled, loadPlugins, removePlugin, validatePlugin } from '../core/plugins';
 import { builtinRegistry } from '../domains';
 import { generateDocs } from './docsgen';
-import { installSkills, listSkills } from './skills';
+import { installSkills, listSkills, skillsStatus } from './skills';
 
 interface GlobalOpts {
   json?: boolean;
@@ -255,6 +255,20 @@ export function buildProgram(registry: Registry, pluginErrors: string[] = [], qu
         emit(localEnvelope('skills.install', installSkills(o.dir, o.name, !!o.force), null, t), g);
       } catch (e) {
         emit(localEnvelope('skills.install', null, e instanceof WorkError ? e : new WorkError('INTERNAL', String(e)), t), g);
+      }
+    });
+
+  skills
+    .command('status')
+    .description('检查项目目录中已安装 Skill 与当前 CLI 版本是否一致')
+    .requiredOption('--dir <path>', '目标目录，如 .claude/skills')
+    .action((o: { dir: string }, command: Command) => {
+      const g = command.optsWithGlobals() as GlobalOpts;
+      const t = Date.now();
+      try {
+        emit(localEnvelope('skills.status', skillsStatus(o.dir), null, t), g);
+      } catch (e) {
+        emit(localEnvelope('skills.status', null, e instanceof WorkError ? e : new WorkError('INTERNAL', String(e)), t), g);
       }
     });
 

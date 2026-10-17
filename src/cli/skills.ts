@@ -62,3 +62,19 @@ export function installSkills(targetDir: string, names: string[] | undefined, fo
     verify: '在 Agent 宿主中确认 Skill 已被发现，例如询问“列出可用的 skills”，或检查宿主的 skills 列表',
   };
 }
+
+/** Compare skills installed in a project directory with the ones shipped by this CLI version. */
+export function skillsStatus(targetDir: string) {
+  const { skills, version } = listSkills();
+  const lockFile = join(targetDir, '.workctl-skills.json');
+  const lock: Record<string, { version: string; installed_at: string }> = existsSync(lockFile) ? JSON.parse(readFileSync(lockFile, 'utf8')) : {};
+  return {
+    target: resolve(targetDir),
+    cli_version: version,
+    skills: skills.map((s) => {
+      const installed = lock[s.name]?.version ?? (existsSync(join(targetDir, s.name)) ? 'unmanaged' : null);
+      return { name: s.name, installed_version: installed, state: installed === null ? 'not_installed' : installed === version ? 'current' : 'outdated' };
+    }),
+    hint: '版本不一致时运行 workctl skills install --dir <dir> --force；回退：安装对应版本的 workctl 后再执行同一命令',
+  };
+}
