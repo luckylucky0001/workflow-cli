@@ -51,25 +51,25 @@
         "area": "endpoints",
         "item": "postgres/demo-postgres",
         "ok": true,
-        "detail": "127.0.0.1:15432 可达 (1ms)"
+        "detail": "127.0.0.1:15432 可达 (0ms)"
       },
       {
         "area": "endpoints",
         "item": "redis/demo-redis",
         "ok": true,
-        "detail": "127.0.0.1:16379 可达 (1ms)"
+        "detail": "127.0.0.1:16379 可达 (0ms)"
       },
       {
         "area": "endpoints",
         "item": "prometheus/demo-prometheus",
         "ok": true,
-        "detail": "127.0.0.1:19090 可达 (0ms)"
+        "detail": "127.0.0.1:19090 可达 (1ms)"
       },
       {
         "area": "endpoints",
         "item": "loki/demo-loki",
         "ok": true,
-        "detail": "127.0.0.1:13100 可达 (1ms)"
+        "detail": "127.0.0.1:13100 可达 (0ms)"
       },
       {
         "area": "credentials",
@@ -81,13 +81,13 @@
         "area": "endpoints",
         "item": "airflow/demo-airflow",
         "ok": true,
-        "detail": "127.0.0.1:18080 可达 (0ms)"
+        "detail": "127.0.0.1:18080 可达 (1ms)"
       },
       {
         "area": "endpoints",
         "item": "spark/demo-spark",
         "ok": true,
-        "detail": "127.0.0.1:18088 可达 (2ms)"
+        "detail": "127.0.0.1:18088 可达 (0ms)"
       },
       {
         "area": "endpoints",
@@ -105,7 +105,7 @@
         "area": "endpoints",
         "item": "kafka/demo-mq",
         "ok": true,
-        "detail": "127.0.0.1:19092 可达 (1ms)"
+        "detail": "127.0.0.1:19092 可达 (0ms)"
       },
       {
         "area": "endpoints",
@@ -117,7 +117,7 @@
         "area": "endpoints",
         "item": "etcd/demo-etcd",
         "ok": true,
-        "detail": "127.0.0.1:12379 可达 (1ms)"
+        "detail": "127.0.0.1:12379 可达 (2ms)"
       },
       {
         "area": "endpoints",
@@ -129,7 +129,7 @@
         "area": "endpoints",
         "item": "consul/demo-consul",
         "ok": true,
-        "detail": "127.0.0.1:18500 可达 (0ms)"
+        "detail": "127.0.0.1:18500 可达 (1ms)"
       },
       {
         "area": "credentials",
@@ -141,7 +141,7 @@
         "area": "endpoints",
         "item": "jenkins/demo-jenkins",
         "ok": true,
-        "detail": "127.0.0.1:18091 可达 (1ms)"
+        "detail": "127.0.0.1:18091 可达 (0ms)"
       },
       {
         "area": "plugins",
@@ -169,7 +169,7 @@
       {
         "system": "workctl",
         "adapter": "local",
-        "observed_at": "2026-10-18T05:45:40.347Z",
+        "observed_at": "2026-10-18T05:54:48.989Z",
         "relation": "derived"
       }
     ],
@@ -181,7 +181,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdejcn8-be60b2",
+    "request_id": "req-mvdev3zl-d1c016",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -189,7 +189,7 @@
     "adapter": "local",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:45:40.292Z",
-    "duration_ms": 56
+    "started_at": "2026-10-18T05:54:48.945Z",
+    "duration_ms": 44
   }
 }

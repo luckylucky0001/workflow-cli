@@ -74,6 +74,16 @@ export class SparkHistory {
   }
 }
 
+/**
+ * REST path of an application's UI data. Apps with attempt ids (YARN cluster mode) are served
+ * only under /applications/{id}/{attemptId} — /applications/{id}/jobs answers 404 "no such app"
+ * for them. The history server lists attempts newest first, so attempts[0] is the latest.
+ */
+export function appPath(app: any, id: string): string {
+  const att = (app?.attempts ?? [])[0]?.attemptId;
+  return `/applications/${encodeURIComponent(id)}${att !== undefined && att !== null && att !== '' ? `/${encodeURIComponent(String(att))}` : ''}`;
+}
+
 /** <driver_log_dir>/<app_id>.log (symlink while the app is running). */
 export function driverLogPath(ep: Endpoint, appId: string): string | null {
   const dir = ep.path('driver_log_dir');

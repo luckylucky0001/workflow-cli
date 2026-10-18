@@ -49,7 +49,7 @@
       {
         "system": "workctl",
         "adapter": "metric-catalog",
-        "observed_at": "2026-10-18T05:45:55.091Z",
+        "observed_at": "2026-10-18T05:54:58.945Z",
         "endpoint": "prometheus/demo-prometheus",
         "method": "profiles.demo.endpoints.prometheus.demo-prometheus.metrics",
         "relation": "explicit"
@@ -62,7 +62,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdejo17-48cdbe",
+    "request_id": "req-mvdevbor-0c4d1b",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -70,7 +70,7 @@
     "adapter": "prometheus-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:45:55.051Z",
-    "duration_ms": 40
+    "started_at": "2026-10-18T05:54:58.923Z",
+    "duration_ms": 23
   }
 }

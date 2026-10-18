@@ -12,9 +12,9 @@
     "key": "order.timeout_ms",
     "revision_space": "nacos-history-id",
     "mode": "previous_version",
-    "from_revision": 9,
-    "to_revision": 11,
-    "current_revision": 11,
+    "from_revision": 13,
+    "to_revision": 15,
+    "current_revision": 15,
     "changes": [
       {
         "name": "order.timeout_ms",
@@ -55,18 +55,18 @@
       "group": "DEFAULT_GROUP",
       "data_id": "demo-payment.properties",
       "from_history": {
-        "id": 9,
+        "id": 13,
         "op_type": "I",
-        "modified_at": "2026-10-18T13:44:58.565+08:00",
+        "modified_at": "2026-10-18T13:51:59.152+08:00",
         "src_user": null
       },
       "to_history": {
-        "id": 11,
+        "id": 15,
         "op_type": "U",
-        "modified_at": "2026-10-18T13:44:59.337+08:00",
+        "modified_at": "2026-10-18T13:51:59.824+08:00",
         "src_user": null
       },
-      "history_records": 11,
+      "history_records": 15,
       "oldest_history_id": 1
     }
   },
@@ -76,7 +76,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-18T05:46:21.976Z",
+        "observed_at": "2026-10-18T05:52:53.068Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/cs/configs?show=all dataId=demo-payment.properties",
         "relation": "explicit",
@@ -85,7 +85,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-18T05:46:21.977Z",
+        "observed_at": "2026-10-18T05:52:53.069Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v2/cs/history/list + GET /v2/cs/history?nid=（前像记录）",
         "relation": "explicit",
@@ -95,16 +95,16 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "Nacos nacos/demo-nacos 键 sandbox/DEFAULT_GROUP/demo-payment.properties#order.timeout_ms，历史 ID 9 → 11",
+      "scope": "Nacos nacos/demo-nacos 键 sandbox/DEFAULT_GROUP/demo-payment.properties#order.timeout_ms，历史 ID 13 → 15",
       "notes": [
-        "该键最近一次变化发生在历史记录 10（U，2026-10-18T13:44:58.946+08:00）；与其前像比较",
+        "该键最近一次变化发生在历史记录 14（U，2026-10-18T13:51:59.486+08:00）；与其前像比较",
         "修订空间为 Nacos 配置历史 ID（全局递增的 nid）：起点/终点表示“不晚于该 ID 的最后一次变更生效后”的文档；只比较两个时刻，中间值不可见。历史保留 30 天"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdek8q5-9b96f6",
+    "request_id": "req-mvdesmj1-23848e",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -112,7 +112,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:46:21.869Z",
-    "duration_ms": 127
+    "started_at": "2026-10-18T05:52:53.005Z",
+    "duration_ms": 88
   }
 }

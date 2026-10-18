@@ -292,6 +292,7 @@
       ],
       "notes": [
         "Airflow pool 只限制并发槽，不代表 CPU/内存；reschedule 模式的传感器等待时不占槽",
+        "occupied_slots = running + queued（include_deferred 时再加 deferred）：queued 多而 open_slots 仍有余量时瓶颈在执行器/worker，不在 pool；scheduled 多且 open_slots=0 才是 pool 槽不足",
         "YARN 队列（容量、已用、挂起应用）为待接入能力 compute.yarn-queue.get"
       ],
       "examples": [

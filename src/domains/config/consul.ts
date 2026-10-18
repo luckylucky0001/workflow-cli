@@ -203,11 +203,15 @@ export async function consulConfigDiff(ctx: Ctx, i: Record<string, any>, p: Prov
   }
   const changedSince = r.kvs.filter((kv) => kv.ModifyIndex > fromRev).map((kv) => ({ key: kv.Key, create_index: kv.CreateIndex, modify_index: kv.ModifyIndex, created_after: kv.CreateIndex > fromRev }));
   if (current !== null && fromRev >= current) {
-    if (fromRev > current) {
-      // only an index beyond the whole KV store's index is in the future (`?keys` at the root reports the KV table index)
+    const latest = Math.max(fromRev, toArg === 'current' ? 0 : toArg);
+    if (latest > current) {
+      // only an index beyond the whole KV store's index is in the future (`?keys` at the root reports the KV table index);
+      // "no change up to a future index" would be a claim about writes that have not happened yet
       const all = await client.get('/v1/kv/', { keys: 'true', separator: '/' });
       const kvIndex = all ? Number(header(all.headers, 'x-consul-index')) : NaN;
-      if (Number.isFinite(kvIndex) && fromRev > kvIndex) throw new WorkError('INVALID_ARGUMENT', `--from-rev ${fromRev} 大于 Consul KV 当前索引 ${kvIndex}`, { details: { requested_revision: fromRev, current_revision: kvIndex } });
+      for (const [label, rev] of [['--from-rev', fromRev], ['--to-rev', toArg === 'current' ? 0 : toArg]] as const) {
+        if (Number.isFinite(kvIndex) && rev > kvIndex) throw new WorkError('INVALID_ARGUMENT', `${label} ${rev} 大于 Consul KV 当前索引 ${kvIndex}`, { details: { requested_revision: rev, current_revision: kvIndex } });
+      }
     }
     const toRev = toArg === 'current' ? fromRev : toArg;
     return {

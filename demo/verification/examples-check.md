@@ -1,17 +1,17 @@
 # 文档命令实跑记录（examples-check）
 
-> 由 `node scripts/examples-check.mjs` 生成于 2026-10-18T05:46:54.747Z。逐条执行能力定义中的 `examples`（command-reference 与 `--help` 展示的内容）以及 quickstart / walkthrough / README / guides 中的 `workctl` 命令，全部 `--json`。
+> 由 `node scripts/examples-check.mjs` 生成于 2026-10-18T05:52:49.036Z。逐条执行能力定义中的 `examples`（command-reference 与 `--help` 展示的内容）以及 quickstart / walkthrough / README / guides / skills 中的 `workctl` 命令，全部 `--json`。
 > 默认 profile `demo/environment/workctl.yaml`；Kubernetes 专属示例（失败时）再用 `demo/environment/k8s/workctl.k8s.yaml` 重试。`operation=execute`、`operation execute`、重启、安装、Airflow 3 profile 一律跳过不执行。
 > 占位符替换：`<trace_id>` 取自 `log query`，`<app_id>` 取自 `offline run get`，`op-…`/`<plan>` 取自 `offline backfill plan`，`q-…`/`<q>` 取自 `sql query submit`，`q.sql` 为按引擎生成的临时只读 SQL。
 > `expected-error`：失败的错误码在该能力的说明（notes）或所在文档中有说明（如示例中的虚构 id → `NOT_FOUND`）。
 
 | | 总数 | pass | expected-error | fail | skipped |
 |---|---|---|---|---|---|
-| 能力 examples | 115 | 112 | 2 | 0 | 1 |
-| 文档命令 | 74 | 63 | 1 | 0 | 10 |
-| Skill 命令 | 109 | 98 | 1 | 0 | 10 |
+| 能力 examples | 115 | 114 | 0 | 0 | 1 |
+| 文档命令 | 75 | 63 | 1 | 0 | 11 |
+| Skill 命令 | 109 | 99 | 0 | 0 | 10 |
 
-链式取值：`trace_id=09350e7d93dcad26c6efd507f225d296`，`app_id=local-1792300311012`，`plan_id=op-20261018-bf95e6`，`sql_query_id=q-20261018-6bcc04`，`replicaset=demo-order-77fdb45bf4`
+链式取值：`trace_id=d995b0c0ce3a0507d9d84184dec8014b`，`app_id=local-1792300311012`，`plan_id=op-20261018-b05701`，`sql_query_id=q-20261018-5aed7e`，`replicaset=demo-order-77fdb45bf4`
 
 ## 能力 examples
 
@@ -37,8 +37,8 @@
 | pass | observability.metric.query | `workctl metric query --resource demo-order --promql 'sum by (route) (rate(http_requests_total{service="demo-order"}[1m]))'` | docker |  |
 | pass | observability.metric.list | `workctl metric list --resource demo-order` | docker |  |
 | pass | observability.log.query | `workctl log query --service demo-order --window 15m --level error` | docker |  |
-| pass | observability.log.query | `workctl log query --service demo-order --trace-id <trace_id> --include-spans`<br>替换：<trace_id> -> 09350e7d93dcad26c6efd507f225d296 | docker |  |
-| pass | observability.trace.get | `workctl trace get --id <trace_id> --window 1h`<br>替换：<trace_id> -> 09350e7d93dcad26c6efd507f225d296 | docker |  |
+| pass | observability.log.query | `workctl log query --service demo-order --trace-id <trace_id> --include-spans`<br>替换：<trace_id> -> d995b0c0ce3a0507d9d84184dec8014b | docker |  |
+| pass | observability.trace.get | `workctl trace get --id <trace_id> --window 1h`<br>替换：<trace_id> -> d995b0c0ce3a0507d9d84184dec8014b | docker |  |
 | pass | mysql.instance.get | `workctl mysql instance get --instance demo-mysql` | docker |  |
 | pass | mysql.table.get | `workctl mysql table get --instance demo-mysql --database demo --table orders` | docker |  |
 | pass | mysql.index.list | `workctl mysql index list --instance demo-mysql --database demo --table orders` | docker |  |
@@ -76,8 +76,8 @@
 | pass | redis.stats.sample | `workctl redis stats sample --instance demo-redis --duration 10s` | docker |  |
 | pass | redis.stats.sample | `workctl --timeout 60s redis stats sample --instance demo-redis --duration 30s` | docker |  |
 | pass | redis.slowlog.list | `workctl redis slowlog list --instance demo-redis --limit 10` | docker |  |
-| expected-error | redis.key.inspect | `workctl redis key inspect --instance demo-redis --key demo:order:1` | docker | NOT_FOUND 键不存在: demo:order:1 |
-| expected-error | redis.key.inspect | `workctl redis key inspect --instance demo-redis --key demo:customer:1:recent --include-value` | docker | NOT_FOUND 键不存在: demo:customer:1:recent |
+| pass | redis.key.inspect | `workctl redis key inspect --instance demo-redis --key demo:order:10` | docker |  |
+| pass | redis.key.inspect | `workctl redis key inspect --instance demo-redis --key demo:customer:1:history --include-value` | docker |  |
 | pass | redis.key.sample | `workctl redis key sample --instance demo-redis --pattern "demo:*" --max-keys 200` | docker |  |
 | pass | redis.key.hot | `workctl redis key hot --instance demo-redis --pattern "demo:*" --max-keys 500` | docker |  |
 | pass | redis.config.get | `workctl redis config get --instance demo-redis --pattern "maxmemory*"` | docker |  |
@@ -88,7 +88,7 @@
 | pass | offline.dependency.list | `workctl offline dependency list --workflow demo-daily-orders --run-id demo__2026-10-14__missing_upstream --direction upstream` | docker |  |
 | pass | offline.log.get | `workctl offline log get --workflow demo-daily-orders --run-id demo__2026-10-16__wrong_partition --task aggregate_orders --limit-lines 50` | docker |  |
 | pass | offline.backfill.plan | `workctl offline backfill plan --workflow demo-daily-orders --from 2026-10-14 --to 2026-10-16 --timezone Asia/Shanghai` | docker |  |
-| pass | offline.backfill.get | `workctl offline backfill get --id op-20261017-abc123`<br>替换：op-20261017-abc123 -> op-20261018-bf95e6 | docker |  |
+| pass | offline.backfill.get | `workctl offline backfill get --id op-20261017-abc123`<br>替换：op-20261017-abc123 -> op-20261018-b05701 | docker |  |
 | pass | offline.freshness.check | `workctl offline freshness check --dataset analytics.daily_orders --data-date 2026-10-16` | docker |  |
 | pass | compute.job.get | `workctl compute job get --id <app_id>`<br>替换：<app_id> -> local-1792300311012 | docker |  |
 | pass | compute.stage.list | `workctl compute stage list --job-id <app_id>`<br>替换：<app_id> -> local-1792300311012 | docker |  |
@@ -97,7 +97,7 @@
 | pass | compute.queue.get | `workctl compute queue get --id demo-batch-pool` | docker |  |
 | pass | sql.query.submit | `workctl sql query submit --engine spark --file demo/offline-workflows/sql/examples/daily_orders_by_date.sql` | docker |  |
 | pass | sql.query.submit | `workctl sql query submit --engine trino --file q.sql --catalog tpch --schema tiny`<br>替换：q.sql -> trino sample (SELECT name FROM nation ORDER BY nationkey LIMIT 5) | docker |  |
-| pass | sql.query.get | `workctl sql query get --id q-20261017-1a2b3c`<br>替换：q-20261017-1a2b3c -> q-20261018-6bcc04 | docker |  |
+| pass | sql.query.get | `workctl sql query get --id q-20261017-1a2b3c`<br>替换：q-20261017-1a2b3c -> q-20261018-5aed7e | docker |  |
 | skipped | sql.query.cancel | `workctl sql query cancel --id q-20261017-1a2b3c` |  | operation=execute |
 | pass | data.table.get | `workctl data table get --catalog demo --table analytics.daily_orders` | docker |  |
 | pass | data.partition.list | `workctl data partition list --catalog demo --table ods.orders --from 2026-10-10 --to 2026-10-16` | docker |  |
@@ -160,7 +160,7 @@
 | pass | demo/walkthrough.md:53 | `workctl metric query --resource demo-order --metric db_query_rate --window 15m` | docker |  |
 | pass | demo/walkthrough.md:54 | `workctl log query --service demo-order --env sandbox --window 15m --contains "cache mode changed"` | docker |  |
 | pass | demo/walkthrough.md:55 | `workctl log query --service demo-order --env sandbox --window 15m --level error` | docker |  |
-| pass | demo/walkthrough.md:56 | `workctl trace get --id <最慢请求的 trace_id>`<br>替换：<最慢请求的 trace_id> -> 09350e7d93dcad26c6efd507f225d296 | docker |  |
+| pass | demo/walkthrough.md:56 | `workctl trace get --id <最慢请求的 trace_id>`<br>替换：<最慢请求的 trace_id> -> d995b0c0ce3a0507d9d84184dec8014b | docker |  |
 | pass | demo/walkthrough.md:57 | `workctl --timeout 30s redis stats sample --instance demo-redis --duration 10s` | docker |  |
 | pass | demo/walkthrough.md:58 | `workctl --timeout 40s mysql statement summary --instance demo-mysql --sample-window 10s` | docker |  |
 | pass | demo/walkthrough.md:59 | `workctl mysql query explain --instance demo-mysql --database demo --sql-file demo/scenarios/latency/customer_recent.sql` | docker |  |
@@ -194,10 +194,10 @@
 | pass | demo/walkthrough.md:102 | `WORKCTL_CONFIG=demo/environment/k8s/workctl.k8s.yaml workctl --json deploy status get --service demo-order --env sandbox` | k8s |  |
 | pass | demo/walkthrough.md:104 | `WORKCTL_CONFIG=demo/environment/k8s/workctl.k8s.yaml workctl container workload get --service demo-order --env sandbox` | k8s |  |
 | pass | demo/walkthrough.md:105 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/orders_by_status.sql` | docker |  |
-| pass | demo/walkthrough.md:105 | `workctl sql query get --id <q>`<br>替换：<q> -> q-20261018-6bcc04 | docker |  |
+| pass | demo/walkthrough.md:105 | `workctl sql query get --id <q>`<br>替换：<q> -> q-20261018-5aed7e | docker |  |
 | pass | README.md:104 | `workctl --help` | docker |  |
 | pass | docs/guides/infrastructure.md:3 | `workctl capability get --name <name>`<br>替换：<name> -> mysql.table.get | docker |  |
-| pass | docs/guides/infrastructure.md:50 | `workctl operation get --id <plan>`<br>替换：<plan> -> op-20261018-bf95e6 | docker |  |
+| pass | docs/guides/infrastructure.md:50 | `workctl operation get --id <plan>`<br>替换：<plan> -> op-20261018-b05701 | docker |  |
 | skipped | docs/guides/infrastructure.md:51 | `workctl operation execute --id <plan> --confirm <plan>` |  | operation execute |
 | pass | docs/guides/infrastructure.md:52 | `workctl container workload get --service demo-order` | docker |  |
 | pass | docs/guides/infrastructure.md:53 | `workctl network backend list --service demo-order` | docker |  |
@@ -205,12 +205,13 @@
 | skipped | docs/guides/mysql.md:89 | `workctl access check` | docker | INVALID_ARGUMENT |
 | pass | docs/guides/mysql.md:89 | `workctl auth status --probe` | docker |  |
 | skipped | docs/guides/offline.md:101 | `workctl operation execute --id op-20261017-xxxxxx --confirm op-20261017-xxxxxx` |  | operation execute |
-| pass | docs/guides/offline.md:102 | `workctl offline backfill get --id op-20261017-xxxxxx`<br>替换：op-20261017-xxxxxx -> op-20261018-bf95e6 | docker |  |
+| pass | docs/guides/offline.md:102 | `workctl offline backfill get --id op-20261017-xxxxxx`<br>替换：op-20261017-xxxxxx -> op-20261018-b05701 | docker |  |
 | skipped | docs/guides/offline.md:205 | `WORKCTL_CONFIG=demo/environment/workctl.af3.yaml workctl --json offline run get --workflow demo-daily-orders --id demo__2026-10-16__wrong_partition` |  | Airflow 3 profile (not running in this check) |
-| pass | docs/guides/operations.md:29 | `workctl --json operation plan --action container.restart --param service=demo-order --param env=sandbox` | docker |  |
-| skipped | docs/guides/operations.md:30 | `workctl --json operation execute --id op-20261017-abc123 --confirm op-20261017-abc123` |  | operation execute |
-| pass | docs/guides/operations.md:31 | `workctl --json operation get --id op-20261017-abc123`<br>替换：op-20261017-abc123 -> op-20261018-bf95e6 | docker |  |
-| skipped | docs/guides/operations.md:48 | `workctl mcp serve --allow-execute` |  | long-running server |
+| pass | docs/guides/operations.md:30 | `workctl --json operation plan --action container.restart --param service=demo-order --param env=sandbox` | docker |  |
+| skipped | docs/guides/operations.md:31 | `workctl --json operation execute --id op-20261017-abc123 --confirm op-20261017-abc123` |  | operation execute |
+| pass | docs/guides/operations.md:32 | `workctl --json operation get --id op-20261017-abc123`<br>替换：op-20261017-abc123 -> op-20261018-b05701 | docker |  |
+| skipped | docs/guides/operations.md:49 | `workctl mcp serve --allow-execute` |  | long-running server |
+| skipped | docs/guides/operations.md:50 | `workctl mcp serve --domain X` |  | long-running server |
 
 ## Skill 命令（通用占位符 <svc>/<i>/<db.table>… 替换为演示环境的值）
 
@@ -226,7 +227,7 @@
 | pass | skills/deploy-operations/SKILL.md:33 | `workctl --json deploy release get --service <svc> --id <release id>`<br>替换：skill placeholders -> demo values | docker |  |
 | pass | skills/deploy-operations/SKILL.md:49 | `workctl --json deploy rollback plan --service <svc>`<br>替换：skill placeholders -> demo values | docker |  |
 | skipped | skills/deploy-operations/SKILL.md:49 | `workctl --json operation execute --id <id> --confirm <id>` |  | operation execute |
-| pass | skills/deploy-operations/SKILL.md:49 | `workctl --json operation get --id <id>`<br>替换：skill placeholders -> demo values; <plan> -> op-20261018-bf95e6 | docker |  |
+| pass | skills/deploy-operations/SKILL.md:49 | `workctl --json operation get --id <id>`<br>替换：skill placeholders -> demo values; <plan> -> op-20261018-b05701 | docker |  |
 | pass | skills/deploy-operations/SKILL.md:52 | `workctl --json deploy rollback plan --service <svc> [--to <release id>]`<br>替换：skill placeholders -> demo values | docker |  |
 | pass | skills/enterprise-infra/SKILL.md:16 | `workctl --json resource list --service <svc> --env <env>`<br>替换：skill placeholders -> demo values | docker |  |
 | pass | skills/enterprise-infra/SKILL.md:16 | `workctl --json service dependency list --service <svc>`<br>替换：skill placeholders -> demo values | docker |  |
@@ -287,7 +288,7 @@
 | pass | skills/redis-operations/SKILL.md:25 | `workctl --json redis instance get --instance <i>`<br>替换：skill placeholders -> demo values | docker |  |
 | pass | skills/redis-operations/SKILL.md:26 | `workctl --json --timeout 45s redis stats sample --instance <i> --duration 30s`<br>替换：skill placeholders -> demo values | docker |  |
 | pass | skills/redis-operations/SKILL.md:38 | `workctl --json redis key sample --instance <i> --pattern "<prefix>:*" --max-keys 1000 --max-scan-calls 200`<br>替换：skill placeholders -> demo values | docker |  |
-| expected-error | skills/redis-operations/SKILL.md:39 | `workctl --json redis key inspect --instance <i> --key <top_key>`<br>替换：skill placeholders -> demo values | docker | NOT_FOUND 键不存在: demo:order:1 |
+| pass | skills/redis-operations/SKILL.md:39 | `workctl --json redis key inspect --instance <i> --key <top_key>`<br>替换：skill placeholders -> demo values | docker |  |
 | pass | skills/redis-operations/SKILL.md:48 | `workctl --json redis key hot --instance <i> --pattern "<prefix>:*" --max-keys 2000 --max-scan-calls 500 --top 10`<br>替换：skill placeholders -> demo values | docker |  |
 | pass | skills/redis-operations/SKILL.md:56 | `workctl --json redis slowlog list --instance <i> --limit 20`<br>替换：skill placeholders -> demo values | docker |  |
 | pass | skills/redis-operations/SKILL.md:64 | `workctl --json redis config get --instance <i> --pattern "maxmemory*"`<br>替换：skill placeholders -> demo values | docker |  |
@@ -316,7 +317,7 @@
 | pass | skills/service-latency-investigation/SKILL.md:60 | `workctl --json metric query --resource <service> --promql 'sum by (result) (rate(cache_requests_total{service="<service>"}[1m]))'`<br>替换：skill placeholders -> demo values | docker |  |
 | pass | skills/service-latency-investigation/SKILL.md:65 | `workctl --json log query --service <service> --window 15m --level warn`<br>替换：skill placeholders -> demo values | docker |  |
 | pass | skills/service-latency-investigation/SKILL.md:66 | `workctl --json log query --service <service> --window 1h --contains 'cache mode changed'`<br>替换：skill placeholders -> demo values | docker |  |
-| pass | skills/service-latency-investigation/SKILL.md:67 | `workctl --json trace get --id <trace_id> --window 1h`<br>替换：<trace_id> -> 09350e7d93dcad26c6efd507f225d296 | docker |  |
+| pass | skills/service-latency-investigation/SKILL.md:67 | `workctl --json trace get --id <trace_id> --window 1h`<br>替换：<trace_id> -> d995b0c0ce3a0507d9d84184dec8014b | docker |  |
 | pass | skills/service-latency-investigation/SKILL.md:74 | `workctl --json redis stats sample --instance <redis> --duration 10s`<br>替换：skill placeholders -> demo values | docker |  |
 | pass | skills/service-latency-investigation/SKILL.md:75 | `workctl --json redis key sample --instance <redis> --pattern 'demo:order:*'`<br>替换：skill placeholders -> demo values | docker |  |
 | pass | skills/service-latency-investigation/SKILL.md:81 | `workctl --json mysql statement summary --instance <mysql> --sample-window 10s`<br>替换：skill placeholders -> demo values | docker |  |

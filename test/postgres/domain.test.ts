@@ -220,6 +220,53 @@ describe('postgres helpers', () => {
     const plain = maskedColumns([{ name: 'one', tableID: 0, columnID: 0 }], new Map(), new Set(['phone']), guardPg('SELECT 1 AS one', 'run'));
     expect(plain.masked).toEqual([false]);
   });
+
+  it('masks numeric expressions over sensitive data; only plain count() aggregates stay readable', () => {
+    const cats = new Map([
+      [20, 'N'],
+      [1700, 'N'],
+      [23, 'N'],
+    ]);
+    const rel = { sensitiveRelations: ['customers'], categoryOf: (o: number) => cats.get(o) };
+    // whole-row text of customers stripped to digits: numeric, but it is the phone/id_card digits
+    const g1 = guardPg("SELECT regexp_replace(c::text,'\\D','','g')::numeric AS d, count(*) OVER () AS n FROM customers c", 'run');
+    const m1 = maskedColumns(
+      [
+        { name: 'd', tableID: 0, columnID: 0, dataTypeID: 1700 },
+        { name: 'n', tableID: 0, columnID: 0, dataTypeID: 20 },
+      ],
+      new Map(),
+      new Set(['phone']),
+      g1,
+      rel,
+    );
+    expect(m1.masked).toEqual([true, false]);
+    const g2 = guardPg('SELECT ascii(substr(c.phone,1,1)) AS a, count(DISTINCT c.phone) AS dp, count(c.email) cnt, length(c.phone) AS count, c.name FROM customers c GROUP BY 1, 4, 5', 'run');
+    const m2 = maskedColumns(
+      [
+        { name: 'a', tableID: 0, columnID: 0, dataTypeID: 23 },
+        { name: 'dp', tableID: 0, columnID: 0, dataTypeID: 20 },
+        { name: 'cnt', tableID: 0, columnID: 0, dataTypeID: 20 },
+        { name: 'count', tableID: 0, columnID: 0, dataTypeID: 23 },
+        { name: 'name', tableID: 100, columnID: 2, dataTypeID: 25 },
+      ],
+      new Map([['100:2', 'name']]),
+      new Set(['phone', 'email']),
+      g2,
+      rel,
+    );
+    expect(m2.masked).toEqual([true, false, false, true, false]);
+    // sum/max/avg can reproduce values; set operations / * expansion disable the count() exception
+    const g3 = guardPg('SELECT max(length(phone)) AS m, sum(ascii(phone)) AS s FROM customers', 'run');
+    expect(maskedColumns([{ name: 'm', tableID: 0, columnID: 0, dataTypeID: 23 }, { name: 's', tableID: 0, columnID: 0, dataTypeID: 20 }], new Map(), new Set(['phone']), g3, rel).masked).toEqual([true, true]);
+    const g4 = guardPg('SELECT count(*) FROM orders UNION ALL SELECT ascii(phone)::bigint FROM customers', 'run');
+    expect(maskedColumns([{ name: 'count', tableID: 0, columnID: 0, dataTypeID: 20 }], new Map(), new Set(['phone']), g4, rel).masked).toEqual([true]);
+    const g5 = guardPg('SELECT count(*) FROM customers', 'run');
+    expect(maskedColumns([{ name: 'count', tableID: 0, columnID: 0, dataTypeID: 20 }], new Map(), new Set(['phone']), g5, rel).masked).toEqual([false]);
+    // no sensitive column / relation involved: expressions are untouched
+    const g6 = guardPg('SELECT sum(amount) AS s FROM orders', 'run');
+    expect(maskedColumns([{ name: 's', tableID: 0, columnID: 0, dataTypeID: 1700 }], new Map(), new Set(['phone']), g6).masked).toEqual([false]);
+  });
 });
 
 describe('postgres capabilities without a live server', () => {

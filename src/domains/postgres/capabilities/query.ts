@@ -368,13 +368,69 @@ export const queryAnalyze = defineCapability({
   },
 });
 
-/** Type categories that cannot carry a sensitive text value (numeric, boolean, date/time, interval). */
-const SAFE_CATEGORIES = new Set(['N', 'B', 'D', 'T']);
+const SELECT_LIST_END = new Set(['FROM', 'INTO', 'WHERE', 'GROUP', 'HAVING', 'WINDOW', 'ORDER', 'LIMIT', 'OFFSET', 'FETCH', 'FOR']);
 
 /**
- * Columns flowing from a sensitive source column (by catalog position), computed from SQL that
- * mentions one, or computed non-numeric values over a relation that has sensitive columns
- * (whole-row references such as `SELECT c FROM customers c`, `row_to_json(c)`).
+ * For each item of the outermost SELECT list: whether it is a plain row count — `count(*)`,
+ * `count(x)`, `count(DISTINCT x)` (optionally `OVER (...)` / `OVER w`, optionally aliased) — whose
+ * value cannot reproduce column values. null when items cannot be matched to output columns
+ * (set operations, `*` expansion, VALUES/TABLE, no top-level SELECT).
+ */
+export function plainCountItems(g: GuardResult): boolean[] | null {
+  const t = g.tokens;
+  if (t.some((x) => x.depth === 0 && x.kind === 'word' && ['UNION', 'INTERSECT', 'EXCEPT'].includes(x.upper))) return null;
+  const sel = t.findIndex((x) => x.depth === 0 && x.kind === 'word' && x.upper === 'SELECT');
+  if (sel < 0) return null;
+  let i = sel + 1;
+  if (t[i]?.kind === 'word' && t[i].upper === 'ALL') i++;
+  else if (t[i]?.kind === 'word' && t[i].upper === 'DISTINCT') {
+    i++;
+    if (t[i]?.kind === 'word' && t[i].upper === 'ON' && t[i + 1]?.text === '(') {
+      i += 2;
+      while (i < t.length && !(t[i].text === ')' && t[i].depth === 0)) i++;
+      i++;
+    }
+  }
+  const items: (typeof t)[] = [[]];
+  for (; i < t.length; i++) {
+    const x = t[i];
+    if (x.depth === 0 && x.kind === 'word' && SELECT_LIST_END.has(x.upper)) break;
+    if (x.depth === 0 && x.kind === 'punct' && x.text === ',') items.push([]);
+    else items[items.length - 1].push(x);
+  }
+  const isCount = (it: typeof t): boolean => {
+    if (it.length < 3 || it[0].kind !== 'word' || it[0].upper !== 'COUNT' || it[1].text !== '(') return false;
+    let j = 2;
+    if (it[j]?.text === '*' && it[j + 1]?.text === ')' && it[j + 1].depth === 0) j += 2;
+    else {
+      while (j < it.length && !(it[j].text === ')' && it[j].depth === 0)) j++;
+      if (j >= it.length || j === 2) return false;
+      j++;
+    }
+    if (it[j]?.kind === 'word' && it[j].upper === 'OVER') {
+      j++;
+      if (it[j]?.text === '(') {
+        while (j < it.length && !(it[j].text === ')' && it[j].depth === 0)) j++;
+        if (j >= it.length) return false;
+        j++;
+      } else if (it[j]?.kind === 'word' || it[j]?.kind === 'ident') j++;
+      else return false;
+    }
+    if (it[j]?.kind === 'word' && it[j].upper === 'AS') j++;
+    if (j < it.length && (it[j].kind === 'word' || it[j].kind === 'ident')) j++;
+    return j === it.length;
+  };
+  const isStar = (it: typeof t) => it.length > 0 && it[it.length - 1].text === '*' && (it.length === 1 || it[it.length - 2].text === '.');
+  if (items.some((it) => !it.length || isStar(it))) return null;
+  return items.map(isCount);
+}
+
+/**
+ * Output column masking. Once the statement references a sensitive column (by name) or a relation
+ * that carries one (whole-row `c`, `c::text`, `row_to_json(c)`, `*`), every column that does not
+ * resolve to a non-sensitive source column is masked, whatever its type (`ascii(substr(phone,1,1))`,
+ * `regexp_replace(c::text,'\D','','g')::numeric` are numeric and still leak digits) — except plain
+ * row counts (`count(*)` / `count(x)` / `count(DISTINCT x)`, see {@link plainCountItems}).
  */
 export function maskedColumns(
   fields: { name: string; tableID: number; columnID: number; dataTypeID?: number }[],
@@ -385,24 +441,23 @@ export function maskedColumns(
 ): { masked: boolean[]; reasons: string[] } {
   const mentioned = g.tokens.filter((t) => (t.kind === 'word' && sensitive.has(t.text.toLowerCase())) || (t.kind === 'ident' && sensitive.has(t.upper))).map((t) => (t.kind === 'word' ? t.text.toLowerCase() : t.upper));
   const reasons: string[] = [];
-  const masked = fields.map((f) => {
+  const counts = mentioned.length || rel.sensitiveRelations.length ? plainCountItems(g) : null;
+  const countOk = counts?.length === fields.length ? counts : null;
+  const masked = fields.map((f, idx) => {
     if (sensitive.has(f.name.toLowerCase())) return true;
     const src = f.tableID ? sourceNames.get(`${f.tableID}:${f.columnID}`) : undefined;
     if (src && sensitive.has(src.toLowerCase())) {
       reasons.push(`${f.name} 来自敏感列 ${src}`);
       return true;
     }
+    if (src) return false;
     // no resolvable source column: expression, constant, or whole-row reference (tableID set, columnID 0)
-    const computed = !src;
-    if (computed && mentioned.length) {
-      reasons.push(`${f.name} 是表达式/派生列，而语句引用了敏感列 ${[...new Set(mentioned)].join(', ')}（保守脱敏）`);
-      return true;
-    }
-    if (computed && rel.sensitiveRelations.length && !SAFE_CATEGORIES.has(rel.categoryOf(f.dataTypeID ?? 0) ?? '')) {
-      reasons.push(`${f.name} 是非数值的表达式/整行引用，而语句涉及含敏感列的表 ${rel.sensitiveRelations.join(', ')}（保守脱敏）`);
-      return true;
-    }
-    return false;
+    if (!mentioned.length && !rel.sensitiveRelations.length) return false;
+    // count() returns bigint (int8, oid 20); anything else under that name is not the built-in aggregate
+    if (countOk?.[idx] && (f.dataTypeID === undefined || f.dataTypeID === 20)) return false;
+    const why = mentioned.length ? `语句引用了敏感列 ${[...new Set(mentioned)].join(', ')}` : `语句涉及含敏感列的表 ${rel.sensitiveRelations.join(', ')}`;
+    reasons.push(`${f.name} 是表达式/派生列（不论类型），而${why}；只有 count(*) / count(x) / count(DISTINCT x) 不脱敏（保守脱敏）`);
+    return true;
   });
   return { masked, reasons };
 }
@@ -446,7 +501,7 @@ export const queryRun = defineCapability({
     '真正的权限边界是数据库角色（workctl_ro 只有 SELECT，且 default_transaction_read_only=on）；程序层静态检查、READ ONLY 事务、statement_timeout、行数上限是额外防线，不能替代只读角色',
     '静态检查：只允许单条 SELECT / WITH...SELECT / VALUES / TABLE；拒绝多语句、数据修改型 CTE、SELECT INTO、FOR UPDATE/SHARE，以及终止会话/读写文件/咨询锁/序列/重置统计/执行任意 SQL 文本的函数（不穷尽：自定义函数仍可能有副作用，由角色权限兜底）',
     '通过游标（DECLARE CURSOR + FETCH）只取 max_rows+1 行，不缓冲完整结果集',
-    '敏感列：输出列名或其来源列（按系统目录解析，覆盖别名）命中端点 sensitive_columns 时脱敏；表达式列在语句引用了敏感列时、或语句涉及含敏感列的表且该列为非数值类型（整行引用、row_to_json 等）时保守脱敏；不能替代数据库侧列权限或脱敏视图',
+    '敏感列：输出列名或其来源列（按系统目录解析，覆盖别名）命中端点 sensitive_columns 时脱敏；语句引用了敏感列、或涉及含敏感列的表（整行引用、row_to_json、c::text 等）时，所有无法解析到非敏感来源列的表达式列一律保守脱敏（不论类型：ascii(substr(phone,1,1))、regexp_replace(c::text,…)::numeric 同样会泄露），只有 count(*) / count(x) / count(DISTINCT x) 例外；不能替代数据库侧列权限或脱敏视图',
   ],
   examples: [
     'workctl pg query run --instance demo-postgres --sql "SELECT id, status, amount FROM orders WHERE customer_id = 42" --max-rows 20',

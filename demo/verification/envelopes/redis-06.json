@@ -21,7 +21,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T05:46:23.848Z",
+        "observed_at": "2026-10-18T05:55:21.552Z",
         "endpoint": "redis/demo-redis",
         "method": "TYPE / PTTL / OBJECT ENCODING / MEMORY USAGE SAMPLES 5 / LLEN / OBJECT FREQ",
         "version": "7.4.11",
@@ -38,7 +38,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdeka7k-b4d897",
+    "request_id": "req-mvdevt45-6a3cc8",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -46,7 +46,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:46:23.792Z",
-    "duration_ms": 61
+    "started_at": "2026-10-18T05:55:21.509Z",
+    "duration_ms": 45
   }
 }

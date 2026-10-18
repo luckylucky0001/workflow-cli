@@ -55,6 +55,8 @@
 | 集群 red / yellow | `success` + warnings（未分配分片数与含义） |
 | 索引/别名不存在（404 `index_not_found_exception`） | `NOT_FOUND`，`details.index` |
 | 别名指向多个索引（index get） | `INVALID_ARGUMENT`，`details.resolved_indices` |
+| 查询关闭的索引（或指向它的别名，`index_closed_exception`） | `DATA_UNAVAILABLE`，`details.index`；`search index get` 对关闭的索引返回 `partial`：设置/映射/别名照常，docs/store/累计统计与分片分配未采集（null / 空） |
+| 通配符没有匹配到任何打开的索引（`_shards.total=0`，什么都没搜） | `NOT_FOUND`（不是“0 条命中”的 success） |
 | query_string 语法错误、字段类型不符（400，所有分片失败） | `INVALID_ARGUMENT`，消息含 OpenSearch 的 root cause |
 | DSL 含脚本 / 不允许字段 / size > 100 | `INVALID_ARGUMENT`（插件内拒绝，不发请求） |
 | 部分分片失败 / 搜索超时 | `partial`，`coverage.complete=false`，`data.shard_failures` |

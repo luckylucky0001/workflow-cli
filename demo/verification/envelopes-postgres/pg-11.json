@@ -6,19 +6,84 @@
     "instance": "demo-postgres",
     "aggregation": "window_delta",
     "window": {
-      "start": "2026-10-18T05:45:43.931Z",
-      "end": "2026-10-18T05:45:46.941Z",
-      "duration_ms": 3010
+      "start": "2026-10-18T05:52:27.180Z",
+      "end": "2026-10-18T05:52:30.189Z",
+      "duration_ms": 3009
     },
     "cumulative_since": null,
     "database": "demo_orders",
     "order_by": "total_time",
     "top": 5,
-    "statements": [],
+    "statements": [
+      {
+        "queryid": "6630752212981992611",
+        "database": "demo_orders",
+        "user": "workctl_ro",
+        "query": "SELECT r.rolsuper AS superuser, pg_has_role(current_user, $1, $2) AS read_all_stats FROM pg_roles r WHERE r.rolname = current_user",
+        "query_truncated": false,
+        "calls": 1,
+        "total_exec_ms": 0.064,
+        "mean_exec_ms": 0.064,
+        "rows": 1,
+        "rows_per_call": 1,
+        "shared_blks_hit": 7,
+        "shared_blks_read": 0,
+        "cache_hit_ratio": 1,
+        "temp_blks_written": 0
+      },
+      {
+        "queryid": "-3618585042222339006",
+        "database": "demo_orders",
+        "user": "workctl_ro",
+        "query": "SELECT current_setting($1) AS version, current_setting($2)::int AS version_num, current_user AS usr, current_database() AS db, pg_backend_pid() AS pid",
+        "query_truncated": false,
+        "calls": 1,
+        "total_exec_ms": 0.026,
+        "mean_exec_ms": 0.026,
+        "rows": 1,
+        "rows_per_call": 1,
+        "shared_blks_hit": 0,
+        "shared_blks_read": 0,
+        "cache_hit_ratio": null,
+        "temp_blks_written": 0
+      },
+      {
+        "queryid": "769558099083602323",
+        "database": "demo_orders",
+        "user": "workctl_ro",
+        "query": "SELECT e.extversion, n.nspname FROM pg_extension e JOIN pg_namespace n ON n.oid = e.extnamespace WHERE e.extname = $1",
+        "query_truncated": false,
+        "calls": 1,
+        "total_exec_ms": 0.02,
+        "mean_exec_ms": 0.02,
+        "rows": 1,
+        "rows_per_call": 1,
+        "shared_blks_hit": 2,
+        "shared_blks_read": 0,
+        "cache_hit_ratio": 1,
+        "temp_blks_written": 0
+      },
+      {
+        "queryid": "-8090084575840487148",
+        "database": "demo_orders",
+        "user": "workctl_ro",
+        "query": "SELECT current_setting($1, $2) AS track, current_setting($3, $4) AS max",
+        "query_truncated": false,
+        "calls": 1,
+        "total_exec_ms": 0.011,
+        "mean_exec_ms": 0.011,
+        "rows": 1,
+        "rows_per_call": 1,
+        "shared_blks_hit": 0,
+        "shared_blks_read": 0,
+        "cache_hit_ratio": null,
+        "temp_blks_written": 0
+      }
+    ],
     "totals": {
-      "statements_with_activity": 0,
-      "calls": 0,
-      "total_exec_ms": 0
+      "statements_with_activity": 4,
+      "calls": 4,
+      "total_exec_ms": 0.121
     },
     "collection": {
       "extension_version": "1.10",
@@ -27,7 +92,7 @@
       "dealloc": 0,
       "text_visible": true
     },
-    "excluded_self": 1
+    "excluded_self": 2
   },
   "error": null,
   "meta": {
@@ -35,7 +100,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T05:45:46.944Z",
+        "observed_at": "2026-10-18T05:52:30.192Z",
         "endpoint": "postgres/demo-postgres",
         "method": "public.pg_stat_statements (t1 − t0)",
         "version": "16.15",
@@ -47,19 +112,18 @@
       "limit": 5,
       "truncated": false,
       "window": {
-        "start": "2026-10-18T05:45:43.931Z",
-        "end": "2026-10-18T05:45:46.941Z"
+        "start": "2026-10-18T05:52:27.180Z",
+        "end": "2026-10-18T05:52:30.189Z"
       },
       "notes": [
-        "窗口内没有语句执行完成（采集正常开启；不是 COLLECTION_DISABLED）",
-        "窗口值（t1 − t0），窗口 3010ms；t0 中不存在的语句按其全部计数计入（窗口内首次出现）",
+        "窗口值（t1 − t0），窗口 3009ms；t0 中不存在的语句按其全部计数计入（窗口内首次出现）",
         "PostgreSQL 17 以下没有 stats_since：单条语句被 pg_stat_statements_reset(userid, dbid, queryid) 重置后，只能通过计数/耗时回退或 min/max 变化识别，极少数情况下可能识别不到"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdejfdb-c49ecb",
+    "request_id": "req-mvdes2iz-7e6177",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -67,7 +131,7 @@
     "adapter": "pg-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:45:43.823Z",
-    "duration_ms": 3137
+    "started_at": "2026-10-18T05:52:27.083Z",
+    "duration_ms": 3113
   }
 }

@@ -20,8 +20,8 @@
       "version": "8.4.11",
       "version_comment": "MySQL Community Server - GPL",
       "current_user": "workctl_ro@%",
-      "uptime_s": 2133,
-      "started_at": "2026-10-18T05:10:26.215Z",
+      "uptime_s": 2675,
+      "started_at": "2026-10-18T05:10:26.058Z",
       "read_only": false,
       "super_read_only": false
     },
@@ -42,15 +42,15 @@
       "version_comment": "MySQL Community Server - GPL"
     },
     "status": {
-      "Uptime": 2133,
-      "Threads_connected": 5,
+      "Uptime": 2675,
+      "Threads_connected": 1,
       "Threads_running": 2,
-      "Questions": 1638,
+      "Questions": 2484,
       "Slow_queries": 17,
-      "Aborted_connects": 42,
-      "Aborted_clients": 11,
-      "Connections": 661,
-      "Max_used_connections": 6
+      "Aborted_connects": 82,
+      "Aborted_clients": 17,
+      "Connections": 923,
+      "Max_used_connections": 8
     },
     "status_semantics": {
       "Uptime": "gauge",
@@ -75,7 +75,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T05:45:59.215Z",
+        "observed_at": "2026-10-18T05:55:01.058Z",
         "endpoint": "mysql/demo-mysql",
         "method": "SHOW GLOBAL VARIABLES; SHOW GLOBAL STATUS; SELECT VERSION(), CURRENT_USER()",
         "version": "8.4.11",
@@ -84,7 +84,7 @@
       {
         "system": "workctl",
         "adapter": "binding-file",
-        "observed_at": "2026-10-18T05:45:59.214Z",
+        "observed_at": "2026-10-18T05:55:01.058Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "method": "resources.forEndpoint(mysql, demo-mysql)",
         "relation": "explicit"
@@ -97,7 +97,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdejr78-81f2a8",
+    "request_id": "req-mvdevdac-7f8b25",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -105,7 +105,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:45:59.156Z",
-    "duration_ms": 59
+    "started_at": "2026-10-18T05:55:00.996Z",
+    "duration_ms": 63
   }
 }

@@ -223,7 +223,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T05:46:12.364Z",
+        "observed_at": "2026-10-18T05:55:13.299Z",
         "endpoint": "mysql/demo-mysql",
         "method": "mysql.slow_log",
         "version": "8.4.11",
@@ -235,8 +235,8 @@
       "truncated": false,
       "limit": 20,
       "window": {
-        "start": "2026-10-17T05:46:12.364Z",
-        "end": "2026-10-18T05:46:12.364Z"
+        "start": "2026-10-17T05:55:13.299Z",
+        "end": "2026-10-18T05:55:13.299Z"
       },
       "notes": [
         "时间为 UTC；SQL 字面量已替换为 ?"
@@ -245,7 +245,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdek1cj-1c4e7f",
+    "request_id": "req-mvdevmqo-e610a4",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -253,7 +253,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:46:12.307Z",
-    "duration_ms": 59
+    "started_at": "2026-10-18T05:55:13.248Z",
+    "duration_ms": 52
   }
 }

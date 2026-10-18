@@ -11,7 +11,7 @@
     "prefix": "config/sandbox/demo-inventory/",
     "key": "upstream.order",
     "revision_space": "consul-raft-index",
-    "observed_revision": 189,
+    "observed_revision": 232,
     "count": 1,
     "truncated": false,
     "items": [
@@ -29,8 +29,8 @@
         "masked_paths": [
           "$.api_key"
         ],
-        "create_revision": 189,
-        "mod_revision": 189,
+        "create_revision": 232,
+        "mod_revision": 232,
         "version": null,
         "lease": null,
         "consul": {
@@ -47,7 +47,7 @@
       {
         "system": "consul",
         "adapter": "consul-http-api",
-        "observed_at": "2026-10-18T05:46:31.307Z",
+        "observed_at": "2026-10-18T05:52:58.466Z",
         "endpoint": "consul/demo-consul (http://127.0.0.1:18500)",
         "method": "GET /v1/kv/config/sandbox/demo-inventory/upstream.order",
         "relation": "explicit",
@@ -57,7 +57,7 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "Consul consul/demo-consul KV 前缀 config/sandbox/demo-inventory/，索引 189",
+      "scope": "Consul consul/demo-consul KV 前缀 config/sandbox/demo-inventory/，索引 232",
       "notes": [
         "1 个配置项的值或字段已遮蔽（按名称匹配敏感模式，或值中内嵌的 URL 密码 / token= 等凭据）",
         "单键读取时 observed_revision（X-Consul-Index）即该键的 ModifyIndex",
@@ -67,7 +67,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdekfyq-ab6055",
+    "request_id": "req-mvdesqpd-2976d0",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -75,7 +75,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:46:31.250Z",
-    "duration_ms": 58
+    "started_at": "2026-10-18T05:52:58.417Z",
+    "duration_ms": 50
   }
 }

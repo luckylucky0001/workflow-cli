@@ -43,7 +43,7 @@
       "source_sha256": "11501b7deba7b46586851c578bd6b8202e9210d2e053a20da5852f3fe3bc0317",
       "file_token": ".eJw1ydEKgCAMBdB_8d3uJ4m0raTpYiPEvw-CzutJOK0znmDHNL9EbeZdG4i7wUS0Dc7_BKge8V2h2nQVc2KP7V7pBRP6HDQ.E7zPVoC24_VAXkoqWkDuI62UOMs",
       "fileloc": "/home/user/workflow-cli/demo/offline-workflows/dags/demo_daily_orders.py",
-      "last_parsed_time": "2026-10-18T05:46:20.038583+00:00",
+      "last_parsed_time": "2026-10-18T05:55:22.496151+00:00",
       "basis": "source_sha256 = sha256(GET /api/v1/dagSources/{file_token})，即调度器当前解析到的 DAG 文件内容；file_token 只标识文件位置，不代表内容版本"
     },
     "next_run": {
@@ -102,7 +102,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-18T05:46:29.320Z",
+        "observed_at": "2026-10-18T05:55:24.606Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/details",
         "version": "2.10.5",
@@ -111,7 +111,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-18T05:46:29.320Z",
+        "observed_at": "2026-10-18T05:55:24.607Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/tasks",
         "version": "2.10.5",
@@ -120,7 +120,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-18T05:46:29.320Z",
+        "observed_at": "2026-10-18T05:55:24.607Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dagSources/{file_token}",
         "version": "2.10.5",
@@ -129,7 +129,7 @@
       {
         "system": "catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T05:46:29.351Z",
+        "observed_at": "2026-10-18T05:55:24.616Z",
         "endpoint": "catalog/demo",
         "method": "tables/*.yaml produced_by.workflow",
         "relation": "explicit"
@@ -144,7 +144,7 @@
     ]
   },
   "context": {
-    "request_id": "req-mvdekdpe-4e6641",
+    "request_id": "req-mvdevv61-4d12a6",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -152,7 +152,7 @@
     "adapter": "airflow-rest-v1|v2",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:46:28.322Z",
-    "duration_ms": 1060
+    "started_at": "2026-10-18T05:55:24.169Z",
+    "duration_ms": 455
   }
 }

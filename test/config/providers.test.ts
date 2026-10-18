@@ -418,6 +418,10 @@ describe('Consul provider against a fake HTTP API', () => {
     expect((await call('config.diff', { service: 'inv', key: 'cache.ttl_seconds', from_rev: keyMod - 1, to_rev: String(keyMod - 1) }, cfg)).error?.code).toBe('DATA_UNAVAILABLE');
     // beyond the KV store index is still rejected
     expect((await call('config.diff', { service: 'inv', key: 'cache.ttl_seconds', from_rev: fake.index + 1 }, cfg)).error?.code).toBe('INVALID_ARGUMENT');
+    // ... for --to-rev too: "unchanged up to a future index" would describe writes that have not happened yet
+    const future = await call('config.diff', { service: 'inv', key: 'cache.ttl_seconds', from_rev: keyMod, to_rev: String(fake.index + 1000) }, cfg);
+    expect(future.error?.code).toBe('INVALID_ARGUMENT');
+    expect(future.error?.message).toContain('--to-rev');
   });
 
   it('regression: results filtered by ACLs (X-Consul-Results-Filtered-By-ACLs) are partial, not complete', async () => {

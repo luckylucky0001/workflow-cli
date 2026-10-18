@@ -113,7 +113,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-18T05:46:27.097Z",
+        "observed_at": "2026-10-18T05:52:55.893Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/ns/service serviceName=demo-payment groupName=DEFAULT_GROUP namespaceId=sandbox",
         "relation": "explicit",
@@ -122,7 +122,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-18T05:46:27.111Z",
+        "observed_at": "2026-10-18T05:52:55.898Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/ns/catalog/instances（逐集群，含 enabled=false 实例）",
         "relation": "explicit",
@@ -142,7 +142,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdekcny-1ce819",
+    "request_id": "req-mvdesopc-92cfda",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -150,7 +150,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:46:26.974Z",
-    "duration_ms": 139
+    "started_at": "2026-10-18T05:52:55.824Z",
+    "duration_ms": 77
   }
 }

@@ -53,7 +53,7 @@
     },
     "waiting_slots": {
       "type": "number",
-      "description": "queued + scheduled：已就绪但等待执行槽"
+      "description": "queued + scheduled：已就绪但尚未运行的任务。queued 已占用 pool 槽（计入 occupied_slots），等的是执行器/worker；scheduled 尚未拿到 pool 槽（或受其他并发上限限制）"
     }
   },
   "required": [

@@ -69,7 +69,7 @@
       {
         "system": "workctl",
         "adapter": "registry",
-        "observed_at": "2026-10-18T05:46:37.393Z",
+        "observed_at": "2026-10-18T05:53:02.736Z",
         "method": "builtin + installed plugins",
         "relation": "explicit"
       }
@@ -81,7 +81,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdekkol-337a99",
+    "request_id": "req-mvdesu0v-1ce6cf",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -89,7 +89,7 @@
     "adapter": "registry",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:46:37.365Z",
-    "duration_ms": 28
+    "started_at": "2026-10-18T05:53:02.719Z",
+    "duration_ms": 17
   }
 }

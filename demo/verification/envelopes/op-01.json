@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "operation.plan",
   "data": {
-    "id": "op-20261018-769a73",
+    "id": "op-20261018-bf0fe9",
     "kind": "container.restart",
     "title": "重启服务 demo-order（sandbox）的 1 个容器",
     "params": {
@@ -17,7 +17,7 @@
         "image": "workctl-demo/demo-order:local",
         "state": "running",
         "health": "none",
-        "started_at": "2026-10-18T05:43:11.681567489Z",
+        "started_at": "2026-10-18T05:51:53.210112527Z",
         "restart_policy": "no",
         "selector": "workctl.service=demo-order",
         "selector_kind": "label",
@@ -93,19 +93,19 @@
     "idempotent": true,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-18T05:46:55.560Z",
-    "expires_at": "2026-10-18T06:16:55.560Z",
+    "created_at": "2026-10-18T05:55:39.280Z",
+    "expires_at": "2026-10-18T06:25:39.280Z",
     "profile": "demo",
     "env": "sandbox",
     "executable": true,
     "history": [
       {
-        "at": "2026-10-18T05:46:55.560Z",
+        "at": "2026-10-18T05:55:39.280Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
     ],
-    "digest": "sha256:c3d77f0ab292ea944d463391755423743631da77ddfc15fc991dd8b8fc9209eb"
+    "digest": "sha256:131879387d9d581a7e33325216ab97e4e3456cacd99d67451e6131a5d89dec72"
   },
   "error": null,
   "meta": {
@@ -113,19 +113,19 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-18T05:46:55.561Z",
+        "observed_at": "2026-10-18T05:55:39.282Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/state/operations",
         "relation": "derived"
       }
     ],
     "coverage": {
       "complete": true,
-      "scope": "计划 op-20261018-769a73（仅预览，未执行）"
+      "scope": "计划 op-20261018-bf0fe9（仅预览，未执行）"
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdekynq-458220",
+    "request_id": "req-mvdew6s4-719c8a",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -133,7 +133,7 @@
     "adapter": "plan-store",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:46:55.478Z",
-    "duration_ms": 83
+    "started_at": "2026-10-18T05:55:39.220Z",
+    "duration_ms": 62
   }
 }

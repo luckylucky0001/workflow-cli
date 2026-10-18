@@ -74,7 +74,7 @@
       "statement_timeout_ms": 5000,
       "fetch_limit": 4
     },
-    "elapsed_ms": 5
+    "elapsed_ms": 6
   },
   "error": null,
   "meta": {
@@ -82,7 +82,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T05:45:51.980Z",
+        "observed_at": "2026-10-18T05:52:33.023Z",
         "endpoint": "postgres/demo-postgres",
         "method": "BEGIN READ ONLY; DECLARE CURSOR FOR SELECT; FETCH 4",
         "version": "16.15",
@@ -101,7 +101,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdejllg-5f156f",
+    "request_id": "req-mvdes71o-dcf98b",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -109,7 +109,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:45:51.892Z",
-    "duration_ms": 93
+    "started_at": "2026-10-18T05:52:32.940Z",
+    "duration_ms": 88
   }
 }

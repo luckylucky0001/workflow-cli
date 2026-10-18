@@ -19,7 +19,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T05:45:42.364Z",
+        "observed_at": "2026-10-18T05:52:26.119Z",
         "endpoint": "postgres/demo-postgres",
         "method": "pg_stat_activity + pg_blocking_pids() + pg_locks (granted=false)",
         "version": "16.15",
@@ -36,7 +36,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdeje5l-fe2571",
+    "request_id": "req-mvdes1qn-2347d8",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -44,7 +44,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:45:42.249Z",
-    "duration_ms": 120
+    "started_at": "2026-10-18T05:52:26.063Z",
+    "duration_ms": 63
   }
 }

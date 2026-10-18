@@ -1,31 +1,31 @@
 {
-  "generated_at": "2026-10-18T05:46:54.744Z",
+  "generated_at": "2026-10-18T05:52:49.034Z",
   "vars": {
-    "trace_id": "09350e7d93dcad26c6efd507f225d296",
+    "trace_id": "d995b0c0ce3a0507d9d84184dec8014b",
     "app_id": "local-1792300311012",
-    "plan_id": "op-20261018-bf95e6",
-    "sql_query_id": "q-20261018-6bcc04",
+    "plan_id": "op-20261018-b05701",
+    "sql_query_id": "q-20261018-5aed7e",
     "replicaset": "demo-order-77fdb45bf4"
   },
   "summary": {
     "example": {
       "total": 115,
-      "pass": 112,
-      "expected_error": 2,
+      "pass": 114,
+      "expected_error": 0,
       "fail": 0,
       "skipped": 1
     },
     "doc": {
-      "total": 74,
+      "total": 75,
       "pass": 63,
       "expected_error": 1,
       "fail": 0,
-      "skipped": 10
+      "skipped": 11
     },
     "skill": {
       "total": 109,
-      "pass": 98,
-      "expected_error": 1,
+      "pass": 99,
+      "expected_error": 0,
       "fail": 0,
       "skipped": 10
     }
@@ -40,7 +40,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2892
+      "ms": 1592
     },
     {
       "kind": "example",
@@ -51,7 +51,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2901
+      "ms": 1709
     },
     {
       "kind": "example",
@@ -62,7 +62,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2595
+      "ms": 1549
     },
     {
       "kind": "example",
@@ -73,7 +73,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3478
+      "ms": 1944
     },
     {
       "kind": "example",
@@ -84,7 +84,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3447
+      "ms": 1778
     },
     {
       "kind": "example",
@@ -95,7 +95,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2848
+      "ms": 2879
     },
     {
       "kind": "example",
@@ -106,7 +106,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4320
+      "ms": 1560
     },
     {
       "kind": "example",
@@ -117,7 +117,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 5250
+      "ms": 1977
     },
     {
       "kind": "example",
@@ -128,7 +128,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 6686
+      "ms": 4575
     },
     {
       "kind": "example",
@@ -139,7 +139,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 5720
+      "ms": 4359
     },
     {
       "kind": "example",
@@ -150,7 +150,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4648
+      "ms": 1920
     },
     {
       "kind": "example",
@@ -161,7 +161,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4735
+      "ms": 1664
     },
     {
       "kind": "example",
@@ -172,7 +172,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4357
+      "ms": 1750
     },
     {
       "kind": "example",
@@ -183,7 +183,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4264
+      "ms": 1614
     },
     {
       "kind": "example",
@@ -194,7 +194,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3766
+      "ms": 1271
     },
     {
       "kind": "example",
@@ -205,7 +205,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3132
+      "ms": 960
     },
     {
       "kind": "example",
@@ -216,7 +216,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3898
+      "ms": 1093
     },
     {
       "kind": "example",
@@ -227,7 +227,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4138
+      "ms": 1610
     },
     {
       "kind": "example",
@@ -238,7 +238,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2891
+      "ms": 840
     },
     {
       "kind": "example",
@@ -249,7 +249,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3495
+      "ms": 2100
     },
     {
       "kind": "example",
@@ -257,14 +257,14 @@
       "capability": "observability.log.query",
       "operation": "read",
       "command": "workctl log query --service demo-order --trace-id <trace_id> --include-spans",
-      "executed": "workctl log query --service demo-order --trace-id 09350e7d93dcad26c6efd507f225d296 --include-spans",
+      "executed": "workctl log query --service demo-order --trace-id d995b0c0ce3a0507d9d84184dec8014b --include-spans",
       "subs": [
-        "<trace_id> -> 09350e7d93dcad26c6efd507f225d296"
+        "<trace_id> -> d995b0c0ce3a0507d9d84184dec8014b"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4264
+      "ms": 1253
     },
     {
       "kind": "example",
@@ -272,14 +272,14 @@
       "capability": "observability.trace.get",
       "operation": "diagnose",
       "command": "workctl trace get --id <trace_id> --window 1h",
-      "executed": "workctl trace get --id 09350e7d93dcad26c6efd507f225d296 --window 1h",
+      "executed": "workctl trace get --id d995b0c0ce3a0507d9d84184dec8014b --window 1h",
       "subs": [
-        "<trace_id> -> 09350e7d93dcad26c6efd507f225d296"
+        "<trace_id> -> d995b0c0ce3a0507d9d84184dec8014b"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4460
+      "ms": 2219
     },
     {
       "kind": "example",
@@ -290,7 +290,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 5153
+      "ms": 1742
     },
     {
       "kind": "example",
@@ -301,7 +301,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4433
+      "ms": 1507
     },
     {
       "kind": "example",
@@ -312,7 +312,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3344
+      "ms": 1520
     },
     {
       "kind": "example",
@@ -323,7 +323,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4144
+      "ms": 1706
     },
     {
       "kind": "example",
@@ -334,7 +334,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2742
+      "ms": 2258
     },
     {
       "kind": "example",
@@ -345,7 +345,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3255
+      "ms": 2173
     },
     {
       "kind": "example",
@@ -356,7 +356,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 7393
+      "ms": 7440
     },
     {
       "kind": "example",
@@ -367,7 +367,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 32361
+      "ms": 32075
     },
     {
       "kind": "example",
@@ -378,7 +378,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2742
+      "ms": 2044
     },
     {
       "kind": "example",
@@ -389,7 +389,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1210
+      "ms": 1676
     },
     {
       "kind": "example",
@@ -400,7 +400,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1022
+      "ms": 656
     },
     {
       "kind": "example",
@@ -408,14 +408,14 @@
       "capability": "mysql.query.explain",
       "operation": "read",
       "command": "workctl mysql query explain --instance demo-mysql --database demo --sql-file ./q.sql",
-      "executed": "workctl mysql query explain --instance demo-mysql --database demo --sql-file /tmp/workctl-examples-L3hvBR/mysql.sql",
+      "executed": "workctl mysql query explain --instance demo-mysql --database demo --sql-file /tmp/workctl-examples-lhvUsd/mysql.sql",
       "subs": [
         "q.sql -> mysql sample (SELECT * FROM orders WHERE customer_id = 42)"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2499
+      "ms": 1089
     },
     {
       "kind": "example",
@@ -426,7 +426,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2021
+      "ms": 1045
     },
     {
       "kind": "example",
@@ -434,14 +434,14 @@
       "capability": "mysql.query.analyze",
       "operation": "diagnose",
       "command": "workctl mysql query analyze --instance demo-mysql --database demo --sql-file ./q.sql",
-      "executed": "workctl mysql query analyze --instance demo-mysql --database demo --sql-file /tmp/workctl-examples-L3hvBR/mysql.sql",
+      "executed": "workctl mysql query analyze --instance demo-mysql --database demo --sql-file /tmp/workctl-examples-lhvUsd/mysql.sql",
       "subs": [
         "q.sql -> mysql sample (SELECT * FROM orders WHERE customer_id = 42)"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2498
+      "ms": 988
     },
     {
       "kind": "example",
@@ -452,7 +452,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3375
+      "ms": 807
     },
     {
       "kind": "example",
@@ -460,14 +460,14 @@
       "capability": "mysql.query.execute",
       "operation": "read",
       "command": "workctl mysql query execute --instance demo-mysql --database demo --sql-file ./q.sql --max-rows 20",
-      "executed": "workctl mysql query execute --instance demo-mysql --database demo --sql-file /tmp/workctl-examples-L3hvBR/mysql.sql --max-rows 20",
+      "executed": "workctl mysql query execute --instance demo-mysql --database demo --sql-file /tmp/workctl-examples-lhvUsd/mysql.sql --max-rows 20",
       "subs": [
         "q.sql -> mysql sample (SELECT * FROM orders WHERE customer_id = 42)"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3061
+      "ms": 981
     },
     {
       "kind": "example",
@@ -478,7 +478,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1500
+      "ms": 946
     },
     {
       "kind": "example",
@@ -489,7 +489,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3675
+      "ms": 1019
     },
     {
       "kind": "example",
@@ -500,7 +500,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3388
+      "ms": 1036
     },
     {
       "kind": "example",
@@ -511,7 +511,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4361
+      "ms": 1373
     },
     {
       "kind": "example",
@@ -522,7 +522,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4151
+      "ms": 1161
     },
     {
       "kind": "example",
@@ -533,7 +533,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3441
+      "ms": 1134
     },
     {
       "kind": "example",
@@ -544,7 +544,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3576
+      "ms": 1001
     },
     {
       "kind": "example",
@@ -555,7 +555,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3182
+      "ms": 1139
     },
     {
       "kind": "example",
@@ -566,7 +566,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 13806
+      "ms": 11212
     },
     {
       "kind": "example",
@@ -577,7 +577,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2675
+      "ms": 1330
     },
     {
       "kind": "example",
@@ -588,7 +588,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2796
+      "ms": 1747
     },
     {
       "kind": "example",
@@ -596,14 +596,14 @@
       "capability": "postgres.query.explain",
       "operation": "read",
       "command": "workctl pg query explain --instance demo-postgres --database demo_orders --sql-file ./q.sql",
-      "executed": "workctl pg query explain --instance demo-postgres --database demo_orders --sql-file /tmp/workctl-examples-L3hvBR/pg.sql",
+      "executed": "workctl pg query explain --instance demo-postgres --database demo_orders --sql-file /tmp/workctl-examples-lhvUsd/pg.sql",
       "subs": [
         "q.sql -> pg sample (SELECT * FROM orders WHERE customer_id = 42)"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2608
+      "ms": 1062
     },
     {
       "kind": "example",
@@ -614,7 +614,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3501
+      "ms": 1528
     },
     {
       "kind": "example",
@@ -622,14 +622,14 @@
       "capability": "postgres.query.analyze",
       "operation": "diagnose",
       "command": "workctl pg query analyze --instance demo-postgres --database demo_orders --sql-file ./q.sql",
-      "executed": "workctl pg query analyze --instance demo-postgres --database demo_orders --sql-file /tmp/workctl-examples-L3hvBR/pg.sql",
+      "executed": "workctl pg query analyze --instance demo-postgres --database demo_orders --sql-file /tmp/workctl-examples-lhvUsd/pg.sql",
       "subs": [
         "q.sql -> pg sample (SELECT * FROM orders WHERE customer_id = 42)"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2819
+      "ms": 1383
     },
     {
       "kind": "example",
@@ -640,7 +640,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2790
+      "ms": 1477
     },
     {
       "kind": "example",
@@ -648,14 +648,14 @@
       "capability": "postgres.query.run",
       "operation": "read",
       "command": "workctl pg query run --instance demo-postgres --database demo_orders --sql-file ./q.sql --max-rows 50",
-      "executed": "workctl pg query run --instance demo-postgres --database demo_orders --sql-file /tmp/workctl-examples-L3hvBR/pg.sql --max-rows 50",
+      "executed": "workctl pg query run --instance demo-postgres --database demo_orders --sql-file /tmp/workctl-examples-lhvUsd/pg.sql --max-rows 50",
       "subs": [
         "q.sql -> pg sample (SELECT * FROM orders WHERE customer_id = 42)"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3725
+      "ms": 1274
     },
     {
       "kind": "example",
@@ -666,7 +666,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2634
+      "ms": 1035
     },
     {
       "kind": "example",
@@ -677,7 +677,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2556
+      "ms": 1370
     },
     {
       "kind": "example",
@@ -688,7 +688,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 11917
+      "ms": 11711
     },
     {
       "kind": "example",
@@ -699,7 +699,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 32475
+      "ms": 31629
     },
     {
       "kind": "example",
@@ -710,33 +710,29 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1856
+      "ms": 1110
     },
     {
       "kind": "example",
       "where": "redis.key.inspect",
       "capability": "redis.key.inspect",
       "operation": "read",
-      "command": "workctl redis key inspect --instance demo-redis --key demo:order:1",
+      "command": "workctl redis key inspect --instance demo-redis --key demo:order:10",
       "profile": "docker",
-      "status": "expected-error",
-      "envelope_status": "error",
-      "error_code": "NOT_FOUND",
-      "message": "键不存在: demo:order:1",
-      "ms": 1782
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 853
     },
     {
       "kind": "example",
       "where": "redis.key.inspect",
       "capability": "redis.key.inspect",
       "operation": "read",
-      "command": "workctl redis key inspect --instance demo-redis --key demo:customer:1:recent --include-value",
+      "command": "workctl redis key inspect --instance demo-redis --key demo:customer:1:history --include-value",
       "profile": "docker",
-      "status": "expected-error",
-      "envelope_status": "error",
-      "error_code": "NOT_FOUND",
-      "message": "键不存在: demo:customer:1:recent",
-      "ms": 784
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 577
     },
     {
       "kind": "example",
@@ -747,7 +743,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1089
+      "ms": 468
     },
     {
       "kind": "example",
@@ -758,7 +754,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 745
+      "ms": 615
     },
     {
       "kind": "example",
@@ -769,7 +765,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1168
+      "ms": 695
     },
     {
       "kind": "example",
@@ -783,7 +779,7 @@
       "warnings": [
         "DAG 处于暂停状态：调度器不会创建新的定时 run，已触发的 run 也不会被调度"
       ],
-      "ms": 1188
+      "ms": 1205
     },
     {
       "kind": "example",
@@ -794,7 +790,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1493
+      "ms": 826
     },
     {
       "kind": "example",
@@ -805,7 +801,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1725
+      "ms": 981
     },
     {
       "kind": "example",
@@ -816,7 +812,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3025
+      "ms": 1386
     },
     {
       "kind": "example",
@@ -827,7 +823,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3363
+      "ms": 1056
     },
     {
       "kind": "example",
@@ -838,7 +834,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1596
+      "ms": 676
     },
     {
       "kind": "example",
@@ -852,7 +848,7 @@
       "warnings": [
         "2026-10-16: 调度层 success 但目标分区 missing"
       ],
-      "ms": 5213
+      "ms": 1875
     },
     {
       "kind": "example",
@@ -860,14 +856,14 @@
       "capability": "offline.backfill.get",
       "operation": "read",
       "command": "workctl offline backfill get --id op-20261017-abc123",
-      "executed": "workctl offline backfill get --id op-20261018-bf95e6",
+      "executed": "workctl offline backfill get --id op-20261018-b05701",
       "subs": [
-        "op-20261017-abc123 -> op-20261018-bf95e6"
+        "op-20261017-abc123 -> op-20261018-b05701"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2626
+      "ms": 432
     },
     {
       "kind": "example",
@@ -878,7 +874,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2908
+      "ms": 604
     },
     {
       "kind": "example",
@@ -893,7 +889,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1777
+      "ms": 502
     },
     {
       "kind": "example",
@@ -908,7 +904,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2960
+      "ms": 655
     },
     {
       "kind": "example",
@@ -923,7 +919,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2041
+      "ms": 708
     },
     {
       "kind": "example",
@@ -938,7 +934,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3156
+      "ms": 579
     },
     {
       "kind": "example",
@@ -949,7 +945,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4746
+      "ms": 587
     },
     {
       "kind": "example",
@@ -960,7 +956,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2951
+      "ms": 563
     },
     {
       "kind": "example",
@@ -968,14 +964,14 @@
       "capability": "sql.query.submit",
       "operation": "read",
       "command": "workctl sql query submit --engine trino --file q.sql --catalog tpch --schema tiny",
-      "executed": "workctl sql query submit --engine trino --file /tmp/workctl-examples-L3hvBR/trino.sql --catalog tpch --schema tiny",
+      "executed": "workctl sql query submit --engine trino --file /tmp/workctl-examples-lhvUsd/trino.sql --catalog tpch --schema tiny",
       "subs": [
         "q.sql -> trino sample (SELECT name FROM nation ORDER BY nationkey LIMIT 5)"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3270
+      "ms": 600
     },
     {
       "kind": "example",
@@ -983,14 +979,14 @@
       "capability": "sql.query.get",
       "operation": "read",
       "command": "workctl sql query get --id q-20261017-1a2b3c",
-      "executed": "workctl sql query get --id q-20261018-6bcc04",
+      "executed": "workctl sql query get --id q-20261018-5aed7e",
       "subs": [
-        "q-20261017-1a2b3c -> q-20261018-6bcc04"
+        "q-20261017-1a2b3c -> q-20261018-5aed7e"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2386
+      "ms": 516
     },
     {
       "kind": "example",
@@ -1010,7 +1006,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4205
+      "ms": 842
     },
     {
       "kind": "example",
@@ -1021,7 +1017,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 5087
+      "ms": 738
     },
     {
       "kind": "example",
@@ -1032,7 +1028,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3481
+      "ms": 552
     },
     {
       "kind": "example",
@@ -1043,7 +1039,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3210
+      "ms": 580
     },
     {
       "kind": "example",
@@ -1054,7 +1050,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2286
+      "ms": 957
     },
     {
       "kind": "example",
@@ -1065,7 +1061,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4035
+      "ms": 719
     },
     {
       "kind": "example",
@@ -1076,7 +1072,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3797
+      "ms": 763
     },
     {
       "kind": "example",
@@ -1087,7 +1083,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4498
+      "ms": 732
     },
     {
       "kind": "example",
@@ -1098,7 +1094,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3021
+      "ms": 1061
     },
     {
       "kind": "example",
@@ -1109,7 +1105,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2809
+      "ms": 996
     },
     {
       "kind": "example",
@@ -1120,7 +1116,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3616
+      "ms": 656
     },
     {
       "kind": "example",
@@ -1131,7 +1127,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3391
+      "ms": 1453
     },
     {
       "kind": "example",
@@ -1142,7 +1138,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3406
+      "ms": 1388
     },
     {
       "kind": "example",
@@ -1153,7 +1149,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2940
+      "ms": 1191
     },
     {
       "kind": "example",
@@ -1164,7 +1160,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2262
+      "ms": 2136
     },
     {
       "kind": "example",
@@ -1175,7 +1171,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4298
+      "ms": 1020
     },
     {
       "kind": "example",
@@ -1186,7 +1182,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2904
+      "ms": 802
     },
     {
       "kind": "example",
@@ -1197,7 +1193,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3545
+      "ms": 1515
     },
     {
       "kind": "example",
@@ -1208,7 +1204,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4384
+      "ms": 1252
     },
     {
       "kind": "example",
@@ -1227,7 +1223,7 @@
       ],
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2184
+      "ms": 933
     },
     {
       "kind": "example",
@@ -1238,7 +1234,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4312
+      "ms": 1180
     },
     {
       "kind": "example",
@@ -1249,7 +1245,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3041
+      "ms": 1175
     },
     {
       "kind": "example",
@@ -1260,7 +1256,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3483
+      "ms": 1008
     },
     {
       "kind": "example",
@@ -1271,7 +1267,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4993
+      "ms": 1170
     },
     {
       "kind": "example",
@@ -1282,7 +1278,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2963
+      "ms": 1118
     },
     {
       "kind": "example",
@@ -1293,7 +1289,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4420
+      "ms": 1505
     },
     {
       "kind": "example",
@@ -1304,7 +1300,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4544
+      "ms": 1451
     },
     {
       "kind": "example",
@@ -1315,7 +1311,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2964
+      "ms": 1302
     },
     {
       "kind": "example",
@@ -1329,7 +1325,7 @@
       "warnings": [
         "集群状态 yellow：所有主分片可用，但有 1 个副本分片未分配（单节点集群上配置了副本时必然如此），数据冗余不足"
       ],
-      "ms": 2673
+      "ms": 1391
     },
     {
       "kind": "example",
@@ -1340,7 +1336,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 5585
+      "ms": 1811
     },
     {
       "kind": "example",
@@ -1354,7 +1350,7 @@
       "warnings": [
         "demo-orders-current 是别名，已解析为索引 demo-orders"
       ],
-      "ms": 4112
+      "ms": 1261
     },
     {
       "kind": "example",
@@ -1365,7 +1361,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4128
+      "ms": 1589
     },
     {
       "kind": "example",
@@ -1376,7 +1372,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2983
+      "ms": 1264
     },
     {
       "kind": "doc",
@@ -1385,7 +1381,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "ok(non-json)",
-      "ms": 3782
+      "ms": 979
     },
     {
       "kind": "doc",
@@ -1398,7 +1394,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1757
+      "ms": 814
     },
     {
       "kind": "doc",
@@ -1407,7 +1403,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4443
+      "ms": 1359
     },
     {
       "kind": "doc",
@@ -1416,7 +1412,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3483
+      "ms": 936
     },
     {
       "kind": "doc",
@@ -1425,7 +1421,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 5202
+      "ms": 1011
     },
     {
       "kind": "doc",
@@ -1434,7 +1430,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2762
+      "ms": 865
     },
     {
       "kind": "doc",
@@ -1443,7 +1439,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3755
+      "ms": 1275
     },
     {
       "kind": "doc",
@@ -1469,7 +1465,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2706
+      "ms": 715
     },
     {
       "kind": "doc",
@@ -1481,7 +1477,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3379
+      "ms": 828
     },
     {
       "kind": "doc",
@@ -1490,7 +1486,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2690
+      "ms": 1170
     },
     {
       "kind": "doc",
@@ -1499,7 +1495,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3758
+      "ms": 943
     },
     {
       "kind": "doc",
@@ -1508,7 +1504,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4096
+      "ms": 1042
     },
     {
       "kind": "doc",
@@ -1517,7 +1513,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3786
+      "ms": 2153
     },
     {
       "kind": "doc",
@@ -1526,7 +1522,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 5071
+      "ms": 2994
     },
     {
       "kind": "doc",
@@ -1535,7 +1531,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2420
+      "ms": 1033
     },
     {
       "kind": "doc",
@@ -1544,7 +1540,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3263
+      "ms": 642
     },
     {
       "kind": "doc",
@@ -1556,7 +1552,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3335
+      "ms": 1779
     },
     {
       "kind": "doc",
@@ -1565,7 +1561,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4169
+      "ms": 726
     },
     {
       "kind": "doc",
@@ -1574,7 +1570,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3349
+      "ms": 648
     },
     {
       "kind": "doc",
@@ -1583,7 +1579,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3661
+      "ms": 3061
     },
     {
       "kind": "doc",
@@ -1592,20 +1588,20 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3992
+      "ms": 1519
     },
     {
       "kind": "doc",
       "where": "demo/walkthrough.md:56",
       "command": "workctl trace get --id <最慢请求的 trace_id>",
-      "executed": "workctl trace get --id 09350e7d93dcad26c6efd507f225d296",
+      "executed": "workctl trace get --id d995b0c0ce3a0507d9d84184dec8014b",
       "subs": [
-        "<最慢请求的 trace_id> -> 09350e7d93dcad26c6efd507f225d296"
+        "<最慢请求的 trace_id> -> d995b0c0ce3a0507d9d84184dec8014b"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3074
+      "ms": 1898
     },
     {
       "kind": "doc",
@@ -1614,7 +1610,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 12745
+      "ms": 11762
     },
     {
       "kind": "doc",
@@ -1623,7 +1619,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 12691
+      "ms": 13291
     },
     {
       "kind": "doc",
@@ -1632,7 +1628,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2979
+      "ms": 1561
     },
     {
       "kind": "doc",
@@ -1641,7 +1637,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2070
+      "ms": 3734
     },
     {
       "kind": "doc",
@@ -1650,7 +1646,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1629
+      "ms": 2523
     },
     {
       "kind": "doc",
@@ -1659,7 +1655,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2325
+      "ms": 3127
     },
     {
       "kind": "doc",
@@ -1668,7 +1664,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3834
+      "ms": 3676
     },
     {
       "kind": "doc",
@@ -1677,7 +1673,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2631
+      "ms": 2077
     },
     {
       "kind": "doc",
@@ -1690,7 +1686,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1748
+      "ms": 1168
     },
     {
       "kind": "doc",
@@ -1703,7 +1699,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1044
+      "ms": 2922
     },
     {
       "kind": "doc",
@@ -1712,7 +1708,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1379
+      "ms": 2324
     },
     {
       "kind": "doc",
@@ -1721,7 +1717,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2053
+      "ms": 2648
     },
     {
       "kind": "doc",
@@ -1730,7 +1726,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1897
+      "ms": 2900
     },
     {
       "kind": "doc",
@@ -1739,7 +1735,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3165
+      "ms": 4396
     },
     {
       "kind": "doc",
@@ -1751,7 +1747,7 @@
       "warnings": [
         "2026-10-16: 调度层 success 但目标分区 missing"
       ],
-      "ms": 4761
+      "ms": 4409
     },
     {
       "kind": "doc",
@@ -1770,7 +1766,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1426
+      "ms": 1816
     },
     {
       "kind": "doc",
@@ -1779,7 +1775,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "ok(non-json)",
-      "ms": 987
+      "ms": 1556
     },
     {
       "kind": "doc",
@@ -1788,7 +1784,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2373
+      "ms": 1849
     },
     {
       "kind": "doc",
@@ -1807,7 +1803,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2950
+      "ms": 1773
     },
     {
       "kind": "doc",
@@ -1819,7 +1815,7 @@
       "warnings": [
         "demo-orders-current 是别名，已解析为索引 demo-orders"
       ],
-      "ms": 2860
+      "ms": 2757
     },
     {
       "kind": "doc",
@@ -1831,7 +1827,7 @@
       "warnings": [
         "1/3 个分片查询失败，命中数与聚合只来自成功的分片（见 data.shard_failures）"
       ],
-      "ms": 2979
+      "ms": 3531
     },
     {
       "kind": "doc",
@@ -1840,7 +1836,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1210
+      "ms": 2371
     },
     {
       "kind": "doc",
@@ -1849,7 +1845,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1903
+      "ms": 2167
     },
     {
       "kind": "doc",
@@ -1858,7 +1854,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1404
+      "ms": 2111
     },
     {
       "kind": "doc",
@@ -1867,7 +1863,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1874
+      "ms": 2172
     },
     {
       "kind": "doc",
@@ -1880,7 +1876,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2345
+      "ms": 2457
     },
     {
       "kind": "doc",
@@ -1895,7 +1891,7 @@
       "envelope_status": "error",
       "error_code": "DATA_UNAVAILABLE",
       "message": "Consul KV 不保留历史，无法给出 config/sandbox/demo-inventory/cache.ttl_seconds 的上一版本",
-      "ms": 2295
+      "ms": 1978
     },
     {
       "kind": "doc",
@@ -1904,7 +1900,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2041
+      "ms": 2677
     },
     {
       "kind": "doc",
@@ -1913,7 +1909,7 @@
       "profile": "k8s",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2038
+      "ms": 1602
     },
     {
       "kind": "doc",
@@ -1922,7 +1918,7 @@
       "profile": "k8s",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3716
+      "ms": 1626
     },
     {
       "kind": "doc",
@@ -1931,20 +1927,20 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3200
+      "ms": 2020
     },
     {
       "kind": "doc",
       "where": "demo/walkthrough.md:105",
       "command": "workctl sql query get --id <q>",
-      "executed": "workctl sql query get --id q-20261018-6bcc04",
+      "executed": "workctl sql query get --id q-20261018-5aed7e",
       "subs": [
-        "<q> -> q-20261018-6bcc04"
+        "<q> -> q-20261018-5aed7e"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2972
+      "ms": 1514
     },
     {
       "kind": "doc",
@@ -1953,7 +1949,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "ok(non-json)",
-      "ms": 2940
+      "ms": 1126
     },
     {
       "kind": "doc",
@@ -1966,20 +1962,20 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3512
+      "ms": 1869
     },
     {
       "kind": "doc",
       "where": "docs/guides/infrastructure.md:50",
       "command": "workctl operation get --id <plan>",
-      "executed": "workctl operation get --id op-20261018-bf95e6",
+      "executed": "workctl operation get --id op-20261018-b05701",
       "subs": [
-        "<plan> -> op-20261018-bf95e6"
+        "<plan> -> op-20261018-b05701"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2541
+      "ms": 1605
     },
     {
       "kind": "doc",
@@ -1995,7 +1991,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2760
+      "ms": 2105
     },
     {
       "kind": "doc",
@@ -2004,7 +2000,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2067
+      "ms": 1994
     },
     {
       "kind": "doc",
@@ -2013,7 +2009,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1626
+      "ms": 2162
     },
     {
       "kind": "doc",
@@ -2037,7 +2033,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3388
+      "ms": 2906
     },
     {
       "kind": "doc",
@@ -2050,14 +2046,14 @@
       "kind": "doc",
       "where": "docs/guides/offline.md:102",
       "command": "workctl offline backfill get --id op-20261017-xxxxxx",
-      "executed": "workctl offline backfill get --id op-20261018-bf95e6",
+      "executed": "workctl offline backfill get --id op-20261018-b05701",
       "subs": [
-        "op-20261017-xxxxxx -> op-20261018-bf95e6"
+        "op-20261017-xxxxxx -> op-20261018-b05701"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1652
+      "ms": 985
     },
     {
       "kind": "doc",
@@ -2068,37 +2064,44 @@
     },
     {
       "kind": "doc",
-      "where": "docs/guides/operations.md:29",
+      "where": "docs/guides/operations.md:30",
       "command": "workctl --json operation plan --action container.restart --param service=demo-order --param env=sandbox",
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2111
+      "ms": 3215
     },
     {
       "kind": "doc",
-      "where": "docs/guides/operations.md:30",
+      "where": "docs/guides/operations.md:31",
       "command": "workctl --json operation execute --id op-20261017-abc123 --confirm op-20261017-abc123",
       "status": "skipped",
       "reason": "operation execute"
     },
     {
       "kind": "doc",
-      "where": "docs/guides/operations.md:31",
+      "where": "docs/guides/operations.md:32",
       "command": "workctl --json operation get --id op-20261017-abc123",
-      "executed": "workctl --json operation get --id op-20261018-bf95e6",
+      "executed": "workctl --json operation get --id op-20261018-b05701",
       "subs": [
-        "op-20261017-abc123 -> op-20261018-bf95e6"
+        "op-20261017-abc123 -> op-20261018-b05701"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2035
+      "ms": 1452
     },
     {
       "kind": "doc",
-      "where": "docs/guides/operations.md:48",
+      "where": "docs/guides/operations.md:49",
       "command": "workctl mcp serve --allow-execute",
+      "status": "skipped",
+      "reason": "long-running server"
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/operations.md:50",
+      "command": "workctl mcp serve --domain X",
       "status": "skipped",
       "reason": "long-running server"
     },
@@ -2113,7 +2116,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2369
+      "ms": 3126
     },
     {
       "kind": "skill",
@@ -2126,7 +2129,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2294
+      "ms": 1559
     },
     {
       "kind": "skill",
@@ -2139,7 +2142,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2525
+      "ms": 1866
     },
     {
       "kind": "skill",
@@ -2152,7 +2155,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2061
+      "ms": 1754
     },
     {
       "kind": "skill",
@@ -2165,7 +2168,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2703
+      "ms": 2172
     },
     {
       "kind": "skill",
@@ -2178,7 +2181,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2666
+      "ms": 1747
     },
     {
       "kind": "skill",
@@ -2195,7 +2198,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2883
+      "ms": 2304
     },
     {
       "kind": "skill",
@@ -2208,7 +2211,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2401
+      "ms": 2110
     },
     {
       "kind": "skill",
@@ -2221,7 +2224,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2979
+      "ms": 1318
     },
     {
       "kind": "skill",
@@ -2249,15 +2252,15 @@
         "skills/infra-operations/SKILL.md:70",
         "skills/offline-operations/SKILL.md:42"
       ],
-      "executed": "workctl --json operation get --id op-20261018-bf95e6",
+      "executed": "workctl --json operation get --id op-20261018-b05701",
       "subs": [
         "skill placeholders -> demo values",
-        "<plan> -> op-20261018-bf95e6"
+        "<plan> -> op-20261018-b05701"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1096
+      "ms": 1635
     },
     {
       "kind": "skill",
@@ -2270,7 +2273,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2772
+      "ms": 1252
     },
     {
       "kind": "skill",
@@ -2283,7 +2286,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2574
+      "ms": 1436
     },
     {
       "kind": "skill",
@@ -2296,7 +2299,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2492
+      "ms": 1472
     },
     {
       "kind": "skill",
@@ -2309,7 +2312,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2187
+      "ms": 1336
     },
     {
       "kind": "skill",
@@ -2322,7 +2325,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2197
+      "ms": 1051
     },
     {
       "kind": "skill",
@@ -2348,7 +2351,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3845
+      "ms": 1369
     },
     {
       "kind": "skill",
@@ -2364,7 +2367,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1177
+      "ms": 1362
     },
     {
       "kind": "skill",
@@ -2377,7 +2380,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2145
+      "ms": 2320
     },
     {
       "kind": "skill",
@@ -2390,7 +2393,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3843
+      "ms": 2142
     },
     {
       "kind": "skill",
@@ -2403,7 +2406,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2421
+      "ms": 1720
     },
     {
       "kind": "skill",
@@ -2416,7 +2419,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2712
+      "ms": 1981
     },
     {
       "kind": "skill",
@@ -2432,7 +2435,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3559
+      "ms": 1781
     },
     {
       "kind": "skill",
@@ -2445,7 +2448,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1908
+      "ms": 1646
     },
     {
       "kind": "skill",
@@ -2461,7 +2464,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2388
+      "ms": 1478
     },
     {
       "kind": "skill",
@@ -2474,7 +2477,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2126
+      "ms": 1572
     },
     {
       "kind": "skill",
@@ -2487,7 +2490,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2327
+      "ms": 1368
     },
     {
       "kind": "skill",
@@ -2500,7 +2503,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1952
+      "ms": 1269
     },
     {
       "kind": "skill",
@@ -2520,7 +2523,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2365
+      "ms": 1680
     },
     {
       "kind": "skill",
@@ -2533,7 +2536,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3140
+      "ms": 1378
     },
     {
       "kind": "skill",
@@ -2546,7 +2549,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2444
+      "ms": 948
     },
     {
       "kind": "skill",
@@ -2559,7 +2562,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2249
+      "ms": 733
     },
     {
       "kind": "skill",
@@ -2572,7 +2575,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 31721
+      "ms": 30856
     },
     {
       "kind": "skill",
@@ -2585,7 +2588,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2034
+      "ms": 748
     },
     {
       "kind": "skill",
@@ -2606,7 +2609,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2311
+      "ms": 790
     },
     {
       "kind": "skill",
@@ -2619,7 +2622,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1782
+      "ms": 550
     },
     {
       "kind": "skill",
@@ -2640,7 +2643,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1437
+      "ms": 621
     },
     {
       "kind": "skill",
@@ -2653,7 +2656,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2194
+      "ms": 474
     },
     {
       "kind": "skill",
@@ -2666,7 +2669,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1955
+      "ms": 624
     },
     {
       "kind": "skill",
@@ -2679,7 +2682,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2638
+      "ms": 708
     },
     {
       "kind": "skill",
@@ -2692,7 +2695,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3686
+      "ms": 722
     },
     {
       "kind": "skill",
@@ -2705,7 +2708,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 6155
+      "ms": 1997
     },
     {
       "kind": "skill",
@@ -2718,7 +2721,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4844
+      "ms": 1904
     },
     {
       "kind": "skill",
@@ -2745,7 +2748,7 @@
       "warnings": [
         "DAG 处于暂停状态：调度器不会创建新的定时 run，已触发的 run 也不会被调度"
       ],
-      "ms": 4275
+      "ms": 1425
     },
     {
       "kind": "skill",
@@ -2758,7 +2761,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2030
+      "ms": 1049
     },
     {
       "kind": "skill",
@@ -2771,7 +2774,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2633
+      "ms": 1037
     },
     {
       "kind": "skill",
@@ -2784,7 +2787,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4056
+      "ms": 1790
     },
     {
       "kind": "skill",
@@ -2797,7 +2800,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3860
+      "ms": 2041
     },
     {
       "kind": "skill",
@@ -2810,7 +2813,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3346
+      "ms": 1492
     },
     {
       "kind": "skill",
@@ -2819,7 +2822,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1413
+      "ms": 663
     },
     {
       "kind": "skill",
@@ -2843,7 +2846,7 @@
       "warnings": [
         "2026-10-16: 调度层 success 但目标分区 missing"
       ],
-      "ms": 4167
+      "ms": 2350
     },
     {
       "kind": "skill",
@@ -2856,7 +2859,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 621
+      "ms": 475
     },
     {
       "kind": "skill",
@@ -2869,7 +2872,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 21193
+      "ms": 20848
     },
     {
       "kind": "skill",
@@ -2882,7 +2885,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1483
+      "ms": 773
     },
     {
       "kind": "skill",
@@ -2903,7 +2906,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2266
+      "ms": 579
     },
     {
       "kind": "skill",
@@ -2924,7 +2927,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1825
+      "ms": 668
     },
     {
       "kind": "skill",
@@ -2937,7 +2940,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1740
+      "ms": 613
     },
     {
       "kind": "skill",
@@ -2950,7 +2953,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2418
+      "ms": 529
     },
     {
       "kind": "skill",
@@ -2963,7 +2966,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1638
+      "ms": 600
     },
     {
       "kind": "skill",
@@ -2976,7 +2979,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1573
+      "ms": 640
     },
     {
       "kind": "skill",
@@ -2989,7 +2992,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1512
+      "ms": 740
     },
     {
       "kind": "skill",
@@ -3002,7 +3005,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 31121
+      "ms": 30618
     },
     {
       "kind": "skill",
@@ -3015,22 +3018,20 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2734
+      "ms": 693
     },
     {
       "kind": "skill",
       "where": "skills/redis-operations/SKILL.md:39",
       "command": "workctl --json redis key inspect --instance <i> --key <top_key>",
-      "executed": "workctl --json redis key inspect --instance demo-redis --key demo:order:1",
+      "executed": "workctl --json redis key inspect --instance demo-redis --key demo:order:10",
       "subs": [
         "skill placeholders -> demo values"
       ],
       "profile": "docker",
-      "status": "expected-error",
-      "envelope_status": "error",
-      "error_code": "NOT_FOUND",
-      "message": "键不存在: demo:order:1",
-      "ms": 1184
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 722
     },
     {
       "kind": "skill",
@@ -3043,7 +3044,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1605
+      "ms": 579
     },
     {
       "kind": "skill",
@@ -3056,7 +3057,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2317
+      "ms": 562
     },
     {
       "kind": "skill",
@@ -3069,7 +3070,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2022
+      "ms": 916
     },
     {
       "kind": "skill",
@@ -3082,7 +3083,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 4251
+      "ms": 3205
     },
     {
       "kind": "skill",
@@ -3095,7 +3096,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2160
+      "ms": 2843
     },
     {
       "kind": "skill",
@@ -3108,7 +3109,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1361
+      "ms": 813
     },
     {
       "kind": "skill",
@@ -3121,7 +3122,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1113
+      "ms": 498
     },
     {
       "kind": "skill",
@@ -3134,7 +3135,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1312
+      "ms": 613
     },
     {
       "kind": "skill",
@@ -3157,7 +3158,7 @@
       "warnings": [
         "集群状态 yellow：所有主分片可用，但有 1 个副本分片未分配（单节点集群上配置了副本时必然如此），数据冗余不足"
       ],
-      "ms": 3609
+      "ms": 634
     },
     {
       "kind": "skill",
@@ -3173,7 +3174,7 @@
       "warnings": [
         "demo-orders-current 是别名，已解析为索引 demo-orders"
       ],
-      "ms": 2040
+      "ms": 1045
     },
     {
       "kind": "skill",
@@ -3186,7 +3187,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1574
+      "ms": 926
     },
     {
       "kind": "skill",
@@ -3199,7 +3200,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1039
+      "ms": 541
     },
     {
       "kind": "skill",
@@ -3212,7 +3213,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2440
+      "ms": 633
     },
     {
       "kind": "skill",
@@ -3225,7 +3226,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1669
+      "ms": 615
     },
     {
       "kind": "skill",
@@ -3238,7 +3239,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2299
+      "ms": 656
     },
     {
       "kind": "skill",
@@ -3251,7 +3252,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2433
+      "ms": 708
     },
     {
       "kind": "skill",
@@ -3264,7 +3265,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2357
+      "ms": 979
     },
     {
       "kind": "skill",
@@ -3277,7 +3278,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2024
+      "ms": 820
     },
     {
       "kind": "skill",
@@ -3290,7 +3291,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2441
+      "ms": 870
     },
     {
       "kind": "skill",
@@ -3303,7 +3304,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1364
+      "ms": 501
     },
     {
       "kind": "skill",
@@ -3316,7 +3317,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2492
+      "ms": 620
     },
     {
       "kind": "skill",
@@ -3329,7 +3330,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3028
+      "ms": 881
     },
     {
       "kind": "skill",
@@ -3342,7 +3343,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2842
+      "ms": 696
     },
     {
       "kind": "skill",
@@ -3355,7 +3356,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3980
+      "ms": 851
     },
     {
       "kind": "skill",
@@ -3368,7 +3369,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2480
+      "ms": 599
     },
     {
       "kind": "skill",
@@ -3381,7 +3382,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3291
+      "ms": 896
     },
     {
       "kind": "skill",
@@ -3394,20 +3395,20 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 3048
+      "ms": 756
     },
     {
       "kind": "skill",
       "where": "skills/service-latency-investigation/SKILL.md:67",
       "command": "workctl --json trace get --id <trace_id> --window 1h",
-      "executed": "workctl --json trace get --id 09350e7d93dcad26c6efd507f225d296 --window 1h",
+      "executed": "workctl --json trace get --id d995b0c0ce3a0507d9d84184dec8014b --window 1h",
       "subs": [
-        "<trace_id> -> 09350e7d93dcad26c6efd507f225d296"
+        "<trace_id> -> d995b0c0ce3a0507d9d84184dec8014b"
       ],
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1991
+      "ms": 520
     },
     {
       "kind": "skill",
@@ -3420,7 +3421,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 12775
+      "ms": 10442
     },
     {
       "kind": "skill",
@@ -3433,7 +3434,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2312
+      "ms": 495
     },
     {
       "kind": "skill",
@@ -3446,13 +3447,13 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 12538
+      "ms": 10507
     },
     {
       "kind": "skill",
       "where": "skills/service-latency-investigation/SKILL.md:82",
       "command": "workctl --json mysql query explain --instance <mysql> --database <db> --sql-file q.sql",
-      "executed": "workctl --json mysql query explain --instance demo-mysql --database demo --sql-file /tmp/workctl-examples-L3hvBR/mysql.sql",
+      "executed": "workctl --json mysql query explain --instance demo-mysql --database demo --sql-file /tmp/workctl-examples-lhvUsd/mysql.sql",
       "subs": [
         "skill placeholders -> demo values",
         "q.sql -> mysql sample (SELECT * FROM orders WHERE customer_id = 42)"
@@ -3460,7 +3461,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 2512
+      "ms": 477
     },
     {
       "kind": "skill",
@@ -3473,7 +3474,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 11229
+      "ms": 10397
     },
     {
       "kind": "skill",
@@ -3486,7 +3487,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1805
+      "ms": 1419
     },
     {
       "kind": "skill",
@@ -3499,7 +3500,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 1188
+      "ms": 471
     },
     {
       "kind": "skill",
@@ -3512,7 +3513,7 @@
       "profile": "docker",
       "status": "pass",
       "envelope_status": "success",
-      "ms": 941
+      "ms": 838
     }
   ]
 }

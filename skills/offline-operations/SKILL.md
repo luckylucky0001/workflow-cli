@@ -16,7 +16,7 @@ description: 离线调度与计算的日常操作：查看 Airflow 工作流/任
 | 按业务日期找运行 | `workctl --json offline run list --workflow <dag_id> --data-date YYYY-MM-DD [--timezone Asia/Shanghai]` |
 | 一次运行的分层状态 | `workctl --json offline run get --workflow <dag_id> --id <run_id>` |
 | 依赖（任务/数据/跨工作流） | `workctl --json offline dependency list --run-id <run_id> --direction upstream\|downstream` |
-| 任务日志尾部 | `workctl --json offline log get --run-id <run_id> --task <task_id> [--try N] [--limit-lines 200]` |
+| 任务日志尾部 | `workctl --json offline log get --run-id <run_id> --task <task_id> [--try N] [--map-index N] [--limit-lines 200]`（动态映射任务加 `--map-index`，取 run get 的 `tasks[].map_index`） |
 | Spark 应用 / 阶段 / driver 日志 | `compute job get --id <app_id>` / `compute stage list --job-id <app_id> [--status failed]` / `compute log get --job-id <app_id>` |
 | 资源池 | `workctl --json compute queue get --id demo-batch-pool` |
 | 只读 SQL | `sql query submit --engine spark --file q.sql`（或 `--engine trino`） → `sql query get --id q-...`（异步，状态以 `data.state` 为准；Trino 查询只在调用 `get` 时推进，约 5 分钟不取结果会被 Trino 判为 abandoned）；取消 `sql query cancel --id q-...` |

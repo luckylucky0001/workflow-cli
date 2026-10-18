@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { source, WorkError } from '../../core/output';
 import { defineCapability, defineDomain } from '../../core/registry';
 import { AIRFLOW_AUTH, AirflowClient, checkId } from '../offline/airflow';
-import { checkAppId, COMPUTE_GUIDE, deriveStatus, driverFailureSignal, driverLogPath, SPARK_HISTORY_ADAPTER, SPARK_LOG_ADAPTER, SparkHistory, tailFile } from './spark';
+import { appPath, checkAppId, COMPUTE_GUIDE, deriveStatus, driverFailureSignal, driverLogPath, SPARK_HISTORY_ADAPTER, SPARK_LOG_ADAPTER, SparkHistory, tailFile } from './spark';
 
 const iso = (ms: unknown): string | null => (typeof ms === 'number' && ms > 0 ? new Date(ms).toISOString() : null);
 const sparkTime = (v: unknown): string | null => {
@@ -61,8 +61,9 @@ const jobGet = defineCapability({
     const sh = new SparkHistory(ctx);
     const id = checkAppId(inp.id);
     const app = await sh.application(id);
-    const jobs: any[] = await sh.get(`/applications/${encodeURIComponent(id)}/jobs`);
-    const execs: any[] = await sh.get(`/applications/${encodeURIComponent(id)}/allexecutors`).catch(() => sh.get(`/applications/${encodeURIComponent(id)}/executors`));
+    const base = appPath(app, id);
+    const jobs: any[] = await sh.get(`${base}/jobs`);
+    const execs: any[] = await sh.get(`${base}/allexecutors`).catch(() => sh.get(`${base}/executors`));
     const attempts = (app.attempts ?? []).map((a: any) => ({
       attempt_id: a.attemptId ?? null,
       start_time: iso(a.startTimeEpoch) ?? sparkTime(a.startTime),
@@ -135,8 +136,8 @@ const jobGet = defineCapability({
       },
       sources: [
         await sh.source(`GET /api/v1/applications/${id}`, appVersion ?? undefined),
-        await sh.source(`GET /api/v1/applications/${id}/jobs`, appVersion ?? undefined),
-        await sh.source(`GET /api/v1/applications/${id}/allexecutors`, appVersion ?? undefined),
+        await sh.source(`GET /api/v1${decodeURIComponent(base)}/jobs`, appVersion ?? undefined),
+        await sh.source(`GET /api/v1${decodeURIComponent(base)}/allexecutors`, appVersion ?? undefined),
         source('spark', SPARK_HISTORY_ADAPTER, { method: `status = f(attempt.completed, job states${driverChecked ? ', driver log tail' : ''})`, relation: 'derived' }),
       ],
       coverage: { complete: jobs.length <= 50, scope: id, ...(jobs.length > 50 ? { truncated: true, limit: 50 } : {}) },
@@ -195,7 +196,8 @@ const stageList = defineCapability({
     const sh = new SparkHistory(ctx);
     const id = checkAppId(inp.job_id);
     const app = await sh.application(id);
-    const stages: any[] = await sh.get(`/applications/${encodeURIComponent(id)}/stages`, inp.status ? { status: inp.status } : undefined);
+    const base = appPath(app, id);
+    const stages: any[] = await sh.get(`${base}/stages`, inp.status ? { status: inp.status } : undefined);
     const sorted = [...stages].sort((a, b) => a.stageId - b.stageId || a.attemptId - b.attemptId);
     const items = sorted.slice(0, inp.limit).map((s) => {
       const sub = sparkTime(s.submissionTime);
@@ -225,7 +227,7 @@ const stageList = defineCapability({
     const ver = (app.attempts ?? [])[0]?.appSparkVersion;
     return {
       data: { app_id: id, stages: items, total: stages.length },
-      sources: [await sh.source(`GET /api/v1/applications/${id}/stages${inp.status ? `?status=${inp.status}` : ''}`, ver)],
+      sources: [await sh.source(`GET /api/v1${decodeURIComponent(base)}/stages${inp.status ? `?status=${inp.status}` : ''}`, ver)],
       coverage: { complete: stages.length <= items.length, scope: id, ...(stages.length > items.length ? { truncated: true, limit: inp.limit } : {}) },
     };
   },
@@ -323,10 +325,10 @@ const queueGet = defineCapability({
     open_slots: z.number(),
     include_deferred: z.boolean().nullable(),
     utilization: z.number().nullable().describe('occupied / slots'),
-    waiting_slots: z.number().describe('queued + scheduled：已就绪但等待执行槽'),
+    waiting_slots: z.number().describe('queued + scheduled：已就绪但尚未运行的任务。queued 已占用 pool 槽（计入 occupied_slots），等的是执行器/worker；scheduled 尚未拿到 pool 槽（或受其他并发上限限制）'),
   }),
   prerequisites: ['airflow 端点（pool 读权限）'],
-  notes: ['Airflow pool 只限制并发槽，不代表 CPU/内存；reschedule 模式的传感器等待时不占槽', 'YARN 队列（容量、已用、挂起应用）为待接入能力 compute.yarn-queue.get'],
+  notes: ['Airflow pool 只限制并发槽，不代表 CPU/内存；reschedule 模式的传感器等待时不占槽', 'occupied_slots = running + queued（include_deferred 时再加 deferred）：queued 多而 open_slots 仍有余量时瓶颈在执行器/worker，不在 pool；scheduled 多且 open_slots=0 才是 pool 槽不足', 'YARN 队列（容量、已用、挂起应用）为待接入能力 compute.yarn-queue.get'],
   examples: ['workctl compute queue get --id demo-batch-pool'],
   handler: async (ctx, inp) => {
     const af = new AirflowClient(ctx);

@@ -24,7 +24,7 @@
       {
         "system": "local-filesystem",
         "adapter": "node-fs",
-        "observed_at": "2026-10-18T05:45:54.367Z",
+        "observed_at": "2026-10-18T05:54:58.524Z",
         "method": "lstat/stat/access",
         "endpoint": "local-filesystem",
         "relation": "explicit"
@@ -38,7 +38,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdejnh0-d8e05b",
+    "request_id": "req-mvdevbcz-c5e53f",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -46,7 +46,7 @@
     "adapter": "node-fs",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:45:54.324Z",
-    "duration_ms": 43
+    "started_at": "2026-10-18T05:54:58.499Z",
+    "duration_ms": 26
   }
 }

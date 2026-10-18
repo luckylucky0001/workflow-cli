@@ -3,16 +3,16 @@
   "status": "success",
   "capability": "sql.query.submit",
   "data": {
-    "query_id": "q-20261018-051315",
+    "query_id": "q-20261018-dee1e6",
     "engine": "spark",
     "state": "submitted",
-    "submitted_at": "2026-10-18T05:46:46.120Z",
-    "pid": 27230,
+    "submitted_at": "2026-10-18T05:55:34.092Z",
+    "pid": 32480,
     "sql_sha256": "896905aaaf3124413d1931ed32f229b686e4f80fa1b14d44430b7ba5114ca293",
-    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261018-051315/result",
-    "state_file": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261018-051315.json",
+    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261018-dee1e6/result",
+    "state_file": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261018-dee1e6.json",
     "tables": "数仓目录注册为 <db>_<table> 临时视图",
-    "next": "workctl sql query get --id q-20261018-051315"
+    "next": "workctl sql query get --id q-20261018-dee1e6"
   },
   "error": null,
   "meta": {
@@ -20,7 +20,7 @@
       {
         "system": "spark",
         "adapter": "spark-submit-local",
-        "observed_at": "2026-10-18T05:46:46.135Z",
+        "observed_at": "2026-10-18T05:55:34.099Z",
         "endpoint": "spark/demo-spark",
         "method": "spawn /home/user/workflow-cli/demo/offline-workflows/spark/spark-submit.sh --mode query",
         "relation": "explicit"
@@ -28,12 +28,12 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "q-20261018-051315"
+      "scope": "q-20261018-dee1e6"
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdekrf5-2c69f0",
+    "request_id": "req-mvdew2t5-d19a42",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -41,7 +41,7 @@
     "adapter": "spark-submit-local|trino-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:46:46.097Z",
-    "duration_ms": 39
+    "started_at": "2026-10-18T05:55:34.073Z",
+    "duration_ms": 26
   }
 }

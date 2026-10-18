@@ -343,7 +343,7 @@ if (!only) {
   const md = [
     '# 文档命令实跑记录（examples-check）',
     '',
-    `> 由 \`node scripts/examples-check.mjs\` 生成于 ${new Date().toISOString()}。逐条执行能力定义中的 \`examples\`（command-reference 与 \`--help\` 展示的内容）以及 quickstart / walkthrough / README / guides 中的 \`workctl\` 命令，全部 \`--json\`。`,
+    `> 由 \`node scripts/examples-check.mjs\` 生成于 ${new Date().toISOString()}。逐条执行能力定义中的 \`examples\`（command-reference 与 \`--help\` 展示的内容）以及 quickstart / walkthrough / README / guides / skills 中的 \`workctl\` 命令，全部 \`--json\`。`,
     '> 默认 profile `demo/environment/workctl.yaml`；Kubernetes 专属示例（失败时）再用 `demo/environment/k8s/workctl.k8s.yaml` 重试。`operation=execute`、`operation execute`、重启、安装、Airflow 3 profile 一律跳过不执行。',
     '> 占位符替换：`<trace_id>` 取自 `log query`，`<app_id>` 取自 `offline run get`，`op-…`/`<plan>` 取自 `offline backfill plan`，`q-…`/`<q>` 取自 `sql query submit`，`q.sql` 为按引擎生成的临时只读 SQL。',
     '> `expected-error`：失败的错误码在该能力的说明（notes）或所在文档中有说明（如示例中的虚构 id → `NOT_FOUND`）。',

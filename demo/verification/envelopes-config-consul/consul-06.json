@@ -9,7 +9,7 @@
     "hint": "该前缀下的键（前 20 个）: cache.ttl_seconds, db.password, db.pool_size, feature.flags, upstream.order, warehouse.default",
     "retryable": false,
     "details": {
-      "observed_revision": 192
+      "observed_revision": 235
     }
   },
   "meta": {
@@ -18,7 +18,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdekheo-9cb817",
+    "request_id": "req-mvdesrn1-c840c2",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -26,7 +26,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:46:33.120Z",
-    "duration_ms": 91
+    "started_at": "2026-10-18T05:52:59.629Z",
+    "duration_ms": 43
   }
 }

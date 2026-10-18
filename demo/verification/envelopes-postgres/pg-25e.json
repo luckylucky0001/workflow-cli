@@ -21,7 +21,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdejvaa-f22a00",
+    "request_id": "req-mvdesem5-ced6da",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -29,7 +29,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:46:04.450Z",
-    "duration_ms": 165
+    "started_at": "2026-10-18T05:52:42.749Z",
+    "duration_ms": 55
   }
 }

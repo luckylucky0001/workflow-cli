@@ -378,7 +378,7 @@
       "files_total": 1,
       "parse_errors": 0
     },
-    "checked_at": "2026-10-18T05:46:52.140Z",
+    "checked_at": "2026-10-18T05:55:37.608Z",
     "persisted_to": "/home/user/workflow-cli/demo/environment/.runtime/state/quality/analytics.daily_orders/dt=2026-10-17.json"
   },
   "error": null,
@@ -387,7 +387,7 @@
       {
         "system": "file-catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T05:46:52.140Z",
+        "observed_at": "2026-10-18T05:55:37.608Z",
         "endpoint": "catalog/demo",
         "method": "read tables/analytics.daily_orders.yaml",
         "relation": "explicit"
@@ -395,14 +395,14 @@
       {
         "system": "quality-ruleset",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T05:46:52.140Z",
+        "observed_at": "2026-10-18T05:55:37.608Z",
         "method": "read demo-daily-rules.yaml",
         "relation": "explicit"
       },
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T05:46:52.140Z",
+        "observed_at": "2026-10-18T05:55:37.608Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "stat+readdir analytics/daily_orders/dt=2026-10-17",
         "relation": "derived"
@@ -410,7 +410,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T05:46:52.140Z",
+        "observed_at": "2026-10-18T05:55:37.608Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "read 1/1 files, 6 rows",
         "relation": "derived"
@@ -427,7 +427,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdekvzo-3cea1d",
+    "request_id": "req-mvdew5gw-69641f",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -435,7 +435,7 @@
     "adapter": "file-catalog",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:46:52.020Z",
-    "duration_ms": 122
+    "started_at": "2026-10-18T05:55:37.520Z",
+    "duration_ms": 89
   }
 }
