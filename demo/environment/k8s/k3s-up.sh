@@ -43,7 +43,9 @@ if ! docker ps --format '{{.Names}}' | grep -qx "$NAME"; then
   fi
   [ -n "${K3S_EXTRA_CA:-}" ] && args+=(-v "${K3S_EXTRA_CA}:/etc/ssl/certs/ca-certificates.crt:ro")
   docker run -d --privileged --name "$NAME" "${args[@]}" "$K3S_IMAGE" "${server_args[@]}" >/dev/null
-  if [ "${K3S_OOM_WORKAROUND:-0}" = "1" ]; then
+fi
+
+apply_oom_workaround() {
     for _ in $(seq 1 30); do docker exec "$NAME" test -f /var/lib/rancher/k3s/agent/etc/containerd/config.toml 2>/dev/null && break; sleep 2; done
     docker exec -i "$NAME" sh -c 'cat > /var/lib/rancher/k3s/runc-oom-workaround && chmod +x /var/lib/rancher/k3s/runc-oom-workaround' <<'WRAP'
 #!/bin/sh
@@ -57,7 +59,10 @@ exec /bin/runc "$@"
 WRAP
     docker exec "$NAME" sh -c 'cd /var/lib/rancher/k3s/agent/etc/containerd && sed "s#SystemdCgroup = false#SystemdCgroup = false\n  BinaryName = \"/var/lib/rancher/k3s/runc-oom-workaround\"#" config.toml > config.toml.tmpl'
     docker restart "$NAME" >/dev/null
-  fi
+}
+# idempotent: also covers a cluster container recreated or restarted without the workaround
+if [ "${K3S_OOM_WORKAROUND:-0}" = "1" ] && ! docker exec "$NAME" test -f /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl 2>/dev/null; then
+  apply_oom_workaround
 fi
 
 echo "waiting for the k3s API server and node..."

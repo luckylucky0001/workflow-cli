@@ -27,8 +27,8 @@ trigger() {
   local body
   body=$(printf '{"dag_run_id":"%s","logical_date":"%s","data_interval_start":"%s","data_interval_end":"%s","conf":%s,"note":"workctl offline scenario"}' "$run_id" "$start" "$start" "$end" "$conf")
   local out; out=$(af POST "/dags/$dag/dagRuns" "$body")
-  if echo "$out" | grep -q '"dag_run_id"'; then echo "triggered $dag $run_id (business date $d)";
-  elif echo "$out" | grep -q 'already exists'; then echo "exists    $dag $run_id";
+  if grep -q '"dag_run_id"' <<<"$out"; then echo "triggered $dag $run_id (business date $d)";
+  elif grep -q 'already exists' <<<"$out"; then echo "exists    $dag $run_id";
   else echo "trigger failed: $out" >&2; return 1; fi
 }
 

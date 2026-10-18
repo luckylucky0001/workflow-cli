@@ -38,8 +38,8 @@ trigger() {
   local body out
   body=$(printf '{"dag_run_id":"%s","logical_date":"%s","data_interval_start":"%s","data_interval_end":"%s","conf":%s,"note":"workctl offline scenario (airflow 3)"}' "$run_id" "$start" "$start" "$end" "$conf")
   out=$(af POST "/dags/$dag/dagRuns" "$body")
-  if echo "$out" | grep -q '"dag_run_id"'; then echo "triggered $dag $run_id (business date $d)";
-  elif echo "$out" | grep -qi 'already exists\|unique constraint'; then echo "exists    $dag $run_id";
+  if grep -q '"dag_run_id"' <<<"$out"; then echo "triggered $dag $run_id (business date $d)";
+  elif grep -qi 'already exists\|unique constraint' <<<"$out"; then echo "exists    $dag $run_id";
   else echo "trigger failed: $out" >&2; return 1; fi
 }
 set_paused() { af PATCH "/dags/$1?update_mask=is_paused" "{\"is_paused\": $2}" >/dev/null && echo "$1 is_paused=$2"; }

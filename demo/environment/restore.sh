@@ -29,6 +29,7 @@ node demo/scenarios/deploy/seed-jenkins.mjs >/dev/null
 node demo/scenarios/postgres/scenario.mjs reset-stats >/dev/null
 node demo/scenarios/postgres/scenario.mjs churn >/dev/null
 node demo/scenarios/search/seed.mjs >/dev/null
-if [ -n "${WITH_K8S:-}" ]; then demo/environment/k8s/k3s-up.sh >/dev/null; fi
+# sandbox kernels that deny lowering oom_score_adj need the demo-only runc wrapper (see k3s-up.sh); override with K3S_OOM_WORKAROUND=0
+if [ -n "${WITH_K8S:-}" ]; then K3S_OOM_WORKAROUND="${K3S_OOM_WORKAROUND:-1}" demo/environment/k8s/k3s-up.sh >/dev/null; fi
 date -u +%FT%TZ > demo/environment/.runtime/READY
 echo "demo environment restored. export WORKCTL_CONFIG=$WORKCTL_CONFIG"
