@@ -254,8 +254,9 @@ export function num(v: unknown): number | null {
 
 /** Identifier check for names passed as parameters (also guards obvious typos). */
 export function assertIdentifier(kind: string, v: string): string {
-  if (!/^[^\u0000]{1,63}$/.test(v)) {
-    throw new WorkError('INVALID_ARGUMENT', `${kind} 名称不合法: ${v}`, { hint: '长度 1–63，按 PostgreSQL 实际（区分大小写的）对象名给出，不要加双引号' });
+  // NAMEDATALEN-1 = 63 is a byte limit: a longer UTF-8 name is silently truncated by the server
+  if (!/^[^\u0000]+$/.test(v) || Buffer.byteLength(v, 'utf8') > 63) {
+    throw new WorkError('INVALID_ARGUMENT', `${kind} 名称不合法: ${v}`, { hint: '长度 1–63 字节（UTF-8；一个汉字占 3 字节），按 PostgreSQL 实际（区分大小写的）对象名给出，不要加双引号' });
   }
   return v;
 }

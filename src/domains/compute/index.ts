@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { source, WorkError } from '../../core/output';
 import { defineCapability, defineDomain } from '../../core/registry';
 import { AIRFLOW_AUTH, AirflowClient, checkId } from '../offline/airflow';
+import { maskCredentialText } from '../config/values';
 import { appPath, checkAppId, COMPUTE_GUIDE, deriveStatus, driverFailureSignal, driverLogPath, SPARK_HISTORY_ADAPTER, SPARK_LOG_ADAPTER, SparkHistory, tailFile } from './spark';
 
 const iso = (ms: unknown): string | null => (typeof ms === 'number' && ms > 0 ? new Date(ms).toISOString() : null);
@@ -259,11 +260,12 @@ const logGet = defineCapability({
     total_lines: z.number().nullable(),
     returned_lines: z.number(),
     truncated: z.boolean(),
+    credentials_masked: z.number().describe('含凭据（URL 密码、Authorization 头、password=/token= 参数等）并已打码为 *** 的返回行数'),
     provenance: z.string(),
     lines: z.array(z.string()),
   }),
   prerequisites: ['spark 端点配置 driver_log_dir；提交脚本把 driver 输出落盘为 <driver_log_dir>/<app_id>.log'],
-  notes: ['driver 日志不是 Spark REST 接口提供的：演示环境由 spark-submit 包装脚本（tee）落盘；YARN/K8s 环境应改用对应的日志聚合适配器'],
+  notes: ['driver 日志不是 Spark REST 接口提供的：演示环境由 spark-submit 包装脚本（tee）落盘；YARN/K8s 环境应改用对应的日志聚合适配器', '凭据按与应用日志相同的规则打码（URL 中的密码、Authorization 头、password=/token= 等参数），数量见 credentials_masked'],
   examples: ['workctl compute log get --job-id <app_id> --limit-lines 100'],
   handler: async (ctx, inp) => {
     const ep = ctx.endpoint('spark');
@@ -279,6 +281,12 @@ const logGet = defineCapability({
     }
     const limit = Math.min(Math.max(1, inp.limit_lines), 2000);
     const t = tailFile(p, limit);
+    let maskedLines = 0;
+    const lines = t.lines.map((l) => {
+      const m = maskCredentialText(l);
+      if (m.masked) maskedLines++;
+      return m.text;
+    });
     return {
       data: {
         app_id: id,
@@ -288,11 +296,17 @@ const logGet = defineCapability({
         total_lines: t.total_lines,
         returned_lines: t.lines.length,
         truncated: t.truncated,
+        credentials_masked: maskedLines,
         provenance: 'spark-submit 包装脚本 tee 的 driver stdout/stderr（log4j 控制台输出）',
-        lines: t.lines,
+        lines,
       },
       sources: [source('filesystem', SPARK_LOG_ADAPTER, { endpoint: `${ep.id}:driver_log_dir`, method: `tail ${id}.log`, relation: 'explicit' })],
-      coverage: { complete: !t.truncated, scope: `${id}.log`, ...(t.truncated ? { truncated: true, limit } : {}) },
+      coverage: {
+        complete: !t.truncated,
+        scope: `${id}.log`,
+        ...(t.truncated ? { truncated: true, limit } : {}),
+        ...(maskedLines ? { notes: [`${maskedLines} 行含凭据（URL 中的密码、Authorization 头、password=/token= 等参数），已打码为 ***`] } : {}),
+      },
     };
   },
 });

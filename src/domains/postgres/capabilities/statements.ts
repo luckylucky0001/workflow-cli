@@ -158,7 +158,16 @@ export function sortStats(stats: PssStat[], order: Order): PssStat[] {
     rows: (x) => x.rows,
     shared_blks_read: (x) => x.shared_blks_read,
   };
-  return [...stats].sort((a, b) => key[order](b) - key[order](a));
+  // ties (equal key, e.g. calls) must not depend on catalog/hash order: break them by queryid, then text, db, user
+  const str = (v: string | null | undefined) => v ?? '';
+  return [...stats].sort(
+    (a, b) =>
+      key[order](b) - key[order](a) ||
+      str(a.queryid).localeCompare(str(b.queryid)) ||
+      str(a.query).localeCompare(str(b.query)) ||
+      str(a.database).localeCompare(str(b.database)) ||
+      str(a.user).localeCompare(str(b.user)),
+  );
 }
 
 /** Our own sampling statement shows up in pg_stat_statements; it is excluded from results. */

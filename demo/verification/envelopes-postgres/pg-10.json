@@ -20,11 +20,11 @@
         "user": "postgres",
         "query": "/* ? */ SELECT pg_sleep($1) -- ?",
         "query_truncated": false,
-        "calls": 8,
-        "total_exec_ms": 8005.327,
-        "mean_exec_ms": 1000.666,
+        "calls": 10,
+        "total_exec_ms": 10006.116,
+        "mean_exec_ms": 1000.612,
         "max_exec_ms": 2002.136,
-        "rows": 8,
+        "rows": 10,
         "rows_per_call": 1,
         "shared_blks_hit": 0,
         "shared_blks_read": 0,
@@ -37,13 +37,13 @@
         "user": "postgres",
         "query": "SELECT count(*) FROM orders WHERE customer_id = $1",
         "query_truncated": false,
-        "calls": 2824,
-        "total_exec_ms": 7364.084,
-        "mean_exec_ms": 2.608,
+        "calls": 3603,
+        "total_exec_ms": 9219.787,
+        "mean_exec_ms": 2.559,
         "max_exec_ms": 70.812,
-        "rows": 2824,
+        "rows": 3603,
         "rows_per_call": 1,
-        "shared_blks_hit": 1544728,
+        "shared_blks_hit": 1970841,
         "shared_blks_read": 0,
         "cache_hit_ratio": 1,
         "temp_blks_written": 0
@@ -54,13 +54,13 @@
         "user": "postgres",
         "query": "UPDATE orders SET status = $1 WHERE id = $2",
         "query_truncated": false,
-        "calls": 4,
-        "total_exec_ms": 2249.455,
-        "mean_exec_ms": 562.364,
-        "max_exec_ms": 569.234,
-        "rows": 4,
+        "calls": 5,
+        "total_exec_ms": 2835.143,
+        "mean_exec_ms": 567.029,
+        "max_exec_ms": 585.687,
+        "rows": 5,
         "rows_per_call": 1,
-        "shared_blks_hit": 48,
+        "shared_blks_hit": 60,
         "shared_blks_read": 0,
         "cache_hit_ratio": 1,
         "temp_blks_written": 0
@@ -71,15 +71,15 @@
         "user": "workctl_ro",
         "query": "SELECT c.oid, c.relkind, c.reltuples, obj_description(c.oid, $3) AS comment,\n                  has_table_privilege(c.oid, $4) AS can_select,\n                  pg_relation_size(c.oid) AS heap_bytes, pg_table_size(c.oid) AS table_bytes,\n                  pg_indexes_size(c.oid) AS indexes_bytes, pg_total_relation_size(c.oid) AS total_bytes\n             FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\n            WHERE n.nspname = $1 AND c.relname = $2 AND c.relkind IN ($5,$6,$7,$8,$9)",
         "query_truncated": false,
-        "calls": 62,
-        "total_exec_ms": 81.239,
-        "mean_exec_ms": 1.31,
+        "calls": 91,
+        "total_exec_ms": 107.663,
+        "mean_exec_ms": 1.183,
         "max_exec_ms": 8.421,
-        "rows": 55,
-        "rows_per_call": 0.887,
-        "shared_blks_hit": 7140,
+        "rows": 73,
+        "rows_per_call": 0.802,
+        "shared_blks_hit": 9610,
         "shared_blks_read": 9,
-        "cache_hit_ratio": 0.9987,
+        "cache_hit_ratio": 0.9991,
         "temp_blks_written": 0
       },
       {
@@ -88,22 +88,22 @@
         "user": "workctl_ro",
         "query": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT * FROM orders WHERE customer_id = $1",
         "query_truncated": false,
-        "calls": 10,
-        "total_exec_ms": 56.086,
-        "mean_exec_ms": 5.609,
+        "calls": 17,
+        "total_exec_ms": 88.052,
+        "mean_exec_ms": 5.18,
         "max_exec_ms": 11.331,
         "rows": 0,
         "rows_per_call": 0,
-        "shared_blks_hit": 6550,
+        "shared_blks_hit": 11135,
         "shared_blks_read": 0,
         "cache_hit_ratio": 1,
         "temp_blks_written": 0
       }
     ],
     "totals": {
-      "statements_with_activity": 160,
-      "calls": 5189,
-      "total_exec_ms": 18350.811
+      "statements_with_activity": 178,
+      "calls": 7091,
+      "total_exec_ms": 23062.395
     },
     "collection": {
       "extension_version": "1.10",
@@ -112,7 +112,7 @@
       "dealloc": 0,
       "text_visible": true
     },
-    "excluded_self": 10
+    "excluded_self": 12
   },
   "error": null,
   "meta": {
@@ -120,7 +120,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T05:52:26.691Z",
+        "observed_at": "2026-10-18T06:06:46.781Z",
         "endpoint": "postgres/demo-postgres",
         "method": "public.pg_stat_statements (cumulative)",
         "version": "16.15",
@@ -138,7 +138,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdes257-ffe59c",
+    "request_id": "req-mvdfahsz-14a478",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -146,7 +146,7 @@
     "adapter": "pg-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:52:26.587Z",
-    "duration_ms": 110
+    "started_at": "2026-10-18T06:06:46.691Z",
+    "duration_ms": 98
   }
 }

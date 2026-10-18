@@ -65,7 +65,7 @@
     "lag_unit": "offsets",
     "lag_basis": "offset_difference",
     "end_offset_isolation": "read_committed",
-    "observed_at": "2026-10-18T05:55:22.814Z"
+    "observed_at": "2026-10-18T06:09:49.277Z"
   },
   "error": null,
   "meta": {
@@ -75,7 +75,7 @@
         "adapter": "kafka-admin",
         "endpoint": "kafka/demo-mq",
         "method": "DescribeGroups(demo-consumer)",
-        "observed_at": "2026-10-18T05:55:22.797Z",
+        "observed_at": "2026-10-18T06:09:49.263Z",
         "version": "inter.broker.protocol.version=3.9-IV0",
         "relation": "explicit"
       },
@@ -84,7 +84,7 @@
         "adapter": "kafka-admin",
         "endpoint": "kafka/demo-mq",
         "method": "OffsetFetch(group=demo-consumer)",
-        "observed_at": "2026-10-18T05:55:22.808Z",
+        "observed_at": "2026-10-18T06:09:49.272Z",
         "version": "inter.broker.protocol.version=3.9-IV0",
         "relation": "explicit"
       },
@@ -93,7 +93,7 @@
         "adapter": "kafka-admin",
         "endpoint": "kafka/demo-mq",
         "method": "ListOffsets(latest+earliest, read_committed)",
-        "observed_at": "2026-10-18T05:55:22.814Z",
+        "observed_at": "2026-10-18T06:09:49.277Z",
         "version": "inter.broker.protocol.version=3.9-IV0",
         "relation": "explicit"
       },
@@ -102,7 +102,7 @@
         "adapter": "kafka-admin",
         "endpoint": "kafka/demo-mq",
         "method": "lag = end_offset - committed_offset",
-        "observed_at": "2026-10-18T05:55:22.814Z",
+        "observed_at": "2026-10-18T06:09:49.277Z",
         "version": "inter.broker.protocol.version=3.9-IV0",
         "relation": "derived"
       }
@@ -120,7 +120,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdevtyw-319232",
+    "request_id": "req-mvdfeeh4-777e8e",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -128,7 +128,7 @@
     "adapter": "kafka-admin",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:55:22.616Z",
-    "duration_ms": 207
+    "started_at": "2026-10-18T06:09:49.000Z",
+    "duration_ms": 332
   }
 }

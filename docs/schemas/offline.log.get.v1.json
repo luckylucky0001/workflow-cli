@@ -23,13 +23,25 @@
       ]
     },
     "total_lines": {
-      "type": "number"
+      "description": "日志总行数；日志超过读取上限、只读取了末尾部分时为 null",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "bytes": {
+      "type": "number",
+      "description": "从 Airflow 收到的日志字节数"
     },
     "returned_lines": {
       "type": "number"
     },
     "truncated": {
       "type": "boolean"
+    },
+    "credentials_masked": {
+      "type": "number",
+      "description": "含凭据（URL 密码、Authorization 头、password=/token= 参数等）并已打码为 *** 的返回行数"
     },
     "spark_app_ids": {
       "type": "array",
@@ -51,8 +63,10 @@
     "try_number",
     "task_state",
     "total_lines",
+    "bytes",
     "returned_lines",
     "truncated",
+    "credentials_masked",
     "spark_app_ids",
     "lines"
   ],

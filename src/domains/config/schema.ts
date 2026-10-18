@@ -44,6 +44,9 @@ export const NacosDocSchema = z
     content_format: z.enum(['properties', 'yaml', 'json', 'text']).describe('workctl 实际使用的解析方式'),
     parsed: z.boolean().describe('false 表示整个文档作为一个值返回（类型不可拆分或解析失败）'),
     parse_error: z.string().nullable(),
+    parse_warnings: z
+      .array(z.string())
+      .describe('解析问题（只列键名，不含值）：YAML/JSON 重复键（Spring Boot 拒绝加载此类文件）、展开后同名的键（如 a.b: 1 与 a: {b: 2}）、properties 重复键；这些键返回的是解析器最后一次出现的值，不代表应用实际生效值'),
     md5: z.string().nullable().describe('Nacos 记录的内容 md5；文档含遮蔽值时为 null（md5 与其余明文可校验被遮蔽的值）'),
     content_bytes: z.number().nullable().describe('文档字节数；文档含遮蔽值时为 null'),
     last_modified: z.string().nullable(),

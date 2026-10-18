@@ -63,7 +63,7 @@ profile.endpoints.postgres.<instance>  ──(资源绑定 forEndpoint)──▶
 1. 静态检查（词法分析，正确处理 `'…'`、`E'…'`、`$tag$…$tag$`、`"…"`、嵌套注释）：只允许单条 `SELECT / WITH…SELECT / VALUES / TABLE`；拒绝多语句、数据修改型 CTE、`SELECT INTO`、`FOR UPDATE/SHARE`、`EXPLAIN` 前缀，以及终止会话、读写文件、咨询锁、序列、`set_config`、重置统计、执行任意 SQL 文本（`query_to_xml` 等）的函数。名单**不穷尽**——自定义函数可能有副作用，由角色权限兜底。
 2. `BEGIN TRANSACTION READ ONLY`、`SET LOCAL statement_timeout / lock_timeout`，结束后 ROLLBACK。
 3. 服务端游标 `DECLARE … NO SCROLL CURSOR` + `FETCH max_rows+1`，不缓冲完整结果集；超出 → `truncated=true`。
-4. 敏感列：输出列名或其**来源列**（按 `tableID/columnID` 查系统目录，覆盖别名）命中端点 `sensitive_columns` 时脱敏；表达式列在语句引用了敏感列时保守脱敏；语句涉及含敏感列的表时，非数值类型的表达式列（整行引用 `SELECT c FROM customers c`、`row_to_json(c)`、`upper(name)` 等）也保守脱敏，数值/布尔/时间类表达式（如 `count(*)`）不受影响。不能替代数据库侧列权限或脱敏视图。
+4. 敏感列：输出列名或其**来源列**（按 `tableID/columnID` 查系统目录，覆盖别名）命中端点 `sensitive_columns` 时脱敏。语句引用了敏感列（按名称），或涉及含敏感列的表（整行引用 `SELECT c FROM customers c`、`row_to_json(c)`、`c::text`、`*` 等）时，**所有**不能解析到非敏感来源列的表达式列都保守脱敏，**不论类型**——`ascii(substr(phone,1,1))`、`regexp_replace(c::text,'\D','','g')::numeric` 是数值，同样会泄露号码数字。唯一例外是最外层 SELECT 列表中的纯计数聚合 `count(*)` / `count(x)` / `count(DISTINCT x)`（可带 `OVER (...)` 与别名；含 UNION/INTERSECT/EXCEPT 或 `*` 展开时不适用），其结果不能还原列值；`sum`/`max`/`avg` 等可还原值的聚合仍脱敏。直接来自敏感列的值保留部分形状（`+86****4480`、`a***@example.com`）；保守脱敏的表达式列整值遮蔽为 `***`（否则 `substr(phone, k)` 滑动窗口可拼回原值）。不能替代数据库侧列权限或脱敏视图。
 
 ## 权限前提
 
@@ -107,7 +107,7 @@ GRANT SELECT ON customers, orders, order_items TO workctl_ro;   -- internal_ledg
 
 - 语句引用敏感列（或含敏感列的表）时，服务端错误消息中的引号内容一律替换为 `"***"`，并丢弃 DETAIL/HINT（例如 `SELECT phone::int` 的类型转换错误会带出原值）。
 - `query run / analyze / explain` 要求会话 `standard_conforming_strings=on`（PostgreSQL 默认值）；被关闭时返回 `UNSUPPORTED`，因为反斜杠转义会让语句切分与服务端不一致。`U&"..."` Unicode 转义标识符、`ts_rewrite`、`txid_current()` / `pg_current_xact_id()` 等会执行文本或分配事务号的函数被拒绝。
-- 脱敏只按列名进行，数值型表达式（如 `ascii(substr(...))`）可以绕过；真正的边界是数据库列权限与只读角色。
+- 脱敏在程序层按列名 / 来源列 / 语句涉及的表判断：语句碰到敏感数据时只放行非敏感来源列与纯 `count(...)`，其余表达式一律遮蔽；但 `WHERE phone LIKE '138%'` 之类的过滤条件仍可作为存在性判定（只返回计数也一样），真正的边界是数据库列权限与只读角色。
 
 ## Demo 数据与场景
 

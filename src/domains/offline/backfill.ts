@@ -5,7 +5,7 @@ import type { Executor, Planner } from '../../core/registry';
 import { sleep, type Ctx } from '../../core/runtime';
 import { AirflowClient, checkId } from './airflow';
 import { catalogSource, downstreamTables, partitionSpec, tableByName } from './catalog';
-import { partitionLayer, runsForBusinessDate, targetsOf } from './runs';
+import { businessTimeZone, partitionLayer, runsForBusinessDate, targetsOf } from './runs';
 import { businessInterval, dateRange, requireDate, requireTimeZone, timePair } from './time';
 
 const ACTIVE = new Set(['queued', 'running']);
@@ -57,7 +57,16 @@ export function writeModeCheck(writeMode: string | null, actions: { action: Back
 export const BackfillTargetSchema = z.object({
   business_date: z.string(),
   data_interval: z.object({ start_local: z.string(), end_local: z.string(), start_utc: z.string(), end_utc: z.string() }),
-  existing_runs: z.array(z.object({ run_id: z.string(), state: z.string().nullable(), run_type: z.string().nullable(), match: z.string(), conf: z.record(z.string(), z.unknown()) })),
+  existing_runs: z.array(
+    z.object({
+      run_id: z.string(),
+      state: z.string().nullable(),
+      run_type: z.string().nullable(),
+      match: z.string(),
+      conf: z.record(z.string(), z.unknown()),
+      data_interval: z.object({ start: z.object({ utc: z.string(), local: z.string() }).nullable(), end: z.object({ utc: z.string(), local: z.string() }).nullable() }).optional().describe('该 run 自身的 data_interval（业务时区 + UTC）'),
+    }),
+  ),
   action: z.enum(['skip_succeeded', 'skip_in_progress', 'trigger_new', 'clear_failed', 'rerun']),
   run_id: z.string().nullable(),
   reason: z.string(),
@@ -65,6 +74,11 @@ export const BackfillTargetSchema = z.object({
   partition_state: z.string(),
   upstream_inputs: z.array(z.object({ table: z.string(), partition: z.string().nullable(), state: z.string() })).describe('目录 upstream 中同业务日期的输入分区（外部来源标为 external，不检查）'),
   not_due: z.boolean(),
+  recompute_interval: z
+    .object({ run_id: z.string(), match: z.string(), start_local: z.string().nullable(), end_local: z.string().nullable(), start_utc: z.string().nullable(), end_utc: z.string().nullable(), note: z.string() })
+    .nullable()
+    .optional()
+    .describe('clear_failed/rerun 实际重算的数据区间 = 被清理 run 的 data_interval；与业务日期区间不同（周/小时调度）时说明差异'),
 });
 
 const PlanOut = z.object({
@@ -86,11 +100,11 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
   const dagId = checkId(String(params.workflow), '--workflow');
   const from = requireDate(String(params.from), '--from');
   const to = requireDate(String(params.to), '--to');
-  const tz = requireTimeZone(String(params.timezone ?? af.timezone));
   const rerun = params.rerun_succeeded === true || params.rerun_succeeded === 'true';
   const allowAppend = params.allow_append_duplicates === true || params.allow_append_duplicates === 'true';
   const dates = dateRange(from, to, 31);
   const dag = await af.dag(dagId);
+  const tz = businessTimeZone(dag, af.timezone, params.timezone === undefined || params.timezone === null ? undefined : String(params.timezone));
   const code = await af.codeVersion(dag);
   const sources: Source[] = [await af.source(`GET /api/v1/dags/${dagId}/details`), await af.source(`GET /api/v1/dags/${dagId}/dagRuns`)];
   const warnings: string[] = [];
@@ -109,6 +123,7 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
       run_type: m.run.run_type ?? null,
       match: m.match,
       conf: m.run.conf && typeof m.run.conf === 'object' ? (m.run.conf as Record<string, unknown>) : {},
+      data_interval: { start: timePair(m.run.data_interval_start, tz), end: timePair(m.run.data_interval_end, tz) },
     }));
     const dec = decideAction({ existing, rerunSucceeded: rerun });
     const spec = table ? partitionSpec(table, d) : null;
@@ -141,6 +156,22 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
       reasonText = `${dec.reason}；注意：调度成功但目标分区 ${spec} 状态为 ${pstate}，重跑前先确认原因（同一 run 的 conf/代码会被沿用）`;
       warnings.push(`${d}: 调度层 success 但目标分区 ${pstate}`);
     }
+    // clearing an existing run recomputes that run's own data_interval, which for weekly/monthly
+    // ("covers") or hourly ("contained") schedules is not the business day: say what is recomputed
+    let recompute: z.infer<typeof BackfillTargetSchema>['recompute_interval'] = null;
+    if ((dec.action === 'rerun' || dec.action === 'clear_failed') && reused && reused.match !== 'exact') {
+      const st = reused.data_interval?.start ?? null;
+      const en = reused.data_interval?.end ?? null;
+      const span = `[${st?.local ?? '?'}, ${en?.local ?? '?'})`;
+      const note =
+        reused.match === 'covers'
+          ? `清理 run ${reused.run_id} 会重算其完整数据区间 ${span}，不只是业务日期 ${d}（周/月等长周期调度）`
+          : reused.match === 'contained'
+            ? `清理 run ${reused.run_id} 只重算 ${span}，不是业务日期 ${d} 的全天；当天另有 ${Math.max(0, existing.length - 1)} 个 run 不在本步骤内（小时级等短周期调度）`
+            : `清理 run ${reused.run_id} 重算其数据区间 ${span}，与业务日期 ${d} 只部分重叠`;
+      recompute = { run_id: reused.run_id, match: reused.match, start_local: st?.local ?? null, end_local: en?.local ?? null, start_utc: st?.utc ?? null, end_utc: en?.utc ?? null, note };
+      warnings.push(`${d}: ${note}`);
+    }
     rows.push({
       business_date: d,
       data_interval: { start_local: iv.start_local, end_local: iv.end_local, start_utc: iv.start_utc, end_utc: iv.end_utc },
@@ -152,8 +183,13 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
       partition_state: pstate,
       upstream_inputs: inputs,
       not_due: iv.endMs > now,
+      recompute_interval: recompute,
     });
   }
+  // several business dates resolving to the same run (e.g. a weekly run) clear it more than once
+  const byRun = new Map<string, string[]>();
+  for (const r of rows) if (r.recompute_interval) byRun.set(r.recompute_interval.run_id, [...(byRun.get(r.recompute_interval.run_id) ?? []), r.business_date]);
+  for (const [rid, ds] of byRun) if (ds.length > 1) warnings.push(`run ${rid} 同时对应业务日期 ${ds.join(', ')}：每个日期的步骤都会清理并重算同一个 run 的完整数据区间`);
 
   // concurrency budget
   const dagMax = Number(dag.max_active_runs ?? 16);
@@ -234,6 +270,10 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
       workflow: dagId,
       business_dates: dates.length,
       actions: counts,
+      // the data actually recomputed by clear/rerun steps whose run interval differs from the business day
+      recompute_intervals: rows
+        .filter((r) => r.recompute_interval)
+        .map((r) => ({ business_date: r.business_date, ...r.recompute_interval! })),
       target_table: table?.name ?? null,
       write_mode: table?.write_mode ?? null,
       idempotent_rewrite: allOverwrite,
@@ -248,7 +288,7 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
         detail:
           r.action === 'trigger_new'
             ? `POST ${af.prefix}/dags/${dagId}/dagRuns logical_date=${r.data_interval.start_utc} data_interval=[${r.data_interval.start_local}, ${r.data_interval.end_local})`
-            : `POST ${af.prefix}/dags/${dagId}/clearTaskInstances dag_run_id=${r.run_id} only_failed=${r.action === 'clear_failed'} dry_run=false`,
+            : `POST ${af.prefix}/dags/${dagId}/clearTaskInstances dag_run_id=${r.run_id} only_failed=${r.action === 'clear_failed'} dry_run=false${r.recompute_interval ? `（重算区间 [${r.recompute_interval.start_local ?? '?'}, ${r.recompute_interval.end_local ?? '?'})，match=${r.recompute_interval.match}）` : ''}`,
       })),
       { name: 'throttle', detail: `同时在途的 run 不超过 ${requested} 个；超出时等待已提交的 run 结束` },
     ],

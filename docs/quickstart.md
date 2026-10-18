@@ -12,7 +12,7 @@ workctl capability list           # 能力目录：三大板块 + 待接入能�
 
 ## 2. 配置 profile
 
-配置文件查找顺序：`--config` → `$WORKCTL_CONFIG` → `./workctl.yaml` → `~/.config/workctl/config.yaml`。
+配置文件查找顺序：`--config` → `$WORKCTL_CONFIG` → `./workctl.yaml` → `~/.config/workctl/config.yaml`。`--config` 或 `$WORKCTL_CONFIG` 指向的文件不存在时直接报 `NOT_CONFIGURED`，不会退回到后面的位置。相对路径（`resources_file`、`state_dir`、`file:` 凭据引用、docker `socket` 等）相对配置文件所在目录解析。支持 YAML 锚点与 `<<:` 合并键（共享块放在 `x-` 开头的顶层键下）；未识别的键会在信封 `meta.warnings` 中提示。
 
 ```yaml
 schema_version: "1.0"

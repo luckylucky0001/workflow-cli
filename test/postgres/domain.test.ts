@@ -5,10 +5,10 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { invoke } from '../../src/core/engine';
 import { Registry, describeCapability } from '../../src/core/registry';
 import postgresDomain from '../../src/domains/postgres';
-import { isoFromPg, mapPgError } from '../../src/domains/postgres/client';
+import { assertIdentifier, isoFromPg, mapPgError } from '../../src/domains/postgres/client';
 import { WorkError } from '../../src/core/output';
 import { assertStandardStrings, flattenPlan, maskedColumns, redactErrorValues } from '../../src/domains/postgres/capabilities/query';
-import { diffStatements, entryWasReset, isSelf, parseWindow, type PssRow } from '../../src/domains/postgres/capabilities/statements';
+import { diffStatements, entryWasReset, isSelf, parseWindow, sortStats, toStat, type PssRow } from '../../src/domains/postgres/capabilities/statements';
 import { guardPg } from '../../src/domains/postgres/sql-guard';
 
 process.env.WORKCTL_VALIDATE_OUTPUT = '1';
@@ -241,6 +241,8 @@ describe('postgres helpers', () => {
       rel,
     );
     expect(m1.masked).toEqual([true, false]);
+    // computed values are hidden entirely: a kept prefix/suffix of substr(phone, k) would rebuild the phone
+    expect(m1.full).toEqual([true, false]);
     const g2 = guardPg('SELECT ascii(substr(c.phone,1,1)) AS a, count(DISTINCT c.phone) AS dp, count(c.email) cnt, length(c.phone) AS count, c.name FROM customers c GROUP BY 1, 4, 5', 'run');
     const m2 = maskedColumns(
       [
@@ -256,6 +258,9 @@ describe('postgres helpers', () => {
       rel,
     );
     expect(m2.masked).toEqual([true, false, false, true, false]);
+    expect(m2.full).toEqual([true, false, false, true, false]);
+    // a direct sensitive source column keeps its shape-preserving partial mask
+    expect(maskedColumns([{ name: 'p', tableID: 100, columnID: 3, dataTypeID: 25 }], new Map([['100:3', 'phone']]), new Set(['phone']), guardPg('SELECT phone AS p FROM customers', 'run'), rel).full).toEqual([false]);
     // sum/max/avg can reproduce values; set operations / * expansion disable the count() exception
     const g3 = guardPg('SELECT max(length(phone)) AS m, sum(ascii(phone)) AS s FROM customers', 'run');
     expect(maskedColumns([{ name: 'm', tableID: 0, columnID: 0, dataTypeID: 23 }, { name: 's', tableID: 0, columnID: 0, dataTypeID: 20 }], new Map(), new Set(['phone']), g3, rel).masked).toEqual([true, true]);
@@ -378,5 +383,25 @@ describe('postgres guarded statements need standard_conforming_strings=on', () =
     expect(guardPg("SELECT '\\'' ; SELECT 2; -- '", 'run').sql).toContain('SELECT 2');
     await expect(assertStandardStrings(session('off'))).rejects.toMatchObject({ code: 'UNSUPPORTED' });
     await expect(assertStandardStrings(session('on'))).resolves.toBeUndefined();
+  });
+});
+
+describe('postgres identifier length and statement ranking', () => {
+  it('limits identifiers to 63 UTF-8 bytes, not 63 characters', () => {
+    expect(assertIdentifier('table', 'a'.repeat(63))).toBe('a'.repeat(63));
+    expect(() => assertIdentifier('table', 'a'.repeat(64))).toThrow(/名称不合法/);
+    expect(assertIdentifier('table', '表'.repeat(21))).toBe('表'.repeat(21)); // 63 bytes
+    expect(() => assertIdentifier('table', '表'.repeat(22))).toThrow(/名称不合法/); // 22 chars, 66 bytes: server would truncate
+    expect(() => assertIdentifier('table', '')).toThrow(/名称不合法/);
+  });
+
+  it('orders top-N deterministically on ties (queryid, then text)', () => {
+    const row = (queryid: string, query: string, calls: number) =>
+      toStat({ queryid, database: 'd', user: 'u', query, calls, total_ms: 10, max_ms: null, rows: 1, shared_blks_hit: 0, shared_blks_read: 0, temp_blks_written: 0 } as unknown as PssRow);
+    const a = [row('30', 'select c', 5), row('10', 'select b', 5), row('20', 'select x', 9), row('10', 'select a', 5)];
+    const ids = (xs: ReturnType<typeof sortStats>) => xs.map((x) => `${x.queryid}:${x.query}`);
+    const expected = ['20:select x', '10:select a', '10:select b', '30:select c'];
+    expect(ids(sortStats(a, 'calls'))).toEqual(expected);
+    expect(ids(sortStats([...a].reverse(), 'calls'))).toEqual(expected);
   });
 });

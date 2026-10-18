@@ -225,7 +225,7 @@
    "--max-rows",
    "3"
   ],
-  "note": "游标取 max_rows+1 行（truncated=true）；别名 p 按来源列 phone 脱敏，表达式 em 保守脱敏"
+  "note": "游标取 max_rows+1 行（truncated=true）；别名 p 按来源列 phone 部分脱敏，表达式 em 保守脱敏（整值 ***）"
  },
  {
   "id": "pg-18b",
@@ -239,6 +239,19 @@
    "2"
   ],
   "note": "整行引用（tableID 有值、columnID=0）：涉及含敏感列的表 customers → whole_row 整列遮蔽为 ***；数值列 n 不受影响"
+ },
+ {
+  "id": "pg-18c",
+  "args": [
+   "pg",
+   "query",
+   "run",
+   "--sql",
+   "SELECT regexp_replace(c::text, '\\D', '', 'g')::numeric AS digits, ascii(substr(c.phone, 1, 1)) AS a, count(*) AS n, count(DISTINCT c.phone) AS dp FROM customers c GROUP BY 1, 2",
+   "--max-rows",
+   "2"
+  ],
+  "note": "数值型表达式同样会泄露敏感数字：语句涉及敏感列/含敏感列的表时，digits、a 整值遮蔽为 ***；只有 count(*) / count(DISTINCT phone) 不脱敏"
  },
  {
   "id": "pg-19",

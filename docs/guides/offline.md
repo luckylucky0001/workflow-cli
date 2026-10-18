@@ -26,7 +26,7 @@ endpoints:
       api_version: v1                 # v1 = Airflow 2.x；v2 = Airflow 3.x（第 7 节）
       username: admin
       password_ref: file:.runtime/secrets/airflow_admin_password
-      timezone: Asia/Shanghai         # 缺省业务时区
+      timezone: Asia/Shanghai         # 缺省业务时区（DAG 未声明 timezone 时使用）
 ```
 
 Airflow 2（v1）需要启用 `[api] auth_backends = airflow.api.auth.backend.basic_auth,...`；Airflow 3（v2）用 username/password 经 `POST /auth/token` 换取 JWT。401 → `UNAUTHENTICATED`，403 → `PERMISSION_DENIED`，
@@ -44,6 +44,7 @@ Airflow 2（v1）需要启用 `[api] auth_backends = airflow.api.auth.backend.ba
 - **任务实例**（task instance）：run 中某个任务的一次执行，带 `try_number`；传感器 `mode=reschedule` 等待时状态为 `up_for_reschedule`，不占执行槽。
 
 **业务日期 ≠ 启动日期**。workctl 统一把业务日期定义为 `data_interval_start` 在业务时区的日期，所有输出同时给出 UTC 与业务时区时间（`{utc, local}`）。
+业务时区在 `run list`、`run get`、`dependency list`、`backfill plan` 中按同一规则确定：显式 `--timezone` > DAG 的 `timezone` > airflow 端点的 `timezone`（缺省 UTC）。
 
 ### `run list` 的匹配规则
 
@@ -89,6 +90,7 @@ workctl 不调用 `airflow dags backfill` 命令，而是按业务日期逐个�
 | `targets[].action` | `skip_succeeded` / `skip_in_progress` / `trigger_new`（POST dagRuns，显式传 logical_date 与 data_interval）/ `clear_failed`（只清理失败任务实例）/ `rerun`（`--rerun-succeeded`，清理全部任务实例） |
 | `targets[].target_partition` / `partition_state` | 目标分区及其当前状态（`data.partition.get`） |
 | `targets[].upstream_inputs` | 目录 upstream 中同业务日期的输入分区状态；外部来源标 `external` |
+| `targets[].recompute_interval` / `impact.recompute_intervals` | `clear_failed` / `rerun` 实际重算的数据区间 = 被清理 run 自身的 `data_interval`。周/月调度（`covers`）会重算整个周期，小时级调度（`contained`）只重算该 run 的那一小时；与业务日期区间不同时同时写入 warnings。多个业务日期对应同一 run 时 warnings 会指出 |
 | `impact.write_mode` / `idempotent_rewrite` | `overwrite_partition` 重跑幂等；`append` 重跑有重复风险，未加 `--allow-append-duplicates` 时前置条件失败 |
 | `impact.downstream` | 目录 consumers、以本表为上游的表、绑定文件中读取本表的工作流 |
 | `impact.code_version` | `sha256(GET /dagSources/{file_token})` + `last_parsed_time`：重跑使用**当前**代码，不是原 run 当时的代码 |
@@ -177,7 +179,7 @@ endpoints:
 | DAG run | 有 `execution_date`、`external_trigger` | 无这两个字段；`logical_date` 可为 null；新增 `run_after`、`triggered_by` | `execution_date = logical_date`；`external_trigger` 由 `triggered_by` 推导（cli/operator/rest_api/ui/test → true，timetable/asset/backfill → false，缺省按 `run_type=manual`） |
 | 按业务日期查 run | `execution_date_gte/lte`、`order_by=-execution_date` | `logical_date_gte/lte`、`order_by=-logical_date` | `run list` 的 `mapping.query` 如实记录**实际发送**的参数名（与下方 `queued_at` 一起，是两版 `data` 中仅有的嵌套差异） |
 | DAG 列表（`run get` 未给 `--workflow` 时扫描） | `only_active=true` | `exclude_stale=true` | 同一扫描上限 |
-| 任务日志 | text/plain 原文 | 只返回 JSON / NDJSON（text/plain 为 406）：结构化消息数组 | 每条消息转为一行 `[时间] 级别 logger - 内容`（多行消息拆行）。Airflow 3 日志另有 `::group::` 分组行，行数与 v1 不可直接比较 |
+| 任务日志（`log get` 对两版都按应用日志规则打码凭据，见 `credentials_masked`） | text/plain 原文（REST 不支持只取尾部：流式读取并只保留末尾 4 MiB，超出时 `truncated=true`、`total_lines=null`） | 只返回 JSON / NDJSON（text/plain 为 406）：结构化消息数组 | 每条消息转为一行 `[时间] 级别 logger - 内容`（多行消息拆行）。Airflow 3 日志另有 `::group::` 分组行，行数与 v1 不可直接比较 |
 | XCom `return_value` | 字符串 | 反序列化后的 JSON 值 | 非字符串值转为 JSON 字符串（Spark application id 检索不变） |
 | 触发 run（补数执行） | `logical_date` 可省略 | `logical_date` 键必填（可为 null） | 执行器始终显式传 `logical_date` 与 `data_interval_start/end`，两版请求体相同 |
 | 清理任务实例 | `POST /dags/{id}/clearTaskInstances` | 同路径、同请求体 | 不变；计划 `steps` 中的路径随版本显示 `/api/v1` 或 `/api/v2` |

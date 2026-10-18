@@ -357,7 +357,10 @@ export function shapeSearchResponse(input: {
   const aggsDropped = aggBytes > MAX_AGG_OUTPUT_BYTES;
   if (aggsDropped) aggregations = null;
   const partial = shards.failed > 0 || unavailable > 0 || timedOut || aggsDropped;
-  const truncated = total.relation === 'gte' || total.value > hits.length;
+  // size=0 (aggregation-only / count-only): no hit list was requested, so returning 0 hits is not a
+  // truncation; only an inexact total (relation=gte) leaves the result incomplete
+  const hitsRequested = guarded.size > 0;
+  const truncated = total.relation === 'gte' || (hitsRequested && total.value > hits.length);
   const warnings: string[] = [];
   if (shards.failed > 0) {
     warnings.push(`${shards.failed}/${shards.total} 个分片查询失败，命中数与聚合只来自成功的分片（见 data.shard_failures）`);
@@ -374,7 +377,9 @@ export function shapeSearchResponse(input: {
   if (anySourceTruncated) warnings.push('部分命中的 _source 过长，已截断（source_truncated=true）');
   const notes = [
     `total 关系为 ${total.relation}：${total.relation === 'eq' ? '精确命中数' : '下限值（实际命中数更多）'}；track_total_hits=${tth}（上限 ${TRACK_TOTAL_HITS_LIMIT}）`,
-    `只返回前 ${guarded.size} 条命中（--max-hits 上限 ${MAX_HITS_CAP}）；${truncated ? `匹配文档多于返回条数，命中列表是截断的` : '已返回全部匹配文档'}`,
+    hitsRequested
+      ? `只返回前 ${guarded.size} 条命中（--max-hits 上限 ${MAX_HITS_CAP}）；${total.value > hits.length || total.relation === 'gte' ? `匹配文档多于返回条数，命中列表是截断的` : '已返回全部匹配文档'}`
+      : `DSL size=0：只取命中数${guarded.body.aggs !== undefined ? '与聚合' : ''}，不返回命中文档（不是截断）；聚合在全部匹配文档上计算，不受 size 与 track_total_hits 影响`,
     '近实时：最近一次 refresh（默认 1s）之后写入的文档不可见',
     ...(shards.skipped > 0 ? [`${shards.skipped} 个分片被 can_match 预筛选跳过（判定其中不可能有匹配），不影响结果完整性`] : []),
   ];

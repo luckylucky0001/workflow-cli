@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "mysql.index.plan",
   "data": {
-    "id": "op-20261018-c3f748",
+    "id": "op-20261018-bf1810",
     "kind": "mysql.index.create",
     "title": "为 demo.orders 新增索引 idx_customer_id_created_at(customer_id, created_at)",
     "params": {
@@ -33,7 +33,7 @@
           "idx_created_at(created_at)",
           "PRIMARY(id)"
         ],
-        "observed_at": "2026-10-18T05:55:14.415Z"
+        "observed_at": "2026-10-18T06:09:39.706Z"
       }
     ],
     "impact": {
@@ -52,9 +52,9 @@
           "schema": "demo",
           "statement": "SELECT",
           "digest_text": "SELECT `id` , STATUS , `amount` , `created_at` FROM `orders` WHERE `customer_id` = ? ORDER BY `created_at` DESC LIMIT ?",
-          "count": 21,
-          "total_latency_ms": 10055,
-          "avg_rows_examined": 179310,
+          "count": 33,
+          "total_latency_ms": 13747,
+          "avg_rows_examined": 172010,
           "no_index_used_count": 0,
           "references_leading_column": true,
           "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
@@ -74,6 +74,19 @@
           "first_seen": "2026-10-18T05:12:06.434039Z"
         },
         {
+          "digest": "cbc540a780559b66bb51cba4ea074f47f37122292720d013baeff3ed0bf077e7",
+          "schema": "demo",
+          "statement": "SELECT",
+          "digest_text": "SELECT * FROM `orders` WHERE `id` = ?",
+          "count": 57,
+          "total_latency_ms": 43,
+          "avg_rows_examined": 1,
+          "no_index_used_count": 0,
+          "references_leading_column": false,
+          "effect": "不直接相关",
+          "first_seen": "2026-10-18T05:12:55.557427Z"
+        },
+        {
           "digest": "94a74bb71ae7fc8e42c6fae6fa05586657e46513350f6ede4df9bfc7dea26844",
           "schema": "demo",
           "statement": "SELECT",
@@ -87,6 +100,19 @@
           "first_seen": "2026-10-18T05:12:06.582660Z"
         },
         {
+          "digest": "a8cb2cd2d941904f58c3ee4814d478a2d1ac19d615253bdcab702854fc0a3074",
+          "schema": "demo",
+          "statement": "SELECT",
+          "digest_text": "SELECT `id` , STATUS FROM `orders` WHERE `customer_id` = ?",
+          "count": 15,
+          "total_latency_ms": 38,
+          "avg_rows_examined": 14611,
+          "no_index_used_count": 15,
+          "references_leading_column": true,
+          "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
+          "first_seen": "2026-10-18T05:37:13.864728Z"
+        },
+        {
           "digest": "5df629761cff4a0f23d967b0a36477b807c5bf1b89209f61de942e9a77a1e229",
           "schema": "demo",
           "statement": "SELECT",
@@ -98,32 +124,6 @@
           "references_leading_column": true,
           "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
           "first_seen": "2026-10-18T05:37:14.165663Z"
-        },
-        {
-          "digest": "a8cb2cd2d941904f58c3ee4814d478a2d1ac19d615253bdcab702854fc0a3074",
-          "schema": "demo",
-          "statement": "SELECT",
-          "digest_text": "SELECT `id` , STATUS FROM `orders` WHERE `customer_id` = ?",
-          "count": 5,
-          "total_latency_ms": 16,
-          "avg_rows_examined": 19411,
-          "no_index_used_count": 5,
-          "references_leading_column": true,
-          "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
-          "first_seen": "2026-10-18T05:37:13.864728Z"
-        },
-        {
-          "digest": "cbc540a780559b66bb51cba4ea074f47f37122292720d013baeff3ed0bf077e7",
-          "schema": "demo",
-          "statement": "SELECT",
-          "digest_text": "SELECT * FROM `orders` WHERE `id` = ?",
-          "count": 22,
-          "total_latency_ms": 15,
-          "avg_rows_examined": 1,
-          "no_index_used_count": 0,
-          "references_leading_column": false,
-          "effect": "不直接相关",
-          "first_seen": "2026-10-18T05:12:55.557427Z"
         },
         {
           "digest": "4c13e8a437c41ece13d7722667678f2e84e34a0e28e1b14217d8315d7a2940db",
@@ -231,19 +231,19 @@
     "idempotent": false,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-18T05:55:14.416Z",
-    "expires_at": "2026-10-18T06:55:14.416Z",
+    "created_at": "2026-10-18T06:09:39.707Z",
+    "expires_at": "2026-10-18T07:09:39.707Z",
     "profile": "demo",
     "env": "sandbox",
     "executable": false,
     "history": [
       {
-        "at": "2026-10-18T05:55:14.416Z",
+        "at": "2026-10-18T06:09:39.707Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
     ],
-    "digest": "sha256:1d58fbf25b0d4b4546f29c3835c03ef89646232d18111c3195bac83dd1fe52e1"
+    "digest": "sha256:44245869bf2f45d26113623f4b3e056cfbbc1120b60936fed7ac1f4a8715c66f"
   },
   "error": null,
   "meta": {
@@ -251,7 +251,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T05:55:14.417Z",
+        "observed_at": "2026-10-18T06:09:39.708Z",
         "endpoint": "mysql/demo-mysql",
         "version": "8.4.11",
         "method": "information_schema.TABLES/COLUMNS/STATISTICS + INNODB_TRX",
@@ -260,7 +260,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T05:55:14.417Z",
+        "observed_at": "2026-10-18T06:09:39.708Z",
         "endpoint": "mysql/demo-mysql",
         "version": "8.4.11",
         "method": "performance_schema.events_statements_summary_by_digest (cumulative, text match)",
@@ -269,7 +269,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-18T05:55:14.417Z",
+        "observed_at": "2026-10-18T06:09:39.708Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/state/operations",
         "relation": "derived"
       }
@@ -284,7 +284,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdevnlh-050d05",
+    "request_id": "req-mvdfe78p-ca220f",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -292,7 +292,7 @@
     "adapter": "mysql-driver",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:55:14.357Z",
-    "duration_ms": 61
+    "started_at": "2026-10-18T06:09:39.625Z",
+    "duration_ms": 83
   }
 }

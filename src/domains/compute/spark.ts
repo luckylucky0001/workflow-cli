@@ -2,6 +2,7 @@ import { closeSync, existsSync, openSync, readdirSync, readFileSync, readSync, r
 import { join } from 'node:path';
 import { httpJson } from '../../core/http';
 import { source, WorkError, type Source } from '../../core/output';
+import { maskCredentialText } from '../config/values';
 import type { Ctx, Endpoint } from '../../core/runtime';
 
 export const SPARK_HISTORY_ADAPTER = 'spark-history-rest';
@@ -162,5 +163,7 @@ export function driverFailureSignal(lines: string[]): string | null {
     const exc = lines.slice(idx + 1).find((l) => l && !/^\s/.test(l));
     if (exc) msg = exc;
   }
+  // the exception line is quoted into status.basis: mask credentials as in compute log get
+  msg = maskCredentialText(msg).text;
   return msg.length > 300 ? `${msg.slice(0, 300)}…` : msg;
 }

@@ -267,6 +267,7 @@ function pluginDomain(p: InstalledPlugin, m: PluginManifest): DomainDef {
     pillar: m.domain.pillar,
     guide: join(p.dir, m.domain.guide),
     skill: m.domain.skill ? join(p.dir, m.domain.skill) : undefined,
+    endpoint_kinds: m.endpoint_kinds,
     capabilities,
   };
 }

@@ -29,6 +29,10 @@
     "truncated": {
       "type": "boolean"
     },
+    "credentials_masked": {
+      "type": "number",
+      "description": "含凭据（URL 密码、Authorization 头、password=/token= 参数等）并已打码为 *** 的返回行数"
+    },
     "provenance": {
       "type": "string"
     },
@@ -47,6 +51,7 @@
     "total_lines",
     "returned_lines",
     "truncated",
+    "credentials_masked",
     "provenance",
     "lines"
   ],

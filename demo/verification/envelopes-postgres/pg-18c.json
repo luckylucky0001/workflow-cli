@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "postgres.query.run",
+  "data": {
+    "instance": "demo-postgres",
+    "database": "demo_orders",
+    "statement_type": "SELECT",
+    "columns": [
+      {
+        "name": "digits",
+        "type": "numeric",
+        "source_column": null,
+        "masked": true
+      },
+      {
+        "name": "a",
+        "type": "integer",
+        "source_column": null,
+        "masked": true
+      },
+      {
+        "name": "n",
+        "type": "bigint",
+        "source_column": null,
+        "masked": false
+      },
+      {
+        "name": "dp",
+        "type": "bigint",
+        "source_column": null,
+        "masked": false
+      }
+    ],
+    "rows": [
+      [
+        "***",
+        "***",
+        "1",
+        "1"
+      ],
+      [
+        "***",
+        "***",
+        "1",
+        "1"
+      ]
+    ],
+    "row_count": 2,
+    "max_rows": 2,
+    "truncated": true,
+    "masked_columns": [
+      "digits",
+      "a"
+    ],
+    "guards": {
+      "static_check": "passed",
+      "read_only_transaction": true,
+      "statement_timeout_ms": 5000,
+      "fetch_limit": 3
+    },
+    "elapsed_ms": 57
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "postgresql",
+        "adapter": "pg-driver",
+        "observed_at": "2026-10-18T06:06:54.593Z",
+        "endpoint": "postgres/demo-postgres",
+        "method": "BEGIN READ ONLY; DECLARE CURSOR FOR SELECT; FETCH 3",
+        "version": "16.15",
+        "relation": "explicit"
+      }
+    ],
+    "coverage": {
+      "complete": false,
+      "truncated": true,
+      "limit": 2,
+      "notes": [
+        "结果超过 2 行，只返回前 2 行（游标未继续读取）",
+        "已脱敏列: digits, a（按端点 sensitive_columns；digits 是表达式/派生列（不论类型），而语句引用了敏感列 phone；只有 count(*) / count(x) / count(DISTINCT x) 不脱敏（保守脱敏，整值遮蔽为 ***）；a 是表达式/派生列（不论类型），而语句引用了敏感列 phone；只有 count(*) / count(x) / count(DISTINCT x) 不脱敏（保守脱敏，整值遮蔽为 ***））"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvdfansx-897a20",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-18T06:06:54.464Z",
+    "duration_ms": 134
+  }
+}

@@ -76,6 +76,11 @@ describe('plugins', () => {
     expect(err.error?.code).toBe('NOT_FOUND');
     const cat = await invoke(reg2, 'capability.list', { domain: 'q' }, { configPath });
     expect((cat.data as any).capabilities.map((c: any) => `${c.name}:${c.status}`)).toEqual(['q.lag:available', 'q.other:planned']);
+    // access check covers the plugin's declared endpoint kinds instead of "allowed" with nothing checked
+    const acc = await invoke(reg2, 'access.check', { capability: 'q.lag', probe: false }, { configPath });
+    expect((acc.data as any).checks.map((c: any) => c.check)).toEqual(expect.arrayContaining(['endpoint:qbroker', 'credential:qbroker/main.token_ref']));
+    const noEp = await invoke(reg2, 'access.check', { capability: 'q.lag', probe: false }, { configPath: writeConfig(tempDir()) });
+    expect((noEp.data as any).verdict).toBe('denied');
     removePlugin('fake-q');
     expect(listInstalled()).toHaveLength(0);
   });

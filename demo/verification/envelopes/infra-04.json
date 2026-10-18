@@ -4,7 +4,7 @@
   "capability": "container.capacity.summary",
   "data": {
     "kind": "snapshot",
-    "observed_at": "2026-10-18T05:54:56.163Z",
+    "observed_at": "2026-10-18T06:09:19.411Z",
     "env": "sandbox",
     "host": {
       "name": "vm",
@@ -20,8 +20,8 @@
       "cpu_unlimited": 12,
       "memory_limit_sum_bytes": 268435456,
       "memory_unlimited": 12,
-      "cpu_used_cores": 0.1998,
-      "memory_working_set_bytes": 6038376448,
+      "cpu_used_cores": 0.1123,
+      "memory_working_set_bytes": 6302380032,
       "cpu_limit_to_host_ratio": 0.125,
       "memory_limit_to_host_ratio": 0.016
     },
@@ -36,9 +36,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0163,
+          "cpu_cores": 0.0118,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 30240768,
+          "memory_working_set_bytes": 29147136,
           "memory_percent_of_limit": null,
           "pids": 11
         },
@@ -59,9 +59,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0597,
+          "cpu_cores": 0.0054,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 13574144,
+          "memory_working_set_bytes": 13590528,
           "memory_percent_of_limit": null,
           "pids": 10
         },
@@ -82,9 +82,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0018,
+          "cpu_cores": 0.002,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 337408000,
+          "memory_working_set_bytes": 338558976,
           "memory_percent_of_limit": null,
           "pids": 49
         },
@@ -105,9 +105,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0258,
+          "cpu_cores": 0.0124,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 528637952,
+          "memory_working_set_bytes": 590344192,
           "memory_percent_of_limit": null,
           "pids": 103
         },
@@ -128,9 +128,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0147,
+          "cpu_cores": 0.0054,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 71573504,
+          "memory_working_set_bytes": 100646912,
           "memory_percent_of_limit": null,
           "pids": 11
         },
@@ -153,7 +153,7 @@
         "usage": {
           "cpu_cores": 0.0062,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 537866240,
+          "memory_working_set_bytes": 539643904,
           "memory_percent_of_limit": null,
           "pids": 44
         },
@@ -174,9 +174,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0099,
+          "cpu_cores": 0.0106,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 574201856,
+          "memory_working_set_bytes": 575856640,
           "memory_percent_of_limit": null,
           "pids": 217
         },
@@ -197,10 +197,10 @@
           "memory_bytes": 268435456
         },
         "usage": {
-          "cpu_cores": 0.0001,
-          "cpu_percent_of_limit": 0.03,
-          "memory_working_set_bytes": 17846272,
-          "memory_percent_of_limit": 6.65,
+          "cpu_cores": 0.0017,
+          "cpu_percent_of_limit": 0.35,
+          "memory_working_set_bytes": 21962752,
+          "memory_percent_of_limit": 8.18,
           "pids": 11
         },
         "oom_killed": false,
@@ -217,9 +217,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0307,
+          "cpu_cores": 0,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 54697984,
+          "memory_working_set_bytes": 54820864,
           "memory_percent_of_limit": null,
           "pids": 6
         },
@@ -240,9 +240,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0,
+          "cpu_cores": 0.001,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 35450880,
+          "memory_working_set_bytes": 32002048,
           "memory_percent_of_limit": null,
           "pids": 10
         },
@@ -263,9 +263,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.003,
+          "cpu_cores": 0.0032,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 8392704,
+          "memory_working_set_bytes": 8134656,
           "memory_percent_of_limit": null,
           "pids": 6
         },
@@ -286,9 +286,9 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0069,
+          "cpu_cores": 0.0288,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 970665984,
+          "memory_working_set_bytes": 973737984,
           "memory_percent_of_limit": null,
           "pids": 75
         },
@@ -309,11 +309,11 @@
           "memory_bytes": null
         },
         "usage": {
-          "cpu_cores": 0.0247,
+          "cpu_cores": 0.0238,
           "cpu_percent_of_limit": null,
-          "memory_working_set_bytes": 2857820160,
+          "memory_working_set_bytes": 3023933440,
           "memory_percent_of_limit": null,
-          "pids": 222
+          "pids": 219
         },
         "oom_killed": false,
         "restart_count": 0,
@@ -330,7 +330,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T05:54:56.173Z",
+        "observed_at": "2026-10-18T06:09:19.438Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /info",
         "relation": "explicit",
@@ -339,7 +339,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T05:54:56.173Z",
+        "observed_at": "2026-10-18T06:09:19.438Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/json?filters={label:workctl.env=sandbox}",
         "relation": "explicit",
@@ -348,7 +348,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T05:54:56.173Z",
+        "observed_at": "2026-10-18T06:09:19.438Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/stats?stream=false",
         "relation": "sampled",
@@ -366,7 +366,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdev88q-d6ed76",
+    "request_id": "req-mvdfdqe1-73928d",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -374,7 +374,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:54:54.458Z",
-    "duration_ms": 1716
+    "started_at": "2026-10-18T06:09:17.785Z",
+    "duration_ms": 1653
   }
 }

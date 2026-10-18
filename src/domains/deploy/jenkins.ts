@@ -48,6 +48,7 @@ export class JenkinsClient {
     try {
       res = await rawRequest(url, { method: opts.method ?? 'GET', headers, ...(opts.method === 'POST' ? { body: '' } : {}), timeoutMs: this.ctx?.remainingMs() ?? 30_000 });
     } catch (e) {
+      if (e instanceof WorkError) throw e; // e.g. response size cap
       const err = e as NodeJS.ErrnoException;
       if (err?.name === 'TimeoutError' || err?.name === 'AbortError') throw new WorkError('TIMEOUT', `Jenkins 调用超时 (${this.endpointId})`, { hint: '增大 --timeout' });
       throw new WorkError('UPSTREAM_UNAVAILABLE', `Jenkins 不可达 (${err?.code ?? err?.message ?? 'unknown'}, ${this.endpointId})`, { hint: '确认 url 与 Jenkins 状态', details: { code: err?.code ?? null } });

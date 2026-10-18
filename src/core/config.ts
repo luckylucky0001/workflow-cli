@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import YAML from 'yaml';
@@ -35,6 +35,20 @@ export interface LoadedConfig {
   path: string | null;
   baseDir: string;
   config: Config;
+  /** Problems that do not stop loading (e.g. unknown keys the schema drops); surfaced as envelope warnings. */
+  warnings?: string[];
+}
+
+/** Keys the schema would silently drop: a typo such as `resource_file` must not just disappear (`x-*` keys hold YAML anchors). */
+function unknownConfigKeys(raw: unknown): string[] {
+  const extra = (v: unknown, known: string[], at: string) =>
+    v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).filter((k) => !known.includes(k) && !k.startsWith('x-')).map((k) => `${at}${k}`) : [];
+  const out = extra(raw, Object.keys(ConfigSchema.shape), '');
+  const profiles = (raw as { profiles?: unknown } | null)?.profiles;
+  if (profiles && typeof profiles === 'object') {
+    for (const [name, prof] of Object.entries(profiles)) out.push(...extra(prof, Object.keys(ProfileSchema.shape), `profiles.${name}.`));
+  }
+  return out;
 }
 
 // exact names and suffixed forms such as client_secret, auth_token, secret_access_key, private_key
@@ -67,6 +81,9 @@ export function yamlErrorSummary(e: unknown): string {
   return `${err?.name ?? 'Error'}${err?.code ? ` (${err.code})` : ''}: ${first}`;
 }
 
+/** YAML 1.2 drops `<<` merge keys unless asked; configs commonly share endpoint blocks with `<<: *base`. */
+export const YAML_OPTIONS = { merge: true } as const;
+
 export function defaultConfigCandidates(cwd = process.cwd()): string[] {
   const out: string[] = [];
   if (process.env.WORKCTL_CONFIG) out.push(resolve(process.env.WORKCTL_CONFIG));
@@ -76,17 +93,23 @@ export function defaultConfigCandidates(cwd = process.cwd()): string[] {
 }
 
 export function loadConfig(explicitPath?: string): LoadedConfig {
+  // $WORKCTL_CONFIG names a file as explicitly as --config: a typo must not silently fall back
+  // to ./workctl.yaml or ~/.config/workctl/config.yaml (possibly another environment's profiles)
+  const namedPath = explicitPath ?? (process.env.WORKCTL_CONFIG || undefined);
   const candidates = explicitPath ? [resolve(explicitPath)] : defaultConfigCandidates();
   const path = candidates.find((p) => existsSync(p)) ?? null;
-  if (explicitPath && !path) {
-    throw new WorkError('NOT_CONFIGURED', `配置文件不存在: ${explicitPath}`);
+  if (namedPath && path !== resolve(namedPath)) {
+    throw new WorkError('NOT_CONFIGURED', `配置文件不存在: ${namedPath}`, explicitPath ? undefined : { hint: '检查环境变量 WORKCTL_CONFIG' });
+  }
+  if (path && statSync(path).isDirectory()) {
+    throw new WorkError('NOT_CONFIGURED', `配置路径是目录而不是文件: ${path}`, { hint: '指向其中的 YAML 文件，如 workctl.yaml' });
   }
   if (!path) {
     return { path: null, baseDir: process.cwd(), config: ConfigSchema.parse({}) };
   }
   let raw: unknown;
   try {
-    raw = YAML.parse(readFileSync(path, 'utf8')) ?? {};
+    raw = YAML.parse(readFileSync(path, 'utf8'), YAML_OPTIONS) ?? {};
   } catch (e) {
     throw new WorkError('INVALID_ARGUMENT', `配置文件无法解析: ${path}`, { details: { reason: yamlErrorSummary(e) } });
   }
@@ -110,7 +133,9 @@ export function loadConfig(explicitPath?: string): LoadedConfig {
       }
     }
   }
-  return { path, baseDir: dirname(path), config: parsed.data };
+  const unknown = unknownConfigKeys(raw);
+  const warnings = unknown.length ? [`配置文件中有未识别的键（已忽略，检查拼写）: ${unknown.join(', ')}`] : [];
+  return { path, baseDir: dirname(path), config: parsed.data, warnings };
 }
 
 export function resolveProfileName(loaded: LoadedConfig, requested?: string): string | null {
@@ -132,8 +157,9 @@ export function resolveSecretRef(ref: string, baseDir: string): string {
   if (ref.startsWith('env:')) {
     const name = ref.slice(4);
     const v = process.env[name];
-    if (v === undefined) {
-      throw new WorkError('UNAUTHENTICATED', `凭据引用未解析: 环境变量 ${name} 未设置`, { hint: `设置 ${name} 或修改 profile 中的 *_ref` });
+    if (v === undefined || v === '') {
+      // an empty variable is an unset credential, not an empty password
+      throw new WorkError('UNAUTHENTICATED', `凭据引用未解析: 环境变量 ${name} ${v === undefined ? '未设置' : '为空'}`, { hint: `设置 ${name} 或修改 profile 中的 *_ref` });
     }
     return v;
   }

@@ -80,6 +80,63 @@
                     "type": "string"
                   },
                   "additionalProperties": {}
+                },
+                "data_interval": {
+                  "description": "该 run 自身的 data_interval（业务时区 + UTC）",
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "utc": {
+                              "type": "string"
+                            },
+                            "local": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "utc",
+                            "local"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "end": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "utc": {
+                              "type": "string"
+                            },
+                            "local": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "utc",
+                            "local"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "start",
+                    "end"
+                  ],
+                  "additionalProperties": false
                 }
               },
               "required": [
@@ -149,6 +206,62 @@
           },
           "not_due": {
             "type": "boolean"
+          },
+          "recompute_interval": {
+            "description": "clear_failed/rerun 实际重算的数据区间 = 被清理 run 的 data_interval；与业务日期区间不同（周/小时调度）时说明差异",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "run_id": {
+                    "type": "string"
+                  },
+                  "match": {
+                    "type": "string"
+                  },
+                  "start_local": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "end_local": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "start_utc": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "end_utc": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "run_id",
+                  "match",
+                  "start_local",
+                  "end_local",
+                  "start_utc",
+                  "end_utc",
+                  "note"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [

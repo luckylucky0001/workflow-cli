@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { PassThrough } from 'node:stream';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { invoke } from '../../src/core/engine';
+import { PlanStore, isLegacyPlan } from '../../src/core/operations';
 import { installPlugin, loadPlugins } from '../../src/core/plugins';
 import { maskedNote, parseLogLine } from '../../src/domains/observability/logs';
 import { handleMcpMessage, MAX_MCP_LINE_BYTES, serveMcp, toolsFor, type McpOptions } from '../../src/mcp/server';
@@ -76,6 +77,26 @@ describe('plan file integrity', () => {
       const ex = await invoke(testRegistry(), 'operation.execute', { id, confirm: id }, { configPath });
       expect(ex.error?.code).toBe('PRECONDITION_FAILED');
     }
+  });
+
+  it('a legacy plan without digest is reported as "older workctl version", not as modified, and is never re-sealed', async () => {
+    const plan = await invoke(testRegistry(), 'operation.plan', { action: 'fake.restart', param: ['target=a'] }, { configPath });
+    const id = (plan.data as any).id as string;
+    const doc = JSON.parse(readFileSync(planFile(id), 'utf8'));
+    delete doc.digest;
+    writeFileSync(planFile(id), JSON.stringify(doc, null, 2));
+    const ex = await invoke(testRegistry(), 'operation.execute', { id, confirm: id }, { configPath });
+    expect(ex.error?.code).toBe('PRECONDITION_FAILED');
+    expect(ex.error?.message).toMatch(/plan created by an older workctl version \(no integrity digest\); create a new plan/);
+    expect(ex.error?.message).not.toMatch(/modified|不是由 workctl 写入/);
+    const store = new PlanStore(join(dir, 'state', 'operations'));
+    expect(() => store.get(id)).toThrow(/older workctl version/);
+    const legacy = store.get(id, { allowLegacy: true });
+    expect(isLegacyPlan(legacy)).toBe(true);
+    expect(legacy.status).toBe('planned');
+    // read-only: the file was not re-sealed by the tolerant read
+    expect(JSON.parse(readFileSync(planFile(id), 'utf8')).digest).toBeUndefined();
+    expect(() => store.get(id)).toThrow(/older workctl version/);
   });
 
   it('legitimate status/history updates are re-sealed (execute, then get)', async () => {

@@ -165,6 +165,34 @@ export function parseProperties(text: string): [string, string][] {
 
 type Leaf = string | number | boolean | null | bigint;
 
+/**
+ * Keys repeated within one YAML/JSON mapping (`uniqueKeys: false` keeps the last silently; SnakeYAML as
+ * configured by Spring Boot refuses the file). Merge keys (`<<`) are not duplicates. Returns dotted paths.
+ */
+function duplicateKeys(content: string): string[] {
+  const out = new Set<string>();
+  const key = (k: unknown): string | null => (YAML.isScalar(k) ? String(k.value) : null);
+  const walk = (node: unknown, prefix: string): void => {
+    if (YAML.isMap(node)) {
+      const seen = new Set<string>();
+      for (const pair of node.items) {
+        const k = key(pair.key);
+        if (k === null) continue;
+        const path = prefix ? `${prefix}.${k}` : k;
+        if (k !== '<<') {
+          if (seen.has(k)) out.add(path);
+          seen.add(k);
+        }
+        walk(pair.value, path);
+      }
+    } else if (YAML.isSeq(node)) {
+      node.items.forEach((x, i) => walk(x, `${prefix}[${i}]`));
+    }
+  };
+  walk(YAML.parseDocument(content, { uniqueKeys: false, merge: true }).contents, '');
+  return [...out];
+}
+
 function flatten(v: unknown, prefix: string, out: [string, Leaf | '{}' | '[]'][]): void {
   if (Array.isArray(v)) {
     if (!v.length && prefix) out.push([prefix, '[]']);
@@ -182,6 +210,8 @@ export interface ParsedDoc {
   format: DocFormat;
   parsed: boolean;
   parse_error: string | null;
+  /** Key names only (never values): duplicate keys, keys that collide once flattened. */
+  parse_warnings: string[];
   /** name → raw text (pre-mask, used for comparison) */
   raw: Map<string, string>;
 }
@@ -191,21 +221,34 @@ export function parseDoc(content: string, format: DocFormat, dataId: string): Pa
   const raw = new Map<string, string>();
   const whole = (err: string | null): ParsedDoc => {
     raw.set(dataId, content);
-    return { format, parsed: false, parse_error: err, raw };
+    return { format, parsed: false, parse_error: err, parse_warnings: [], raw };
   };
   if (format === 'text') return whole(null);
+  const warnings: string[] = [];
   try {
     if (format === 'properties') {
-      for (const [k, v] of parseProperties(content)) raw.set(k, v);
+      const dup = new Set<string>();
+      for (const [k, v] of parseProperties(content)) {
+        if (raw.has(k)) dup.add(k);
+        raw.set(k, v);
+      }
+      if (dup.size) warnings.push(`properties 重复键（java.util.Properties 取最后一次出现的值）: ${[...dup].join(', ')}`);
     } else {
       const doc = YAML.parse(content, { intAsBigInt: true, uniqueKeys: false, merge: true }); // merge: `<<: *anchor` as Spring (SnakeYAML) reads it
-      if (doc === null || doc === undefined) return { format, parsed: true, parse_error: null, raw };
+      if (doc === null || doc === undefined) return { format, parsed: true, parse_error: null, parse_warnings: [], raw };
       if (typeof doc !== 'object') return whole(`文档顶层不是对象（${typeof doc}）`);
+      const dups = duplicateKeys(content);
+      if (dups.length) warnings.push(`${format} 重复键（Spring Boot 会拒绝加载该文件；此处返回的是最后一次出现的值）: ${dups.join(', ')}`);
       const leaves: [string, Leaf | '{}' | '[]'][] = [];
       flatten(doc, '', leaves);
-      for (const [k, v] of leaves) raw.set(k, typeof v === 'string' ? v : v === null ? 'null' : String(v));
+      const collide = new Set<string>();
+      for (const [k, v] of leaves) {
+        if (raw.has(k)) collide.add(k);
+        raw.set(k, typeof v === 'string' ? v : v === null ? 'null' : String(v));
+      }
+      if (collide.size) warnings.push(`展开后键名冲突（如 a.b: 1 与 a: {b: 2} 都展开为 a.b；此处返回的是最后一个，生效值取决于加载器）: ${[...collide].join(', ')}`);
     }
-    return { format, parsed: true, parse_error: null, raw };
+    return { format, parsed: true, parse_error: null, parse_warnings: warnings, raw };
   } catch (e) {
     raw.clear();
     return whole(`${format} 解析失败: ${e instanceof Error ? e.message.split('\n')[0] : String(e)}`);
@@ -339,7 +382,7 @@ export async function nacosConfigGet(ctx: Ctx, i: Record<string, any>, p: Provid
     historyError = `${e.code}: ${e.message}`;
   }
   const format = docFormat(detail?.type ?? null, c.dataId);
-  const doc = detail ? parseDoc(detail.content, format, c.dataId) : { format, parsed: false, parse_error: null, raw: new Map<string, string>() };
+  const doc: ParsedDoc = detail ? parseDoc(detail.content, format, c.dataId) : { format, parsed: false, parse_error: null, parse_warnings: [], raw: new Map<string, string>() };
   let items = toItems(doc, c.base);
   // the document md5 plus every unmasked value is a verifier for the masked ones: withhold it then
   const docMasked = items.some((x) => x.masked);
@@ -360,6 +403,7 @@ export async function nacosConfigGet(ctx: Ctx, i: Record<string, any>, p: Provid
   else if (!doc.raw.size) notes.push(`配置文档 ${c.base} 存在但没有配置项`);
   if (doc.parse_error) notes.push(`${doc.parse_error}；整个文档作为一个值（name=${c.dataId}）返回并整体遮蔽（无法定位其中的敏感键）`);
   else if (detail && !doc.parsed) notes.push(`配置类型 ${detail.type ?? '未知'} 不可拆分为键，整个文档作为一个值返回（只按 dataId 名称判断是否整体遮蔽；内容中只遮蔽 URL 密码 / token= / Authorization 等凭据样式，按键名的敏感值不会被识别）`);
+  for (const w of doc.parse_warnings) notes.push(`解析问题: ${w}`);
   const masked = items.filter((x) => x.masked).length;
   if (masked) notes.push(`${masked} 个配置项的值或字段已遮蔽（按名称匹配敏感模式，或值中内嵌的 URL 密码 / token= 等凭据）`);
   if (truncated) notes.push(`文档中共 ${count} 个键，只返回按键名排序的前 ${items.length} 个`);
@@ -391,6 +435,7 @@ export async function nacosConfigGet(ctx: Ctx, i: Record<string, any>, p: Provid
         content_format: doc.format,
         parsed: doc.parsed,
         parse_error: doc.parse_error,
+        parse_warnings: doc.parse_warnings,
         md5: docMasked ? null : (detail?.md5 ?? null),
         // like value_bytes: with the rest of the document shown, its size gives away the masked values' length
         content_bytes: detail && !docMasked ? Buffer.byteLength(detail.content, 'utf8') : null,
@@ -400,13 +445,14 @@ export async function nacosConfigGet(ctx: Ctx, i: Record<string, any>, p: Provid
     },
     sources,
     coverage: { complete: !truncated, truncated, limit: relKey ? undefined : limit, scope: `Nacos ${client.id} 配置 ${c.base}`, notes },
+    ...(doc.parse_warnings.length ? { warnings: doc.parse_warnings.map((w) => `配置文档 ${c.base} ${w}`) } : {}),
   };
 }
 
-function docItems(content: string | null, format: DocFormat, c: Coords): { items: Map<string, Item>; raw: Map<string, string> } {
-  if (content === null) return { items: new Map(), raw: new Map() };
+function docItems(content: string | null, format: DocFormat, c: Coords): { items: Map<string, Item>; raw: Map<string, string>; warnings: string[] } {
+  if (content === null) return { items: new Map(), raw: new Map(), warnings: [] };
   const doc = parseDoc(content, format, c.dataId);
-  return { items: new Map(toItems(doc, c.base).map((x) => [x.name, x])), raw: doc.raw };
+  return { items: new Map(toItems(doc, c.base).map((x) => [x.name, x])), raw: doc.raw, warnings: doc.parse_warnings };
 }
 
 export async function nacosConfigDiff(ctx: Ctx, i: Record<string, any>, p: ProviderChoice, env: string, toArg: number | 'current'): Promise<Result> {
@@ -524,6 +570,8 @@ export async function nacosConfigDiff(ctx: Ctx, i: Record<string, any>, p: Provi
   if (fromContent === null && mode === 'revisions') notes.push(`历史 ID ${fromRev} 时配置文档不存在（尚未创建或已删除）`);
   if (toContent === null) notes.push(`历史 ID ${toRev} 时配置文档不存在（已删除）`);
   if (fromRev === toRev) notes.push('起止历史 ID 相同，差异必然为空');
+  for (const w of a.warnings) notes.push(`起点文档解析问题: ${w}`);
+  for (const w of b.warnings) notes.push(`终点文档解析问题: ${w}`);
   if (changes.some((x) => x.masked)) notes.push('部分差异项的值已遮蔽（***），changed 依据原始内容判断');
   notes.push(`修订空间为 Nacos 配置历史 ID（全局递增的 nid）：起点/终点表示“不晚于该 ID 的最后一次变更生效后”的文档；只比较两个时刻，中间值不可见。历史保留 ${retention ?? '（未知，默认 30）'} 天`);
   if (h.truncated) notes.push('历史记录超过 500 条，只读取了前 5 页');

@@ -294,6 +294,24 @@ describe('demo-search response shaping', () => {
     expect(all.truncated).toBe(false);
   });
 
+  it('size=0 (aggregation-only) is complete, not a truncated hit list; an inexact total still is', () => {
+    const aggOnly = buildSearchBody({ dsl: { size: 0, aggs: { s: { terms: { field: 'status' } } } }, maxHits: 20, timeoutMs: 5000 });
+    const res = {
+      took: 3,
+      timed_out: false,
+      _shards: { total: 1, successful: 1, skipped: 0, failed: 0 },
+      hits: { total: { value: 3000, relation: 'eq' }, hits: [] },
+      aggregations: { s: { doc_count_error_upper_bound: 0, sum_other_doc_count: 0, buckets: [{ key: 'paid', doc_count: 3000 }] } },
+    };
+    const s = shapeSearchResponse({ cluster: 'c', index: 'demo-orders', guarded: aggOnly, maxHits: 20, res, observedAt: 't' });
+    expect(s.status).toBe('success');
+    expect(s.truncated).toBe(false);
+    expect(s.notes.join(' ')).toContain('size=0');
+    expect(s.notes.join(' ')).not.toContain('命中列表是截断的');
+    const gte = shapeSearchResponse({ cluster: 'c', index: 'i', guarded: aggOnly, maxHits: 20, res: { ...res, hits: { total: { value: 10000, relation: 'gte' }, hits: [] } }, observedAt: 't' });
+    expect(gte.truncated).toBe(true);
+  });
+
   it('gte relation is reported as a lower bound', () => {
     const res = { took: 1, timed_out: false, _shards: { total: 1, successful: 1, skipped: 0, failed: 0 }, hits: { total: { value: 10000, relation: 'gte' }, hits: [] } };
     const s = shapeSearchResponse({ cluster: 'c', index: 'i', guarded, maxHits: 2, res, observedAt: 't' });

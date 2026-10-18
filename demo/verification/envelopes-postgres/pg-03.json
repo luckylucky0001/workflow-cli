@@ -14,17 +14,17 @@
         "allow_connections": true,
         "connection_limit": -1,
         "can_connect": true,
-        "size_bytes": 25140247,
-        "backends": 2,
-        "xact_commit": 5367,
-        "xact_rollback": 181,
-        "blks_read": 1072,
-        "blks_hit": 1905051,
-        "cache_hit_ratio": 0.9994,
+        "size_bytes": 25156631,
+        "backends": 1,
+        "xact_commit": 7324,
+        "xact_rollback": 265,
+        "blks_read": 1092,
+        "blks_hit": 2471999,
+        "cache_hit_ratio": 0.9996,
         "deadlocks": 0,
         "temp_bytes": 0,
         "stats_reset": "2026-10-18T05:13:29.438513Z",
-        "xid_age": 144
+        "xid_age": 160
       },
       {
         "name": "postgres",
@@ -37,15 +37,15 @@
         "can_connect": true,
         "size_bytes": 7699479,
         "backends": 0,
-        "xact_commit": 96,
+        "xact_commit": 132,
         "xact_rollback": 0,
         "blks_read": 243,
-        "blks_hit": 6600,
-        "cache_hit_ratio": 0.9645,
+        "blks_hit": 8242,
+        "cache_hit_ratio": 0.9714,
         "deadlocks": 0,
         "temp_bytes": 0,
         "stats_reset": null,
-        "xid_age": 144
+        "xid_age": 160
       }
     ]
   },
@@ -55,7 +55,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T05:52:23.106Z",
+        "observed_at": "2026-10-18T06:06:43.643Z",
         "endpoint": "postgres/demo-postgres",
         "method": "pg_database LEFT JOIN pg_stat_database",
         "version": "16.15",
@@ -72,7 +72,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvderzf5-1f6fd6",
+    "request_id": "req-mvdfafex-814eb5",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -80,7 +80,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:52:23.057Z",
-    "duration_ms": 54
+    "started_at": "2026-10-18T06:06:43.593Z",
+    "duration_ms": 56
   }
 }

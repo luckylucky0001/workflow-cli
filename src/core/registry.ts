@@ -73,6 +73,8 @@ export interface DomainDef {
   guide: string;
   skill?: string;
   capabilities: CapabilityDef[];
+  /** Endpoint kinds the domain talks to (plugins declare them in their manifest); used by access check. */
+  endpoint_kinds?: string[];
   probes?: Record<string, Probe>;
   planners?: Planner[];
   executors?: Record<string, Executor>;

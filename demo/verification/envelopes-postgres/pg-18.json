@@ -43,21 +43,21 @@
         "1920",
         "customer-1920",
         "+86****4480",
-        "C***@EXAMPLE.INVALID",
+        "***",
         "1.37"
       ],
       [
         "1839",
         "customer-1839",
         "+86****3041",
-        "C***@EXAMPLE.INVALID",
+        "***",
         "1.74"
       ],
       [
         "1758",
         "customer-1758",
         "+86****1602",
-        "C***@EXAMPLE.INVALID",
+        "***",
         "2.11"
       ]
     ],
@@ -82,7 +82,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T05:52:33.023Z",
+        "observed_at": "2026-10-18T06:06:53.551Z",
         "endpoint": "postgres/demo-postgres",
         "method": "BEGIN READ ONLY; DECLARE CURSOR FOR SELECT; FETCH 4",
         "version": "16.15",
@@ -95,13 +95,13 @@
       "limit": 3,
       "notes": [
         "结果超过 3 行，只返回前 3 行（游标未继续读取）",
-        "已脱敏列: p, em（按端点 sensitive_columns；p 来自敏感列 phone；em 是表达式/派生列，而语句引用了敏感列 phone, email（保守脱敏））"
+        "已脱敏列: p, em（按端点 sensitive_columns；p 来自敏感列 phone；em 是表达式/派生列（不论类型），而语句引用了敏感列 phone, email；只有 count(*) / count(x) / count(DISTINCT x) 不脱敏（保守脱敏，整值遮蔽为 ***））"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdes71o-dcf98b",
+    "request_id": "req-mvdfan1n-836a3b",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -109,7 +109,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:52:32.940Z",
-    "duration_ms": 88
+    "started_at": "2026-10-18T06:06:53.483Z",
+    "duration_ms": 73
   }
 }

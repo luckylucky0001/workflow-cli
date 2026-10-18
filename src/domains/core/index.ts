@@ -82,6 +82,10 @@ const capabilityList = defineCapability({
   guide: GUIDE,
   examples: ['workctl --json capability list --domain mysql', 'workctl capability list --status planned'],
   handler: async (ctx, i) => {
+    // an unknown (misspelled, or plugin not installed) domain is not a domain without capabilities
+    if (i.domain && !ctx.registry.domains.has(i.domain)) {
+      throw new WorkError('NOT_FOUND', `领域不存在: ${i.domain}`, { hint: `可用领域: ${[...ctx.registry.domains.keys()].join(', ')}；插件领域需先 workctl plugin install` });
+    }
     const caps = ctx.registry.list({ domain: i.domain, status: i.status, operation: i.operation, query: i.query });
     const domains = [...ctx.registry.domains.values()]
       .filter((d) => !i.domain || d.name === i.domain || caps.some((c) => c.domain === d.name))
@@ -153,6 +157,16 @@ function requireBindings(ctx: Ctx) {
   return store;
 }
 
+/** A service bound to another env than the requested one (or, by default, the profile's) is not this env's service. */
+function assertServiceEnv(ctx: Ctx, svc: { id: string; env?: string }, requested?: string): void {
+  const env = requested ?? ctx.env ?? undefined;
+  if (env && svc.env && svc.env !== env) {
+    throw new WorkError('NOT_FOUND', `${svc.id} 不在环境 ${env}（绑定在 ${svc.env}）`, {
+      hint: requested ? undefined : `profile ${ctx.profileName} 的 env 为 ${env}；用对应环境的 profile 或 --env ${svc.env}`,
+    });
+  }
+}
+
 const bindingSource = (ctx: Ctx) => source('resource-bindings', 'binding-file', { endpoint: ctx.resources().path ?? undefined, relation: 'explicit' });
 
 const resourceList = defineCapability({
@@ -176,10 +190,12 @@ const resourceList = defineCapability({
     const env = i.env ?? ctx.env ?? undefined;
     if (i.service) {
       const svc = store.require(i.service);
-      if (i.env && svc.env && svc.env !== i.env) throw new WorkError('NOT_FOUND', `${i.service} 不在环境 ${i.env}`);
+      // the profile's env applies here as in the listing below: a service of another env would pair with this profile's endpoints
+      assertServiceEnv(ctx, svc, i.env);
       const closure = store.closure(svc.id);
       const ids = new Set([svc.id, ...closure.map((c) => c.relation.to)]);
-      const resources = store.resources.filter((r) => ids.has(r.id) && (!i.type || r.type.startsWith(i.type)));
+      // same type-prefix rule as the listing (mysql matches mysql.instance, not mysqlx)
+      const resources = store.list({ type: i.type }).filter((r) => ids.has(r.id));
       return {
         data: { resources, relations: closure.map((c) => c.relation) },
         sources: [bindingSource(ctx)],
@@ -247,7 +263,7 @@ const serviceDependencyList = defineCapability({
     if (i.depth < 1) throw new WorkError('INVALID_ARGUMENT', `--depth 须 ≥ 1，收到 ${i.depth}`);
     const store = requireBindings(ctx);
     const svc = store.require(i.service);
-    if (i.env && svc.env && svc.env !== i.env) throw new WorkError('NOT_FOUND', `${i.service} 不在环境 ${i.env}`);
+    assertServiceEnv(ctx, svc, i.env);
     const item = (id: string, rel: z.infer<typeof RelationSchema>, depth: number, via: string) => {
       const r = store.get(id);
       return { resource_id: id, type: r?.type ?? null, relation: rel.type, via, depth, source: rel.source, evidence: rel.evidence ?? null, registered: !!r, endpoint: r?.endpoint ?? null };
@@ -288,32 +304,60 @@ const authStatus = defineCapability({
   notes: ['只显示凭据引用类型与可解析性，不输出凭据值', '实际授权仍由目标系统校验'],
   handler: async (ctx, i) => {
     const p = ctx.requireProfile();
-    const endpoints = [];
+    const pending: Promise<void>[] = [];
+    const timedOut: string[] = [];
+    const endpoints: { kind: string; name: string; auth_provider: string; credential_refs: { key: string; ref_type: string; resolvable: boolean; reason?: string }[]; probe: { ok: boolean; identity?: string; version?: string; detail?: string; privileges?: string[] } | null }[] = [];
     for (const [kind, named] of Object.entries(p.endpoints)) {
       for (const [name, cfg] of Object.entries(named)) {
         const refs = Object.entries(cfg)
           .filter(([k]) => k.endsWith('_ref'))
           .map(([k, v]) => ({ key: k, ...secretRefStatus(String(v), ctx.loaded.baseDir) }));
-        let probe = null;
-        if (i.probe && ctx.registry.probes.has(kind)) {
-          try {
-            probe = await ctx.registry.probes.get(kind)!(ctx, name);
-          } catch (e) {
-            probe = { ok: false, detail: e instanceof Error ? e.message : String(e) };
-          }
-        }
         // Airflow 3 (REST v2) exchanges username/password for a JWT; v1 uses basic auth
         const authProvider = kind === 'airflow' && String(cfg.api_version ?? 'v1') === 'v2' ? 'airflow-jwt' : ENDPOINT_AUTH_PROVIDERS[kind] ?? 'plugin-defined';
-        endpoints.push({ kind, name, auth_provider: authProvider, credential_refs: refs, probe });
+        const entry: (typeof endpoints)[number] = { kind, name, auth_provider: authProvider, credential_refs: refs, probe: null };
+        endpoints.push(entry);
+        // probes run side by side, each within the budget: one slow endpoint must not time out the whole report
+        if (i.probe && ctx.registry.probes.has(kind)) {
+          pending.push(probeWithin(ctx, kind, name).then((r) => {
+            entry.probe = r.probe;
+            if (r.timedOut) timedOut.push(`${kind}/${name}`);
+          }));
+        }
       }
     }
+    await Promise.all(pending);
     return {
+      ...(timedOut.length ? { status: 'partial' as const } : {}),
       data: { profile: ctx.profileName, env: ctx.env, config_path: ctx.loaded.path, allow_execute: p.allow_execute, endpoints },
       sources: [source('workctl', 'profile', { endpoint: ctx.loaded.path ?? undefined, relation: 'explicit' })],
-      coverage: { complete: true, notes: i.probe ? [] : ['未执行实际连接；加 --probe 校验身份'] },
+      coverage: timedOut.length
+        ? { complete: false, notes: [`探测超时、身份未确认: ${timedOut.join(', ')}`] }
+        : { complete: true, notes: i.probe ? [] : ['未执行实际连接；加 --probe 校验身份'] },
     };
   },
 });
+
+/** Run an endpoint probe within the remaining budget; a probe that does not answer in time is reported, not awaited. */
+async function probeWithin(ctx: Ctx, kind: string, name: string): Promise<{ probe: { ok: boolean; identity?: string; version?: string; detail?: string; privileges?: string[] }; timedOut: boolean }> {
+  const budget = ctx.subCallBudgetMs();
+  let timer: NodeJS.Timeout | undefined;
+  const run = ctx.registry.probes.get(kind)!(ctx, name);
+  run.catch(() => undefined);
+  try {
+    const r = await Promise.race([
+      run.then((probe) => ({ probe, timedOut: false })),
+      new Promise<{ probe: { ok: boolean; detail: string }; timedOut: boolean }>((res) => {
+        timer = setTimeout(() => res({ probe: { ok: false, detail: `探测超时：${budget}ms 内未返回（身份未确认）` }, timedOut: true }), budget);
+        timer.unref?.();
+      }),
+    ]);
+    return r;
+  } catch (e) {
+    return { probe: { ok: false, detail: e instanceof Error ? e.message : String(e) }, timedOut: false };
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
 
 const accessCheck = defineCapability({
   name: 'access.check',
@@ -345,8 +389,14 @@ const accessCheck = defineCapability({
     checks.push({ check: 'profile', ok: !!p, detail: p ? `profile ${ctx.profileName} (env ${p.env})` : '没有可用 profile' });
     if (c.operation === 'execute') {
       checks.push({ check: 'execute_permission', ok: !!p?.allow_execute, detail: p?.allow_execute ? 'profile 允许执行类操作' : 'profile 未开启 allow_execute' });
+      // the entry point's own guard (MCP without --allow-execute) refuses execute regardless of the profile
+      if (ctx.allowExecute === false) checks.push({ check: 'entry_execute', ok: false, detail: '当前入口未开放执行类操作（MCP 未以 --allow-execute 启动）' });
     }
-    const kinds = DOMAIN_ENDPOINT_KINDS[c.domain] ?? [];
+    if (ctx.allowedDomains?.length && c.domain !== 'core' && !ctx.allowedDomains.includes(c.domain)) {
+      checks.push({ check: 'entry_domain', ok: false, detail: `领域 ${c.domain} 不在当前入口开放的领域（${ctx.allowedDomains.join(', ')}）内` });
+    }
+    // plugin domains declare their endpoint kinds in the manifest; without them a plugin capability was "allowed" unchecked
+    const kinds = DOMAIN_ENDPOINT_KINDS[c.domain] ?? ctx.registry.domains.get(c.domain)?.endpoint_kinds ?? [];
     // a named target that matches none of the domain's endpoints must not be checked as the default one
     if (p && i.target && kinds.length && !kinds.some((k) => ctx.hasEndpoint(k, i.target))) {
       checks.push({ check: 'target', ok: false, detail: `profile ${ctx.profileName} 中没有 ${kinds.join('/')} 端点 ${i.target}` });
@@ -370,15 +420,11 @@ const accessCheck = defineCapability({
         const st = secretRefStatus(String(v), ctx.loaded.baseDir);
         checks.push({ check: `credential:${kind}/${name}.${k}`, ok: st.resolvable, detail: st.resolvable ? `${st.ref_type} 引用可解析` : st.reason ?? '不可解析' });
       }
-      const probe = ctx.registry.probes.get(kind);
-      if (i.probe && probe) {
-        try {
-          const r = await probe(ctx, name);
-          checks.push({ check: `identity:${kind}/${name}`, ok: r.ok, detail: [r.identity && `身份 ${r.identity}`, r.version && `版本 ${r.version}`, r.detail].filter(Boolean).join('；') || (r.ok ? '连接成功' : '连接失败') });
-          if (r.privileges?.length) checks.push({ check: `privileges:${kind}/${name}`, ok: null, detail: r.privileges.join(' | ').slice(0, 800) });
-        } catch (e) {
-          checks.push({ check: `identity:${kind}/${name}`, ok: false, detail: e instanceof Error ? e.message : String(e) });
-        }
+      if (i.probe && ctx.registry.probes.has(kind)) {
+        const { probe: r, timedOut } = await probeWithin(ctx, kind, name);
+        // a probe that did not answer leaves the identity undetermined, not denied
+        checks.push({ check: `identity:${kind}/${name}`, ok: timedOut ? null : r.ok, detail: [r.identity && `身份 ${r.identity}`, r.version && `版本 ${r.version}`, r.detail].filter(Boolean).join('；') || (r.ok ? '连接成功' : '连接失败') });
+        if (r.privileges?.length) checks.push({ check: `privileges:${kind}/${name}`, ok: null, detail: r.privileges.join(' | ').slice(0, 800) });
       }
     }
     const failed = checks.some((x) => x.ok === false);
@@ -627,6 +673,7 @@ const doctor = defineCapability({
   notes: ['端点可达只检查网络连通，不代表认证或授权成功；身份校验用 auth status --probe'],
   handler: async (ctx, i) => {
     const checks: { area: string; item: string; ok: boolean; detail: string }[] = [];
+    const tcpPending: Promise<void>[] = [];
     checks.push({ area: 'config', item: 'file', ok: !!ctx.loaded.path, detail: ctx.loaded.path ?? '未找到配置文件（--config / $WORKCTL_CONFIG / ./workctl.yaml / ~/.config/workctl/config.yaml）' });
     const p = ctx.profile;
     checks.push({ area: 'config', item: 'profile', ok: !!p, detail: p ? `${ctx.profileName} env=${p.env} data_mode=${p.data_mode} allow_execute=${p.allow_execute}` : '没有可用 profile' });
@@ -658,11 +705,18 @@ const doctor = defineCapability({
         if (target.kind === 'path') {
           checks.push({ area: 'endpoints', item: `${kind}/${name}`, ok: existsSync(target.path), detail: target.path });
         } else {
-          const r = await tcpCheck(target.host, target.port, Math.min(2000, ctx.remainingMs()));
-          checks.push({ area: 'endpoints', item: `${kind}/${name}`, ok: r.ok, detail: `${target.host}:${target.port} ${r.ok ? `可达 (${r.ms}ms)` : `不可达: ${r.error}`}` });
+          // checked side by side: N unreachable endpoints must not add up to N × 2s and exhaust the budget
+          const entry = { area: 'endpoints', item: `${kind}/${name}`, ok: false, detail: `${target.host}:${target.port}` };
+          checks.push(entry);
+          const t = target;
+          tcpPending.push(tcpCheck(t.host, t.port, Math.min(2000, ctx.subCallBudgetMs())).then((r) => {
+            entry.ok = r.ok;
+            entry.detail = `${t.host}:${t.port} ${r.ok ? `可达 (${r.ms}ms)` : `不可达: ${r.error}`}`;
+          }));
         }
       }
     }
+    await Promise.all(tcpPending);
     for (const pl of listInstalled()) {
       try {
         const m = readManifest(pl.dir);

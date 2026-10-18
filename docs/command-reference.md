@@ -1374,7 +1374,7 @@ workctl pg query explain --instance demo-postgres --database demo_orders --sql-f
 - 真正的权限边界是数据库角色（workctl_ro 只有 SELECT，且 default_transaction_read_only=on）；程序层静态检查、READ ONLY 事务、statement_timeout、行数上限是额外防线，不能替代只读角色
 - 静态检查：只允许单条 SELECT / WITH...SELECT / VALUES / TABLE；拒绝多语句、数据修改型 CTE、SELECT INTO、FOR UPDATE/SHARE，以及终止会话/读写文件/咨询锁/序列/重置统计/执行任意 SQL 文本的函数（不穷尽：自定义函数仍可能有副作用，由角色权限兜底）
 - 通过游标（DECLARE CURSOR + FETCH）只取 max_rows+1 行，不缓冲完整结果集
-- 敏感列：输出列名或其来源列（按系统目录解析，覆盖别名）命中端点 sensitive_columns 时脱敏；表达式列在语句引用了敏感列时、或语句涉及含敏感列的表且该列为非数值类型（整行引用、row_to_json 等）时保守脱敏；不能替代数据库侧列权限或脱敏视图
+- 敏感列：输出列名或其来源列（按系统目录解析，覆盖别名）命中端点 sensitive_columns 时脱敏；语句引用了敏感列、或涉及含敏感列的表（整行引用、row_to_json、c::text 等）时，所有无法解析到非敏感来源列的表达式列一律保守脱敏（不论类型：ascii(substr(phone,1,1))、regexp_replace(c::text,…)::numeric 同样会泄露），只有 count(*) / count(x) / count(DISTINCT x) 例外；直接来自敏感列的值保留部分形状，保守脱敏的表达式列整值遮蔽为 ***；不能替代数据库侧列权限或脱敏视图
 
 ```bash
 workctl pg query run --instance demo-postgres --sql "SELECT id, status, amount FROM orders WHERE customer_id = 42" --max-rows 20
@@ -1750,6 +1750,7 @@ workctl compute job get --id <app_id>
 口径说明：
 
 - driver 日志不是 Spark REST 接口提供的：演示环境由 spark-submit 包装脚本（tee）落盘；YARN/K8s 环境应改用对应的日志聚合适配器
+- 凭据按与应用日志相同的规则打码（URL 中的密码、Authorization 头、password=/token= 等参数），数量见 credentials_masked
 
 ```bash
 workctl compute log get --job-id <app_id> --limit-lines 100
@@ -1967,7 +1968,7 @@ workctl offline backfill get --id op-20261017-abc123
 | `--workflow` | string | 是 |  | 工作流 ID（dag_id） |
 | `--from` | string | 是 |  | 起始业务日期 YYYY-MM-DD（含） |
 | `--to` | string | 是 |  | 结束业务日期 YYYY-MM-DD（含），最多 31 天 |
-| `--timezone` | string | 否 |  | 业务时区（默认 airflow 端点 timezone） |
+| `--timezone` | string | 否 |  | 业务时区（默认取 DAG 的 timezone，其次 airflow 端点 timezone） |
 | `--rerun-succeeded` | bool | 否 | `false` | 对已成功的业务日期也重跑（清理全部任务实例） |
 | `--max-active-runs` | int | 否 |  | 执行时同时在途的 run 上限（默认 min(DAG max_active_runs, 2)） |
 | `--allow-append-duplicates` | bool | 否 | `false` | 目标表为 append 写入时，明确接受重跑可能产生重复数据 |
@@ -2069,6 +2070,8 @@ workctl offline freshness check --dataset analytics.daily_orders --data-date 202
 
 - 日志由 Airflow webserver 从任务日志存储读取；reschedule 模式的传感器每次 poke 都追加到同一 try 的日志
 - 日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述
+- 凭据按与应用日志相同的规则打码（URL 中的密码、Authorization 头、password=/token= 等参数），数量见 credentials_masked
+- Airflow REST 不支持只取日志尾部：v1 流式读取并只保留末尾 4194304 字节（truncated=true、total_lines=null）；v2 的 JSON 日志超过 16 MiB 时报 DATA_UNAVAILABLE
 - Airflow 3（REST v2）的日志接口只返回结构化 JSON：每条消息转为一行“[时间] 级别 logger - 内容”
 
 ```bash
@@ -2113,7 +2116,7 @@ workctl offline run get --workflow demo-daily-orders --id demo__2026-10-16__wron
 | --- | --- | --- | --- | --- |
 | `--workflow` | string | 是 |  | 工作流 ID（dag_id） |
 | `--data-date` | string | 是 |  | 业务日期 YYYY-MM-DD（不是启动日期） |
-| `--timezone` | string | 否 |  | 业务时区（默认取 airflow 端点 timezone） |
+| `--timezone` | string | 否 |  | 业务时区（默认取 DAG 的 timezone，其次 airflow 端点 timezone；与 run get 相同） |
 | `--limit` | int | 否 | `20` | 最多返回的 run 数 |
 
 前置条件：

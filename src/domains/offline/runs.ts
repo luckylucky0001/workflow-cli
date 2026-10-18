@@ -3,7 +3,7 @@ import { source, type Envelope, type Source } from '../../core/output';
 import type { Ctx } from '../../core/runtime';
 import { AirflowClient, sparkAppIds } from './airflow';
 import { loadOfflineCatalog, partitionSpec, tablesProducedBy, type OfflineCatalog, type OfflineTableMeta } from './catalog';
-import { businessInterval, dateInZone, durationSeconds, matchInterval, timePair, type BusinessInterval, type IntervalMatch } from './time';
+import { businessInterval, dateInZone, durationSeconds, matchInterval, requireTimeZone, timePair, type BusinessInterval, type IntervalMatch } from './time';
 
 export const TimePairSchema = z.object({ utc: z.string(), local: z.string() }).nullable();
 
@@ -238,7 +238,7 @@ export async function findSparkApps(af: AirflowClient, dagId: string, runId: str
     let via = 'xcom:return_value';
     if (!ids.length && /Bash|Spark/i.test(String(ti.operator ?? ''))) {
       const tryNo = ti.try_number;
-      const lr = await af.request('GET', `${base}/logs/${tryNo}`, { query: { full_content: true, ...mapQ }, accept: 'text/plain', allowStatus: [404, 400] });
+      const lr = await af.request('GET', `${base}/logs/${tryNo}`, { query: { full_content: true, ...mapQ }, accept: 'text/plain', allowStatus: [404, 400], tail: true });
       if (lr.status === 200) {
         ids = sparkAppIds(lr.text);
         via = `task log try ${tryNo}`;
@@ -298,6 +298,24 @@ export function targetsOf(ctx: Ctx, dagId: string): TargetInfo {
 }
 
 /** Business date of a run for a target table: data_interval_start in the table's partition timezone. */
+/**
+ * Business timezone of a workflow, one rule for every offline capability (docs/guides/offline.md §1):
+ * explicit --timezone, else the DAG's own timezone (Airflow `timezone`, also served as
+ * `Timezone('X')` by some 2.x versions), else the endpoint's default `timezone`.
+ */
+export function businessTimeZone(dag: { timezone?: unknown } | null | undefined, endpointTz: string | undefined, input?: string | null): string {
+  if (input) return requireTimeZone(input);
+  const raw = typeof dag?.timezone === 'string' ? dag.timezone.trim().replace(/^Timezone\(['"]?(.*?)['"]?\)$/, '$1') : '';
+  if (raw) {
+    try {
+      return requireTimeZone(raw);
+    } catch {
+      // unknown/non-IANA DAG timezone: fall back to the endpoint default
+    }
+  }
+  return requireTimeZone(endpointTz || 'UTC');
+}
+
 export function runBusinessDate(run: any, tz: string): string | null {
   const dis = run.data_interval_start ?? run.logical_date ?? run.execution_date;
   return dis ? dateInZone(Date.parse(dis), tz) : null;

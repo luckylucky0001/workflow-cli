@@ -5,7 +5,7 @@
   "data": {
     "instance": "demo-redis",
     "db": 0,
-    "keys_in_db": 822,
+    "keys_in_db": 866,
     "scan": {
       "pattern": "demo:*",
       "scan_count_hint": 100,
@@ -27,8 +27,8 @@
       "p90": 256,
       "p99": 57736,
       "max": 57736,
-      "mean": 1348,
-      "sum_sampled": 67400
+      "mean": 1347,
+      "sum_sampled": 67368
     },
     "top_keys": [
       {
@@ -89,7 +89,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T05:55:21.199Z",
+        "observed_at": "2026-10-18T06:09:46.975Z",
         "endpoint": "redis/demo-redis",
         "method": "SCAN MATCH demo:* COUNT 100 + TYPE + MEMORY USAGE SAMPLES 5",
         "version": "7.4.11",
@@ -111,7 +111,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdevsu9-dd07c6",
+    "request_id": "req-mvdfecvr-ccc4ef",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -119,7 +119,7 @@
     "adapter": "redis-client",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:55:21.153Z",
-    "duration_ms": 47
+    "started_at": "2026-10-18T06:09:46.935Z",
+    "duration_ms": 41
   }
 }

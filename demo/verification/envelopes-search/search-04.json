@@ -76,9 +76,9 @@
     "cumulative_stats": {
       "basis": "cumulative_since_shard_start",
       "scope": "total",
-      "search_query_total": 120,
-      "search_query_time_ms": 764,
-      "search_fetch_total": 78,
+      "search_query_total": 162,
+      "search_query_time_ms": 851,
+      "search_fetch_total": 100,
       "indexing_index_total": 3000,
       "indexing_index_time_ms": 562,
       "indexing_index_failed": 0,
@@ -116,7 +116,7 @@
         }
       ]
     },
-    "observed_at": "2026-10-18T05:53:04.573Z"
+    "observed_at": "2026-10-18T06:05:16.015Z"
   },
   "error": null,
   "meta": {
@@ -126,7 +126,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "GET /_cat/indices/demo-orders-current?bytes=b",
-        "observed_at": "2026-10-18T05:53:04.543Z",
+        "observed_at": "2026-10-18T06:05:15.972Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       },
@@ -135,7 +135,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "GET /demo-orders/_settings, /demo-orders/_mapping, /demo-orders/_alias",
-        "observed_at": "2026-10-18T05:53:04.559Z",
+        "observed_at": "2026-10-18T06:05:15.999Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       },
@@ -144,7 +144,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "GET /demo-orders/_stats/docs,store,search,indexing,refresh",
-        "observed_at": "2026-10-18T05:53:04.567Z",
+        "observed_at": "2026-10-18T06:05:16.006Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       },
@@ -153,7 +153,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "GET /_cat/shards/demo-orders?bytes=b",
-        "observed_at": "2026-10-18T05:53:04.573Z",
+        "observed_at": "2026-10-18T06:05:16.015Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       },
@@ -162,7 +162,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "mapping.field_count / shards 汇总",
-        "observed_at": "2026-10-18T05:53:04.573Z",
+        "observed_at": "2026-10-18T06:05:16.015Z",
         "version": "opensearch 2.19.3",
         "relation": "derived"
       }
@@ -181,7 +181,7 @@
     ]
   },
   "context": {
-    "request_id": "req-mvdesv9u-c3e4d7",
+    "request_id": "req-mvdf8jn9-0a326d",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -189,7 +189,7 @@
     "adapter": "opensearch-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:53:04.338Z",
-    "duration_ms": 307
+    "started_at": "2026-10-18T06:05:15.765Z",
+    "duration_ms": 310
   }
 }

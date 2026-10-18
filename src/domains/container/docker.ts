@@ -140,7 +140,8 @@ export function dockerClient(ctx: Ctx, name?: string): DockerClient {
   const cached = clients.get(ctx);
   if (cached && !name) return cached;
   const ep = ctx.endpoint('docker', name);
-  const socket = ep.str('socket');
+  // relative to the config file (as doctor checks it), not to the caller's working directory
+  const socket = ep.path('socket');
   const url = ep.str('url');
   if (!socket && !url) {
     throw new WorkError('NOT_CONFIGURED', `端点 ${ep.id} 需要配置 socket（如 /var/run/docker.sock）或 url`);

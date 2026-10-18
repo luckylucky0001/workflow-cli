@@ -214,6 +214,13 @@
             "null"
           ]
         },
+        "parse_warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "解析问题（只列键名，不含值）：YAML/JSON 重复键（Spring Boot 拒绝加载此类文件）、展开后同名的键（如 a.b: 1 与 a: {b: 2}）、properties 重复键；这些键返回的是解析器最后一次出现的值，不代表应用实际生效值"
+        },
         "md5": {
           "description": "Nacos 记录的内容 md5；文档含遮蔽值时为 null（md5 与其余明文可校验被遮蔽的值）",
           "type": [
@@ -251,6 +258,7 @@
         "content_format",
         "parsed",
         "parse_error",
+        "parse_warnings",
         "md5",
         "content_bytes",
         "last_modified",

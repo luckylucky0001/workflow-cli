@@ -438,14 +438,20 @@ export function maskedColumns(
   sensitive: Set<string>,
   g: GuardResult,
   rel: { sensitiveRelations: string[]; categoryOf: (oid: number) => string | undefined } = { sensitiveRelations: [], categoryOf: () => undefined },
-): { masked: boolean[]; reasons: string[] } {
+): { masked: boolean[]; reasons: string[]; full: boolean[] } {
   const mentioned = g.tokens.filter((t) => (t.kind === 'word' && sensitive.has(t.text.toLowerCase())) || (t.kind === 'ident' && sensitive.has(t.upper))).map((t) => (t.kind === 'word' ? t.text.toLowerCase() : t.upper));
   const reasons: string[] = [];
   const counts = mentioned.length || rel.sensitiveRelations.length ? plainCountItems(g) : null;
   const countOk = counts?.length === fields.length ? counts : null;
+  // partial masks keep shape (prefix/suffix); on a computed value that shape is chosen by the query
+  // (substr windows slid along a phone rebuild it), so only a direct sensitive source column keeps it
+  const full: boolean[] = fields.map(() => false);
   const masked = fields.map((f, idx) => {
-    if (sensitive.has(f.name.toLowerCase())) return true;
     const src = f.tableID ? sourceNames.get(`${f.tableID}:${f.columnID}`) : undefined;
+    if (sensitive.has(f.name.toLowerCase())) {
+      full[idx] = !(src && sensitive.has(src.toLowerCase()));
+      return true;
+    }
     if (src && sensitive.has(src.toLowerCase())) {
       reasons.push(`${f.name} 来自敏感列 ${src}`);
       return true;
@@ -456,10 +462,11 @@ export function maskedColumns(
     // count() returns bigint (int8, oid 20); anything else under that name is not the built-in aggregate
     if (countOk?.[idx] && (f.dataTypeID === undefined || f.dataTypeID === 20)) return false;
     const why = mentioned.length ? `语句引用了敏感列 ${[...new Set(mentioned)].join(', ')}` : `语句涉及含敏感列的表 ${rel.sensitiveRelations.join(', ')}`;
-    reasons.push(`${f.name} 是表达式/派生列（不论类型），而${why}；只有 count(*) / count(x) / count(DISTINCT x) 不脱敏（保守脱敏）`);
+    reasons.push(`${f.name} 是表达式/派生列（不论类型），而${why}；只有 count(*) / count(x) / count(DISTINCT x) 不脱敏（保守脱敏，整值遮蔽为 ***）`);
+    full[idx] = true;
     return true;
   });
-  return { masked, reasons };
+  return { masked, reasons, full };
 }
 
 export const queryRun = defineCapability({
@@ -501,7 +508,7 @@ export const queryRun = defineCapability({
     '真正的权限边界是数据库角色（workctl_ro 只有 SELECT，且 default_transaction_read_only=on）；程序层静态检查、READ ONLY 事务、statement_timeout、行数上限是额外防线，不能替代只读角色',
     '静态检查：只允许单条 SELECT / WITH...SELECT / VALUES / TABLE；拒绝多语句、数据修改型 CTE、SELECT INTO、FOR UPDATE/SHARE，以及终止会话/读写文件/咨询锁/序列/重置统计/执行任意 SQL 文本的函数（不穷尽：自定义函数仍可能有副作用，由角色权限兜底）',
     '通过游标（DECLARE CURSOR + FETCH）只取 max_rows+1 行，不缓冲完整结果集',
-    '敏感列：输出列名或其来源列（按系统目录解析，覆盖别名）命中端点 sensitive_columns 时脱敏；语句引用了敏感列、或涉及含敏感列的表（整行引用、row_to_json、c::text 等）时，所有无法解析到非敏感来源列的表达式列一律保守脱敏（不论类型：ascii(substr(phone,1,1))、regexp_replace(c::text,…)::numeric 同样会泄露），只有 count(*) / count(x) / count(DISTINCT x) 例外；不能替代数据库侧列权限或脱敏视图',
+    '敏感列：输出列名或其来源列（按系统目录解析，覆盖别名）命中端点 sensitive_columns 时脱敏；语句引用了敏感列、或涉及含敏感列的表（整行引用、row_to_json、c::text 等）时，所有无法解析到非敏感来源列的表达式列一律保守脱敏（不论类型：ascii(substr(phone,1,1))、regexp_replace(c::text,…)::numeric 同样会泄露），只有 count(*) / count(x) / count(DISTINCT x) 例外；直接来自敏感列的值保留部分形状，保守脱敏的表达式列整值遮蔽为 ***；不能替代数据库侧列权限或脱敏视图',
   ],
   examples: [
     'workctl pg query run --instance demo-postgres --sql "SELECT id, status, amount FROM orders WHERE customer_id = 42" --max-rows 20',
@@ -548,7 +555,7 @@ export const queryRun = defineCapability({
         // relations named in the statement that carry sensitive columns (for whole-row / computed outputs)
         const names = statementNames(g);
         const sensRel = r.fields.some((f) => !f.tableID || !f.columnID || !sourceNames.has(`${f.tableID}:${f.columnID}`)) ? await sensitiveRelations(s, names, sens) : [];
-        const { masked, reasons } = maskedColumns(r.fields, sourceNames, sens, g, {
+        const { masked, reasons, full } = maskedColumns(r.fields, sourceNames, sens, g, {
           sensitiveRelations: sensRel,
           categoryOf: (oid) => typeCat.get(oid),
         });
@@ -561,7 +568,7 @@ export const queryRun = defineCapability({
         let cellTruncated = 0;
         const rows = rowsRaw.map((row) =>
           row.map((v, idx) => {
-            if (columns[idx]?.masked) return maskValue(v);
+            if (columns[idx]?.masked) return full[idx] && v !== null && v !== undefined ? '***' : maskValue(v);
             const c = cell(v);
             if (c.truncated) cellTruncated++;
             return c.value;

@@ -107,7 +107,7 @@ export class AirflowClient {
     });
   }
 
-  async request<T = any>(method: string, path: string, opts: { query?: Record<string, string | number | boolean | undefined>; body?: unknown; accept?: string; allowStatus?: number[] } = {}): Promise<HttpResponse<T>> {
+  async request<T = any>(method: string, path: string, opts: { query?: Record<string, string | number | boolean | undefined>; body?: unknown; accept?: string; allowStatus?: number[]; maxBytes?: number; tail?: boolean } = {}): Promise<HttpResponse<T>> {
     const v2 = this.apiVersion === 'v2';
     const route = v2 ? toV2Route(path, opts.query) : { path, query: opts.query ?? {} };
     const qs = new URLSearchParams();
@@ -123,6 +123,10 @@ export class AirflowClient {
         headers: { authorization: await this.authorization(force), ...(accept ? { accept } : {}) },
         body: opts.body,
         allowStatus: opts.allowStatus,
+        // a v2 log is JSON: it keeps the default cap and errors past it instead of being cut
+        maxBytes: opts.tail && log ? undefined : opts.maxBytes,
+        // keeping only the tail is safe for plain-text logs (v1); a v2 JSON log cut at the front would not parse
+        overflow: opts.tail && !log ? 'tail' : 'error',
       });
     try {
       let r: HttpResponse<T>;

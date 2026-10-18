@@ -48,6 +48,13 @@ export function planDigest(plan: Plan): string {
   return `sha256:${createHash('sha256').update(JSON.stringify(canonical(JSON.parse(JSON.stringify(rest))))).digest('hex')}`;
 }
 
+export const LEGACY_PLAN_MESSAGE = 'plan created by an older workctl version (no integrity digest); create a new plan';
+
+/** Plan written before integrity digests existed (read via `get(id, { allowLegacy: true })`). */
+export function isLegacyPlan(plan: Plan): boolean {
+  return !plan.digest;
+}
+
 export class PlanStore {
   constructor(readonly dir: string) {}
 
@@ -86,7 +93,12 @@ export class PlanStore {
     renameSync(tmp, f);
   }
 
-  get(id: string): Plan {
+  /**
+   * Read and verify a plan. A plan without `digest` was written by a workctl version that predates
+   * sealing: it is refused (PRECONDITION_FAILED) unless `allowLegacy` (read-only display), in which
+   * case it is returned unchanged and never re-saved (re-sealing would launder it into an executable plan).
+   */
+  get(id: string, opts: { allowLegacy?: boolean } = {}): Plan {
     const f = this.file(id);
     if (!existsSync(f)) throw new WorkError('NOT_FOUND', `计划不存在: ${id}`, { hint: '用 workctl operation list 查看当前 profile 的计划' });
     let plan: Plan;
@@ -98,7 +110,14 @@ export class PlanStore {
     // a file renamed/copied to another id would be locked under one id but written under another
     if (plan.id !== id) throw new WorkError('PRECONDITION_FAILED', `计划文件 ${id}.json 中的 ID 为 ${plan.id}，与文件名不一致`, { hint: '计划文件被改动过；重新生成计划' });
     // preconditions, params, targets, status... must be what the planner/store wrote
-    if (!plan.digest || plan.digest !== planDigest(plan)) {
+    if (!plan.digest) {
+      if (opts.allowLegacy) return plan;
+      throw new WorkError('PRECONDITION_FAILED', `${LEGACY_PLAN_MESSAGE}: ${id}`, {
+        hint: '该计划不能执行或更新；用 operation plan 重新生成计划',
+        details: { plan_id: id, legacy: true },
+      });
+    }
+    if (plan.digest !== planDigest(plan)) {
       throw new WorkError('PRECONDITION_FAILED', `plan file was modified: 计划文件 ${id}.json 的内容与封存摘要不一致（不是由 workctl 写入）`, { hint: '不要手工编辑计划文件；重新生成计划（operation plan）' });
     }
     if (plan.status === 'planned' && Date.parse(plan.expires_at) < Date.now()) {

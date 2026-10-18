@@ -10,6 +10,7 @@
     "total_lines": 345,
     "returned_lines": 30,
     "truncated": true,
+    "credentials_masked": 0,
     "provenance": "spark-submit 包装脚本 tee 的 driver stdout/stderr（log4j 控制台输出）",
     "lines": [
       "26/10/18 05:11:57 INFO MemoryStore: Block broadcast_12 stored as values in memory (estimated size 12.5 KiB, free 433.6 MiB)",
@@ -50,7 +51,7 @@
       {
         "system": "filesystem",
         "adapter": "spark-driver-log-dir",
-        "observed_at": "2026-10-18T05:55:33.197Z",
+        "observed_at": "2026-10-18T06:10:01.542Z",
         "endpoint": "spark/demo-spark:driver_log_dir",
         "method": "tail local-1792300311012.log",
         "relation": "explicit"
@@ -65,7 +66,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdew24c-4f1fd0",
+    "request_id": "req-mvdfeo4g-e91222",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -73,7 +74,7 @@
     "adapter": "spark-driver-log-dir",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:55:33.180Z",
-    "duration_ms": 18
+    "started_at": "2026-10-18T06:10:01.504Z",
+    "duration_ms": 38
   }
 }

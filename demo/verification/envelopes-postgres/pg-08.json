@@ -4,32 +4,10 @@
   "capability": "postgres.session.list",
   "data": {
     "instance": "demo-postgres",
-    "sessions": [
-      {
-        "pid": 4030,
-        "user": "workctl_ro",
-        "database": "demo_orders",
-        "application_name": "workctl",
-        "client_addr": "172.18.0.1",
-        "backend_type": "client backend",
-        "state": "idle",
-        "wait_event_type": "Client",
-        "wait_event": "ClientRead",
-        "backend_start": "2026-10-18T05:52:17.685437Z",
-        "xact_start": null,
-        "xact_age_s": null,
-        "query_start": "2026-10-18T05:52:17.800774Z",
-        "query_age_s": 7.68,
-        "state_age_s": 7.679,
-        "blocked_by": [],
-        "query": "SELECT p.userid::text || ? || p.dbid::text || ? || coalesce(p.queryid::text, ?) || ? || p.toplevel::text AS key,\n            p.queryid::text AS queryid, d.datname, r.rolname, p.query, p.calls, p.total_exec_time AS total_ms, p.max_exec_time AS max_ms, p.min_exec_time AS min_ms, NULL::text AS stats_since, p.rows,\n            p.shared_blks_hit, p.shared_blks_read, p.temp_blks_written\n       FROM \"public\".pg_stat_statements p\n       LEFT JOIN pg_database d ON d.oid = p.dbid\n       LEFT JOIN pg_roles r ON r.oid …",
-        "query_truncated": true,
-        "query_hidden": false
-      }
-    ],
+    "sessions": [],
     "summary": {
-      "total_visible": 6,
-      "returned": 1,
+      "total_visible": 5,
+      "returned": 0,
       "active": 0,
       "idle_in_transaction": 0,
       "waiting_on_lock": 0,
@@ -44,7 +22,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T05:52:25.483Z",
+        "observed_at": "2026-10-18T06:06:45.800Z",
         "endpoint": "postgres/demo-postgres",
         "method": "pg_stat_activity + pg_blocking_pids()",
         "version": "16.15",
@@ -61,7 +39,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdes17c-def700",
+    "request_id": "req-mvdfah2j-932859",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -69,7 +47,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:52:25.368Z",
-    "duration_ms": 121
+    "started_at": "2026-10-18T06:06:45.739Z",
+    "duration_ms": 77
   }
 }

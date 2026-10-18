@@ -110,6 +110,7 @@ export class Ctx {
     this.debugOn = o.debug ?? false;
     this.allowExecute = o.allowExecute;
     this.allowedDomains = o.allowedDomains;
+    this.warnings.push(...(o.loaded.warnings ?? []));
   }
 
   get profile(): Profile | null {
@@ -137,6 +138,12 @@ export class Ctx {
   /** Remaining time budget in ms (never below 1). */
   remainingMs(): number {
     return Math.max(1, this.timeoutMs - (Date.now() - this.startedAt));
+  }
+
+  /** Budget for a composed call (ctx.call) or a bounded probe: the remaining time minus up to 1s to assemble the result. */
+  subCallBudgetMs(): number {
+    const left = this.remainingMs();
+    return Math.max(1, left - Math.min(1000, Math.floor(left / 5)));
   }
 
   endpointNames(kind: string): string[] {
@@ -197,7 +204,9 @@ export class Ctx {
     return invoke(this.registry, capability, inputs, {
       loaded: this.loaded,
       profile: this.profileName ?? undefined,
-      timeoutMs: this.remainingMs(),
+      // leave the caller headroom: a sub-call given the whole remaining budget times out together with
+      // its caller, which then loses everything it collected instead of reporting the sub-call's TIMEOUT
+      timeoutMs: this.subCallBudgetMs(),
       requestId: this.requestId,
       debug: this.debugOn,
       // a capability reached through composition must not escape the caller's execute guard

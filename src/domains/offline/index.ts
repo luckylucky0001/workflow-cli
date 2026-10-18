@@ -13,6 +13,7 @@ import {
   partitionLayer,
   qualityLayer,
   RunSchema,
+  businessTimeZone,
   runBusinessDate,
   runsForBusinessDate,
   targetPartition,
@@ -20,6 +21,7 @@ import {
   TimePairSchema,
   type LayerState,
 } from './runs';
+import { maskCredentialText } from '../config/values';
 import { businessInterval, durationSeconds, formatInZone, MAPPING_RULE, requireDate, requireTimeZone, timePair, zonedToInstant, addDays } from './time';
 
 const common = {
@@ -33,10 +35,6 @@ const PREREQ = [
   'profile 配置 airflow 端点（url、api_version v1|v2、username、password_ref）',
   'Airflow 2（v1）启用 basic_auth API 后端；Airflow 3（v2）由 auth manager 提供 POST /auth/token；账号具备 DAG 读权限',
 ];
-
-function tzOf(ctx: Ctx, af: AirflowClient, input?: string): string {
-  return requireTimeZone(input ?? af.timezone ?? 'UTC');
-}
 
 function timedeltaSeconds(v: any): number | null {
   if (!v || typeof v !== 'object') return null;
@@ -103,7 +101,7 @@ const workflowGet = defineCapability({
     const dag = await af.dag(id);
     const tasks = await af.tasks(id);
     const code = await af.codeVersion(dag);
-    const tz = dag.timezone ?? af.timezone;
+    const tz = businessTimeZone(dag, af.timezone);
     const sources: Source[] = [
       await af.source(`GET /api/v1/dags/${id}/details`),
       await af.source(`GET /api/v1/dags/${id}/tasks`),
@@ -253,7 +251,7 @@ const runList = defineCapability({
   inputs: {
     workflow: { type: 'string', required: true, description: '工作流 ID（dag_id）' },
     data_date: { type: 'string', required: true, description: '业务日期 YYYY-MM-DD（不是启动日期）' },
-    timezone: { type: 'string', description: '业务时区（默认取 airflow 端点 timezone）' },
+    timezone: { type: 'string', description: '业务时区（默认取 DAG 的 timezone，其次 airflow 端点 timezone；与 run get 相同）' },
     limit: { type: 'int', default: 20, description: '最多返回的 run 数' },
   },
   output: z.object({ workflow: z.string(), mapping: MappingSchema, runs: z.array(RunSchema), total_matched: z.number(), notes: z.array(z.string()) }),
@@ -264,9 +262,9 @@ const runList = defineCapability({
     const af = new AirflowClient(ctx);
     const dagId = checkId(inp.workflow, '--workflow');
     const date = requireDate(inp.data_date, '--data-date');
-    const tz = tzOf(ctx, af, inp.timezone);
+    const dag = await af.dag(dagId);
+    const tz = businessTimeZone(dag, af.timezone, inp.timezone);
     const iv = businessInterval(date, tz);
-    await af.dag(dagId);
     const r = await runsForBusinessDate(af, dagId, iv);
     const runs = r.matched.slice(0, inp.limit).map((m) => normRun(m.run, tz, m.match));
     const notes: string[] = [];
@@ -366,7 +364,7 @@ function findings(s: { scheduler: string; compute: string; output: string; quali
 export async function buildRunDetail(ctx: Ctx, af: AirflowClient, runId: string, dagId?: string) {
   const found = await af.findRun(runId, dagId);
   const dag = await af.dag(found.dagId);
-  const tz = dag.timezone ?? af.timezone;
+  const tz = businessTimeZone(dag, af.timezone);
   const run = found.run;
   const tis = await af.taskInstances(found.dagId, runId);
   const sources: Source[] = [
@@ -506,7 +504,7 @@ const dependencyList = defineCapability({
     const found = await af.findRun(runId, inp.workflow ? checkId(inp.workflow, '--workflow') : undefined);
     const dagId = found.dagId;
     const dag = await af.dag(dagId);
-    const tz = dag.timezone ?? af.timezone;
+    const tz = businessTimeZone(dag, af.timezone);
     const dir: 'upstream' | 'downstream' = inp.direction;
     const tasks = await af.tasks(dagId);
     const tis = await af.taskInstances(dagId, runId);
@@ -639,6 +637,9 @@ const dependencyList = defineCapability({
 // offline log get
 // ---------------------------------------------------------------------------
 
+/** Airflow task log bytes kept in memory (the tail; Airflow REST has no tail/offset-from-end parameter). */
+export const LOG_MAX_BYTES = 4 * 1024 * 1024;
+
 const logGet = defineCapability({
   ...common,
   name: 'offline.log.get',
@@ -660,14 +661,16 @@ const logGet = defineCapability({
     task_id: z.string(),
     try_number: z.number(),
     task_state: z.string().nullable(),
-    total_lines: z.number(),
+    total_lines: z.number().nullable().describe('日志总行数；日志超过读取上限、只读取了末尾部分时为 null'),
+    bytes: z.number().describe('从 Airflow 收到的日志字节数'),
     returned_lines: z.number(),
     truncated: z.boolean(),
+    credentials_masked: z.number().describe('含凭据（URL 密码、Authorization 头、password=/token= 参数等）并已打码为 *** 的返回行数'),
     spark_app_ids: z.array(z.string()),
     lines: z.array(z.string()),
   }),
   prerequisites: PREREQ,
-  notes: ['日志由 Airflow webserver 从任务日志存储读取；reschedule 模式的传感器每次 poke 都追加到同一 try 的日志', '日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述', 'Airflow 3（REST v2）的日志接口只返回结构化 JSON：每条消息转为一行“[时间] 级别 logger - 内容”'],
+  notes: ['日志由 Airflow webserver 从任务日志存储读取；reschedule 模式的传感器每次 poke 都追加到同一 try 的日志', '日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述', `凭据按与应用日志相同的规则打码（URL 中的密码、Authorization 头、password=/token= 等参数），数量见 credentials_masked`, `Airflow REST 不支持只取日志尾部：v1 流式读取并只保留末尾 ${LOG_MAX_BYTES} 字节（truncated=true、total_lines=null）；v2 的 JSON 日志超过 16 MiB 时报 DATA_UNAVAILABLE`, 'Airflow 3（REST v2）的日志接口只返回结构化 JSON：每条消息转为一行“[时间] 级别 logger - 内容”'],
   examples: ['workctl offline log get --workflow demo-daily-orders --run-id demo__2026-10-16__wrong_partition --task aggregate_orders --limit-lines 50'],
   handler: async (ctx, inp) => {
     const af = new AirflowClient(ctx);
@@ -694,12 +697,24 @@ const logGet = defineCapability({
     if (!tryNo || tryNo < 1) {
       throw new WorkError('DATA_UNAVAILABLE', `任务 ${taskId} 尚未开始执行（state=${ti.state ?? 'none'}，try_number=0），没有日志`, { hint: '用 workctl offline run get 查看任务状态' });
     }
-    const r = await af.request('GET', `${base}/logs/${tryNo}`, { query: { full_content: true, ...(mapped ? { map_index: mapIndex } : {}) }, accept: 'text/plain', allowStatus: [404] });
+    const r = await af.request('GET', `${base}/logs/${tryNo}`, { query: { full_content: true, ...(mapped ? { map_index: mapIndex } : {}) }, accept: 'text/plain', allowStatus: [404], maxBytes: LOG_MAX_BYTES, tail: true });
     if (r.status === 404) throw new WorkError('NOT_FOUND', `任务 ${taskId} 没有第 ${tryNo} 次尝试的日志`);
-    const all = r.text.replace(/\r\n/g, '\n').split('\n');
+    const cut = r.truncated === true;
+    // a byte-cut tail starts mid-line: drop that partial first line
+    const text = cut ? r.text.slice(r.text.indexOf('\n') + 1) : r.text;
+    const all = text.replace(/\r\n/g, '\n').split('\n');
     if (all.length && all[all.length - 1] === '') all.pop();
     const limit = Math.min(Math.max(1, inp.limit_lines), 2000);
-    const lines = all.slice(-limit);
+    let maskedLines = 0;
+    const lines = all.slice(-limit).map((l) => {
+      const m = maskCredentialText(l);
+      if (m.masked) maskedLines++;
+      return m.text;
+    });
+    const truncated = cut || all.length > lines.length;
+    const covNotes: string[] = [];
+    if (cut) covNotes.push(`日志共 ${r.bytes ?? '?'} 字节，超过读取上限 ${LOG_MAX_BYTES} 字节，只读取了末尾部分（total_lines=null）`);
+    if (maskedLines) covNotes.push(`${maskedLines} 行含凭据（URL 中的密码、Authorization 头、password=/token= 等参数），已打码为 ***`);
     return {
       data: {
         workflow: found.dagId,
@@ -707,14 +722,16 @@ const logGet = defineCapability({
         task_id: taskId,
         try_number: tryNo,
         task_state: ti.state ?? null,
-        total_lines: all.length,
+        total_lines: cut ? null : all.length,
+        bytes: r.bytes ?? Buffer.byteLength(r.text),
         returned_lines: lines.length,
-        truncated: all.length > lines.length,
-        spark_app_ids: sparkAppIds(r.text),
+        truncated,
+        credentials_masked: maskedLines,
+        spark_app_ids: sparkAppIds(text),
         lines,
       },
       sources: [await af.source(`GET /api/v1/dags/${found.dagId}/dagRuns/${runId}/taskInstances/${taskId}/logs/${tryNo}${mapped ? `?map_index=${mapIndex}` : ''}`)],
-      coverage: { complete: all.length <= lines.length, scope: `try ${tryNo}`, ...(all.length > lines.length ? { truncated: true, limit } : {}) },
+      coverage: { complete: !truncated, scope: `try ${tryNo}`, ...(truncated ? { truncated: true, limit } : {}), ...(covNotes.length ? { notes: covNotes } : {}) },
     };
   },
 });
@@ -853,7 +870,7 @@ const backfillPlanCap = defineCapability({
     workflow: { type: 'string', required: true, description: '工作流 ID（dag_id）' },
     from: { type: 'string', required: true, description: '起始业务日期 YYYY-MM-DD（含）' },
     to: { type: 'string', required: true, description: '结束业务日期 YYYY-MM-DD（含），最多 31 天' },
-    timezone: { type: 'string', description: '业务时区（默认 airflow 端点 timezone）' },
+    timezone: { type: 'string', description: '业务时区（默认取 DAG 的 timezone，其次 airflow 端点 timezone）' },
     rerun_succeeded: { type: 'bool', default: false, description: '对已成功的业务日期也重跑（清理全部任务实例）' },
     max_active_runs: { type: 'int', description: '执行时同时在途的 run 上限（默认 min(DAG max_active_runs, 2)）' },
     allow_append_duplicates: { type: 'bool', default: false, description: '目标表为 append 写入时，明确接受重跑可能产生重复数据' },
