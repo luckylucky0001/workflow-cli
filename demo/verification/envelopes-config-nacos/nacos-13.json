@@ -17,11 +17,13 @@
       "healthy": 0,
       "unhealthy": 0,
       "health_unknown": 0,
+      "disabled": 0,
       "without_lease": 0,
       "excluded": {
         "env_mismatch": 0,
         "env_missing": 0,
-        "not_healthy": 0
+        "not_healthy": 0,
+        "disabled": 0
       },
       "service_registered": false
     }
@@ -32,7 +34,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-17T16:59:32.471Z",
+        "observed_at": "2026-10-18T04:36:16.465Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/ns/service serviceName=ghost-svc groupName=DEFAULT_GROUP namespaceId=sandbox",
         "relation": "explicit",
@@ -51,7 +53,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn63lo-6112fa",
+    "request_id": "req-mvdc23rv-3eb93b",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -59,7 +61,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:59:32.411Z",
-    "duration_ms": 61
+    "started_at": "2026-10-18T04:36:16.411Z",
+    "duration_ms": 55
   }
 }

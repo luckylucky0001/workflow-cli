@@ -25,6 +25,10 @@ export interface PssRow {
   shared_blks_hit: number;
   shared_blks_read: number;
   temp_blks_written: number;
+  /** min_exec_time: can only go down while an entry lives; going up means the entry was re-created. */
+  min_ms?: number | null;
+  /** PG17+ pg_stat_statements.stats_since: changes when the single entry is reset. */
+  stats_since?: string | null;
 }
 
 export interface PssStat {
@@ -51,7 +55,22 @@ type Order = (typeof ORDER)[number];
 
 const r3 = (n: number) => Math.round(n * 1000) / 1000;
 
-/** Window delta t1 − t0 keyed by (userid, dbid, queryid, toplevel). A counter going backwards = reset. */
+/**
+ * Did this entry get reset (pg_stat_statements_reset(userid, dbid, queryid) removes it, it is then
+ * re-created with fresh counters) between the snapshots? PG17+: stats_since changed. Otherwise any
+ * monotonic counter going backwards, max_exec_time dropping or min_exec_time rising — the
+ * re-created entry may already have more calls than before, so `calls` alone misses it.
+ */
+export function entryWasReset(a: PssRow, b: PssRow): boolean {
+  if (a.stats_since && b.stats_since) return a.stats_since !== b.stats_since;
+  if (b.calls < a.calls || b.total_ms < a.total_ms || b.rows < a.rows) return true;
+  if (b.shared_blks_hit < a.shared_blks_hit || b.shared_blks_read < a.shared_blks_read || b.temp_blks_written < a.temp_blks_written) return true;
+  if (a.max_ms != null && b.max_ms != null && b.max_ms < a.max_ms) return true;
+  if (a.min_ms != null && b.min_ms != null && a.calls > 0 && b.min_ms > a.min_ms) return true;
+  return false;
+}
+
+/** Window delta t1 − t0 keyed by (userid, dbid, queryid, toplevel). A reset entry counts only its post-reset values. */
 export function diffStatements(t0: PssRow[], t1: PssRow[]): { stats: PssStat[]; reset: number; disappeared: number } {
   const before = new Map(t0.map((r) => [r.key, r]));
   const afterKeys = new Set(t1.map((r) => r.key));
@@ -61,7 +80,7 @@ export function diffStatements(t0: PssRow[], t1: PssRow[]): { stats: PssStat[]; 
     const a = before.get(b.key);
     let resetDetected = false;
     let base = a;
-    if (a && b.calls < a.calls) {
+    if (a && entryWasReset(a, b)) {
       reset++;
       resetDetected = true;
       base = undefined;
@@ -148,10 +167,12 @@ async function snapshot(s: PgSession, schema: string, database: string | undefin
   const q = (n: string) => `"${schema.replace(/"/g, '""')}".${n}`;
   const total = s.versionNum >= 130000 ? 'total_exec_time' : 'total_time';
   const max = s.versionNum >= 130000 ? 'max_exec_time' : 'max_time';
+  const min = s.versionNum >= 130000 ? 'min_exec_time' : 'min_time';
+  const since = s.versionNum >= 170000 ? 'p.stats_since::text' : 'NULL::text';
   const toplevel = s.versionNum >= 140000 ? 'p.toplevel::text' : "'t'";
   const rows = await s.query(
     `SELECT p.userid::text || '/' || p.dbid::text || '/' || coalesce(p.queryid::text, '') || '/' || ${toplevel} AS key,
-            p.queryid::text AS queryid, d.datname, r.rolname, p.query, p.calls, p.${total} AS total_ms, p.${max} AS max_ms, p.rows,
+            p.queryid::text AS queryid, d.datname, r.rolname, p.query, p.calls, p.${total} AS total_ms, p.${max} AS max_ms, p.${min} AS min_ms, ${since} AS stats_since, p.rows,
             p.shared_blks_hit, p.shared_blks_read, p.temp_blks_written
        FROM ${q('pg_stat_statements')} p
        LEFT JOIN pg_database d ON d.oid = p.dbid
@@ -172,6 +193,8 @@ async function snapshot(s: PgSession, schema: string, database: string | undefin
     shared_blks_hit: Number(r.shared_blks_hit),
     shared_blks_read: Number(r.shared_blks_read),
     temp_blks_written: Number(r.temp_blks_written),
+    min_ms: num(r.min_ms),
+    stats_since: r.stats_since ?? null,
   }));
 }
 
@@ -242,7 +265,7 @@ export const statementSummary = defineCapability({
   notes: [
     'pg_stat_statements 的值是自 stats_reset（扩展创建或 pg_stat_statements_reset()；默认 save=on 时正常重启不清空）以来的累计值；--sample-window 0 直接返回累计值（aggregation=cumulative_since），不能当作窗口值',
     '窗口值 = t1 快照 − t0 快照（按 userid+dbid+queryid+toplevel）；采样期间命令会等待整个窗口，窗口须小于 --timeout（默认 30s）',
-    '计数回退的条目视为被重置，只计入重置后的部分（reset_detected=true）；窗口内有条目被淘汰（dealloc 增加）或消失时结果标记为 partial',
+    '单条语句被重置（PG17+ 看 stats_since；更早版本看计数/耗时回退、max 下降或 min 上升）时只计入重置后的部分（reset_detected=true）并标记 partial；窗口内有条目被淘汰（dealloc 增加）或消失时也标记为 partial',
     '耗时单位毫秒（total_exec_time，不含规划时间）；扩展未安装/未加载/track=none 时返回 COLLECTION_DISABLED，而不是空结果',
   ],
   examples: [
@@ -316,7 +339,7 @@ export const statementSummary = defineCapability({
       const excluded = diff.stats.length - stats.length;
       const partialReasons: string[] = [];
       if (inf0.stats_reset !== inf1.stats_reset) partialReasons.push('窗口内执行过 pg_stat_statements_reset()，重置前的活动未计入');
-      if (diff.reset) partialReasons.push(`${diff.reset} 条语句计数回退（被重置），只计入重置后的部分（reset_detected=true）`);
+      if (diff.reset) partialReasons.push(`${diff.reset} 条语句在窗口内被单独重置，只计入重置后的部分（reset_detected=true），重置前的窗口内活动未计入`);
       if (diff.disappeared) partialReasons.push(`${diff.disappeared} 条语句在窗口内从统计中消失（被淘汰或重置），其窗口内活动未计入`);
       const deallocDelta = inf0.dealloc !== null && inf1.dealloc !== null ? inf1.dealloc - inf0.dealloc : 0;
       if (deallocDelta > 0) partialReasons.push(`窗口内发生 ${deallocDelta} 次条目淘汰（pg_stat_statements.max=${coll.max ?? 'unknown'}），新出现的语句可能被高估为整段累计`);
@@ -347,6 +370,9 @@ export const statementSummary = defineCapability({
             ...partialReasons,
             ...visibilityNotes,
             `窗口值（t1 − t0），窗口 ${formatDuration(end.getTime() - start.getTime())}；t0 中不存在的语句按其全部计数计入（窗口内首次出现）`,
+            ...(s.versionNum < 170000
+              ? ['PostgreSQL 17 以下没有 stats_since：单条语句被 pg_stat_statements_reset(userid, dbid, queryid) 重置后，只能通过计数/耗时回退或 min/max 变化识别，极少数情况下可能识别不到']
+              : []),
           ],
         },
       };

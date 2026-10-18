@@ -179,6 +179,10 @@ function addCapabilityCommand(root: Command, registry: Registry, c: CapabilityDe
     }
     const env = await invoke(registry, c.name, raw, { configPath: g.config, profile: g.profile, timeoutMs, requestId: g.requestId, debug: g.debug });
     emit(env, g);
+    // The engine stops waiting at the budget but the handler keeps running (a slow upstream
+    // can hold the event loop for minutes). For read/diagnose/plan the envelope is final, so the
+    // CLI entry exits right after flushing it; an in-flight execute is never cut short.
+    if (env.error?.code === 'TIMEOUT' && c.operation !== 'execute') cliLifetime.exitAfterOutput = true;
   });
 }
 
@@ -370,8 +374,16 @@ export function wantsJsonOutput(argv: string[]): boolean {
   return argv.includes('--json') || argv.some((a, i) => (a === '-o' || a === '--output') && argv[i + 1] === 'json') || argv.includes('--output=json') || argv.includes('-ojson');
 }
 
-export async function main(rawArgv = process.argv): Promise<void> {
-  const registry = builtinRegistry();
+/** Set when the process should exit once stdout is flushed instead of waiting for abandoned work. */
+export const cliLifetime = { exitAfterOutput: false };
+
+/** CLI entry epilogue: after a timed-out non-execute call, exit as soon as stdout has drained. */
+export function finishCli(): void {
+  if (!cliLifetime.exitAfterOutput) return;
+  process.stdout.write('', () => process.exit(process.exitCode ?? 0));
+}
+
+export async function main(rawArgv = process.argv, registry: Registry = builtinRegistry()): Promise<void> {
   const { errors } = loadPlugins(registry);
   const argv = rewriteShadowedFlags(rawArgv, registry);
   const wantsJson = wantsJsonOutput(argv);

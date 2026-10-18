@@ -44,7 +44,7 @@ describe('prometheus helpers (pure)', () => {
 describe('metric query / list against a fake Prometheus', () => {
   let server: Server;
   let configPath: string;
-  let mode: 'data' | 'empty' | 'bad' = 'data';
+  let mode: 'data' | 'empty' | 'bad' | 'many' = 'data';
   const seen: string[] = [];
   const r = new Registry();
   r.addDomain(observability);
@@ -61,6 +61,11 @@ describe('metric query / list against a fake Prometheus', () => {
           return res.end(JSON.stringify({ status: 'error', errorType: 'bad_data', error: 'parse error at char 3' }));
         }
         const start = Number(u.searchParams.get('start'));
+        if (mode === 'many') {
+          // broad PromQL passthrough: 500 sparse series (each one point short of the window)
+          const many = Array.from({ length: 500 }, (_, k) => ({ metric: { __name__: 'm', i: String(k) }, values: [[start, '1']] }));
+          return res.end(JSON.stringify({ status: 'success', data: { resultType: 'matrix', result: many } }));
+        }
         const result = mode === 'empty' ? [] : [{ metric: { service: 'demo-order' }, values: [[start, '0.01'], [start + 15, 'NaN'], [start + 30, '0.03']] }];
         return res.end(JSON.stringify({ status: 'success', data: { resultType: 'matrix', result } }));
       }
@@ -102,6 +107,19 @@ describe('metric query / list against a fake Prometheus', () => {
     const unknown = await invoke(r, 'observability.metric.query', { resource: 'demo-order', metric: 'nope' }, { configPath });
     expect(unknown.error?.code).toBe('INVALID_ARGUMENT');
     expect(unknown.error?.hint).toContain('request_latency');
+  });
+
+  // Regression: a broad --promql returned every series (and one note per series) with
+  // coverage.complete=true — unbounded output, truncation not reported.
+  it('caps the series count and per-series notes, and reports the truncation in coverage', async () => {
+    mode = 'many';
+    const env = await invoke(r, 'observability.metric.query', { promql: '{__name__=~".+"}', window: '15m', step: '15s' }, { configPath });
+    expect(env.status).toBe('success');
+    expect((env.data as any).series).toHaveLength(200);
+    expect(env.meta.coverage).toMatchObject({ complete: false, truncated: true, limit: 200 });
+    const notes = env.meta.coverage?.notes ?? [];
+    expect(notes.join()).toContain('返回 500 条序列，只输出前 200 条');
+    expect(notes.length).toBeLessThan(30);
   });
 
   it('Prometheus down is UPSTREAM_UNAVAILABLE (distinct from empty)', async () => {

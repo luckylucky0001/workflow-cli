@@ -5,7 +5,7 @@ import { source, WorkError, type Result, type Source } from '../../core/output';
 import type { Ctx, Endpoint } from '../../core/runtime';
 import { header, send, type HttpResult, type ProviderChoice } from './provider';
 import { MAX_KEYS, type Instance, type Item } from './schema';
-import { checkRelKey, checkSegment, decodeValue } from './values';
+import { checkRelKey, checkSegment, decodeValue, maskCredentialText } from './values';
 
 export const CONSUL_ADAPTER = 'consul-http-api';
 export const CONSUL_AUTH = 'consul-acl-token';
@@ -147,7 +147,7 @@ export async function consulConfigGet(ctx: Ctx, i: Record<string, any>, p: Provi
   if (r.filtered) notes.push('Consul 按 ACL 过滤了结果（X-Consul-Results-Filtered-By-ACLs）：token 无权读取的键未返回，列表不完整');
   if (!count) notes.push(`前缀 ${prefix} 下没有配置项（Consul 返回 404）；不同环境/服务的键前缀不同，检查 --env / --service`);
   const masked = items.filter((x) => x.masked).length;
-  if (masked) notes.push(`${masked} 个配置项的值或字段已遮蔽（按名称匹配敏感模式）`);
+  if (masked) notes.push(`${masked} 个配置项的值或字段已遮蔽（按名称匹配敏感模式，或值中内嵌的 URL 密码 / token= 等凭据）`);
   if (truncated) notes.push(`前缀下共 ${count} 个键，只返回按键名排序的前 ${items.length} 个`);
   if (relKey) notes.push('单键读取时 observed_revision（X-Consul-Index）即该键的 ModifyIndex');
   notes.push('Consul KV 不保留历史：mod_revision 为 ModifyIndex（最后修改时的 raft 索引），version 不提供（null）；旧值不可回溯');
@@ -261,6 +261,7 @@ export async function consulDiscoveryList(ctx: Ctx, i: Record<string, any>, p: P
   } else registeredInCatalog = true;
   const excluded = { env_mismatch: 0, env_missing: 0, not_healthy: 0 };
   const instances: Instance[] = [];
+  let outputMasked = 0;
   for (const e of entries) {
     const s = e.Service ?? {};
     const meta = s.Meta ?? {};
@@ -275,7 +276,12 @@ export async function consulDiscoveryList(ctx: Ctx, i: Record<string, any>, p: P
         continue;
       }
     }
-    const checks = (e.Checks ?? []).map((c) => ({ check_id: String(c.CheckID ?? ''), name: String(c.Name ?? ''), status: String(c.Status ?? ''), service_level: !!c.ServiceID, output: String(c.Output ?? '').slice(0, 300) }));
+    // check output often echoes the probed URL / header: mask inline credentials BEFORE cutting (a cut can break the pattern)
+    const checks = (e.Checks ?? []).map((c) => {
+      const out = maskCredentialText(String(c.Output ?? ''));
+      if (out.masked) outputMasked++;
+      return { check_id: String(c.CheckID ?? ''), name: String(c.Name ?? ''), status: String(c.Status ?? ''), service_level: !!c.ServiceID, output: out.text.slice(0, 300) };
+    });
     const worst = checks.reduce((w, c) => ((RANK[c.status] ?? 2) > RANK[w] ? ((c.status in RANK ? c.status : 'critical') as 'passing' | 'warning' | 'critical') : w), 'passing' as 'passing' | 'warning' | 'critical');
     const healthy = worst !== 'critical';
     if (i.healthy_only && !healthy) {
@@ -310,6 +316,7 @@ export async function consulDiscoveryList(ctx: Ctx, i: Record<string, any>, p: P
   if (warn) notes.push(`${warn} 个实例存在 warning 检查，计为 healthy（与 Consul DNS 默认一致）；?passing 过滤会排除它们`);
   if (instances.some((x) => !x.consul?.checks.length)) notes.push('没有任何健康检查的实例被 Consul 视为 passing');
   if (excluded.env_missing) notes.push(`${excluded.env_missing} 个实例 Meta 没有 env，按 --env 过滤时已排除`);
+  if (outputMasked) notes.push(`${outputMasked} 条健康检查输出中含凭据样式内容（URL userinfo 密码、token=/password=/secret= 参数、Authorization 头），已替换为 ***`);
   notes.push('healthy 由 Consul 健康检查聚合（含节点级检查，任一 critical → false），不是 workctl 的探测');
   const healthyN = instances.filter((x) => x.healthy === true).length;
   const unhealthyN = instances.filter((x) => x.healthy === false).length;

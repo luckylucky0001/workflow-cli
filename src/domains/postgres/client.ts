@@ -29,6 +29,12 @@ export interface PgSession {
   readonly pid: number;
   query<T extends Row = Row>(sql: string, params?: unknown[]): Promise<T[]>;
   queryArrays(sql: string, params?: unknown[]): Promise<{ rows: unknown[][]; fields: PgField[] }>;
+  /**
+   * Run SQL that embeds a user statement via the extended query protocol (Parse/Bind/Execute):
+   * the server itself rejects more than one command ("cannot insert multiple commands into a
+   * prepared statement", SQLSTATE 42601 → INVALID_ARGUMENT), independent of the client-side lexer.
+   */
+  queryUser<T extends Row = Row>(sql: string, params?: unknown[]): Promise<T[]>;
   /** Provenance entry for a call against this instance (never contains credentials). */
   src(method: string, relation?: Source['relation']): Source;
 }
@@ -172,9 +178,9 @@ export async function withPg<T>(ctx: Ctx, instance: string | undefined, fn: (s: 
     }
     throw mapped ?? e;
   }
-  const run = async (sql: string, params: unknown[] | undefined, rowMode?: 'array') => {
+  const run = async (sql: string, params: unknown[] | undefined, rowMode?: 'array', extended = false) => {
     try {
-      return await client.query({ text: sql, values: params as any[] | undefined, ...(rowMode ? { rowMode } : {}) });
+      return await client.query({ text: sql, values: params as any[] | undefined, ...(rowMode ? { rowMode } : {}), ...(extended ? { queryMode: 'extended' } : {}) } as pg.QueryConfig);
     } catch (e) {
       throw mapPgError(e, ep) ?? e;
     }
@@ -196,6 +202,7 @@ export async function withPg<T>(ctx: Ctx, instance: string | undefined, fn: (s: 
       database: String(info.db),
       pid: Number(info.pid),
       query: async <R extends Row = Row>(sql: string, params?: unknown[]) => (await run(sql, params)).rows as R[],
+      queryUser: async <R extends Row = Row>(sql: string, params?: unknown[]) => (await run(sql, params, undefined, true)).rows as R[],
       queryArrays: async (sql, params) => {
         const r = await run(sql, params, 'array');
         return { rows: r.rows as unknown[][], fields: (r.fields ?? []) as unknown as PgField[] };

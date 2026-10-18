@@ -304,5 +304,82 @@
   ],
   "expect": "INVALID_ARGUMENT",
   "note": "aggs 中的 top_hits 会在聚合结果里返回文档（修复前返回 1000 条未截断文档），绕过 100 条命中上限 → 拒绝"
+ },
+ {
+  "id": "search-22",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--query",
+   "status:/pa.*/"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "--query 中的正则（/.../）→ 插件内拒绝（确需正则用 DSL regexp，max_determinized_states ≤ 10000）"
+ },
+ {
+  "id": "search-23",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--dsl-file",
+   "demo/scenarios/search/dsl/leading_wildcard.json"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "DSL query_string 设置 allow_leading_wildcard=true（前导通配符扫描整个词典）→ 拒绝"
+ },
+ {
+  "id": "search-24",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--dsl-file",
+   "demo/scenarios/search/dsl/huge_automaton.json"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "regexp 的 max_determinized_states=1000000 超过上限 10000 → 拒绝"
+ },
+ {
+  "id": "search-25",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--dsl-file",
+   "demo/scenarios/search/dsl/nested_terms_explosion.json"
+  ],
+  "expect": "INVALID_ARGUMENT",
+  "note": "嵌套 terms size 1000×1000（最坏 100 万桶）超过 10000 桶上限 → 拒绝，而不是输出过大导致 INTERNAL"
+ },
+ {
+  "id": "search-26",
+  "args": [
+   "search",
+   "query",
+   "--cluster",
+   "demo-search",
+   "--index",
+   "demo-orders",
+   "--query",
+   "path:\"/api/v1\" OR status:paid",
+   "--max-hits",
+   "1"
+  ],
+  "expect": "success",
+  "note": "双引号短语中的斜杠不是正则，正常查询"
  }
 ]

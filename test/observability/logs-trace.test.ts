@@ -260,3 +260,41 @@ describe('review regressions (logs / trace)', () => {
     expect(spanFromFields({ trace_id: 't', span_id: 's', name: 'n', start: '2026-10-17T12:00:00Z', duration_ms: 5 }, 'c')).not.toBeNull();
   });
 });
+
+// Regression: trace get reported coverage.complete=true / success when one of the service's
+// containers could not be read (span could be missing), and NOT_FOUND ("no such trace") when
+// no container log was readable at all.
+describe('trace get with unreadable container logs', () => {
+  const TRACE = 'ef'.repeat(16);
+  const at = new Date(Date.now() - 1000).toISOString();
+  const span = JSON.stringify({ ts: at, level: 'debug', msg: 'span', kind: 'span', name: 'http.request', trace_id: TRACE, span_id: 's1', parent_span_id: null, start: at, duration_ms: 5, status: 'ok', attributes: {} });
+  let fake: Awaited<ReturnType<typeof startFakeDocker>>;
+  let configPath: string;
+  const r = new Registry();
+  r.addDomain(container);
+  r.addDomain(observability);
+  beforeAll(async () => {
+    fake = await startFakeDocker({
+      containers: [
+        { Id: 'e1'.padEnd(64, '0'), Name: 'svc-a-1', Labels: { 'workctl.service': 'svc-a', 'workctl.env': 'sandbox' }, State: 'running', logs: [{ stream: 'stdout', line: span }] },
+        { Id: 'e2'.padEnd(64, '0'), Name: 'svc-a-2', Labels: { 'workctl.service': 'svc-a', 'workctl.env': 'sandbox' }, State: 'running', LogDriver: 'none' },
+        { Id: 'e3'.padEnd(64, '0'), Name: 'svc-b-1', Labels: { 'workctl.service': 'svc-b', 'workctl.env': 'sandbox' }, State: 'running', LogDriver: 'none' },
+      ],
+    });
+    configPath = writeTestConfig(fake.dir, { socketPath: fake.socketPath });
+  });
+  afterAll(async () => fake.close());
+
+  it('is partial with complete=false when some container logs were not readable', async () => {
+    const env = await invoke(r, 'observability.trace.get', { id: TRACE, service: 'svc-a' }, { configPath });
+    expect(env.status).toBe('partial');
+    expect(env.meta.coverage?.complete).toBe(false);
+    expect(env.meta.coverage?.notes?.join(' ')).toContain('svc-a-2');
+    expect((env.data as any).span_count).toBe(1);
+  });
+
+  it('is COLLECTION_DISABLED, not NOT_FOUND, when no container log could be read', async () => {
+    const env = await invoke(r, 'observability.trace.get', { id: TRACE, service: 'svc-b' }, { configPath });
+    expect(env.error?.code).toBe('COLLECTION_DISABLED');
+  });
+});

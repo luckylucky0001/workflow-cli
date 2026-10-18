@@ -4,13 +4,13 @@
   "capability": "redis.key.inspect",
   "data": {
     "instance": "demo-redis",
-    "key": "demo:order:2160",
+    "key": "demo:customer:8:recent",
     "type": "string",
-    "ttl_ms": null,
-    "expires_at": null,
+    "ttl_ms": 853440,
+    "expires_at": "2026-10-18T04:49:43.103Z",
     "encoding": "raw",
-    "memory_bytes": 256,
-    "length": 163,
+    "memory_bytes": 2112,
+    "length": 1819,
     "lfu_counter": 1,
     "lfu_note": "maxmemory-policy=allkeys-lfu：OBJECT FREQ 为对数计数器（0–255），不是 QPS",
     "value": null
@@ -21,7 +21,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-17T17:31:55.285Z",
+        "observed_at": "2026-10-18T04:35:29.668Z",
         "endpoint": "redis/demo-redis",
         "method": "TYPE / PTTL / OBJECT ENCODING / MEMORY USAGE SAMPLES 5 / STRLEN / OBJECT FREQ",
         "version": "7.4.11",
@@ -38,7 +38,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcobqpb-99065f",
+    "request_id": "req-mvdc13o1-654b62",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -46,7 +46,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T17:31:55.247Z",
-    "duration_ms": 39
+    "started_at": "2026-10-18T04:35:29.617Z",
+    "duration_ms": 52
   }
 }

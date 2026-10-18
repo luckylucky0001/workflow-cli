@@ -407,5 +407,17 @@
    "postgres.replication.get"
   ],
   "note": "planned 能力（无 handler，不生成 CLI 命令）：access check 给出 verdict=denied（能力待接入），不模拟结果"
+ },
+ {
+  "id": "pg-29",
+  "args": [
+   "pg",
+   "query",
+   "explain",
+   "--sql",
+   "SELECT * FROM orders WHERE id = $1"
+  ],
+  "expect": "success",
+  "note": "含 $n 的 GENERIC_PLAN：先经扩展协议让服务端确认是单条命令，再生成通用计划（Index Scan on orders_pkey）"
  }
 ]

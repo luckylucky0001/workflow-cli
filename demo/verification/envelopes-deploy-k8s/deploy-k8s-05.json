@@ -12,41 +12,41 @@
       "object": "Deployment workctl-demo/demo-order"
     },
     "release": {
-      "id": "demo-order-d6579cc56",
+      "id": "demo-order-7476646848",
       "provider": "kubernetes",
       "version": "1.27-alpine",
       "images": [
         "nginx:1.27-alpine"
       ],
-      "revision": 34,
-      "started_at": "2026-10-17T17:02:06Z",
+      "revision": 39,
+      "started_at": "2026-10-18T04:37:14Z",
       "finished_at": null,
       "timestamps": "derived",
       "duration_ms": null,
       "status": "unknown",
-      "status_basis": "已被当前修订 35 替代；ReplicaSet 不记录当时 rollout 是否成功（仍有 2 个副本，替换进行中）；该 ReplicaSet 曾是修订 32（回滚复用），started_at 为首次创建时间",
+      "status_basis": "已被当前修订 40 替代；ReplicaSet 不记录当时 rollout 是否成功（仍有 2 个副本，替换进行中）；该 ReplicaSet 曾是修订 37（回滚复用），started_at 为首次创建时间",
       "current": false,
       "triggered_by": null,
       "cause": "release v1.4.1: cache ttl tuning",
       "source_ref": {
         "system": "kubernetes",
         "kind": "ReplicaSet",
-        "name": "workctl-demo/demo-order-d6579cc56",
+        "name": "workctl-demo/demo-order-7476646848",
         "url": null
       }
     },
     "kubernetes": {
       "namespace": "workctl-demo",
       "deployment": "demo-order",
-      "replicaset": "demo-order-d6579cc56",
-      "uid": "15cc5158-3ca8-4ec8-a848-4e58335b71c2",
-      "revision": 34,
+      "replicaset": "demo-order-7476646848",
+      "uid": "6e68f168-e9ed-4518-981f-20e7bb60a41c",
+      "revision": 39,
       "revision_history": [
-        32
+        37
       ],
-      "pod_template_hash": "d6579cc56",
+      "pod_template_hash": "7476646848",
       "change_cause": "release v1.4.1: cache ttl tuning",
-      "created_at": "2026-10-17T17:02:06Z",
+      "created_at": "2026-10-18T04:37:14Z",
       "replicas": {
         "desired": 2,
         "current": 2,
@@ -66,7 +66,7 @@
         }
       ],
       "diff_vs_current": {
-        "against_revision": 35,
+        "against_revision": 40,
         "images": [
           {
             "container": "nginx",
@@ -86,7 +86,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T17:02:55.856Z",
+        "observed_at": "2026-10-18T04:37:59.112Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/deployments/demo-order",
         "relation": "explicit",
@@ -95,7 +95,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T17:02:55.856Z",
+        "observed_at": "2026-10-18T04:37:59.113Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/replicasets?labelSelector=app=demo-order",
         "relation": "explicit",
@@ -104,7 +104,7 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "ReplicaSet workctl-demo/demo-order-d6579cc56",
+      "scope": "ReplicaSet workctl-demo/demo-order-7476646848",
       "notes": [
         "环境变量中名称像凭据的值与 valueFrom 引用不显示",
         "started_at 为 ReplicaSet creationTimestamp（derived）；Kubernetes 不记录 rollout 完成时间，finished_at 仅对当前修订按 Progressing=NewReplicaSetAvailable 的 lastUpdateTime 推得"
@@ -113,7 +113,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcnagia-2eda04",
+    "request_id": "req-mvdc4ayv-2181ab",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -121,7 +121,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T17:02:55.762Z",
-    "duration_ms": 95
+    "started_at": "2026-10-18T04:37:59.047Z",
+    "duration_ms": 66
   }
 }

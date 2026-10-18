@@ -8,7 +8,7 @@ import { invoke } from '../../src/core/engine';
 import { installPlugin, loadPlugins, PluginManifestSchema } from '../../src/core/plugins';
 import { builtinRegistry } from '../../src/domains';
 import { countMappingFields, HANDLERS, readDslFile, shapeClusterGet, shapeIndexGet, shapeSearchResponse, shapeShards } from '../../plugins/demo-search/src/capabilities';
-import { buildSearchBody, MAX_HITS_CAP, parseDsl, scanDsl, TRACK_TOTAL_HITS_LIMIT, truncateSource } from '../../plugins/demo-search/src/dsl';
+import { aggBucketBound, buildSearchBody, hasQueryStringRegex, MAX_AGG_OUTPUT_BYTES, MAX_HITS_CAP, parseDsl, scanDsl, TRACK_TOTAL_HITS_LIMIT, truncateSource } from '../../plugins/demo-search/src/dsl';
 import { buildManifest, CAPABILITIES } from '../../plugins/demo-search/src/manifest';
 import { mapOsError, OsClient, OsHttpError, requireIndexName, requireSearchTarget, resolveEndpoint } from '../../plugins/demo-search/src/opensearch';
 import { RequestSchema } from '../../plugins/demo-search/src/protocol';
@@ -91,10 +91,46 @@ describe('demo-search DSL guard', () => {
   });
 });
 
+describe('demo-search expensive query guards', () => {
+  it('rejects regex in --query but keeps escaped and quoted slashes', () => {
+    expect(() => buildSearchBody({ queryString: 'name:/joh?n(ath[oa]n)/', maxHits: 5, timeoutMs: 1000 })).toThrow(/正则/);
+    expect(hasQueryStringRegex('path:"/api/v1"')).toBe(false);
+    expect(hasQueryStringRegex('path:\\/api')).toBe(false);
+    expect(hasQueryStringRegex('a:/.*/')).toBe(true);
+  });
+
+  it('rejects leading-wildcard options and huge automata in the DSL; defaults query_string to no leading wildcard', () => {
+    expect(() => parseDsl(JSON.stringify({ query: { query_string: { query: '*abc', allow_leading_wildcard: true } } }))).toThrow(/allow_leading_wildcard/);
+    expect(() => parseDsl(JSON.stringify({ query: { regexp: { name: { value: '.*a.*b.*', max_determinized_states: 1000000 } } } }))).toThrow(/max_determinized_states/);
+    expect(() => parseDsl(JSON.stringify({ query: { query_string: { query: 'a', max_determinized_states: '50000' } } }))).toThrow(/max_determinized_states/);
+    expect(() => parseDsl(JSON.stringify({ query: { wildcard: { name: { value: '*son' } } } }))).toThrow(/通配符开头/);
+    expect(() => parseDsl(JSON.stringify({ query: { bool: { filter: [{ wildcard: { name: '?ohn' } }] } } }))).toThrow(/通配符开头/);
+    const d = parseDsl(JSON.stringify({ query: { query_string: { query: 'status:paid' } }, aggs: { f: { filter: { query_string: { query: 'x' } } } } }));
+    expect((d.query as any).query_string.allow_leading_wildcard).toBe(false);
+    expect((d.aggs as any).f.filter.query_string.allow_leading_wildcard).toBe(false);
+    expect(() => parseDsl(JSON.stringify({ query: { wildcard: { name: { value: 'jo*' } } } }))).not.toThrow();
+  });
+
+  it('bounds nested bucket aggregations and drops oversized aggregation output as partial', () => {
+    const nested = { aggs: { a: { terms: { field: 'a', size: 1000 }, aggs: { b: { terms: { field: 'b', size: 1000 } } } } } };
+    expect(aggBucketBound(nested.aggs)).toBe(1_001_000);
+    expect(() => parseDsl(JSON.stringify(nested))).toThrow(/桶/);
+    expect(() => parseDsl(JSON.stringify({ aggs: { a: { terms: { field: 'a', size: 100 }, aggs: { b: { terms: { field: 'b', size: 50 } } } } } }))).not.toThrow();
+    const guarded = buildSearchBody({ queryString: 'x', maxHits: 2, timeoutMs: 1000 });
+    const buckets = Array.from({ length: Math.ceil(MAX_AGG_OUTPUT_BYTES / 40) + 10 }, (_, i) => ({ key: i, doc_count: 1, key_as_string: 'x'.repeat(10) }));
+    const res = { took: 1, timed_out: false, _shards: { total: 1, successful: 1, skipped: 0, failed: 0 }, hits: { total: { value: 0, relation: 'eq' }, hits: [] }, aggregations: { h: { buckets } } };
+    const s = shapeSearchResponse({ cluster: 'c', index: 'i', guarded, maxHits: 2, res, observedAt: 't' });
+    expect(s.status).toBe('partial');
+    expect(s.data.aggregations).toBeNull();
+    expect(s.warnings.join(' ')).toContain('聚合结果');
+    expect(OUTPUT_SCHEMAS['search.query'].safeParse(s.data).success).toBe(true);
+  });
+});
+
 describe('demo-search request building', () => {
   it('query_string from --query with leading wildcards disabled, timeout and bounded track_total_hits', () => {
     const g = buildSearchBody({ queryString: 'status:paid', maxHits: 20, timeoutMs: 8000 });
-    expect(g.body).toEqual({ query: { query_string: { query: 'status:paid', allow_leading_wildcard: false } }, size: 20, timeout: '8000ms', track_total_hits: TRACK_TOTAL_HITS_LIMIT });
+    expect(g.body).toEqual({ query: { query_string: { query: 'status:paid', allow_leading_wildcard: false, max_determinized_states: 10_000 } }, size: 20, timeout: '8000ms', track_total_hits: TRACK_TOTAL_HITS_LIMIT });
     expect(g.query_source).toBe('query_string');
     expect(buildSearchBody({ queryString: 'x', maxHits: 1, timeoutMs: 10, trackTotalHits: 500 }).body).toMatchObject({ timeout: '100ms', track_total_hits: 500 });
     expect(() => buildSearchBody({ queryString: 'x', maxHits: 1, timeoutMs: 1000, trackTotalHits: 10_001 })).toThrow(invalid);

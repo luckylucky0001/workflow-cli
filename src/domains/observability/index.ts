@@ -17,6 +17,10 @@ const WindowSchema = z.object({ start: z.string(), end: z.string() });
 // metric query / metric list
 // ---------------------------------------------------------------------------
 const MAX_POINTS = 11_000;
+/** Series cap per query: a broad --promql (e.g. {__name__=~".+"}) would otherwise return every series. */
+const MAX_SERIES = 200;
+/** Per-series notes beyond this are summarised, so notes stay bounded too. */
+const MAX_SERIES_NOTES = 20;
 
 const metricQuery = defineCapability({
   name: 'observability.metric.query',
@@ -119,13 +123,17 @@ const metricQuery = defineCapability({
       step: `${stepMs / 1000}s`,
     });
     warnings.push(...r.warnings.map((w) => `Prometheus: ${w}`));
-    const series = (r.data.result ?? []).map((s) => {
+    const allSeries = r.data.result ?? [];
+    const seriesTruncated = allSeries.length > MAX_SERIES;
+    const series = allSeries.slice(0, MAX_SERIES).map((s) => {
       const { points, summary } = summarize(s.values ?? []);
       return { labels: s.metric ?? {}, points, summary };
     });
     const expected = Math.floor(windowMs / stepMs) + 1;
     const notes = [`窗口 ${formatDuration(windowMs)}，步长 ${formatDuration(stepMs)}，每条序列最多 ${expected} 个点`];
     if (!series.length) notes.push('no samples in window：窗口内没有匹配的样本（目标未被抓取、标签不匹配或该时段无数据）');
+    if (seriesTruncated) notes.push(`查询返回 ${allSeries.length} 条序列，只输出前 ${MAX_SERIES} 条（Prometheus 返回顺序）；用更精确的标签选择器或 sum by (...) 聚合缩小结果`);
+    const seriesNotesStart = notes.length;
     for (const s of series) {
       if (s.summary.points < expected) notes.push(`序列 ${JSON.stringify(s.labels)} 只有 ${s.summary.points}/${expected} 个点（抓取缺失或序列中途出现/消失）`);
       if (s.summary.nan_points) notes.push(`序列 ${JSON.stringify(s.labels)} 有 ${s.summary.nan_points} 个 NaN 点（通常是分母为零：窗口内无请求）`);
@@ -133,6 +141,8 @@ const metricQuery = defineCapability({
         notes.push(`序列 ${JSON.stringify(s.labels)} 有 ${s.summary.inf_points} 个 ±Inf 点（输出为 null，不计入 min/max/avg）；histogram_quantile 返回 +Inf 表示分位数超过最大有限桶上界，是极高值而不是缺数据`);
       }
     }
+    const seriesNotes = notes.length - seriesNotesStart;
+    if (seriesNotes > MAX_SERIES_NOTES) notes.splice(seriesNotesStart + MAX_SERIES_NOTES, seriesNotes - MAX_SERIES_NOTES, `另有 ${seriesNotes - MAX_SERIES_NOTES} 条序列级说明省略（缺点/NaN/±Inf 见各序列 summary）`);
     return {
       data: {
         resource: i.resource ?? null,
@@ -150,7 +160,7 @@ const metricQuery = defineCapability({
         await prom.source(`GET /api/v1/query_range query=${promql}`),
         ...(i.metric ? [source('workctl', 'metric-catalog', { endpoint: prom.ep.id, method: `metrics.${i.metric}`, relation: 'explicit' })] : []),
       ],
-      coverage: { complete: true, window: win, notes },
+      coverage: { complete: !seriesTruncated, window: win, ...(seriesTruncated ? { truncated: true, limit: MAX_SERIES } : {}), notes },
       warnings,
     };
   },
@@ -451,6 +461,7 @@ const traceGet = defineCapability({
     const notes: string[] = [];
     const lokiSources: Source[] = [];
     let dockerUsed = false;
+    const dockerScans: { name: string; status: string }[] = [];
     for (const svc of services) {
       const provider = resolveLogProvider(ctx, svc);
       if (provider.kind === 'loki') {
@@ -486,9 +497,18 @@ const traceGet = defineCapability({
         );
         lines += scan.lines_scanned;
         names.push(scan.name);
+        dockerScans.push({ name: scan.name, status: scan.status });
         if (scan.status !== 'ok') notes.push(`${scan.name}: ${scan.note}`);
       }
       scanned.push({ service: svc, containers: names, lines_scanned: lines });
+    }
+    const failedScans = dockerScans.filter((x) => x.status !== 'ok');
+    if (!spans.length && !lokiSources.length && dockerScans.length && failedScans.length === dockerScans.length) {
+      // nothing could be read: "not collected", not "no such trace"
+      throw new WorkError(failedScans.every((x) => x.status === 'collection_disabled') ? 'COLLECTION_DISABLED' : 'UPSTREAM_UNAVAILABLE', `服务 ${services.join(', ')} 的容器日志都无法读取，无法判断 trace ${id} 是否存在`, {
+        hint: '日志驱动需为 json-file/local/journald，或改用 Loki provider（profile defaults.logs: loki）',
+        details: { containers: failedScans.map((x) => x.name), notes },
+      });
     }
     if (!spans.length) {
       throw new WorkError('NOT_FOUND', `在 ${formatDuration(i.window as number)} 窗口内的日志中没有 trace ${id} 的 span 记录${logs.length ? `（找到 ${logs.length} 条相关日志但没有 span）` : ''}`, {
@@ -500,11 +520,13 @@ const traceGet = defineCapability({
     if (view.roots.length > 1) notes.push(`有 ${view.roots.length} 个根 span（部分父 span 不在已扫描日志中）`);
     if (view.external_parent) notes.push(`根 span 的父 span ${view.external_parent} 来自未记录日志的调用方`);
     if (view.cyclic_parents.length) notes.push(`span 父子关系成环（${view.cyclic_parents.join(', ')}），日志中的 parent_span_id 不可信，相关层级仅供参考`);
+    if (failedScans.length) notes.push(`${failedScans.length} 个容器的日志未能读取（${failedScans.map((x) => x.name).join(', ')}），调用链可能缺少 span`);
     return {
+      ...(failedScans.length ? { status: 'partial' as const } : {}),
       data: { ...view, scanned },
       sources: [...(dockerUsed ? [await dockerClient(ctx).source('GET /containers/{id}/logs（kind=span 记录重建）', 'derived')] : []), ...lokiSources],
       coverage: {
-        complete: view.roots.length === 1 && view.cyclic_parents.length === 0,
+        complete: view.roots.length === 1 && view.cyclic_parents.length === 0 && !failedScans.length,
         window: win,
         scope: `服务: ${services.join(', ')} 的${dockerUsed && lokiSources.length ? '容器日志 / Loki 日志' : lokiSources.length ? ' Loki 日志' : '容器日志'}`,
         notes: [...notes, '日志派生的调用链：只包含已记录且仍保留的 span'],

@@ -151,7 +151,12 @@ export function parseProperties(text: string): [string, string][] {
   for (let i = 0; i < lines.length; i++) {
     let line = lines[i].replace(/^\s+/, '');
     if (!line || line.startsWith('#') || line.startsWith('!')) continue;
-    while (/(^|[^\\])(\\\\)*\\$/.test(line) && i + 1 < lines.length) line = line.slice(0, -1) + lines[++i].replace(/^\s+/, '');
+    while (/(^|[^\\])(\\\\)*\\$/.test(line)) {
+      // a continuation backslash on the last line is dropped, as java.util.Properties does at EOF
+      line = line.slice(0, -1);
+      if (i + 1 >= lines.length) break;
+      line += lines[++i].replace(/^\s+/, '');
+    }
     const m = /^((?:\\.|[^=:\s\\])*)\s*[=:\s]?\s*(.*)$/.exec(line)!;
     out.push([unescapeProp(m[1]), unescapeProp(m[2])]);
   }
@@ -354,9 +359,9 @@ export async function nacosConfigGet(ctx: Ctx, i: Record<string, any>, p: Provid
   if (!detail) notes.push(`配置文档 ${c.base} 不存在；检查 --env / --service 与端点的 namespace / group / data_id 模板`);
   else if (!doc.raw.size) notes.push(`配置文档 ${c.base} 存在但没有配置项`);
   if (doc.parse_error) notes.push(`${doc.parse_error}；整个文档作为一个值（name=${c.dataId}）返回并整体遮蔽（无法定位其中的敏感键）`);
-  else if (detail && !doc.parsed) notes.push(`配置类型 ${detail.type ?? '未知'} 不可拆分为键，整个文档作为一个值返回（只按 dataId 名称判断是否遮蔽，内容中的敏感值不会被识别）`);
+  else if (detail && !doc.parsed) notes.push(`配置类型 ${detail.type ?? '未知'} 不可拆分为键，整个文档作为一个值返回（只按 dataId 名称判断是否整体遮蔽；内容中只遮蔽 URL 密码 / token= / Authorization 等凭据样式，按键名的敏感值不会被识别）`);
   const masked = items.filter((x) => x.masked).length;
-  if (masked) notes.push(`${masked} 个配置项的值或字段已遮蔽（按名称匹配敏感模式）`);
+  if (masked) notes.push(`${masked} 个配置项的值或字段已遮蔽（按名称匹配敏感模式，或值中内嵌的 URL 密码 / token= 等凭据）`);
   if (truncated) notes.push(`文档中共 ${count} 个键，只返回按键名排序的前 ${items.length} 个`);
   notes.push('Nacos 没有键级修订：create_revision / mod_revision / version 为 null；文档级历史见 nacos.latest_history_id（config diff 的修订空间）');
   if (historyError) notes.push(`配置历史不可读（${historyError}），nacos.latest_history_id 为 null 不表示没有历史`);
@@ -466,7 +471,14 @@ export async function nacosConfigDiff(ctx: Ctx, i: Record<string, any>, p: Provi
       }
     }
     if (found < 0) {
-      throw new WorkError('DATA_UNAVAILABLE', `保留期内（最早历史 ${oldest}）配置项 ${relKey} 没有变更，上一版本不可知`, { details: { oldest_history_id: oldest, retention_days: retention }, hint: '用 --from-rev 指定历史 ID 比较整个文档' });
+      // with the read cap hit, the change may lie in older records that were never read: say so, not "unchanged"
+      if (h.truncated) {
+        throw new WorkError('DATA_UNAVAILABLE', `已读取的最近 500 条历史记录（最早 ${oldest}）内配置项 ${relKey} 没有变更；该配置历史超过 500 条，更早的记录未读取，上一版本不可知（不代表保留期内未变更）`, {
+          details: { oldest_history_id: oldest, retention_days: retention, history_truncated: true, history_records_read: recs.length },
+          hint: `workctl 只读取最近 5 页（500 条）历史；用 --from-rev 指定历史 ID（≥ ${oldest}）比较整个文档，或在 Nacos 控制台“历史版本”中查看更早记录`,
+        });
+      }
+      throw new WorkError('DATA_UNAVAILABLE', `保留期内（最早历史 ${oldest}）配置项 ${relKey} 没有变更，上一版本不可知`, { details: { oldest_history_id: oldest, retention_days: retention, history_truncated: false }, hint: '用 --from-rev 指定历史 ID 比较整个文档' });
     }
     fromIdx = found - 1;
     fromRev = recs[found].id - 1;
@@ -589,7 +601,7 @@ export async function nacosDiscoveryList(ctx: Ctx, i: Record<string, any>, p: Pr
       notes.push(`${catalogError ? '控制台目录接口不可用' : '服务详情未列出集群'}，改用 /v1/ns/instance/list：该接口不返回 enabled=false（已下线）的实例`);
     }
   }
-  const excluded = { env_mismatch: 0, env_missing: 0, not_healthy: 0 };
+  const excluded = { env_mismatch: 0, env_missing: 0, not_healthy: 0, disabled: 0 };
   const instances: Instance[] = [];
   for (const hst of hosts) {
     const meta = hst.metadata && typeof hst.metadata === 'object' ? (hst.metadata as Record<string, unknown>) : {};
@@ -608,6 +620,11 @@ export async function nacosDiscoveryList(ctx: Ctx, i: Record<string, any>, p: Pr
     const healthy = typeof hst.healthy === 'boolean' ? hst.healthy : null;
     if (i.healthy_only && healthy !== true) {
       excluded.not_healthy++;
+      continue;
+    }
+    // enabled=false (taken offline) receives no traffic even when its health is true: not a healthy instance
+    if (i.healthy_only && hst.enabled === false) {
+      excluded.disabled++;
       continue;
     }
     const id = String(hst.instanceId ?? `${hst.ip}#${hst.port}#${hst.clusterName ?? 'DEFAULT'}#${group}@@${service}`);
@@ -641,13 +658,15 @@ export async function nacosDiscoveryList(ctx: Ctx, i: Record<string, any>, p: Pr
   else if (!registered) notes.push(`服务 ${group}@@${service} 已注册但没有实例（临时实例停止心跳/断开后会被摘除）`);
   else if (!instances.length) notes.push(`服务下有 ${registered} 个实例，过滤后为空`);
   const disabled = instances.filter((x) => x.nacos?.enabled === false).length;
-  if (disabled) notes.push(`${disabled} 个实例 enabled=false（已下线，不接收流量，但仍在注册表中）`);
+  if (disabled) notes.push(`${disabled} 个实例 enabled=false（已下线，不接收流量，但仍在注册表中）；summary.healthy 不计入它们（见 summary.disabled），实例的 healthy 字段仍是服务端记录的健康状态`);
+  if (excluded.disabled) notes.push(`--healthy-only 排除了 ${excluded.disabled} 个 enabled=false（已下线）的实例`);
   if (instances.some((x) => x.nacos?.ephemeral === false)) notes.push('持久实例（ephemeral=false）的健康由服务端主动探测（TCP/HTTP），不会自动删除');
   if (excluded.env_missing) notes.push(`${excluded.env_missing} 个实例 metadata 没有 env，按 --env 过滤时已排除`);
   notes.push('healthy 是 Nacos 服务端记录的健康状态（临时实例：心跳/连接；持久实例：服务端探测），不是 workctl 的探测');
   if (client.authNote) notes.push(client.authNote);
-  const healthyN = instances.filter((x) => x.healthy === true).length;
+  const healthyN = instances.filter((x) => x.healthy === true && x.nacos?.enabled !== false).length;
   const unhealthyN = instances.filter((x) => x.healthy === false).length;
+  const disabledHealthy = instances.filter((x) => x.healthy === true && x.nacos?.enabled === false).length;
   return {
     status: truncated ? 'partial' : 'success',
     data: {
@@ -659,7 +678,7 @@ export async function nacosDiscoveryList(ctx: Ctx, i: Record<string, any>, p: Pr
       prefix: `${namespace || 'public'}/${group}@@${service}`,
       observed_revision: null,
       instances,
-      summary: { registered, returned: instances.length, healthy: healthyN, unhealthy: unhealthyN, health_unknown: instances.length - healthyN - unhealthyN, without_lease: 0, excluded, service_registered: exists },
+      summary: { registered, returned: instances.length, healthy: healthyN, unhealthy: unhealthyN, health_unknown: instances.length - healthyN - unhealthyN - disabledHealthy, disabled, without_lease: 0, excluded, service_registered: exists },
     },
     sources,
     coverage: { complete: !truncated, truncated, scope: `Nacos ${client.id} 服务 ${namespace || 'public'}/${group}@@${service}`, notes },

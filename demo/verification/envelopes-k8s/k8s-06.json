@@ -4,7 +4,7 @@
   "capability": "container.capacity.summary",
   "data": {
     "kind": "snapshot",
-    "observed_at": "2026-10-17T17:02:05.794Z",
+    "observed_at": "2026-10-18T04:37:13.397Z",
     "env": "sandbox",
     "host": {
       "name": "kubernetes https://127.0.0.1:16443/",
@@ -30,7 +30,7 @@
       "memory_limit_sum_bytes": 268435456,
       "memory_unlimited": 0,
       "cpu_used_cores": 0.0002,
-      "memory_working_set_bytes": 9166848,
+      "memory_working_set_bytes": 11173888,
       "cpu_limit_to_host_ratio": 0.25,
       "memory_limit_to_host_ratio": 0.016,
       "cpu_request_sum": 0.2,
@@ -38,35 +38,8 @@
     },
     "containers": [
       {
-        "name": "demo-order-7bf586db7c-cmgfx/nginx",
-        "id": "da3b421cb598",
-        "owner_label": "workctl.service=demo-order",
-        "state": "running",
-        "limits": {
-          "cpus": 0.5,
-          "memory_bytes": 134217728
-        },
-        "usage": {
-          "cpu_cores": 0.0001,
-          "cpu_percent_of_limit": 0.01,
-          "memory_working_set_bytes": 4706304,
-          "memory_percent_of_limit": 3.51,
-          "pids": null
-        },
-        "oom_killed": false,
-        "restart_count": 0,
-        "flags": [],
-        "namespace": "workctl-demo",
-        "node": "vm",
-        "owner": "ReplicaSet/demo-order-7bf586db7c",
-        "requests": {
-          "cpus": 0.1,
-          "memory_bytes": 33554432
-        }
-      },
-      {
-        "name": "demo-order-7bf586db7c-kb294/nginx",
-        "id": "63396fc1ef26",
+        "name": "demo-order-d6579cc56-mczft/nginx",
+        "id": "f36ad60e4d3f",
         "owner_label": "workctl.service=demo-order",
         "state": "running",
         "limits": {
@@ -76,16 +49,47 @@
         "usage": {
           "cpu_cores": 0.0001,
           "cpu_percent_of_limit": 0.02,
-          "memory_working_set_bytes": 4460544,
-          "memory_percent_of_limit": 3.32,
+          "memory_working_set_bytes": 5636096,
+          "memory_percent_of_limit": 4.2,
           "pids": null
         },
         "oom_killed": false,
-        "restart_count": 0,
-        "flags": [],
+        "restart_count": 1,
+        "flags": [
+          "auto_restarted"
+        ],
         "namespace": "workctl-demo",
         "node": "vm",
-        "owner": "ReplicaSet/demo-order-7bf586db7c",
+        "owner": "ReplicaSet/demo-order-d6579cc56",
+        "requests": {
+          "cpus": 0.1,
+          "memory_bytes": 33554432
+        }
+      },
+      {
+        "name": "demo-order-d6579cc56-vkv9v/nginx",
+        "id": "6f2e4c38e1c8",
+        "owner_label": "workctl.service=demo-order",
+        "state": "running",
+        "limits": {
+          "cpus": 0.5,
+          "memory_bytes": 134217728
+        },
+        "usage": {
+          "cpu_cores": 0.0001,
+          "cpu_percent_of_limit": 0.02,
+          "memory_working_set_bytes": 5537792,
+          "memory_percent_of_limit": 4.13,
+          "pids": null
+        },
+        "oom_killed": false,
+        "restart_count": 1,
+        "flags": [
+          "auto_restarted"
+        ],
+        "namespace": "workctl-demo",
+        "node": "vm",
+        "owner": "ReplicaSet/demo-order-d6579cc56",
         "requests": {
           "cpus": 0.1,
           "memory_bytes": 33554432
@@ -99,7 +103,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T17:02:05.766Z",
+        "observed_at": "2026-10-18T04:37:13.370Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /version",
         "relation": "explicit",
@@ -108,7 +112,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T17:02:05.776Z",
+        "observed_at": "2026-10-18T04:37:13.383Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/namespaces/workctl-demo/pods",
         "relation": "explicit",
@@ -117,7 +121,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T17:02:05.784Z",
+        "observed_at": "2026-10-18T04:37:13.390Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/metrics.k8s.io/v1beta1/namespaces/workctl-demo/pods",
         "relation": "sampled",
@@ -126,7 +130,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T17:02:05.793Z",
+        "observed_at": "2026-10-18T04:37:13.396Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/nodes",
         "relation": "explicit",
@@ -144,7 +148,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn9dvy-163dbf",
+    "request_id": "req-mvdc3bov-3d3c9b",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -152,7 +156,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T17:02:05.710Z",
-    "duration_ms": 84
+    "started_at": "2026-10-18T04:37:13.327Z",
+    "duration_ms": 70
   }
 }

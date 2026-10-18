@@ -5,7 +5,7 @@ import { join, resolve, sep } from 'node:path';
 import { z } from 'zod';
 import { resolveSecretRef } from './config';
 import { WorkError, type Result } from './output';
-import type { CapabilityDef, DomainDef, Registry } from './registry';
+import { RESERVED_DOMAIN_NAMES, type CapabilityDef, type DomainDef, type Registry } from './registry';
 import type { Ctx } from './runtime';
 
 export const PLUGIN_API = 'workctl-plugin/1';
@@ -120,6 +120,7 @@ export function validatePlugin(dir: string, registry: Registry, replacing?: stri
   if (!existsSync(join(dir, manifest.entry))) problems.push(`入口文件不存在: ${manifest.entry}`);
   if (!existsSync(join(dir, manifest.domain.guide))) problems.push(`领域指南不存在: ${manifest.domain.guide}`);
   const ownedBySelf = (origin?: string) => !!replacing && !!origin?.startsWith(`plugin:${replacing}@`);
+  if (RESERVED_DOMAIN_NAMES.has(manifest.domain.name)) problems.push(`领域名 ${manifest.domain.name} 为内置保留名称`);
   const existingDomain = registry.domains.get(manifest.domain.name);
   if (existingDomain && existingDomain.capabilities.some((c) => c.status !== 'planned' && !ownedBySelf(c.origin))) {
     problems.push(`领域 ${manifest.domain.name} 已由其他来源提供`);

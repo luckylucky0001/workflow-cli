@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "search.query",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "DSL max_determinized_states=1000000 超过上限 10000（位置 query.regexp.status.max_determinized_states）",
+    "hint": "受限 DSL 只允许顶层字段 query, size, sort, _source, aggs；禁止脚本与跨索引读取",
+    "retryable": false,
+    "details": {
+      "path": "query.regexp.status.max_determinized_states",
+      "value": 1000000,
+      "limit": 10000
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvdc2wq3-79a7d2",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-18T04:36:53.931Z",
+    "duration_ms": 106
+  }
+}

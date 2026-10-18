@@ -1,82 +1,82 @@
 # 隔离演示环境验证记录
 
-> 由 `node scripts/verify-demo.mjs demo/verification/cases.json` 生成于 2026-10-17T17:32:20.220Z；原始结果信封见 `demo/verification/envelopes/`。全部为合成数据。
+> 由 `node scripts/verify-demo.mjs demo/verification/cases.json` 生成于 2026-10-18T04:35:52.684Z；原始结果信封见 `demo/verification/envelopes/`。全部为合成数据。
 
 通过 74 / 74
 
 | # | 命令 | 期望 | 实际 | 退出码 | 耗时 ms | 来源@版本 | 说明 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| ✅ core-01 | `workctl doctor` | success | success | 0 | 388 | workctl | 自身环境诊断 |
-| ✅ core-02 | `workctl capability list --status planned` | success | success | 0 | 339 | workctl | 待接入能力只在目录中 |
-| ✅ core-03 | `workctl capability get --name mysql.statement.summary` | success | success | 0 | 373 | workctl |  |
-| ✅ core-04 | `workctl resource list --service demo-order --env sandbox` | success | success | 0 | 384 | resource-bindings |  |
-| ✅ core-05 | `workctl service dependency list --service demo-order --env sandbox` | success | success | 0 | 354 | resource-bindings |  |
-| ✅ core-06 | `workctl auth status --probe` | success | success | 0 | 849 | workctl | 各端点身份与版本，不输出凭据 |
-| ✅ core-07 | `workctl access check --capability mysql.query.execute --target demo-mysql` | success | success | 0 | 313 | workctl |  |
-| ✅ core-08 | `workctl search query` | INVALID_ARGUMENT | INVALID_ARGUMENT | 2 | 407 |  | 待接入能力不生成命令（unknown command） |
-| ✅ infra-01 | `workctl container workload get --service demo-order --env sandbox` | success | success | 0 | 471 | docker@29.8.2 (API 1.56), workctl |  |
-| ✅ infra-02 | `workctl container event list --service demo-order --env sandbox --window 6h` | success | success | 0 | 449 | docker@29.8.2 (API 1.56) |  |
-| ✅ infra-03 | `workctl container stats get --service demo-order --env sandbox` | success | success | 0 | 1423 | docker@29.8.2 (API 1.56) | 快照，非窗口 |
-| ✅ infra-04 | `workctl capacity summary --env sandbox` | success | success | 0 | 2049 | docker@29.8.2 (API 1.56) |  |
-| ✅ infra-05 | `workctl network dns get --name localhost` | success | success | 0 | 422 | dns |  |
-| ✅ infra-06 | `workctl network backend list --service demo-order --env sandbox` | success | success | 0 | 468 | workctl, docker@29.8.2 (API 1.56), http-probe |  |
-| ✅ infra-07 | `workctl network connectivity check --target 127.0.0.1:13306` | success | success | 0 | 777 | tcp |  |
-| ✅ infra-08 | `workctl storage volume get --id workctl-demo_mysql-data` | success | success | 0 | 509 | docker@29.8.2 (API 1.56) |  |
-| ✅ infra-09 | `workctl storage file stat --path demo/environment/workctl.yaml` | success | success | 0 | 354 | local-filesystem |  |
-| ✅ infra-10 | `workctl metric list --resource demo-order` | success | success | 0 | 337 | workctl |  |
-| ✅ infra-11 | `workctl metric query --resource demo-order --metric request_rate --window 15m` | success/partial/DATA_UNAVAILABLE | success | 0 | 425 | prometheus@3.5.0, workctl |  |
-| ✅ infra-12 | `workctl log query --service demo-order --env sandbox --window 6h --contains request completed --limit 50` | success | success | 0 | 432 | docker@29.8.2 (API 1.56) |  |
-| ✅ infra-13 | `workctl trace get --id 185b5e6f23a5757af69251562556ffdd --window 6h` | success/partial | success | 0 | 483 | docker@29.8.2 (API 1.56) |  |
-| ✅ infra-14 | `workctl container workload restart-plan --service demo-order --env sandbox` | success | success | 0 | 414 | docker@29.8.2 (API 1.56), workctl | 只生成计划 |
-| ✅ mysql-01 | `workctl mysql instance get --instance demo-mysql` | success | success | 0 | 384 | mysql@8.4.11, workctl |  |
-| ✅ mysql-02 | `workctl mysql table get --instance demo-mysql --database demo --table orders` | success | success | 0 | 382 | mysql@8.4.11 |  |
-| ✅ mysql-03 | `workctl mysql index list --instance demo-mysql --database demo --table orders` | success | success | 0 | 401 | mysql@8.4.11 |  |
-| ✅ mysql-04 | `workctl mysql session list --instance demo-mysql` | success | success | 0 | 365 | mysql@8.4.11 |  |
-| ✅ mysql-05 | `workctl mysql lock list --instance demo-mysql` | success | success | 0 | 425 | mysql@8.4.11 |  |
-| ✅ mysql-06 | `workctl --timeout 40s mysql statement summary --instance demo-mysql --sample-window 10s` | success | success | 0 | 10437 | mysql@8.4.11 |  |
-| ✅ mysql-07 | `workctl mysql slowlog list --instance demo-mysql --since 24h` | success | success | 0 | 358 | mysql@8.4.11 |  |
-| ✅ mysql-08 | `workctl mysql query explain --instance demo-mysql --database demo --sql-file demo/scenarios/latency/customer_recent.sql` | success | success | 0 | 361 | mysql@8.4.11 |  |
-| ✅ mysql-09 | `workctl mysql query execute --instance demo-mysql --database demo --sql-file demo/scenarios/latency/customer_recent.sql --max-rows 5` | success | success | 0 | 427 | mysql@8.4.11 |  |
-| ✅ mysql-10 | `workctl mysql index plan --instance demo-mysql --database demo --table orders --columns customer_id,created_at` | success | success | 0 | 493 | mysql@8.4.11, workctl |  |
-| ✅ redis-01 | `workctl redis instance get --instance demo-redis` | success | success | 0 | 384 | redis@7.4.11, workctl |  |
-| ✅ redis-02 | `workctl redis info get --instance demo-redis --section memory` | success | success | 0 | 359 | redis@7.4.11 |  |
-| ✅ redis-03 | `workctl --timeout 30s redis stats sample --instance demo-redis --duration 5s` | success | success | 0 | 5388 | redis@7.4.11 |  |
-| ✅ redis-04 | `workctl redis slowlog list --instance demo-redis --limit 5` | success | success | 0 | 406 | redis@7.4.11 |  |
-| ✅ redis-05 | `workctl redis key sample --instance demo-redis --pattern demo:* --max-keys 50` | success | success | 0 | 434 | redis@7.4.11 |  |
-| ✅ redis-06 | `workctl redis key inspect --instance demo-redis --key demo:order:2160` | success | success | 0 | 376 | redis@7.4.11 |  |
-| ✅ redis-07 | `workctl redis key hot --instance demo-redis --pattern demo:*` | success | success | 0 | 382 | redis@7.4.11 |  |
-| ✅ redis-08 | `workctl redis config get --instance demo-redis --pattern maxmemory*` | success | success | 0 | 433 | redis@7.4.11 |  |
-| ✅ mq-01 | `workctl mq consumer lag --cluster demo-mq --group demo-consumer` | success | success | 0 | 630 | kafka@inter.broker.protocol.version=3.9-IV0 | 插件能力（demo-mq） |
-| ✅ mq-02 | `workctl mq topic get --cluster demo-mq --topic demo.order.events` | success | success | 0 | 597 | kafka@inter.broker.protocol.version=3.9-IV0 |  |
-| ✅ mq-03 | `workctl mq consumer lag --cluster demo-mq --group no-such-group` | NOT_FOUND | NOT_FOUND | 5 | 662 |  |  |
-| ✅ offline-01 | `workctl offline workflow get --id demo-daily-orders` | success | success | 0 | 921 | airflow@2.10.5, catalog |  |
-| ✅ offline-02 | `workctl offline task get --workflow demo-daily-orders --task aggregate_orders` | success | success | 0 | 558 | airflow@2.10.5 |  |
-| ✅ offline-03 | `workctl offline run list --workflow demo-daily-orders --data-date 2026-10-16 --timezone Asia/Shanghai` | success | success | 0 | 761 | airflow@2.10.5 |  |
-| ✅ offline-04 | `workctl --timeout 60s offline run get --id demo__2026-10-16__wrong_partition --workflow demo-daily-orders` | success | success | 0 | 1094 | airflow@2.10.5, spark@3.5.5, catalog, local-filesystem, workctl-state | 调度成功 / 计算成功 / 分区缺失 |
-| ✅ offline-05 | `workctl --timeout 60s offline run get --id demo__2026-10-15__ok --workflow demo-daily-orders` | success | success | 0 | 1010 | airflow@2.10.5, spark@3.5.5, catalog, local-filesystem, workctl-state |  |
-| ✅ offline-06 | `workctl --timeout 60s offline dependency list --run-id demo__2026-10-14__missing_upstream --workflow demo-daily-orders --direction upstream` | success | success | 0 | 979 | airflow@2.10.5, catalog, local-filesystem, binding-file | 上游分区缺失 |
-| ✅ offline-07 | `workctl offline log get --run-id demo__2026-10-16__wrong_partition --workflow demo-daily-orders --task aggregate_orders --limit-lines 50` | success | success | 0 | 641 | airflow@2.10.5 |  |
-| ✅ offline-08 | `workctl offline freshness check --dataset analytics.daily_orders --data-date 2026-10-16 --timezone Asia/Shanghai` | success | success | 0 | 589 | catalog, local-filesystem, airflow@2.10.5 |  |
-| ✅ offline-09 | `workctl --timeout 60s offline backfill plan --workflow demo-daily-orders --from 2026-10-14 --to 2026-10-16 --timezone Asia/Shanghai` | success | success | 0 | 1382 | airflow@2.10.5, catalog, local-filesystem | 只生成计划 |
-| ✅ offline-10 | `workctl offline backfill get --id op-20261017-3347e6` | success | success | 0 | 460 | workctl |  |
-| ✅ compute-01 | `workctl compute job get --id local-1792256118157` | success | success | 0 | 390 | spark@3.5.5, spark |  |
-| ✅ compute-02 | `workctl compute stage list --job-id local-1792256118157` | success | success | 0 | 356 | spark@3.5.5 |  |
-| ✅ compute-03 | `workctl compute log get --job-id local-1792256118157 --limit-lines 30` | success | success | 0 | 360 | filesystem |  |
-| ✅ compute-04 | `workctl compute queue get --id demo-batch-pool` | success | success | 0 | 451 | airflow@2.10.5 |  |
-| ✅ sql-01 | `workctl sql query submit --engine spark --file demo/offline-workflows/sql/examples/daily_orders_by_date.sql` | success | success | 0 | 370 | spark |  |
-| ✅ sql-02 | `workctl sql query get --id q-20261017-d80689` | success | success | 0 | 356 | workctl-state | 异步：状态以 data.state 为准 |
-| ✅ sql-03 | `workctl sql query submit --engine hive --file demo/offline-workflows/sql/examples/daily_orders_by_date.sql` | UNSUPPORTED | UNSUPPORTED | 8 | 504 |  | Hive 引擎待接入（Trino 已接入，见 cases.trino.json） |
-| ✅ data-01 | `workctl data table get --catalog demo --table analytics.daily_orders` | success | success | 0 | 493 | file-catalog, local-filesystem, binding-file |  |
-| ✅ data-02 | `workctl data partition list --catalog demo --table analytics.daily_orders` | success | success | 0 | 416 | file-catalog, local-filesystem |  |
-| ✅ data-03 | `workctl data partition get --catalog demo --table analytics.daily_orders --partition dt=2026-10-16` | success | success | 0 | 543 | file-catalog, local-filesystem | state=missing 是结果，不是错误 |
-| ✅ data-04 | `workctl data lineage get --catalog demo --table analytics.daily_orders --direction upstream` | success | success | 0 | 513 | file-catalog, sql-file |  |
-| ✅ data-05 | `workctl data lineage get --catalog demo --table analytics.daily_orders --direction downstream` | success | success | 0 | 477 | file-catalog, sql-file |  |
-| ✅ data-06 | `workctl data quality check --dataset demo.daily_orders --partition dt=2026-10-17 --ruleset demo-daily-rules` | success | success | 0 | 447 | file-catalog, quality-ruleset, local-filesystem | 捕获错误分区：order_date 与 dt 不一致 |
-| ✅ data-07 | `workctl data quality check --dataset demo.ods.orders --partition dt=2026-10-16 --ruleset demo-ods-rules` | success | success | 0 | 1382 | file-catalog, quality-ruleset, local-filesystem |  |
-| ✅ op-01 | `workctl operation plan --action container.restart --param service=demo-order --param env=sandbox` | success | success | 0 | 515 | workctl |  |
-| ✅ op-02 | `workctl operation get --id op-20261017-ed4610` | success | success | 0 | 418 | workctl |  |
-| ✅ op-03 | `workctl operation execute --id op-20261017-ed4610 --confirm wrong` | PRECONDITION_FAILED | PRECONDITION_FAILED | 9 | 381 |  | 确认不一致拒绝执行 |
-| ✅ op-04 | `workctl operation list` | success | success | 0 | 481 | workctl |  |
-| ✅ op-05 | `workctl --timeout 90s operation execute --id op-20261017-ed4610 --confirm op-20261017-ed4610` | success | success | 0 | 4007 | workctl | 隔离环境中真实执行重启（allow_execute=true） |
-| ✅ op-06 | `workctl operation get --id op-20261017-ed4610` | success | success | 0 | 443 | workctl | 状态与历史：planned → running → succeeded |
-| ✅ op-07 | `workctl operation execute --id op-20261017-ed4610 --confirm op-20261017-ed4610` | CONFLICT | CONFLICT | 9 | 511 |  | 已执行的计划不能再次执行 |
+| ✅ core-01 | `workctl doctor` | success | success | 0 | 385 | workctl | 自身环境诊断 |
+| ✅ core-02 | `workctl capability list --status planned` | success | success | 0 | 365 | workctl | 待接入能力只在目录中 |
+| ✅ core-03 | `workctl capability get --name mysql.statement.summary` | success | success | 0 | 323 | workctl |  |
+| ✅ core-04 | `workctl resource list --service demo-order --env sandbox` | success | success | 0 | 398 | resource-bindings |  |
+| ✅ core-05 | `workctl service dependency list --service demo-order --env sandbox` | success | success | 0 | 417 | resource-bindings |  |
+| ✅ core-06 | `workctl auth status --probe` | success | success | 0 | 729 | workctl | 各端点身份与版本，不输出凭据 |
+| ✅ core-07 | `workctl access check --capability mysql.query.execute --target demo-mysql` | success | success | 0 | 365 | workctl |  |
+| ✅ core-08 | `workctl search query` | INVALID_ARGUMENT | INVALID_ARGUMENT | 2 | 375 |  | 待接入能力不生成命令（unknown command） |
+| ✅ infra-01 | `workctl container workload get --service demo-order --env sandbox` | success | success | 0 | 405 | docker@29.8.2 (API 1.56), workctl |  |
+| ✅ infra-02 | `workctl container event list --service demo-order --env sandbox --window 6h` | success | success | 0 | 387 | docker@29.8.2 (API 1.56) |  |
+| ✅ infra-03 | `workctl container stats get --service demo-order --env sandbox` | success | success | 0 | 1397 | docker@29.8.2 (API 1.56) | 快照，非窗口 |
+| ✅ infra-04 | `workctl capacity summary --env sandbox` | success | success | 0 | 2043 | docker@29.8.2 (API 1.56) |  |
+| ✅ infra-05 | `workctl network dns get --name localhost` | success | success | 0 | 374 | dns |  |
+| ✅ infra-06 | `workctl network backend list --service demo-order --env sandbox` | success | success | 0 | 394 | workctl, docker@29.8.2 (API 1.56), http-probe |  |
+| ✅ infra-07 | `workctl network connectivity check --target 127.0.0.1:13306` | success | success | 0 | 740 | tcp |  |
+| ✅ infra-08 | `workctl storage volume get --id workctl-demo_mysql-data` | success | success | 0 | 462 | docker@29.8.2 (API 1.56) |  |
+| ✅ infra-09 | `workctl storage file stat --path demo/environment/workctl.yaml` | success | success | 0 | 340 | local-filesystem |  |
+| ✅ infra-10 | `workctl metric list --resource demo-order` | success | success | 0 | 362 | workctl |  |
+| ✅ infra-11 | `workctl metric query --resource demo-order --metric request_rate --window 15m` | success/partial/DATA_UNAVAILABLE | success | 0 | 354 | prometheus@3.5.0, workctl |  |
+| ✅ infra-12 | `workctl log query --service demo-order --env sandbox --window 6h --contains request completed --limit 50` | success | success | 0 | 406 | docker@29.8.2 (API 1.56) |  |
+| ✅ infra-13 | `workctl trace get --id 6d50200f9b0f294fe6e895b402b03e4c --window 6h` | success/partial | success | 0 | 360 | docker@29.8.2 (API 1.56) |  |
+| ✅ infra-14 | `workctl container workload restart-plan --service demo-order --env sandbox` | success | success | 0 | 372 | docker@29.8.2 (API 1.56), workctl | 只生成计划 |
+| ✅ mysql-01 | `workctl mysql instance get --instance demo-mysql` | success | success | 0 | 415 | mysql@8.4.11, workctl |  |
+| ✅ mysql-02 | `workctl mysql table get --instance demo-mysql --database demo --table orders` | success | success | 0 | 376 | mysql@8.4.11 |  |
+| ✅ mysql-03 | `workctl mysql index list --instance demo-mysql --database demo --table orders` | success | success | 0 | 374 | mysql@8.4.11 |  |
+| ✅ mysql-04 | `workctl mysql session list --instance demo-mysql` | success | success | 0 | 393 | mysql@8.4.11 |  |
+| ✅ mysql-05 | `workctl mysql lock list --instance demo-mysql` | success | success | 0 | 387 | mysql@8.4.11 |  |
+| ✅ mysql-06 | `workctl --timeout 40s mysql statement summary --instance demo-mysql --sample-window 10s` | success | success | 0 | 10368 | mysql@8.4.11 |  |
+| ✅ mysql-07 | `workctl mysql slowlog list --instance demo-mysql --since 24h` | success | success | 0 | 373 | mysql@8.4.11 |  |
+| ✅ mysql-08 | `workctl mysql query explain --instance demo-mysql --database demo --sql-file demo/scenarios/latency/customer_recent.sql` | success | success | 0 | 400 | mysql@8.4.11 |  |
+| ✅ mysql-09 | `workctl mysql query execute --instance demo-mysql --database demo --sql-file demo/scenarios/latency/customer_recent.sql --max-rows 5` | success | success | 0 | 411 | mysql@8.4.11 |  |
+| ✅ mysql-10 | `workctl mysql index plan --instance demo-mysql --database demo --table orders --columns customer_id,created_at` | success | success | 0 | 346 | mysql@8.4.11, workctl |  |
+| ✅ redis-01 | `workctl redis instance get --instance demo-redis` | success | success | 0 | 341 | redis@7.4.11, workctl |  |
+| ✅ redis-02 | `workctl redis info get --instance demo-redis --section memory` | success | success | 0 | 336 | redis@7.4.11 |  |
+| ✅ redis-03 | `workctl --timeout 30s redis stats sample --instance demo-redis --duration 5s` | success | success | 0 | 5338 | redis@7.4.11 |  |
+| ✅ redis-04 | `workctl redis slowlog list --instance demo-redis --limit 5` | success | success | 0 | 416 | redis@7.4.11 |  |
+| ✅ redis-05 | `workctl redis key sample --instance demo-redis --pattern demo:* --max-keys 50` | success | success | 0 | 404 | redis@7.4.11 |  |
+| ✅ redis-06 | `workctl redis key inspect --instance demo-redis --key demo:customer:8:recent` | success | success | 0 | 362 | redis@7.4.11 |  |
+| ✅ redis-07 | `workctl redis key hot --instance demo-redis --pattern demo:*` | success | success | 0 | 389 | redis@7.4.11 |  |
+| ✅ redis-08 | `workctl redis config get --instance demo-redis --pattern maxmemory*` | success | success | 0 | 381 | redis@7.4.11 |  |
+| ✅ mq-01 | `workctl mq consumer lag --cluster demo-mq --group demo-consumer` | success | success | 0 | 509 | kafka@inter.broker.protocol.version=3.9-IV0 | 插件能力（demo-mq） |
+| ✅ mq-02 | `workctl mq topic get --cluster demo-mq --topic demo.order.events` | success | success | 0 | 471 | kafka@inter.broker.protocol.version=3.9-IV0 |  |
+| ✅ mq-03 | `workctl mq consumer lag --cluster demo-mq --group no-such-group` | NOT_FOUND | NOT_FOUND | 5 | 582 |  |  |
+| ✅ offline-01 | `workctl offline workflow get --id demo-daily-orders` | success | success | 0 | 756 | airflow@2.10.5, catalog |  |
+| ✅ offline-02 | `workctl offline task get --workflow demo-daily-orders --task aggregate_orders` | success | success | 0 | 553 | airflow@2.10.5 |  |
+| ✅ offline-03 | `workctl offline run list --workflow demo-daily-orders --data-date 2026-10-16 --timezone Asia/Shanghai` | success | success | 0 | 711 | airflow@2.10.5 |  |
+| ✅ offline-04 | `workctl --timeout 60s offline run get --id demo__2026-10-16__wrong_partition --workflow demo-daily-orders` | success | success | 0 | 1203 | airflow@2.10.5, spark@3.5.5, catalog, local-filesystem, workctl-state | 调度成功 / 计算成功 / 分区缺失 |
+| ✅ offline-05 | `workctl --timeout 60s offline run get --id demo__2026-10-15__ok --workflow demo-daily-orders` | success | success | 0 | 1187 | airflow@2.10.5, spark@3.5.5, catalog, local-filesystem, workctl-state |  |
+| ✅ offline-06 | `workctl --timeout 60s offline dependency list --run-id demo__2026-10-14__missing_upstream --workflow demo-daily-orders --direction upstream` | success | success | 0 | 993 | airflow@2.10.5, catalog, local-filesystem, binding-file | 上游分区缺失 |
+| ✅ offline-07 | `workctl offline log get --run-id demo__2026-10-16__wrong_partition --workflow demo-daily-orders --task aggregate_orders --limit-lines 50` | success | success | 0 | 623 | airflow@2.10.5 |  |
+| ✅ offline-08 | `workctl offline freshness check --dataset analytics.daily_orders --data-date 2026-10-16 --timezone Asia/Shanghai` | success | success | 0 | 450 | catalog, local-filesystem, airflow@2.10.5 |  |
+| ✅ offline-09 | `workctl --timeout 60s offline backfill plan --workflow demo-daily-orders --from 2026-10-14 --to 2026-10-16 --timezone Asia/Shanghai` | success | success | 0 | 1268 | airflow@2.10.5, catalog, local-filesystem | 只生成计划 |
+| ✅ offline-10 | `workctl offline backfill get --id op-20261018-02ee81` | success | success | 0 | 333 | workctl |  |
+| ✅ compute-01 | `workctl compute job get --id local-1792297157514` | success | success | 0 | 349 | spark@3.5.5, spark |  |
+| ✅ compute-02 | `workctl compute stage list --job-id local-1792297157514` | success | success | 0 | 368 | spark@3.5.5 |  |
+| ✅ compute-03 | `workctl compute log get --job-id local-1792297157514 --limit-lines 30` | success | success | 0 | 318 | filesystem |  |
+| ✅ compute-04 | `workctl compute queue get --id demo-batch-pool` | success | success | 0 | 414 | airflow@2.10.5 |  |
+| ✅ sql-01 | `workctl sql query submit --engine spark --file demo/offline-workflows/sql/examples/daily_orders_by_date.sql` | success | success | 0 | 350 | spark |  |
+| ✅ sql-02 | `workctl sql query get --id q-20261018-207fc7` | success | success | 0 | 348 | workctl-state | 异步：状态以 data.state 为准 |
+| ✅ sql-03 | `workctl sql query submit --engine hive --file demo/offline-workflows/sql/examples/daily_orders_by_date.sql` | UNSUPPORTED | UNSUPPORTED | 8 | 397 |  | Hive 引擎待接入（Trino 已接入，见 cases.trino.json） |
+| ✅ data-01 | `workctl data table get --catalog demo --table analytics.daily_orders` | success | success | 0 | 393 | file-catalog, local-filesystem, binding-file |  |
+| ✅ data-02 | `workctl data partition list --catalog demo --table analytics.daily_orders` | success | success | 0 | 394 | file-catalog, local-filesystem |  |
+| ✅ data-03 | `workctl data partition get --catalog demo --table analytics.daily_orders --partition dt=2026-10-16` | success | success | 0 | 356 | file-catalog, local-filesystem | state=missing 是结果，不是错误 |
+| ✅ data-04 | `workctl data lineage get --catalog demo --table analytics.daily_orders --direction upstream` | success | success | 0 | 428 | file-catalog, sql-file |  |
+| ✅ data-05 | `workctl data lineage get --catalog demo --table analytics.daily_orders --direction downstream` | success | success | 0 | 400 | file-catalog, sql-file |  |
+| ✅ data-06 | `workctl data quality check --dataset demo.daily_orders --partition dt=2026-10-17 --ruleset demo-daily-rules` | success | success | 0 | 421 | file-catalog, quality-ruleset, local-filesystem | 捕获错误分区：order_date 与 dt 不一致 |
+| ✅ data-07 | `workctl data quality check --dataset demo.ods.orders --partition dt=2026-10-16 --ruleset demo-ods-rules` | success | success | 0 | 1414 | file-catalog, quality-ruleset, local-filesystem |  |
+| ✅ op-01 | `workctl operation plan --action container.restart --param service=demo-order --param env=sandbox` | success | success | 0 | 415 | workctl |  |
+| ✅ op-02 | `workctl operation get --id op-20261018-21e3ae` | success | success | 0 | 437 | workctl |  |
+| ✅ op-03 | `workctl operation execute --id op-20261018-21e3ae --confirm wrong` | PRECONDITION_FAILED | PRECONDITION_FAILED | 9 | 402 |  | 确认不一致拒绝执行 |
+| ✅ op-04 | `workctl operation list` | success | success | 0 | 383 | workctl |  |
+| ✅ op-05 | `workctl --timeout 90s operation execute --id op-20261018-21e3ae --confirm op-20261018-21e3ae` | success | success | 0 | 3829 | workctl | 隔离环境中真实执行重启（allow_execute=true） |
+| ✅ op-06 | `workctl operation get --id op-20261018-21e3ae` | success | success | 0 | 389 | workctl | 状态与历史：planned → running → succeeded |
+| ✅ op-07 | `workctl operation execute --id op-20261018-21e3ae --confirm op-20261018-21e3ae` | CONFLICT | CONFLICT | 9 | 382 |  | 已执行的计划不能再次执行 |

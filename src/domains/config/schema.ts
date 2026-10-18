@@ -12,7 +12,7 @@ export const RevisionSpace = z
   .enum(['etcd-cluster-revision', 'consul-raft-index', 'nacos-history-id'])
   .describe('修订号的含义：etcd 集群全局修订；Consul raft 索引（CreateIndex/ModifyIndex/X-Consul-Index）；Nacos 配置历史记录 ID（nid）');
 
-export const MASK_NOTE = `键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断，不看值）的值以 "${MASK}" 替代，masked=true，masked_paths 标出位置；有任何遮蔽时 value_bytes=null（不暴露长度）`;
+export const MASK_NOTE = `键名或 JSON 字段名匹配敏感模式（password/passwd/pwd/secret/token/key/dsn/credential 等，按名称判断）的值以 "${MASK}" 替代；其他字符串值中内嵌的凭据（URL userinfo 密码如 mysql://u:${MASK}@h、token=/password=/secret= 参数、Authorization 头）就地替换，其余文本保留，masked=true，masked_paths 标出位置；有任何遮蔽时 value_bytes=null（不暴露长度）`;
 
 export const ValueFields = {
   value: z.unknown().describe('JSON 可解析时为解析后的值，否则为文本；超出 ±2^53 的整数不做有损转换（单值为文本，JSON 内为数字字符串）；binary_base64 时为 base64；被遮蔽时为 "***"'),
@@ -182,11 +182,12 @@ export const DiscoveryOutput = z.object({
   summary: z.object({
     registered: z.number().describe('注册总数（过滤前）'),
     returned: z.number(),
-    healthy: z.number(),
+    healthy: z.number().describe('健康实例数；Nacos 不计 enabled=false（已下线）的实例（见 disabled）'),
     unhealthy: z.number(),
     health_unknown: z.number(),
     without_lease: z.number().describe('etcd：没有租约的注册数；Consul / Nacos 为 0（不适用）'),
-    excluded: z.object({ env_mismatch: z.number(), env_missing: z.number(), not_healthy: z.number() }),
+    disabled: z.number().optional().describe('Nacos：enabled=false（已下线、不接收流量）的实例数；它们不计入 healthy，--healthy-only 时排除'),
+    excluded: z.object({ env_mismatch: z.number(), env_missing: z.number(), not_healthy: z.number(), disabled: z.number().optional().describe('Nacos：--healthy-only 排除的 enabled=false 实例') }),
     service_registered: z.boolean().nullable().optional().describe('Consul / Nacos：服务名是否在注册中心目录中（区分“未注册”与“0 个实例”）；无法判断为 null'),
   }),
 });

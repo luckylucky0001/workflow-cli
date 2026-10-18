@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "status": "error",
+  "capability": "search.query",
+  "data": null,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "聚合最多可能产生约 1001000 个桶，超过上限 10000（嵌套聚合的 size 相乘）",
+    "hint": "减小嵌套 terms 的 size 或减少嵌套层数",
+    "retryable": false,
+    "details": {
+      "bucket_bound": 1001000,
+      "limit": 10000
+    }
+  },
+  "meta": {
+    "sources": [],
+    "coverage": null,
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvdc2x1x-8ce1fb",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "opensearch-http",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-18T04:36:54.357Z",
+    "duration_ms": 100
+  }
+}

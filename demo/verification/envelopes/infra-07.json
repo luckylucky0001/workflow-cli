@@ -24,14 +24,14 @@
       {
         "seq": 2,
         "ok": true,
-        "connect_ms": 1.6,
+        "connect_ms": 0.8,
         "remote_address": "127.0.0.1",
         "error_code": null
       },
       {
         "seq": 3,
         "ok": true,
-        "connect_ms": 0.8,
+        "connect_ms": 0.7,
         "remote_address": "127.0.0.1",
         "error_code": null
       }
@@ -41,8 +41,8 @@
       "succeeded": 3,
       "failed": 0,
       "loss_pct": 0,
-      "min_ms": 0.8,
-      "avg_ms": 1.6,
+      "min_ms": 0.7,
+      "avg_ms": 1.3,
       "max_ms": 2.5
     },
     "reachable": true
@@ -53,7 +53,7 @@
       {
         "system": "tcp",
         "adapter": "node-net",
-        "observed_at": "2026-10-17T17:31:30.957Z",
+        "observed_at": "2026-10-18T04:35:05.975Z",
         "method": "connect 127.0.0.1:13306 ×3",
         "relation": "sampled"
       }
@@ -67,7 +67,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcob7mi-0957c2",
+    "request_id": "req-mvdc0l39-10f0ae",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -75,7 +75,7 @@
     "adapter": "node-net",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T17:31:30.522Z",
-    "duration_ms": 435
+    "started_at": "2026-10-18T04:35:05.541Z",
+    "duration_ms": 434
   }
 }

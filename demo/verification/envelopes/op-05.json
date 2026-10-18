@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.execute",
   "data": {
-    "id": "op-20261017-ed4610",
+    "id": "op-20261018-21e3ae",
     "kind": "container.restart",
     "title": "重启服务 demo-order（sandbox）的 1 个容器",
     "status": "succeeded",
-    "created_at": "2026-10-17T17:32:13.948Z",
-    "expires_at": "2026-10-17T18:02:13.948Z",
+    "created_at": "2026-10-18T04:35:46.842Z",
+    "expires_at": "2026-10-18T05:05:46.842Z",
     "profile": "demo",
     "env": "sandbox",
     "params": {
@@ -17,12 +17,12 @@
     },
     "targets": [
       {
-        "container_id": "aa439d5d1f2206d628929425f528bda5b2bb59599581db438752daa284288dff",
+        "container_id": "62a6f6a7d42e355acd27a290c80b4cb83156b014335c2d09d0472160f6795b96",
         "name": "demo-order",
         "image": "workctl-demo/demo-order:local",
         "state": "running",
         "health": "none",
-        "started_at": "2026-10-17T16:58:35.351481821Z",
+        "started_at": "2026-10-18T04:22:40.106129891Z",
         "restart_policy": "no",
         "selector": "workctl.service=demo-order",
         "selector_kind": "label",
@@ -87,7 +87,7 @@
     "steps": [
       {
         "name": "restart demo-order",
-        "detail": "POST /containers/aa439d5d1f22/restart?t=10"
+        "detail": "POST /containers/62a6f6a7d42e/restart?t=10"
       },
       {
         "name": "verify",
@@ -100,27 +100,27 @@
     "executable": true,
     "history": [
       {
-        "at": "2026-10-17T17:32:13.948Z",
+        "at": "2026-10-18T04:35:46.842Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       },
       {
-        "at": "2026-10-17T17:32:15.676Z",
+        "at": "2026-10-18T04:35:48.426Z",
         "status": "running",
-        "note": "由 req-mvcoc6ft-2a40ce 开始执行"
+        "note": "由 req-mvdc1i5y-527b69 开始执行"
       },
       {
-        "at": "2026-10-17T17:32:15.692Z",
+        "at": "2026-10-18T04:35:48.440Z",
         "status": "running",
-        "note": "restart demo-order (aa439d5d1f22)"
+        "note": "restart demo-order (62a6f6a7d42e)"
       },
       {
-        "at": "2026-10-17T17:32:19.234Z",
+        "at": "2026-10-18T04:35:51.880Z",
         "status": "running",
         "note": "demo-order: 已重新运行并稳定 3s（未配置健康检查，仅校验进程持续运行）"
       },
       {
-        "at": "2026-10-17T17:32:19.252Z",
+        "at": "2026-10-18T04:35:51.891Z",
         "status": "succeeded",
         "note": "执行器返回成功"
       }
@@ -129,19 +129,19 @@
       "service": "demo-order",
       "restarted": [
         {
-          "container_id": "aa439d5d1f2206d628929425f528bda5b2bb59599581db438752daa284288dff",
+          "container_id": "62a6f6a7d42e355acd27a290c80b4cb83156b014335c2d09d0472160f6795b96",
           "name": "demo-order",
           "before": {
             "state": "running",
-            "started_at": "2026-10-17T16:58:35.351481821Z"
+            "started_at": "2026-10-18T04:22:40.106129891Z"
           },
           "after": {
             "state": "running",
-            "started_at": "2026-10-17T17:32:15.940252489Z",
+            "started_at": "2026-10-18T04:35:48.670383388Z",
             "health": "none"
           },
           "verified": true,
-          "duration_ms": 3541,
+          "duration_ms": 3440,
           "detail": "已重新运行并稳定 3s（未配置健康检查，仅校验进程持续运行）"
         }
       ],
@@ -156,7 +156,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T17:32:19.253Z",
+        "observed_at": "2026-10-18T04:35:51.892Z",
         "relation": "explicit"
       }
     ],
@@ -164,7 +164,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcoc6ft-2a40ce",
+    "request_id": "req-mvdc1i5y-527b69",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -172,7 +172,7 @@
     "adapter": "plan-store",
     "operation": "execute",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T17:32:15.640Z",
-    "duration_ms": 3613
+    "started_at": "2026-10-18T04:35:48.406Z",
+    "duration_ms": 3487
   }
 }

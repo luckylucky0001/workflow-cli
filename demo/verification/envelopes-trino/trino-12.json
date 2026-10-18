@@ -3,11 +3,11 @@
   "status": "success",
   "capability": "sql.query.get",
   "data": {
-    "query_id": "q-20261017-9a0baf",
+    "query_id": "q-20261018-36cda1",
     "engine": "trino",
     "state": "running",
-    "state_basis": "Trino 状态 RUNNING；结果页尚未取完（已接收 0 行），最近一次拉取 2026-10-17T16:58:54.887Z",
-    "submitted_at": "2026-10-17T16:58:49.166Z",
+    "state_basis": "Trino 状态 RUNNING；结果页尚未取完（已接收 0 行），最近一次拉取 2026-10-18T04:36:03.344Z",
+    "submitted_at": "2026-10-18T04:35:57.743Z",
     "started_at": null,
     "finished_at": null,
     "duration_ms": null,
@@ -25,7 +25,7 @@
     "result_format": "json-lines",
     "error": null,
     "views": null,
-    "engine_query_id": "20261017_165849_00005_ppu8n",
+    "engine_query_id": "20261018_043557_00017_3ctsd",
     "engine_state": "RUNNING",
     "engine_version": "476",
     "column_types": [
@@ -34,10 +34,10 @@
     "catalog": "tpch",
     "schema": "tiny",
     "stats": {
-      "elapsed_ms": 5669,
-      "queued_ms": 1,
-      "cpu_ms": 4281,
-      "wall_ms": 7785,
+      "elapsed_ms": 5567,
+      "queued_ms": 6,
+      "cpu_ms": 7970,
+      "wall_ms": 9861,
       "processed_rows": 7000000,
       "processed_bytes": 68,
       "physical_input_bytes": 0,
@@ -56,16 +56,16 @@
       {
         "system": "workctl-state",
         "adapter": "trino-http",
-        "observed_at": "2026-10-17T16:58:54.887Z",
+        "observed_at": "2026-10-18T04:36:03.344Z",
         "endpoint": "trino/demo-trino:query_state_dir",
-        "method": "q-20261017-9a0baf.json",
+        "method": "q-20261018-36cda1.json",
         "version": "476",
         "relation": "explicit"
       },
       {
         "system": "trino",
         "adapter": "trino-http",
-        "observed_at": "2026-10-17T16:58:54.893Z",
+        "observed_at": "2026-10-18T04:36:03.352Z",
         "endpoint": "trino/demo-trino",
         "method": "GET nextUri (/v1/statement/{queued|executing}/{queryId}/{slug}/{token})",
         "version": "476",
@@ -74,7 +74,7 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "q-20261017-9a0baf",
+      "scope": "q-20261018-36cda1",
       "notes": [
         "本次拉取预算 5000ms 内查询未结束；Trino 需要客户端持续拉取，超过 query.client.timeout（默认 5 分钟）无人拉取会以 ABANDONED_QUERY 失败"
       ]
@@ -82,7 +82,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn56ne-950529",
+    "request_id": "req-mvdc1pr8-8d4be3",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -90,7 +90,7 @@
     "adapter": "spark-submit-local|trino-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:58:49.706Z",
-    "duration_ms": 5187
+    "started_at": "2026-10-18T04:35:58.244Z",
+    "duration_ms": 5109
   }
 }

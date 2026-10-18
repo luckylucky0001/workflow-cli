@@ -93,14 +93,16 @@
     "summary": {
       "registered": 3,
       "returned": 3,
-      "healthy": 2,
+      "healthy": 1,
       "unhealthy": 1,
       "health_unknown": 0,
+      "disabled": 1,
       "without_lease": 0,
       "excluded": {
         "env_mismatch": 0,
         "env_missing": 0,
-        "not_healthy": 0
+        "not_healthy": 0,
+        "disabled": 0
       },
       "service_registered": true
     }
@@ -111,7 +113,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-17T16:59:02.794Z",
+        "observed_at": "2026-10-18T04:36:10.783Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/ns/service serviceName=demo-payment groupName=DEFAULT_GROUP namespaceId=sandbox",
         "relation": "explicit",
@@ -120,7 +122,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-17T16:59:02.800Z",
+        "observed_at": "2026-10-18T04:36:10.788Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/ns/catalog/instances（逐集群，含 enabled=false 实例）",
         "relation": "explicit",
@@ -132,7 +134,7 @@
       "truncated": false,
       "scope": "Nacos nacos/demo-nacos 服务 sandbox/DEFAULT_GROUP@@demo-payment",
       "notes": [
-        "1 个实例 enabled=false（已下线，不接收流量，但仍在注册表中）",
+        "1 个实例 enabled=false（已下线，不接收流量，但仍在注册表中）；summary.healthy 不计入它们（见 summary.disabled），实例的 healthy 字段仍是服务端记录的健康状态",
         "持久实例（ephemeral=false）的健康由服务端主动探测（TCP/HTTP），不会自动删除",
         "healthy 是 Nacos 服务端记录的健康状态（临时实例：心跳/连接；持久实例：服务端探测），不是 workctl 的探测"
       ]
@@ -140,7 +142,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn5goa-d5e14f",
+    "request_id": "req-mvdc1ze6-85f6bf",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -148,7 +150,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:59:02.698Z",
-    "duration_ms": 103
+    "started_at": "2026-10-18T04:36:10.734Z",
+    "duration_ms": 56
   }
 }

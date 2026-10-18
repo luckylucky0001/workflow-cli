@@ -257,7 +257,17 @@ export const queryExplain = defineCapability({
         await beginReadOnly(s, limitMs(s, ctx.remainingMs()));
         let rows;
         try {
-          rows = await s.query(`EXPLAIN (${generic ? 'GENERIC_PLAN, ' : ''}FORMAT JSON) ${g.sql}`);
+          const text = `EXPLAIN (${generic ? 'GENERIC_PLAN, ' : ''}FORMAT JSON) ${g.sql}`;
+          if (generic) {
+            // extended protocol needs a value for every $n, and bound values turn the plan into a custom
+            // one (NULL folds to "One-Time Filter: false"). So: let the server parse the exact text as one
+            // command via the extended protocol first (result discarded), then plan it generically.
+            const maxParam = Math.max(0, ...g.tokens.filter((t) => t.kind === 'param').map((t) => Number(t.text.slice(1)) || 0));
+            await s.queryUser(text, new Array(maxParam).fill(null));
+            rows = await s.query(text);
+          } else {
+            rows = await s.queryUser(text);
+          }
         } finally {
           await rollbackQuietly(s);
         }
@@ -327,7 +337,7 @@ export const queryAnalyze = defineCapability({
         const started = Date.now();
         let rows;
         try {
-          rows = await s.query(`EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) ${g.sql}`);
+          rows = await s.queryUser(`EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) ${g.sql}`);
         } catch (e) {
           await rollbackQuietly(s);
           throw await redactIfSensitive(s, g, e);
@@ -455,7 +465,7 @@ export const queryRun = defineCapability({
         const started = Date.now();
         let r: { rows: unknown[][]; fields: { name: string; tableID: number; columnID: number; dataTypeID: number }[] };
         try {
-          await s.query(`DECLARE workctl_cur NO SCROLL CURSOR FOR ${g.sql}`);
+          await s.queryUser(`DECLARE workctl_cur NO SCROLL CURSOR FOR ${g.sql}`);
           r = await s.queryArrays(`FETCH FORWARD ${maxRows + 1} FROM workctl_cur`);
         } catch (e) {
           await rollbackQuietly(s);

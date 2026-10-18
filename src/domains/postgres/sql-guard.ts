@@ -272,7 +272,7 @@ export function guardPg(input: string, mode: GuardMode): GuardResult {
 }
 
 /**
- * Replace literals in SQL text with `?` before it is shown (pg_stat_activity.query contains the
+ * Replace literals and comment contents in SQL text with `?` before it is shown (pg_stat_activity.query contains the
  * raw text; pg_stat_statements is already normalised to $n but utility statements may not be).
  * Strings ('...', E'...', $tag$...$tag$) and numbers are masked; identifiers and $n are kept.
  * Never throws (text may be truncated by track_activity_query_size).
@@ -283,6 +283,30 @@ export function maskPgLiterals(sqlText: string): string {
   const n = sqlText.length;
   while (i < n) {
     const c = sqlText[i];
+    // comments can carry data (sqlcommenter tags, pasted values, credentials): keep the marker, mask the content
+    if (c === '-' && sqlText[i + 1] === '-') {
+      const end = sqlText.indexOf('\n', i);
+      out += '-- ?';
+      i = end < 0 ? n : end;
+      continue;
+    }
+    if (c === '/' && sqlText[i + 1] === '*') {
+      // block comments nest in PostgreSQL; an unterminated one (truncated text) runs to the end
+      let depth = 1;
+      let j = i + 2;
+      while (j < n && depth > 0) {
+        if (sqlText[j] === '/' && sqlText[j + 1] === '*') {
+          depth++;
+          j += 2;
+        } else if (sqlText[j] === '*' && sqlText[j + 1] === '/') {
+          depth--;
+          j += 2;
+        } else j++;
+      }
+      out += '/* ? */';
+      i = j;
+      continue;
+    }
     if (c === "'") {
       const escape = i > 0 && /[Ee]/.test(sqlText[i - 1]) && (i < 2 || !/[A-Za-z0-9_]/.test(sqlText[i - 2]));
       let j = i + 1;

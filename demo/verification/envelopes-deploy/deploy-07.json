@@ -20,10 +20,10 @@
       "version": "v1.4.1",
       "images": [],
       "revision": 4,
-      "started_at": "2026-10-17T16:56:38.257Z",
-      "finished_at": "2026-10-17T16:56:40.275Z",
+      "started_at": "2026-10-18T04:20:42.584Z",
+      "finished_at": "2026-10-18T04:20:44.597Z",
       "timestamps": "explicit",
-      "duration_ms": 2018,
+      "duration_ms": 2013,
       "status": "succeeded",
       "status_basis": "Jenkins 构建结果 SUCCESS；最近一次成功的部署构建，视为当前版本（Jenkins 不观测目标环境实际运行的版本）",
       "current": true,
@@ -48,10 +48,10 @@
         "version": "v1.4.1",
         "images": [],
         "revision": 4,
-        "started_at": "2026-10-17T16:56:38.257Z",
-        "finished_at": "2026-10-17T16:56:40.275Z",
+        "started_at": "2026-10-18T04:20:42.584Z",
+        "finished_at": "2026-10-18T04:20:44.597Z",
         "timestamps": "explicit",
-        "duration_ms": 2018,
+        "duration_ms": 2013,
         "status": "succeeded",
         "status_basis": "Jenkins 构建结果 SUCCESS；最近一次成功的部署构建，视为当前版本（Jenkins 不观测目标环境实际运行的版本）",
         "current": true,
@@ -72,7 +72,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:59:42.237Z",
+        "observed_at": "2026-10-18T04:36:58.820Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100}",
         "relation": "explicit",
@@ -81,7 +81,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:59:42.237Z",
+        "observed_at": "2026-10-18T04:36:58.820Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /queue/api/json",
         "relation": "explicit",
@@ -99,7 +99,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn6axt-c462f9",
+    "request_id": "req-mvdc309r-efd352",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -107,7 +107,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:59:41.921Z",
-    "duration_ms": 316
+    "started_at": "2026-10-18T04:36:58.527Z",
+    "duration_ms": 294
   }
 }

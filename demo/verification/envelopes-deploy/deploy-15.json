@@ -18,8 +18,8 @@
         "version": "v1.4.0",
         "images": [],
         "revision": 5,
-        "started_at": "2026-10-17T16:59:53.288Z",
-        "finished_at": "2026-10-17T16:59:55.299Z",
+        "started_at": "2026-10-18T04:37:07.689Z",
+        "finished_at": "2026-10-18T04:37:09.700Z",
         "timestamps": "explicit",
         "duration_ms": 2011,
         "status": "succeeded",
@@ -40,10 +40,10 @@
         "version": "v1.4.1",
         "images": [],
         "revision": 4,
-        "started_at": "2026-10-17T16:56:38.257Z",
-        "finished_at": "2026-10-17T16:56:40.275Z",
+        "started_at": "2026-10-18T04:20:42.584Z",
+        "finished_at": "2026-10-18T04:20:44.597Z",
         "timestamps": "explicit",
-        "duration_ms": 2018,
+        "duration_ms": 2013,
         "status": "succeeded",
         "status_basis": "Jenkins 构建结果 SUCCESS",
         "current": false,
@@ -65,7 +65,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:59:57.815Z",
+        "observed_at": "2026-10-18T04:37:11.061Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100}",
         "relation": "explicit",
@@ -78,8 +78,8 @@
       "limit": 2,
       "truncated": true,
       "window": {
-        "start": "2026-10-10T16:59:57.813Z",
-        "end": "2026-10-17T16:59:57.815Z"
+        "start": "2026-10-11T04:37:11.059Z",
+        "end": "2026-10-18T04:37:11.061Z"
       },
       "notes": [
         "Jenkins job 构建丢弃策略只保留最近 20 个构建；更早的发布不可见",
@@ -91,7 +91,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn6n0u-73b084",
+    "request_id": "req-mvdc39rs-9de13d",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -99,7 +99,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:59:57.582Z",
-    "duration_ms": 233
+    "started_at": "2026-10-18T04:37:10.840Z",
+    "duration_ms": 221
   }
 }

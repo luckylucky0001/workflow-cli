@@ -30,6 +30,26 @@ describe('Nacos document parsing (pure)', () => {
     ]);
   });
 
+  it('regression: a continuation backslash on the last line (no final newline) is dropped, as java.util.Properties does', () => {
+    expect(parseProperties('a=b\\')).toEqual([['a', 'b']]);
+    expect(parseProperties('a=b\\\\')).toEqual([['a', 'b\\']]); // escaped backslash stays
+    expect(parseProperties('x=1\na=b\\\n')).toEqual([['x', '1'], ['a', 'b']]);
+  });
+
+  it('regression: credentials embedded in values of non-secret names (connection URLs, token= params) are masked in place', () => {
+    for (const [raw, shown] of [
+      ['jdbc:mysql://app:LEAK1@db:3306/pay?useSSL=false', 'jdbc:mysql://app:***@db:3306/pay?useSSL=false'],
+      ['postgres://u:LEAK2@h/db', 'postgres://u:***@h/db'],
+      ['redis://:LEAK3@h:6379/0', 'redis://:***@h:6379/0'],
+      ['jdbc:postgresql://h/db?user=a&password=LEAK4', 'jdbc:postgresql://h/db?user=a&password=***'],
+    ]) {
+      expect(decodeValue(Buffer.from(raw), 'db.url')).toEqual({ value: shown, value_format: 'text', value_bytes: null, masked: true, masked_paths: ['$'] });
+    }
+    expect(decodeValue(Buffer.from('{"url":"mysql://a:LEAK@h/d","n":1}'), 'upstream')).toMatchObject({ value: { url: 'mysql://a:***@h/d', n: 1 }, value_bytes: null, masked_paths: ['$.url'] });
+    // no password in the userinfo: nothing to mask
+    expect(decodeValue(Buffer.from('https://user@h/x'), 'u')).toMatchObject({ value: 'https://user@h/x', masked: false, value_bytes: 16 });
+  });
+
   it('flattens yaml/json into dotted keys, keeps big ints exact, falls back to one value', () => {
     const y = parseDoc('db:\n  password: p\n  pool: 8\nids: [7587898288280331665, 2]\nempty: {}\n', 'yaml', 'a.yaml');
     expect(Object.fromEntries(y.raw)).toEqual({ 'db.password': 'p', 'db.pool': '8', 'ids[0]': '7587898288280331665', 'ids[1]': '2', empty: '{}' });
@@ -168,7 +188,8 @@ describe('Nacos provider against a fake Open API', () => {
     const env = await call('discovery.list', { service: 'pay' }, cfg);
     expect(env.status).toBe('success');
     const d = env.data as any;
-    expect(d.summary).toMatchObject({ registered: 3, returned: 3, healthy: 2, unhealthy: 1, service_registered: true });
+    // 10.0.0.3 is healthy but enabled=false (offline): not counted as healthy
+    expect(d.summary).toMatchObject({ registered: 3, returned: 3, healthy: 1, unhealthy: 1, health_unknown: 0, disabled: 1, service_registered: true });
     expect(d.instances[1]).toMatchObject({ address: '10.0.0.2', healthy: false, health_basis: 'registry_health', nacos: { ephemeral: true, enabled: true }, payload: { token: '***' } });
     expect(d.instances[2].nacos).toMatchObject({ enabled: false, weight: 0.5 });
     expect(JSON.stringify(env)).not.toContain('LEAK');
@@ -251,6 +272,37 @@ describe('Nacos provider against a fake Open API', () => {
     const recent = await call('config.diff', { service: 'hist', endpoint: 'n1', from_rev: fake.nid - 1 }, cfg);
     expect(recent.status).toBe('partial');
     expect((recent.data as any).changes[0]).toMatchObject({ name: 'n', old: { value: 500 }, new: { value: 501 } });
+  });
+
+  it('regression: --healthy-only excludes enabled=false (offline) instances and says so', async () => {
+    const f = await call('discovery.list', { service: 'pay', healthy_only: true }, cfg);
+    const d = f.data as any;
+    expect(d.instances.map((x: any) => x.address)).toEqual(['10.0.0.1']);
+    expect(d.summary).toMatchObject({ returned: 1, healthy: 1, excluded: { not_healthy: 1, disabled: 1 } });
+    expect(f.meta.coverage?.notes?.join('\n')).toMatch(/enabled=false/);
+  });
+
+  it('regression: --key over > 500 history records reports the read cap, not "unchanged within retention"', async () => {
+    fake.publish('hist2.properties', 'k=old\nn=0\n');
+    fake.publish('hist2.properties', 'k=new\nn=1\n');
+    for (let n = 2; n <= 503; n++) fake.publish('hist2.properties', `k=new\nn=${n}\n`);
+    const env = await call('config.diff', { service: 'hist2', endpoint: 'n1', key: 'k' }, cfg);
+    expect(env.error?.code).toBe('DATA_UNAVAILABLE');
+    expect(env.error?.details).toMatchObject({ history_truncated: true });
+    expect(env.error?.message).toMatch(/500/);
+    expect(env.error?.message).not.toMatch(/^保留期内/);
+  });
+
+  it('regression: a URL password inside a non-secret key is masked in get/diff; diff still sees a change of the hidden password', async () => {
+    fake.publish('urls.properties', 'db.url=jdbc:mysql://app:LEAK-A@db:3306/pay\ncache.url=redis://:LEAK-R@r:6379\n');
+    const v2 = fake.publish('urls.properties', 'db.url=jdbc:mysql://app:LEAK-B@db:3306/pay\ncache.url=redis://:LEAK-R@r:6379\n');
+    const g = await call('config.get', { service: 'urls', endpoint: 'n1' }, cfg);
+    expect(by((g.data as any).items)['db.url']).toMatchObject({ value: 'jdbc:mysql://app:***@db:3306/pay', masked: true, masked_paths: ['$'], value_bytes: null });
+    expect(JSON.stringify(g)).not.toContain('LEAK');
+    const d = await call('config.diff', { service: 'urls', endpoint: 'n1', from_rev: v2 - 1 }, cfg);
+    expect((d.data as any).summary).toMatchObject({ changed: 1, unchanged: 1 });
+    expect((d.data as any).changes[0]).toMatchObject({ name: 'db.url', masked: true, old: { value: 'jdbc:mysql://app:***@db:3306/pay', value_bytes: null }, new: { value: 'jdbc:mysql://app:***@db:3306/pay' } });
+    expect(JSON.stringify(d)).not.toContain('LEAK');
   });
 
   it('regression: a cluster with more instances than one catalog page is reported as partial, not complete', async () => {
@@ -399,6 +451,25 @@ describe('Consul provider against a fake HTTP API', () => {
     expect((empty.data as any).summary.service_registered).toBe(true);
     const ghost = await call('discovery.list', { service: 'ghost', endpoint: 'c1' }, cfg);
     expect((ghost.data as any).summary).toMatchObject({ registered: 0, service_registered: false });
+  });
+
+  it('regression: credentials in health-check output (URL userinfo, ?token=, Authorization) are masked', async () => {
+    const out = (o: string) => ({ CheckID: 'http', Name: 'http', Status: 'critical', ServiceID: 'leaky-1', Output: o });
+    fake.health.set('leaky', [
+      { Node: { Node: 'n1', Address: '10.0.1.1' }, Service: { ID: 'leaky-1', Service: 'leaky', Port: 1 }, Checks: [out('HTTP GET http://admin:LEAK-PW@10.0.1.1:8080/health?token=LEAK-TOK&x=1: 503'), out('Authorization: Bearer LEAK-BEARER-0123456789'), out('TCP connect 10.0.1.1:1: Success')] },
+    ]);
+    const env = await call('discovery.list', { service: 'leaky', endpoint: 'c1' }, cfg);
+    const checks = (env.data as any).instances[0].consul.checks.map((c: any) => c.output);
+    expect(checks).toEqual(['HTTP GET http://admin:***@10.0.1.1:8080/health?token=***&x=1: 503', 'Authorization: Bearer ***', 'TCP connect 10.0.1.1:1: Success']);
+    expect(JSON.stringify(env)).not.toContain('LEAK');
+    expect(env.meta.coverage?.notes?.join('\n')).toMatch(/健康检查输出/);
+  });
+
+  it('regression: a connection URL under a non-secret key is masked in place (rest of the URL kept)', async () => {
+    fake.put('config/sandbox/urls/db.url', 'postgres://u:LEAK-PG@h:5432/db');
+    const env = await call('config.get', { service: 'urls', endpoint: 'c1' }, cfg);
+    expect((env.data as any).items[0]).toMatchObject({ name: 'db.url', value: 'postgres://u:***@h:5432/db', masked: true, value_bytes: null });
+    expect(JSON.stringify(env)).not.toContain('LEAK');
   });
 
   it('ACL token via token_ref → X-Consul-Token; bad/missing token UNAUTHENTICATED; key:read missing PERMISSION_DENIED; 5xx / refused UPSTREAM_UNAVAILABLE', async () => {

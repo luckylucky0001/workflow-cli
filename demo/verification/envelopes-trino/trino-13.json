@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "sql.query.cancel",
   "data": {
-    "query_id": "q-20261017-9a0baf",
+    "query_id": "q-20261018-36cda1",
     "previous_state": "running",
     "state": "cancelled",
     "signal": "HTTP DELETE (204)",
     "app_id": null,
-    "engine_query_id": "20261017_165849_00005_ppu8n",
+    "engine_query_id": "20261018_043557_00017_3ctsd",
     "engine_state": "FAILED",
     "confirmed": true
   },
@@ -18,7 +18,7 @@
       {
         "system": "trino",
         "adapter": "trino-http",
-        "observed_at": "2026-10-17T16:58:55.607Z",
+        "observed_at": "2026-10-18T04:36:03.926Z",
         "endpoint": "trino/demo-trino",
         "method": "DELETE nextUri → HTTP 204 → GET /v1/query/{queryId}",
         "version": "476",
@@ -27,13 +27,13 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "q-20261017-9a0baf",
+      "scope": "q-20261018-36cda1",
       "notes": []
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn5b38-6ebe66",
+    "request_id": "req-mvdc1u33-5ce521",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -41,7 +41,7 @@
     "adapter": "spark-submit-local|trino-http",
     "operation": "execute",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:58:55.460Z",
-    "duration_ms": 148
+    "started_at": "2026-10-18T04:36:03.854Z",
+    "duration_ms": 73
   }
 }

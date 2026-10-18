@@ -8,7 +8,7 @@ import postgresDomain from '../../src/domains/postgres';
 import { isoFromPg, mapPgError } from '../../src/domains/postgres/client';
 import { WorkError } from '../../src/core/output';
 import { assertStandardStrings, flattenPlan, maskedColumns, redactErrorValues } from '../../src/domains/postgres/capabilities/query';
-import { diffStatements, isSelf, parseWindow, type PssRow } from '../../src/domains/postgres/capabilities/statements';
+import { diffStatements, entryWasReset, isSelf, parseWindow, type PssRow } from '../../src/domains/postgres/capabilities/statements';
 import { guardPg } from '../../src/domains/postgres/sql-guard';
 
 process.env.WORKCTL_VALIDATE_OUTPUT = '1';
@@ -149,6 +149,25 @@ describe('postgres helpers', () => {
     expect(d.disappeared).toBe(1);
     expect(isSelf('SELECT * FROM public.pg_stat_statements p')).toBe(true);
     expect(isSelf('SELECT 1')).toBe(false);
+  });
+
+  it('detects a single-entry reset even when the re-created entry already exceeds its old call count', () => {
+    const base: PssRow = { key: 'k', queryid: 'k', database: 'd', user: 'u', query: 'SELECT $1', calls: 10, total_ms: 100, max_ms: 30, min_ms: 1, rows: 10, shared_blks_hit: 100, shared_blks_read: 5, temp_blks_written: 0 };
+    // pg_stat_statements_reset(userid, dbid, queryid) then 15 fresh calls: calls 10 → 15 but max fell / min rose
+    const after: PssRow = { ...base, calls: 15, total_ms: 150, max_ms: 20, min_ms: 2, rows: 15, shared_blks_hit: 150, shared_blks_read: 0 };
+    const d = diffStatements([base], [after]);
+    expect(d.reset).toBe(1);
+    expect(d.stats[0]).toMatchObject({ calls: 15, total_exec_ms: 150, rows: 15, shared_blks_read: 0, reset_detected: true });
+    // a counter going backwards while calls grew never yields a negative delta
+    const d2 = diffStatements([base], [{ ...base, calls: 12, rows: 3 }]);
+    expect(d2.reset).toBe(1);
+    expect(d2.stats[0].rows).toBe(3);
+    for (const st of [...d.stats, ...d2.stats]) for (const v of [st.calls, st.total_exec_ms, st.rows, st.shared_blks_hit, st.shared_blks_read, st.temp_blks_written]) expect(v).toBeGreaterThanOrEqual(0);
+    // PG17: stats_since decides
+    expect(entryWasReset({ ...base, stats_since: 't0' }, { ...after, max_ms: 40, min_ms: 1, shared_blks_read: 9, stats_since: 't0' })).toBe(false);
+    expect(entryWasReset({ ...base, stats_since: 't0' }, { ...base, calls: 20, total_ms: 200, rows: 20, shared_blks_hit: 200, stats_since: 't1' })).toBe(true);
+    // plain growth is not a reset
+    expect(entryWasReset(base, { ...base, calls: 11, total_ms: 101, rows: 11, shared_blks_hit: 110, max_ms: 31, min_ms: 0.5 })).toBe(false);
   });
 
   it('flattens EXPLAIN JSON and finds sequential scans', () => {

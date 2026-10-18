@@ -1,0 +1,1 @@
+{"query":{"regexp":{"status":{"value":".*a.*i.*d.*","max_determinized_states":1000000}}},"size":5}

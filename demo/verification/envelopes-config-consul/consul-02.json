@@ -11,7 +11,7 @@
     "prefix": "config/sandbox/demo-inventory/",
     "key": null,
     "revision_space": "consul-raft-index",
-    "observed_revision": 31,
+    "observed_revision": 193,
     "count": 6,
     "truncated": false,
     "items": [
@@ -23,8 +23,8 @@
         "value_bytes": 2,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 24,
-        "mod_revision": 29,
+        "create_revision": 186,
+        "mod_revision": 191,
         "version": null,
         "lease": null,
         "consul": {
@@ -43,8 +43,8 @@
         "masked_paths": [
           "$"
         ],
-        "create_revision": 26,
-        "mod_revision": 30,
+        "create_revision": 188,
+        "mod_revision": 192,
         "version": null,
         "lease": null,
         "consul": {
@@ -61,8 +61,8 @@
         "value_bytes": 1,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 25,
-        "mod_revision": 25,
+        "create_revision": 187,
+        "mod_revision": 187,
         "version": null,
         "lease": null,
         "consul": {
@@ -82,8 +82,8 @@
         "value_bytes": 45,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 31,
-        "mod_revision": 31,
+        "create_revision": 193,
+        "mod_revision": 193,
         "version": null,
         "lease": null,
         "consul": {
@@ -106,8 +106,8 @@
         "masked_paths": [
           "$.api_key"
         ],
-        "create_revision": 28,
-        "mod_revision": 28,
+        "create_revision": 190,
+        "mod_revision": 190,
         "version": null,
         "lease": null,
         "consul": {
@@ -124,8 +124,8 @@
         "value_bytes": 7,
         "masked": false,
         "masked_paths": [],
-        "create_revision": 27,
-        "mod_revision": 27,
+        "create_revision": 189,
+        "mod_revision": 189,
         "version": null,
         "lease": null,
         "consul": {
@@ -142,7 +142,7 @@
       {
         "system": "consul",
         "adapter": "consul-http-api",
-        "observed_at": "2026-10-17T16:59:33.904Z",
+        "observed_at": "2026-10-18T04:36:17.613Z",
         "endpoint": "consul/demo-consul (http://127.0.0.1:18500)",
         "method": "GET /v1/kv/config/sandbox/demo-inventory/?recurse",
         "relation": "explicit",
@@ -153,16 +153,16 @@
       "complete": true,
       "truncated": false,
       "limit": 200,
-      "scope": "Consul consul/demo-consul KV 前缀 config/sandbox/demo-inventory/，索引 31",
+      "scope": "Consul consul/demo-consul KV 前缀 config/sandbox/demo-inventory/，索引 193",
       "notes": [
-        "2 个配置项的值或字段已遮蔽（按名称匹配敏感模式）",
+        "2 个配置项的值或字段已遮蔽（按名称匹配敏感模式，或值中内嵌的 URL 密码 / token= 等凭据）",
         "Consul KV 不保留历史：mod_revision 为 ModifyIndex（最后修改时的 raft 索引），version 不提供（null）；旧值不可回溯"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn64p2-bc8f3b",
+    "request_id": "req-mvdc24ns-a395cc",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -170,7 +170,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:59:33.830Z",
-    "duration_ms": 75
+    "started_at": "2026-10-18T04:36:17.560Z",
+    "duration_ms": 54
   }
 }

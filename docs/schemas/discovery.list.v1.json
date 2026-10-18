@@ -291,7 +291,8 @@
           "type": "number"
         },
         "healthy": {
-          "type": "number"
+          "type": "number",
+          "description": "健康实例数；Nacos 不计 enabled=false（已下线）的实例（见 disabled）"
         },
         "unhealthy": {
           "type": "number"
@@ -303,6 +304,10 @@
           "type": "number",
           "description": "etcd：没有租约的注册数；Consul / Nacos 为 0（不适用）"
         },
+        "disabled": {
+          "description": "Nacos：enabled=false（已下线、不接收流量）的实例数；它们不计入 healthy，--healthy-only 时排除",
+          "type": "number"
+        },
         "excluded": {
           "type": "object",
           "properties": {
@@ -313,6 +318,10 @@
               "type": "number"
             },
             "not_healthy": {
+              "type": "number"
+            },
+            "disabled": {
+              "description": "Nacos：--healthy-only 排除的 enabled=false 实例",
               "type": "number"
             }
           },

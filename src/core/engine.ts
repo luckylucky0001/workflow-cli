@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, statSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import { z } from 'zod';
 import { loadConfig, resolveProfileName, type LoadedConfig } from './config';
@@ -58,6 +59,8 @@ function inputZod(name: string, spec: InputSpec): z.ZodType {
       s = z
         .string()
         .min(1)
+        // shells expand `~`, MCP clients and config-driven callers do not
+        .transform((p) => (p === '~' || p.startsWith('~/') ? homedir() + p.slice(1) : p))
         .refine((p) => existsSync(p), { message: `文件不存在 (${name})` })
         .refine((p) => !existsSync(p) || statSync(p).isFile(), { message: `不是普通文件 (${name})` })
         // absolute from here on: plugins run in their own directory, adapters may chdir

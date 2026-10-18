@@ -176,6 +176,8 @@ const partitionList = defineCapability({
     for (const b of [i.from, i.to]) {
       if (b && key.type === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(b)) throw new WorkError('INVALID_ARGUMENT', `分区键 ${key.name} 是 date 类型，--from/--to 须为 YYYY-MM-DD: ${b}`);
     }
+    // an inverted range matches nothing; reject it instead of reporting a complete, empty listing
+    if (i.from && i.to && i.from > i.to) throw new WorkError('INVALID_ARGUMENT', `--from ${i.from} 晚于 --to ${i.to}`, { hint: '交换 --from 与 --to' });
     const dir = tableDir(cat, t.meta);
     const exists = existsSync(dir);
     const { partitions, nonconforming } = listPartitionDirs(dir, t.meta);

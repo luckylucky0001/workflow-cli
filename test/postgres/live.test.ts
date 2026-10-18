@@ -10,7 +10,9 @@ import pg from 'pg';
 import { describe, expect, it } from 'vitest';
 import { invoke } from '../../src/core/engine';
 import type { Envelope } from '../../src/core/output';
-import { Registry } from '../../src/core/registry';
+import { defineCapability, Registry } from '../../src/core/registry';
+import { z } from 'zod';
+import { withPg } from '../../src/domains/postgres/client';
 import postgresDomain from '../../src/domains/postgres';
 import { assertStandardStrings } from '../../src/domains/postgres/capabilities/query';
 
@@ -18,6 +20,14 @@ process.env.WORKCTL_VALIDATE_OUTPUT = '1';
 const CONFIG = resolve(__dirname, '../../demo/environment/workctl.yaml');
 const r = new Registry();
 r.addDomain(postgresDomain);
+// probe that bypasses the client-side lexer: what does the server accept for a user statement?
+r.addCapability(
+  defineCapability({
+    name: 'it.pg.multi', command: 'it pg multi', summary: 'probe', domain: 'postgres', output: z.object({}).passthrough(), adapter: 'it', operation: 'read', auth_provider: 'none', guide: 'docs/x.md',
+    inputs: { sql: { type: 'string', description: 's' }, simple: { type: 'bool', description: 'b' } },
+    handler: async (ctx, i) => withPg(ctx, undefined, async (s) => ({ data: { rows: i.simple ? await s.query(String(i.sql)) : await s.queryUser(String(i.sql)) } })),
+  }),
+);
 const call = (cap: string, inputs: Record<string, unknown>, timeoutMs?: number) => invoke(r, cap, inputs, { configPath: CONFIG, timeoutMs });
 const ok = (env: Envelope) => {
   expect(env.error, JSON.stringify(env.error)).toBeNull();
@@ -230,6 +240,64 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('postgres live (demo-postgres)',
       await a.query('ROLLBACK');
       await waiting;
       await b.query('ROLLBACK');
+      await a.end();
+      await b.end();
+    }
+  });
+
+  it('user statements go through the extended protocol: the server itself rejects multiple commands', async () => {
+    // the simple protocol (old path) would have run both
+    expect((await call('it.pg.multi', { sql: 'SELECT 1 AS a; SELECT 2 AS b', simple: true })).status).toBe('success');
+    const env = await call('it.pg.multi', { sql: 'SELECT 1 AS a; SELECT 2 AS b' });
+    expect(env.error).toMatchObject({ code: 'INVALID_ARGUMENT' });
+    expect(env.error?.message).toContain('cannot insert multiple commands');
+    // GENERIC_PLAN with $n still works (NULLs bound for every parameter)
+    const e = ok(await call('postgres.query.explain', { sql: 'SELECT id FROM orders WHERE customer_id = $1 AND status = $2' }));
+    expect(e.estimate_only).toBe(true);
+  });
+
+  it('session list masks comment contents in query text', async () => {
+    const a = await admin('it-comment');
+    const aPid = (await a.query('SELECT pg_backend_pid() AS p')).rows[0].p;
+    const running = a.query('/* token=it-secret-123 */ SELECT pg_sleep(2) -- phone 13800001111').catch((e) => e);
+    try {
+      await new Promise((res) => setTimeout(res, 300));
+      const s = ok(await call('postgres.session.list', {}));
+      const q = s.sessions.find((x: any) => x.pid === aPid).query;
+      expect(q).toBe('/* ? */ SELECT pg_sleep(?) -- ?');
+      expect(JSON.stringify(s)).not.toContain('it-secret-123');
+    } finally {
+      await running;
+      await a.end();
+    }
+  });
+
+  it('statement summary detects a single-entry reset even when calls exceed the pre-reset count', async () => {
+    const a = await admin('it-pss-reset');
+    const b = await admin('it-pss-observer');
+    const tag = `it_reset_${randomBytes(3).toString('hex')}`;
+    const q = (sec: number) => a.query(`SELECT pg_sleep(${sec}) AS ${tag}`);
+    try {
+      // the queryid as pg_stat_statements sees it: pg_stat_activity.query_id of the running statement
+      const aPid = (await a.query('SELECT pg_backend_pid() AS p')).rows[0].p;
+      const running = q(0.3);
+      await new Promise((res) => setTimeout(res, 100));
+      const queryid = String((await b.query('SELECT query_id::text AS q FROM pg_stat_activity WHERE pid = $1', [aPid])).rows[0].q);
+      await running;
+      // start the entry from zero, then 2 calls (max_exec_time ≈ 300ms) before the in-window reset
+      await a.query('SELECT pg_stat_statements_reset(0, 0, $1::bigint)', [queryid]);
+      await q(0.3);
+      await q(0); // 2 calls before the reset
+      const pending = call('postgres.statement.summary', { sample_window: '4s', top: 100, order_by: 'calls', database: 'demo_orders' }, 20_000);
+      await new Promise((res) => setTimeout(res, 1500)); // t0 snapshot taken
+      await a.query('SELECT pg_stat_statements_reset(0, 0, $1::bigint)', [queryid]);
+      for (let k = 0; k < 5; k++) await q(0.001); // 5 > 2 calls before the reset
+      const env = await pending;
+      expect(env.status).toBe('partial');
+      const st = (env.data as any).statements.find((x: any) => x.queryid === queryid);
+      expect(st).toMatchObject({ calls: 5, reset_detected: true });
+      expect(env.meta.coverage?.notes?.join(' ')).toContain('单独重置');
+    } finally {
       await a.end();
       await b.end();
     }

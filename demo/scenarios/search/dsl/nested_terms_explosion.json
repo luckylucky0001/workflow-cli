@@ -1,0 +1,1 @@
+{"size":0,"aggs":{"by_city":{"terms":{"field":"city","size":1000},"aggs":{"by_status":{"terms":{"field":"status","size":1000}}}}}}

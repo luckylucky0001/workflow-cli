@@ -120,7 +120,7 @@ const configGet = defineCapability({
     const masked = items.filter((x) => x.masked).length;
     const notes: string[] = [];
     if (!items.length) notes.push(`前缀 ${prefix} 下没有配置项（修订 ${observed}）；不同环境/服务的键前缀不同，检查 --env / --service`);
-    if (masked) notes.push(`${masked} 个配置项的值或字段已遮蔽（按名称匹配敏感模式）`);
+    if (masked) notes.push(`${masked} 个配置项的值或字段已遮蔽（按名称匹配敏感模式，或值中内嵌的 URL 密码 / token= 等凭据）`);
     if (truncated) notes.push(`前缀下共 ${count} 个键，只返回按键名排序的前 ${items.length} 个`);
     if (client.authNote) notes.push(client.authNote);
     return {
@@ -300,8 +300,8 @@ const discoveryList = defineCapability({
     '带租约的注册在实例停止续约后按 TTL 自动删除；没有租约的注册永不过期，实例下线后可能残留',
     'remaining_ttl_s 为本次 /v3/lease/timetolive 的读数（采样），续约后会重置',
     PROVIDER_NOTE,
-    'Nacos：GET /v1/ns/service + /v1/ns/catalog/instances（含 enabled=false 实例），healthy 为服务端健康状态，nacos 字段给出 cluster / weight / enabled / ephemeral；--env 按 metadata.env 过滤',
-    'Consul：GET /v1/health/service/<svc>，healthy 由检查聚合（任一 critical → false，warning 计为 healthy），consul 字段给出各检查；服务不在 /v1/catalog/services 时 summary.service_registered=false',
+    'Nacos：GET /v1/ns/service + /v1/ns/catalog/instances（含 enabled=false 实例），healthy 为服务端健康状态，nacos 字段给出 cluster / weight / enabled / ephemeral；enabled=false（已下线）不计入 summary.healthy（见 summary.disabled），--healthy-only 时排除；--env 按 metadata.env 过滤',
+    'Consul：GET /v1/health/service/<svc>，healthy 由检查聚合（任一 critical → false，warning 计为 healthy），consul 字段给出各检查（检查输出中的 URL 密码 / token= / Authorization 等凭据先遮蔽再截断到 300 字符）；服务不在 /v1/catalog/services 时 summary.service_registered=false',
     `Eureka / Kubernetes Endpoints / ${PLANNED_NOTE}`,
   ],
   examples: ['workctl discovery list --service demo-order', 'workctl discovery list --service demo-order --env sandbox --healthy-only', 'workctl discovery list --service demo-payment', 'workctl discovery list --service demo-inventory'],

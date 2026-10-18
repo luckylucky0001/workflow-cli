@@ -55,7 +55,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T17:32:03.177Z",
+        "observed_at": "2026-10-18T04:35:37.252Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/tasks",
         "version": "2.10.5",
@@ -64,7 +64,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T17:32:03.177Z",
+        "observed_at": "2026-10-18T04:35:37.252Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-14__missing_upstream/taskInstances",
         "version": "2.10.5",
@@ -73,7 +73,7 @@
       {
         "system": "catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T17:32:03.191Z",
+        "observed_at": "2026-10-18T04:35:37.270Z",
         "endpoint": "catalog/demo",
         "method": "tables/*.yaml upstream/consumers/produced_by",
         "relation": "explicit"
@@ -81,7 +81,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T17:32:03.206Z",
+        "observed_at": "2026-10-18T04:35:37.286Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "stat+readdir ods/orders/dt=2026-10-14",
         "relation": "derived"
@@ -89,7 +89,7 @@
       {
         "system": "binding-file",
         "adapter": "resources-file",
-        "observed_at": "2026-10-17T17:32:03.221Z",
+        "observed_at": "2026-10-18T04:35:37.303Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "method": "relations",
         "relation": "explicit"
@@ -97,7 +97,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-17T17:32:03.314Z",
+        "observed_at": "2026-10-18T04:35:37.406Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/{dag}/dagRuns (related workflows)",
         "version": "2.10.5",
@@ -114,7 +114,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcobwh5-abc252",
+    "request_id": "req-mvdc195m-d37a72",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -122,7 +122,7 @@
     "adapter": "airflow-rest-v1|v2",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T17:32:02.729Z",
-    "duration_ms": 586
+    "started_at": "2026-10-18T04:35:36.730Z",
+    "duration_ms": 677
   }
 }

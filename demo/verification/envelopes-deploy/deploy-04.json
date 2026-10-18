@@ -17,10 +17,10 @@
       "version": "v1.4.1",
       "images": [],
       "revision": 4,
-      "started_at": "2026-10-17T16:56:38.257Z",
-      "finished_at": "2026-10-17T16:56:40.275Z",
+      "started_at": "2026-10-18T04:20:42.584Z",
+      "finished_at": "2026-10-18T04:20:44.597Z",
       "timestamps": "explicit",
-      "duration_ms": 2018,
+      "duration_ms": 2013,
       "status": "succeeded",
       "status_basis": "Jenkins 构建结果 SUCCESS；最近一次成功的部署构建，视为当前版本（Jenkins 不观测目标环境实际运行的版本）",
       "current": true,
@@ -38,7 +38,7 @@
       "number": 4,
       "result": "SUCCESS",
       "building": false,
-      "estimated_duration_ms": 2029,
+      "estimated_duration_ms": 2070,
       "built_on": null,
       "parameters": {
         "SERVICE": "demo-order",
@@ -71,7 +71,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:59:40.658Z",
+        "observed_at": "2026-10-18T04:36:57.371Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/4/api/json",
         "relation": "explicit",
@@ -80,7 +80,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:59:40.658Z",
+        "observed_at": "2026-10-18T04:36:57.371Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/4/consoleText",
         "relation": "explicit",
@@ -89,7 +89,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-17T16:59:40.658Z",
+        "observed_at": "2026-10-18T04:36:57.371Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100}",
         "relation": "derived",
@@ -106,7 +106,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn69o9-6fbc1d",
+    "request_id": "req-mvdc2z35-b2e8d4",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -114,7 +114,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:59:40.281Z",
-    "duration_ms": 377
+    "started_at": "2026-10-18T04:36:56.993Z",
+    "duration_ms": 378
   }
 }

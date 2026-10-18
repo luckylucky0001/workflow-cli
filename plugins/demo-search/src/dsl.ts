@@ -8,6 +8,14 @@ export const TRACK_TOTAL_HITS_LIMIT = 10_000;
 /** Bucket `size`/`shard_size` cap inside aggregations. */
 export const MAX_AGG_BUCKETS = 1000;
 export const MAX_QUERY_STRING_LENGTH = 4096;
+/** Cap for max_determinized_states (regexp / query_string regex automata); OpenSearch's own default. */
+export const MAX_DETERMINIZED_STATES = 10_000;
+/** Upper bound on the product of nested bucket-aggregation sizes (terms 10 × terms 10 × … ). */
+export const MAX_AGG_TOTAL_BUCKETS = 10_000;
+/** Aggregation output (serialized JSON) above this is dropped from the result (status partial). */
+export const MAX_AGG_OUTPUT_BYTES = 4 * 1024 * 1024;
+/** Bucket aggregations with a `size` (default 10 for terms-like ones). */
+const SIZED_BUCKET_AGGS: Record<string, number> = { terms: 10, multi_terms: 10, significant_terms: 10, significant_text: 10, composite: 10, rare_terms: 10 };
 
 export const ALLOWED_TOP_LEVEL = ['query', 'size', 'sort', '_source', 'aggs'] as const;
 
@@ -59,6 +67,28 @@ export function scanDsl(value: unknown): void {
       const p = path ? `${path}.${k}` : k;
       if (FORBIDDEN_KEYS.has(k)) throw bad(`DSL 含有禁止的脚本相关字段 ${k}（位置 ${p}）`, { forbidden_key: k, path: p }, '脚本查询/脚本聚合/运行时字段会在集群上执行任意代码，受限查询不允许；改用普通 query/aggs');
       if (CROSS_INDEX_KEYS.has(k)) throw bad(`DSL 含有跨索引读取 ${k}（位置 ${p}）`, { forbidden_key: k, path: p });
+      // leading wildcards force a scan of the whole term dictionary; huge automata are expensive to build
+      if (k === 'allow_leading_wildcard' && (x === true || x === 'true')) {
+        throw bad(`DSL 设置了 allow_leading_wildcard=true（位置 ${p}）`, { path: p }, '前导通配符（*abc / ?abc）会扫描整个词典，受限查询不允许；改用 keyword 字段前缀/精确匹配');
+      }
+      if (k === 'max_determinized_states') {
+        const n = typeof x === 'number' ? x : Number(x);
+        if (!Number.isFinite(n) || n > MAX_DETERMINIZED_STATES) {
+          throw bad(`DSL max_determinized_states=${String(x)} 超过上限 ${MAX_DETERMINIZED_STATES}（位置 ${p}）`, { path: p, value: x, limit: MAX_DETERMINIZED_STATES });
+        }
+      }
+      if (k === 'query_string' && x && typeof x === 'object' && !Array.isArray(x) && !('allow_leading_wildcard' in x)) {
+        // OpenSearch defaults allow_leading_wildcard to true: make the restriction explicit
+        (x as Record<string, unknown>).allow_leading_wildcard = false;
+      }
+      if (k === 'wildcard' && x && typeof x === 'object' && !Array.isArray(x)) {
+        for (const [f, spec] of Object.entries(x as Record<string, unknown>)) {
+          const pattern = typeof spec === 'string' ? spec : spec && typeof spec === 'object' ? ((spec as any).value ?? (spec as any).wildcard) : undefined;
+          if (typeof pattern === 'string' && /^[*?]/.test(pattern)) {
+            throw bad(`DSL wildcard 查询以通配符开头（${p}.${f}）`, { path: `${p}.${f}` }, '前导通配符会扫描整个词典，受限查询不允许');
+          }
+        }
+      }
       if (OPAQUE_KEYS.has(k)) throw bad(`DSL 含有 ${k} 查询（位置 ${p}）：其内容为 base64 编码，无法检查`, { forbidden_key: k, path: p }, '直接写出 query 结构，不要用 wrapper 包装');
       // top_hits returns documents inside aggregation buckets: bypasses the hit cap and _source truncation
       if (k === 'top_hits' && inAggs) {
@@ -88,6 +118,30 @@ export function scanDsl(value: unknown): void {
   walk(value, '', 0, false);
 }
 
+/**
+ * Worst-case bucket count of nested sized bucket aggregations (product along each nesting path,
+ * summed over siblings). Unsized ones (histograms) are bounded at output time instead.
+ */
+export function aggBucketBound(aggs: unknown, factor = 1): number {
+  if (!aggs || typeof aggs !== 'object' || Array.isArray(aggs)) return 0;
+  let total = 0;
+  for (const def of Object.values(aggs as Record<string, unknown>)) {
+    if (!def || typeof def !== 'object' || Array.isArray(def)) continue;
+    let f = factor;
+    for (const [type, dflt] of Object.entries(SIZED_BUCKET_AGGS)) {
+      const spec = (def as Record<string, unknown>)[type];
+      if (spec && typeof spec === 'object') {
+        const n = Number((spec as Record<string, unknown>).size ?? dflt);
+        f = factor * (Number.isFinite(n) && n > 0 ? n : dflt);
+      }
+    }
+    total += f;
+    const sub = (def as Record<string, unknown>).aggs ?? (def as Record<string, unknown>).aggregations;
+    if (sub) total += aggBucketBound(sub, f);
+  }
+  return total;
+}
+
 /** Parse and restrict a DSL document (content of --dsl-file). */
 export function parseDsl(text: string): DslInput {
   let json: unknown;
@@ -115,7 +169,26 @@ export function parseDsl(text: string): DslInput {
   const src = obj._source;
   if (src !== undefined && typeof src !== 'boolean' && typeof src !== 'string' && !Array.isArray(src) && (typeof src !== 'object' || !src)) throw bad('DSL _source 必须是布尔、字符串、数组或 {includes, excludes}');
   scanDsl(obj);
+  const bound = aggBucketBound(obj.aggs);
+  if (bound > MAX_AGG_TOTAL_BUCKETS) {
+    throw bad(`聚合最多可能产生约 ${bound} 个桶，超过上限 ${MAX_AGG_TOTAL_BUCKETS}（嵌套聚合的 size 相乘）`, { bucket_bound: bound, limit: MAX_AGG_TOTAL_BUCKETS }, '减小嵌套 terms 的 size 或减少嵌套层数');
+  }
   return obj as DslInput;
+}
+
+/** Does a query_string contain a regex term (an unescaped `/` outside a quoted phrase)? */
+export function hasQueryStringRegex(q: string): boolean {
+  let inQuote = false;
+  for (let i = 0; i < q.length; i++) {
+    const c = q[i];
+    if (c === '\\') {
+      i++;
+      continue;
+    }
+    if (c === '"') inQuote = !inQuote;
+    else if (c === '/' && !inQuote) return true;
+  }
+  return false;
 }
 
 /**
@@ -132,8 +205,11 @@ export function buildSearchBody(opts: { queryString?: string | null; dsl?: DslIn
   let source: GuardedRequest['query_source'];
   if (queryString) {
     if (queryString.length > MAX_QUERY_STRING_LENGTH) throw bad(`--query 超过 ${MAX_QUERY_STRING_LENGTH} 字符`);
+    if (hasQueryStringRegex(queryString)) {
+      throw bad('--query 含有正则表达式（/.../），受限查询的 --query 不支持正则', undefined, '字面量斜杠请转义为 \\/ 或放进双引号短语；确需正则请用 --dsl-file 的 regexp 查询（max_determinized_states ≤ 10000）');
+    }
     // allow_leading_wildcard=false: leading wildcards force a full term-dictionary scan
-    query = { query_string: { query: queryString, allow_leading_wildcard: false } };
+    query = { query_string: { query: queryString, allow_leading_wildcard: false, max_determinized_states: MAX_DETERMINIZED_STATES } };
     source = 'query_string';
   } else if (dsl?.query) {
     query = dsl.query;

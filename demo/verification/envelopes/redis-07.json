@@ -20,50 +20,50 @@
     },
     "hot_keys": [
       {
-        "key": "demo:order:271",
-        "lfu_counter": 5
+        "key": "demo:order:4",
+        "lfu_counter": 43
       },
       {
-        "key": "demo:order:636",
+        "key": "demo:customer:16333:recent",
         "lfu_counter": 4
       },
       {
-        "key": "demo:order:2160",
+        "key": "demo:customer:8:recent",
         "lfu_counter": 1
       },
       {
-        "key": "demo:customer:369:profile",
+        "key": "demo:order:2131",
         "lfu_counter": 0
       },
       {
-        "key": "demo:order:1126",
+        "key": "demo:order:428",
         "lfu_counter": 0
       },
       {
-        "key": "demo:customer:145:profile",
+        "key": "demo:order:626",
         "lfu_counter": 0
       },
       {
-        "key": "demo:order:2365",
+        "key": "demo:order:1856",
         "lfu_counter": 0
       },
       {
-        "key": "demo:order:2944",
+        "key": "demo:order:1991",
         "lfu_counter": 0
       },
       {
-        "key": "demo:order:1768",
+        "key": "demo:order:308",
         "lfu_counter": 0
       },
       {
-        "key": "demo:order:440",
+        "key": "demo:order:2674",
         "lfu_counter": 0
       }
     ],
     "counter_distribution": {
       "p50": 0,
       "p90": 0,
-      "max": 5
+      "max": 43
     }
   },
   "error": null,
@@ -72,7 +72,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-17T17:31:55.673Z",
+        "observed_at": "2026-10-18T04:35:30.062Z",
         "endpoint": "redis/demo-redis",
         "method": "SCAN MATCH demo:* + OBJECT FREQ",
         "version": "7.4.11",
@@ -91,7 +91,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcobqzy-21d6bd",
+    "request_id": "req-mvdc13z9-488f9f",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -99,7 +99,7 @@
     "adapter": "redis-client",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T17:31:55.630Z",
-    "duration_ms": 45
+    "started_at": "2026-10-18T04:35:30.021Z",
+    "duration_ms": 43
   }
 }

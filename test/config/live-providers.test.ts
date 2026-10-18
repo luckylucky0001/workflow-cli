@@ -53,9 +53,13 @@ describe.skipIf(!live)('config providers (live, demo-nacos)', () => {
     const env = await invoke(r, 'discovery.list', { service: 'demo-payment' }, { configPath });
     expect(env.status).toBe('success');
     const d = env.data as any;
-    expect(d.summary).toMatchObject({ registered: 3, healthy: 2, unhealthy: 1, service_registered: true });
+    // the disabled (enabled=false) instance is healthy server-side but offline: not counted as healthy
+    expect(d.summary).toMatchObject({ registered: 3, healthy: 1, unhealthy: 1, disabled: 1, service_registered: true });
     expect(d.instances.find((x: any) => x.port === 9)).toMatchObject({ healthy: false, nacos: { ephemeral: false } });
     expect(d.instances.filter((x: any) => x.nacos.enabled === false)).toHaveLength(1);
+    const only = await invoke(r, 'discovery.list', { service: 'demo-payment', healthy_only: true }, { configPath });
+    expect((only.data as any).instances.every((x: any) => x.healthy === true && x.nacos.enabled !== false)).toBe(true);
+    expect((only.data as any).summary.excluded).toMatchObject({ not_healthy: 1, disabled: 1 });
   });
 });
 

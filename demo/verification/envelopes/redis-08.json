@@ -6,10 +6,10 @@
     "instance": "demo-redis",
     "pattern": "maxmemory*",
     "parameters": {
-      "maxmemory-policy": "allkeys-lfu",
+      "maxmemory-eviction-tenacity": "10",
       "maxmemory": "67108864",
       "maxmemory-clients": "0",
-      "maxmemory-eviction-tenacity": "10",
+      "maxmemory-policy": "allkeys-lfu",
       "maxmemory-samples": "5"
     },
     "redacted": []
@@ -20,7 +20,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-17T17:31:56.098Z",
+        "observed_at": "2026-10-18T04:35:30.419Z",
         "endpoint": "redis/demo-redis",
         "method": "CONFIG GET maxmemory*",
         "version": "7.4.11",
@@ -34,7 +34,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcobrbs-b7948c",
+    "request_id": "req-mvdc149g-621d2b",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -42,7 +42,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T17:31:56.056Z",
-    "duration_ms": 47
+    "started_at": "2026-10-18T04:35:30.388Z",
+    "duration_ms": 32
   }
 }

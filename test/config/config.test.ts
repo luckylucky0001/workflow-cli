@@ -271,6 +271,15 @@ describe('config / discovery against a fake etcd gateway', () => {
     expect(res.detail).toContain('24576');
     expect(res.detail).toContain('认证未开启');
   });
+  it('regression: a URL password inside a non-secret key (db.url) is masked in get/diff; diff still detects a password-only change', async () => {
+    const before = fake.put('/config/sandbox/urls/db.url', 'jdbc:mysql://app:LEAK-1@db:3306/order');
+    fake.put('/config/sandbox/urls/db.url', 'jdbc:mysql://app:LEAK-2@db:3306/order');
+    const g = await call('config.get', { service: 'urls' });
+    expect((g.data as any).items[0]).toMatchObject({ value: 'jdbc:mysql://app:***@db:3306/order', masked: true, masked_paths: ['$'], value_bytes: null });
+    const d = await call('config.diff', { service: 'urls', from_rev: before });
+    expect((d.data as any).changes).toMatchObject([{ name: 'db.url', change: 'changed', masked: true, old: { value: 'jdbc:mysql://app:***@db:3306/order', value_bytes: null } }]);
+    expect(JSON.stringify([g, d])).not.toContain('LEAK');
+  });
 });
 
 describe('config / discovery edge cases (regressions)', () => {

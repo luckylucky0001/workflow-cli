@@ -112,6 +112,11 @@ describe('postgres literal masking', () => {
     ["SELECT E'a\\'b', 'it''s', 3.14, x1", 'SELECT ?, ?, ?, x1'],
     ['SELECT $body$secret$body$, $1, "Col 1"', 'SELECT ?, $1, "Col 1"'],
     ['SELECT a FROM t2 WHERE b > 10e3', 'SELECT a FROM t2 WHERE b > ?'],
+    // comment contents are data too (sqlcommenter tags, pasted phone numbers, tokens)
+    ["/* user=alice phone=13800001111 */ SELECT 1 -- token abc123\nFROM t", '/* ? */ SELECT ? -- ?\nFROM t'],
+    ['SELECT /* a /* nested 13800001111 */ still */ x', 'SELECT /* ? */ x'],
+    ["SELECT '--not a comment', x -- trailing", 'SELECT ?, x -- ?'],
+    ['SELECT x /* truncated by track_activity_query_size', 'SELECT x /* ? */'],
   ])('%s', (input, expected) => {
     expect(maskPgLiterals(input)).toBe(expected);
   });

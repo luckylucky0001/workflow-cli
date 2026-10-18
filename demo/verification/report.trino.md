@@ -1,23 +1,23 @@
 # 隔离演示环境验证记录（trino）
 
-> 由 `node scripts/verify-demo.mjs demo/verification/cases.trino.json` 生成于 2026-10-17T16:58:56.369Z；原始结果信封见 `demo/verification/envelopes-trino/`。全部为合成数据。
+> 由 `node scripts/verify-demo.mjs demo/verification/cases.trino.json` 生成于 2026-10-18T04:36:04.641Z；原始结果信封见 `demo/verification/envelopes-trino/`。全部为合成数据。
 
 通过 15 / 15
 
 | # | 命令 | 期望 | 实际 | 退出码 | 耗时 ms | 来源@版本 | 说明 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| ✅ trino-01 | `workctl auth status --probe` | success | success | 0 | 1009 | workctl | trino 端点探测：GET /v1/info（nodeVersion） |
-| ✅ trino-02 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/orders_by_status.sql` | success | success | 0 | 1934 | trino@476 | POST /v1/statement，短窗口内跟随 nextUri，返回 submitted + engine_state |
-| ✅ trino-03 | `workctl sql query get --id q-20261017-b61596` | success | success | 0 | 2560 | workctl-state@476, trino@476 | 继续拉取结果页至 FINISHED：state=succeeded、3 行预览、stats |
-| ✅ trino-04 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/top_customers.sql --preview-rows 5` | success | success | 0 | 857 | trino@476 | 多表 join，25 行结果 |
-| ✅ trino-05 | `workctl sql query get --id q-20261017-ff8da1` | success | success | 0 | 835 | workctl-state@476, trino@476 | preview 5 行，preview_truncated=true，coverage.truncated |
-| ✅ trino-06 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/runtime_nodes.sql` | success | success | 0 | 474 | trino@476 | system catalog |
-| ✅ trino-07 | `workctl sql query get --id q-20261017-47c42c` | success | success | 0 | 379 | workctl-state@476, trino@476 |  |
-| ✅ trino-08 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/syntax_error.sql` | INVALID_ARGUMENT | INVALID_ARGUMENT | 2 | 424 |  | Trino SYNTAX_ERROR（USER_ERROR）→ INVALID_ARGUMENT，带行列号 |
-| ✅ trino-09 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/missing_table.sql` | NOT_FOUND | NOT_FOUND | 5 | 410 |  | TABLE_NOT_FOUND → NOT_FOUND |
-| ✅ trino-10 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/table_function_passthrough.sql` | INVALID_ARGUMENT | INVALID_ARGUMENT | 2 | 466 |  | workctl 只读守卫在提交前拒绝透传表函数（未发往 Trino） |
-| ✅ trino-11 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/long_cross_join.sql` | success | success | 0 | 499 | trino@476 | 长查询 |
-| ✅ trino-12 | `workctl sql query get --id q-20261017-9a0baf` | success | success | 0 | 5566 | workctl-state@476, trino@476 | 5 秒拉取预算内未结束：state=running，stats 显示进度 |
-| ✅ trino-13 | `workctl sql query cancel --id q-20261017-9a0baf` | success | success | 0 | 712 | trino@476 | DELETE nextUri → GET /v1/query/{id} 确认 USER_CANCELED |
-| ✅ trino-14 | `workctl sql query get --id q-20261017-9a0baf` | success | success | 0 | 401 | workctl-state@476 | state=cancelled，error.type=USER_CANCELED |
-| ✅ trino-15 | `workctl sql query cancel --id q-20261017-9a0baf` | CONFLICT | CONFLICT | 9 | 347 |  | 已结束的查询不能再取消 |
+| ✅ trino-01 | `workctl auth status --probe` | success | success | 0 | 807 | workctl | trino 端点探测：GET /v1/info（nodeVersion） |
+| ✅ trino-02 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/orders_by_status.sql` | success | success | 0 | 513 | trino@476 | POST /v1/statement，短窗口内跟随 nextUri，返回 submitted + engine_state |
+| ✅ trino-03 | `workctl sql query get --id q-20261018-6485b9` | success | success | 0 | 526 | workctl-state@476, trino@476 | 继续拉取结果页至 FINISHED：state=succeeded、3 行预览、stats |
+| ✅ trino-04 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/top_customers.sql --preview-rows 5` | success | success | 0 | 599 | trino@476 | 多表 join，25 行结果 |
+| ✅ trino-05 | `workctl sql query get --id q-20261018-7c4317` | success | success | 0 | 474 | workctl-state@476, trino@476 | preview 5 行，preview_truncated=true，coverage.truncated |
+| ✅ trino-06 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/runtime_nodes.sql` | success | success | 0 | 399 | trino@476 | system catalog |
+| ✅ trino-07 | `workctl sql query get --id q-20261018-f3b35b` | success | success | 0 | 363 | workctl-state@476, trino@476 |  |
+| ✅ trino-08 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/syntax_error.sql` | INVALID_ARGUMENT | INVALID_ARGUMENT | 2 | 345 |  | Trino SYNTAX_ERROR（USER_ERROR）→ INVALID_ARGUMENT，带行列号 |
+| ✅ trino-09 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/missing_table.sql` | NOT_FOUND | NOT_FOUND | 5 | 354 |  | TABLE_NOT_FOUND → NOT_FOUND |
+| ✅ trino-10 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/table_function_passthrough.sql` | INVALID_ARGUMENT | INVALID_ARGUMENT | 2 | 323 |  | workctl 只读守卫在提交前拒绝透传表函数（未发往 Trino） |
+| ✅ trino-11 | `workctl sql query submit --engine trino --file test/sql/fixtures/trino/long_cross_join.sql` | success | success | 0 | 437 | trino@476 | 长查询 |
+| ✅ trino-12 | `workctl sql query get --id q-20261018-36cda1` | success | success | 0 | 5493 | workctl-state@476, trino@476 | 5 秒拉取预算内未结束：state=running，stats 显示进度 |
+| ✅ trino-13 | `workctl sql query cancel --id q-20261018-36cda1` | success | success | 0 | 573 | trino@476 | DELETE nextUri → GET /v1/query/{id} 确认 USER_CANCELED |
+| ✅ trino-14 | `workctl sql query get --id q-20261018-36cda1` | success | success | 0 | 330 | workctl-state@476 | state=cancelled，error.type=USER_CANCELED |
+| ✅ trino-15 | `workctl sql query cancel --id q-20261018-36cda1` | CONFLICT | CONFLICT | 9 | 369 |  | 已结束的查询不能再取消 |

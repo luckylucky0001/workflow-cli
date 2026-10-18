@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.execute",
   "data": {
-    "id": "op-20261017-69ec46",
+    "id": "op-20261018-290b6f",
     "kind": "deploy.rollback",
     "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #1（v1.4.0）",
     "status": "succeeded",
-    "created_at": "2026-10-17T16:59:44.683Z",
-    "expires_at": "2026-10-17T17:29:44.683Z",
+    "created_at": "2026-10-18T04:37:01.185Z",
+    "expires_at": "2026-10-18T05:07:01.185Z",
     "profile": "demo",
     "env": "sandbox",
     "params": {
@@ -131,32 +131,32 @@
     "executable": true,
     "history": [
       {
-        "at": "2026-10-17T16:59:44.683Z",
+        "at": "2026-10-18T04:37:01.185Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       },
       {
-        "at": "2026-10-17T16:59:45.027Z",
+        "at": "2026-10-18T04:37:01.527Z",
         "status": "running",
-        "note": "由 req-mvcn6dba-673301 开始执行"
+        "note": "由 req-mvdc32ki-3fdded 开始执行"
       },
       {
-        "at": "2026-10-17T16:59:45.217Z",
+        "at": "2026-10-18T04:37:01.702Z",
         "status": "running",
         "note": "trigger deploy-demo-order buildWithParameters SERVICE=demo-order&VERSION=v1.4.0&ENV=sandbox"
       },
       {
-        "at": "2026-10-17T16:59:53.330Z",
+        "at": "2026-10-18T04:37:08.223Z",
         "status": "running",
         "note": "queue item 5 → build #5"
       },
       {
-        "at": "2026-10-17T16:59:56.574Z",
+        "at": "2026-10-18T04:37:09.893Z",
         "status": "running",
         "note": "build #5 SUCCESS"
       },
       {
-        "at": "2026-10-17T16:59:56.575Z",
+        "at": "2026-10-18T04:37:09.897Z",
         "status": "succeeded",
         "note": "执行器返回成功"
       }
@@ -175,7 +175,7 @@
           "VERSION": "v1.4.0",
           "ENV": "sandbox"
         },
-        "duration_ms": 11355,
+        "duration_ms": 8189,
         "verified": true
       },
       "jenkins_version": "2.541.3",
@@ -188,7 +188,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-17T16:59:56.576Z",
+        "observed_at": "2026-10-18T04:37:09.898Z",
         "relation": "explicit"
       }
     ],
@@ -196,7 +196,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn6dba-673301",
+    "request_id": "req-mvdc32ki-3fdded",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -204,7 +204,7 @@
     "adapter": "plan-store",
     "operation": "execute",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:59:44.998Z",
-    "duration_ms": 11578
+    "started_at": "2026-10-18T04:37:01.506Z",
+    "duration_ms": 8393
   }
 }

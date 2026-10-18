@@ -76,6 +76,17 @@ describe('data partition list', () => {
     expect(all.partitions.find((p: any) => p.partition === 'dt=2026-10-14').success_marker).toBe(false);
   });
 
+  // Regression: --from later than --to returned success, partitions: [], coverage.complete=true
+  // (reads as "no partitions in range") instead of rejecting the inverted range.
+  it('rejects an inverted --from/--to range instead of a complete empty listing', async () => {
+    fx.writePartition('ods.orders', '2026-10-14', odsRows('2026-10-14', 3), { success: true });
+    const env = await fx.call('data.partition.list', { table: 'ods.orders', from: '2026-10-16', to: '2026-10-01' });
+    expect(env.status).toBe('error');
+    expect(env.error?.code).toBe('INVALID_ARGUMENT');
+    const same = await fx.call('data.partition.list', { table: 'ods.orders', from: '2026-10-14', to: '2026-10-14' });
+    expect((same.data as any).matched).toBe(1);
+  });
+
   it('empty result when the table directory does not exist (complete coverage, warning)', async () => {
     const env = await fx.call('data.partition.list', { table: 'analytics.daily_orders' });
     expect(env.status).toBe('success');

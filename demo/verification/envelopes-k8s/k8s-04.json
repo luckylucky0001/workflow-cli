@@ -13,37 +13,58 @@
       "matched_by": "label selector app=demo-order（binding demo-order-k8s.labels，namespace workctl-demo）"
     },
     "window": {
-      "start": "2026-10-17T16:32:04.924Z",
-      "end": "2026-10-17T17:02:04.924Z"
+      "start": "2026-10-18T04:07:12.592Z",
+      "end": "2026-10-18T04:37:12.592Z"
     },
-    "visible_since": "2026-10-17T16:32:04.924Z",
+    "visible_since": "2026-10-18T04:07:12.592Z",
     "daemon_buffer_full": false,
     "events": [
       {
-        "time": "2026-10-17T16:42:45.000Z",
-        "type": "deployment",
-        "action": "ScalingReplicaSet",
-        "container_id": "e32abd5e1d03",
-        "container_name": "demo-order",
+        "time": "2026-10-18T04:14:14.000Z",
+        "type": "pod",
+        "action": "SandboxChanged",
+        "container_id": "bf7a3bab7aca",
+        "container_name": "demo-order-d6579cc56-mczft",
         "image": null,
         "exit_code": null,
         "signal": null,
         "attributes": {
           "namespace": "workctl-demo",
-          "kind": "Deployment",
+          "kind": "Pod",
           "event_type": "Normal",
-          "message": "(combined from similar events): Scaled up replica set demo-order-6464bf885 to 1",
-          "count": "37",
-          "first_timestamp": "2026-10-17T16:09:03Z",
-          "reporting_component": "deployment-controller"
+          "message": "Pod sandbox changed, it will be killed and re-created.",
+          "count": "1",
+          "first_timestamp": "2026-10-18T04:14:14Z",
+          "reporting_component": "kubelet",
+          "reporting_instance": "vm"
         }
       },
       {
-        "time": "2026-10-17T16:43:45.000Z",
+        "time": "2026-10-18T04:14:14.000Z",
+        "type": "pod",
+        "action": "SandboxChanged",
+        "container_id": "65bc62aa8918",
+        "container_name": "demo-order-d6579cc56-vkv9v",
+        "image": null,
+        "exit_code": null,
+        "signal": null,
+        "attributes": {
+          "namespace": "workctl-demo",
+          "kind": "Pod",
+          "event_type": "Normal",
+          "message": "Pod sandbox changed, it will be killed and re-created.",
+          "count": "1",
+          "first_timestamp": "2026-10-18T04:14:14Z",
+          "reporting_component": "kubelet",
+          "reporting_instance": "vm"
+        }
+      },
+      {
+        "time": "2026-10-18T04:14:23.000Z",
         "type": "pod",
         "action": "Pulled",
-        "container_id": "660d6ec3ac9e",
-        "container_name": "demo-order-7bf586db7c-cmgfx",
+        "container_id": "bf7a3bab7aca",
+        "container_name": "demo-order-d6579cc56-mczft",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -53,134 +74,18 @@
           "event_type": "Normal",
           "message": "Container image \"nginx:1.27-alpine\" already present on machine",
           "count": "1",
-          "first_timestamp": "2026-10-17T16:43:45Z",
+          "first_timestamp": "2026-10-18T04:14:23Z",
           "field_path": "spec.containers{nginx}",
           "reporting_component": "kubelet",
           "reporting_instance": "vm"
         }
       },
       {
-        "time": "2026-10-17T16:43:45.000Z",
-        "type": "pod",
-        "action": "Created",
-        "container_id": "660d6ec3ac9e",
-        "container_name": "demo-order-7bf586db7c-cmgfx",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "Pod",
-          "event_type": "Normal",
-          "message": "Created container nginx",
-          "count": "1",
-          "first_timestamp": "2026-10-17T16:43:45Z",
-          "field_path": "spec.containers{nginx}",
-          "reporting_component": "kubelet",
-          "reporting_instance": "vm"
-        }
-      },
-      {
-        "time": "2026-10-17T16:43:45.000Z",
-        "type": "pod",
-        "action": "Started",
-        "container_id": "660d6ec3ac9e",
-        "container_name": "demo-order-7bf586db7c-cmgfx",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "Pod",
-          "event_type": "Normal",
-          "message": "Started container nginx",
-          "count": "1",
-          "first_timestamp": "2026-10-17T16:43:45Z",
-          "field_path": "spec.containers{nginx}",
-          "reporting_component": "kubelet",
-          "reporting_instance": "vm"
-        }
-      },
-      {
-        "time": "2026-10-17T16:43:45.000Z",
-        "type": "replicaset",
-        "action": "SuccessfulCreate",
-        "container_id": "90d2985cf12e",
-        "container_name": "demo-order-7bf586db7c",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "ReplicaSet",
-          "event_type": "Normal",
-          "message": "Created pod: demo-order-7bf586db7c-cmgfx",
-          "count": "1",
-          "first_timestamp": "2026-10-17T16:43:45Z",
-          "reporting_component": "replicaset-controller"
-        }
-      },
-      {
-        "time": "2026-10-17T16:43:45.207Z",
-        "type": "pod",
-        "action": "Scheduled",
-        "container_id": "660d6ec3ac9e",
-        "container_name": "demo-order-7bf586db7c-cmgfx",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "Pod",
-          "event_type": "Normal",
-          "message": "Successfully assigned workctl-demo/demo-order-7bf586db7c-cmgfx to vm",
-          "reporting_component": "default-scheduler",
-          "reporting_instance": "default-scheduler-vm"
-        }
-      },
-      {
-        "time": "2026-10-17T16:43:46.000Z",
-        "type": "replicaset",
-        "action": "SuccessfulCreate",
-        "container_id": "90d2985cf12e",
-        "container_name": "demo-order-7bf586db7c",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "ReplicaSet",
-          "event_type": "Normal",
-          "message": "Created pod: demo-order-7bf586db7c-kb294",
-          "count": "1",
-          "first_timestamp": "2026-10-17T16:43:46Z",
-          "reporting_component": "replicaset-controller"
-        }
-      },
-      {
-        "time": "2026-10-17T16:43:46.879Z",
-        "type": "pod",
-        "action": "Scheduled",
-        "container_id": "1d4c49673efc",
-        "container_name": "demo-order-7bf586db7c-kb294",
-        "image": null,
-        "exit_code": null,
-        "signal": null,
-        "attributes": {
-          "namespace": "workctl-demo",
-          "kind": "Pod",
-          "event_type": "Normal",
-          "message": "Successfully assigned workctl-demo/demo-order-7bf586db7c-kb294 to vm",
-          "reporting_component": "default-scheduler",
-          "reporting_instance": "default-scheduler-vm"
-        }
-      },
-      {
-        "time": "2026-10-17T16:43:47.000Z",
+        "time": "2026-10-18T04:14:23.000Z",
         "type": "pod",
         "action": "Pulled",
-        "container_id": "1d4c49673efc",
-        "container_name": "demo-order-7bf586db7c-kb294",
+        "container_id": "65bc62aa8918",
+        "container_name": "demo-order-d6579cc56-vkv9v",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -190,18 +95,18 @@
           "event_type": "Normal",
           "message": "Container image \"nginx:1.27-alpine\" already present on machine",
           "count": "1",
-          "first_timestamp": "2026-10-17T16:43:47Z",
+          "first_timestamp": "2026-10-18T04:14:23Z",
           "field_path": "spec.containers{nginx}",
           "reporting_component": "kubelet",
           "reporting_instance": "vm"
         }
       },
       {
-        "time": "2026-10-17T16:43:47.000Z",
+        "time": "2026-10-18T04:14:29.000Z",
         "type": "pod",
         "action": "Created",
-        "container_id": "1d4c49673efc",
-        "container_name": "demo-order-7bf586db7c-kb294",
+        "container_id": "bf7a3bab7aca",
+        "container_name": "demo-order-d6579cc56-mczft",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -211,18 +116,39 @@
           "event_type": "Normal",
           "message": "Created container nginx",
           "count": "1",
-          "first_timestamp": "2026-10-17T16:43:47Z",
+          "first_timestamp": "2026-10-18T04:14:29Z",
           "field_path": "spec.containers{nginx}",
           "reporting_component": "kubelet",
           "reporting_instance": "vm"
         }
       },
       {
-        "time": "2026-10-17T16:43:47.000Z",
+        "time": "2026-10-18T04:14:30.000Z",
+        "type": "pod",
+        "action": "Created",
+        "container_id": "65bc62aa8918",
+        "container_name": "demo-order-d6579cc56-vkv9v",
+        "image": null,
+        "exit_code": null,
+        "signal": null,
+        "attributes": {
+          "namespace": "workctl-demo",
+          "kind": "Pod",
+          "event_type": "Normal",
+          "message": "Created container nginx",
+          "count": "1",
+          "first_timestamp": "2026-10-18T04:14:30Z",
+          "field_path": "spec.containers{nginx}",
+          "reporting_component": "kubelet",
+          "reporting_instance": "vm"
+        }
+      },
+      {
+        "time": "2026-10-18T04:14:36.000Z",
         "type": "pod",
         "action": "Started",
-        "container_id": "1d4c49673efc",
-        "container_name": "demo-order-7bf586db7c-kb294",
+        "container_id": "bf7a3bab7aca",
+        "container_name": "demo-order-d6579cc56-mczft",
         "image": null,
         "exit_code": null,
         "signal": null,
@@ -232,7 +158,112 @@
           "event_type": "Normal",
           "message": "Started container nginx",
           "count": "1",
-          "first_timestamp": "2026-10-17T16:43:47Z",
+          "first_timestamp": "2026-10-18T04:14:36Z",
+          "field_path": "spec.containers{nginx}",
+          "reporting_component": "kubelet",
+          "reporting_instance": "vm"
+        }
+      },
+      {
+        "time": "2026-10-18T04:14:36.000Z",
+        "type": "pod",
+        "action": "Started",
+        "container_id": "65bc62aa8918",
+        "container_name": "demo-order-d6579cc56-vkv9v",
+        "image": null,
+        "exit_code": null,
+        "signal": null,
+        "attributes": {
+          "namespace": "workctl-demo",
+          "kind": "Pod",
+          "event_type": "Normal",
+          "message": "Started container nginx",
+          "count": "1",
+          "first_timestamp": "2026-10-18T04:14:36Z",
+          "field_path": "spec.containers{nginx}",
+          "reporting_component": "kubelet",
+          "reporting_instance": "vm"
+        }
+      },
+      {
+        "time": "2026-10-18T04:14:37.000Z",
+        "type": "pod",
+        "action": "Unhealthy",
+        "container_id": "bf7a3bab7aca",
+        "container_name": "demo-order-d6579cc56-mczft",
+        "image": null,
+        "exit_code": null,
+        "signal": null,
+        "attributes": {
+          "namespace": "workctl-demo",
+          "kind": "Pod",
+          "event_type": "Warning",
+          "message": "Liveness probe failed: Get \"http://10.42.0.61:80/healthz\": dial tcp 10.42.0.61:80: connect: connection refused",
+          "count": "1",
+          "first_timestamp": "2026-10-18T04:14:37Z",
+          "field_path": "spec.containers{nginx}",
+          "reporting_component": "kubelet",
+          "reporting_instance": "vm"
+        }
+      },
+      {
+        "time": "2026-10-18T04:14:41.000Z",
+        "type": "pod",
+        "action": "Unhealthy",
+        "container_id": "65bc62aa8918",
+        "container_name": "demo-order-d6579cc56-vkv9v",
+        "image": null,
+        "exit_code": null,
+        "signal": null,
+        "attributes": {
+          "namespace": "workctl-demo",
+          "kind": "Pod",
+          "event_type": "Warning",
+          "message": "Liveness probe failed: Get \"http://10.42.0.60:80/healthz\": dial tcp 10.42.0.60:80: connect: connection refused",
+          "count": "1",
+          "first_timestamp": "2026-10-18T04:14:41Z",
+          "field_path": "spec.containers{nginx}",
+          "reporting_component": "kubelet",
+          "reporting_instance": "vm"
+        }
+      },
+      {
+        "time": "2026-10-18T04:14:43.000Z",
+        "type": "pod",
+        "action": "Unhealthy",
+        "container_id": "bf7a3bab7aca",
+        "container_name": "demo-order-d6579cc56-mczft",
+        "image": null,
+        "exit_code": null,
+        "signal": null,
+        "attributes": {
+          "namespace": "workctl-demo",
+          "kind": "Pod",
+          "event_type": "Warning",
+          "message": "Readiness probe failed: Get \"http://10.42.0.61:80/healthz\": dial tcp 10.42.0.61:80: connect: connection refused",
+          "count": "5",
+          "first_timestamp": "2026-10-18T04:14:36Z",
+          "field_path": "spec.containers{nginx}",
+          "reporting_component": "kubelet",
+          "reporting_instance": "vm"
+        }
+      },
+      {
+        "time": "2026-10-18T04:14:44.000Z",
+        "type": "pod",
+        "action": "Unhealthy",
+        "container_id": "65bc62aa8918",
+        "container_name": "demo-order-d6579cc56-vkv9v",
+        "image": null,
+        "exit_code": null,
+        "signal": null,
+        "attributes": {
+          "namespace": "workctl-demo",
+          "kind": "Pod",
+          "event_type": "Warning",
+          "message": "Readiness probe failed: Get \"http://10.42.0.60:80/healthz\": dial tcp 10.42.0.60:80: connect: connection refused",
+          "count": "4",
+          "first_timestamp": "2026-10-18T04:14:36Z",
           "field_path": "spec.containers{nginx}",
           "reporting_component": "kubelet",
           "reporting_instance": "vm"
@@ -240,12 +271,11 @@
       }
     ],
     "counts_by_action": {
-      "ScalingReplicaSet": 1,
+      "SandboxChanged": 2,
       "Pulled": 2,
       "Created": 2,
       "Started": 2,
-      "SuccessfulCreate": 2,
-      "Scheduled": 2
+      "Unhealthy": 4
     },
     "provider": "kubernetes",
     "retention": {
@@ -260,7 +290,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T17:02:04.950Z",
+        "observed_at": "2026-10-18T04:37:12.604Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/deployments",
         "relation": "explicit",
@@ -269,7 +299,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T17:02:04.950Z",
+        "observed_at": "2026-10-18T04:37:12.604Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/statefulsets",
         "relation": "explicit",
@@ -278,7 +308,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T17:02:04.950Z",
+        "observed_at": "2026-10-18T04:37:12.604Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/namespaces/workctl-demo/pods?labelSelector=app=demo-order",
         "relation": "explicit",
@@ -287,7 +317,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-17T17:02:04.950Z",
+        "observed_at": "2026-10-18T04:37:12.604Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/namespaces/workctl-demo/events（本地按 involvedObject uid 过滤）",
         "relation": "explicit",
@@ -296,7 +326,7 @@
       {
         "system": "workctl",
         "adapter": "resource-bindings",
-        "observed_at": "2026-10-17T17:02:04.950Z",
+        "observed_at": "2026-10-18T04:37:12.604Z",
         "method": "bindings: demo-order runs_on demo-order-k8s（endpoint kubernetes/k3s）",
         "relation": "explicit"
       }
@@ -304,8 +334,8 @@
     "coverage": {
       "complete": true,
       "window": {
-        "start": "2026-10-17T16:32:04.924Z",
-        "end": "2026-10-17T17:02:04.924Z"
+        "start": "2026-10-18T04:07:12.592Z",
+        "end": "2026-10-18T04:37:12.592Z"
       },
       "scope": "API server 保留的事件（窗口 30m，event-ttl 1h）",
       "notes": [
@@ -313,14 +343,13 @@
         "Kubernetes 事件只保留 event-ttl（kube-apiserver --event-ttl，默认 1h；本端点按 1h 计算）；更早的事件已被删除，不代表“没有事件”",
         "同类事件会被聚合：count 为自 first_timestamp 起的累计次数，时间取最近一次（lastTimestamp / series.lastObservedTime）",
         "只包含当前匹配的 Pod、其 ReplicaSet/StatefulSet 和工作负载的事件；已被替换/删除的旧 Pod 的事件不按名称推断归属，未包含",
-        "--include-exec 对 Kubernetes 不适用（没有 exec 事件）",
-        "12 条相关事件的时间不在窗口内，已排除"
+        "--include-exec 对 Kubernetes 不适用（没有 exec 事件）"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn9d7v-5e8ef1",
+    "request_id": "req-mvdc3b2h-9ded38",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -328,7 +357,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T17:02:04.843Z",
-    "duration_ms": 107
+    "started_at": "2026-10-18T04:37:12.521Z",
+    "duration_ms": 83
   }
 }

@@ -15,7 +15,7 @@
       "file": "/home/user/workflow-cli/demo/quality-rules/demo-daily-rules.yaml",
       "rules": 11
     },
-    "quality_state": "pass",
+    "quality_state": "fail",
     "conclusive": true,
     "precondition": {
       "ok": true,
@@ -24,11 +24,11 @@
     },
     "summary": {
       "total": 12,
-      "pass": 12,
-      "fail": 0,
+      "pass": 10,
+      "fail": 2,
       "error": 0,
       "skipped": 0,
-      "warn_failures": 0
+      "warn_failures": 1
     },
     "results": [
       {
@@ -185,8 +185,8 @@
           "above_max": 0,
           "non_numeric": 0,
           "null_rows_skipped": 0,
-          "min_observed": 239,
-          "max_observed": 1985
+          "min_observed": 241,
+          "max_observed": 2001
         }
       },
       {
@@ -209,8 +209,8 @@
           "above_max": 0,
           "non_numeric": 0,
           "null_rows_skipped": 0,
-          "min_observed": 117799.22,
-          "max_observed": 997051.15
+          "min_observed": 111788.26,
+          "max_observed": 991075.14
         }
       },
       {
@@ -220,8 +220,8 @@
         "implicit": false,
         "evaluated_on": "full",
         "conclusive": true,
-        "status": "pass",
-        "message": "order_date 均与分区 dt=2026-10-17 一致",
+        "status": "fail",
+        "message": "6 行的 order_date 与分区 dt=2026-10-17 不一致（分区路径与数据内容错位）",
         "expected": {
           "column": "order_date",
           "partition_key": "dt",
@@ -230,14 +230,76 @@
         },
         "observed": {
           "rows_checked": 6,
-          "mismatched": 0,
+          "mismatched": 6,
           "values": [
             {
-              "value": "2026-10-17",
+              "value": "2026-10-16",
               "count": 6
             }
           ]
-        }
+        },
+        "samples": [
+          {
+            "file": "part-00000-de6774d8-335a-4638-b0ce-28ab0d035f80-c000.json",
+            "line": 1,
+            "row": {
+              "order_date": "2026-10-16",
+              "status": "CANCELLED",
+              "order_count": 241,
+              "total_amount": 111788.26,
+              "avg_amount": 463.85,
+              "customer_count": 238
+            }
+          },
+          {
+            "file": "part-00000-de6774d8-335a-4638-b0ce-28ab0d035f80-c000.json",
+            "line": 2,
+            "row": {
+              "order_date": "2026-10-16",
+              "status": "DELIVERED",
+              "order_count": 2001,
+              "total_amount": 991075.14,
+              "avg_amount": 495.29,
+              "customer_count": 1797
+            }
+          },
+          {
+            "file": "part-00000-de6774d8-335a-4638-b0ce-28ab0d035f80-c000.json",
+            "line": 3,
+            "row": {
+              "order_date": "2026-10-16",
+              "status": "PAID",
+              "order_count": 998,
+              "total_amount": 504919.63,
+              "avg_amount": 505.93,
+              "customer_count": 938
+            }
+          },
+          {
+            "file": "part-00000-de6774d8-335a-4638-b0ce-28ab0d035f80-c000.json",
+            "line": 4,
+            "row": {
+              "order_date": "2026-10-16",
+              "status": "PENDING",
+              "order_count": 515,
+              "total_amount": 262936.7,
+              "avg_amount": 510.56,
+              "customer_count": 494
+            }
+          },
+          {
+            "file": "part-00000-de6774d8-335a-4638-b0ce-28ab0d035f80-c000.json",
+            "line": 5,
+            "row": {
+              "order_date": "2026-10-16",
+              "status": "REFUNDED",
+              "order_count": 253,
+              "total_amount": 134273.05,
+              "avg_amount": 530.72,
+              "customer_count": 246
+            }
+          }
+        ]
       },
       {
         "id": "schema",
@@ -281,16 +343,16 @@
         "implicit": false,
         "evaluated_on": "filesystem",
         "conclusive": true,
-        "status": "pass",
-        "message": "分区在期限内产出",
+        "status": "fail",
+        "message": "更新时间 2026-10-18T12:19:31+08:00 晚于期限 2026-10-18T06:00:00+08:00",
         "expected": {
           "deadline": "2026-10-18T06:00:00+08:00",
           "rule": "业务日期 2026-10-17 + 1 天 06:00 (Asia/Shanghai) 前产出"
         },
         "observed": {
-          "updated_at": "2026-10-17T16:55:50.717Z",
+          "updated_at": "2026-10-18T04:19:31.844Z",
           "basis": "_SUCCESS 文件修改时间（本地文件系统 mtime）",
-          "updated_at_local": "2026-10-18T00:55:50+08:00"
+          "updated_at_local": "2026-10-18T12:19:31+08:00"
         }
       },
       {
@@ -316,7 +378,7 @@
       "files_total": 1,
       "parse_errors": 0
     },
-    "checked_at": "2026-10-17T17:32:12.063Z",
+    "checked_at": "2026-10-18T04:35:45.016Z",
     "persisted_to": "/home/user/workflow-cli/demo/environment/.runtime/state/quality/analytics.daily_orders/dt=2026-10-17.json"
   },
   "error": null,
@@ -325,7 +387,7 @@
       {
         "system": "file-catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T17:32:12.063Z",
+        "observed_at": "2026-10-18T04:35:45.016Z",
         "endpoint": "catalog/demo",
         "method": "read tables/analytics.daily_orders.yaml",
         "relation": "explicit"
@@ -333,14 +395,14 @@
       {
         "system": "quality-ruleset",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T17:32:12.063Z",
+        "observed_at": "2026-10-18T04:35:45.016Z",
         "method": "read demo-daily-rules.yaml",
         "relation": "explicit"
       },
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T17:32:12.063Z",
+        "observed_at": "2026-10-18T04:35:45.016Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "stat+readdir analytics/daily_orders/dt=2026-10-17",
         "relation": "derived"
@@ -348,7 +410,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-17T17:32:12.063Z",
+        "observed_at": "2026-10-18T04:35:45.016Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "read 1/1 files, 6 rows",
         "relation": "derived"
@@ -365,7 +427,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcoc3m1-42b4c0",
+    "request_id": "req-mvdc1fhg-d89568",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -373,7 +435,7 @@
     "adapter": "file-catalog",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T17:32:11.977Z",
-    "duration_ms": 88
+    "started_at": "2026-10-18T04:35:44.932Z",
+    "duration_ms": 86
   }
 }

@@ -13,11 +13,11 @@
       "matched_by": "label workctl.service=demo-order（binding attribute container_label）"
     },
     "window": {
-      "start": "2026-10-17T11:31:25.791Z",
-      "end": "2026-10-17T17:31:25.791Z"
+      "start": "2026-10-17T22:35:00.996Z",
+      "end": "2026-10-18T04:35:00.996Z"
     },
-    "visible_since": "2026-10-17T11:31:25.791Z",
-    "daemon_buffer_full": false,
+    "visible_since": "2026-10-18T04:33:34.618Z",
+    "daemon_buffer_full": true,
     "events": [],
     "counts_by_action": {}
   },
@@ -27,30 +27,32 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-17T17:31:25.812Z",
+        "observed_at": "2026-10-18T04:35:01.024Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
-        "method": "GET /events?since=1792236685&until=1792258285（本地按标签 workctl.service=demo-order 过滤）",
+        "method": "GET /events?since=1792276500&until=1792298100（本地按标签 workctl.service=demo-order 过滤）",
         "relation": "explicit",
         "version": "29.8.2 (API 1.56)"
       }
     ],
     "coverage": {
-      "complete": true,
+      "complete": false,
       "window": {
-        "start": "2026-10-17T11:31:25.791Z",
-        "end": "2026-10-17T17:31:25.791Z"
+        "start": "2026-10-17T22:35:00.996Z",
+        "end": "2026-10-18T04:35:00.996Z"
       },
-      "scope": "守护进程内存中保留的事件（窗口 6h）",
+      "truncated": true,
+      "scope": "窗口 6h 中仅 2026-10-18T04:33:34.618Z 之后的部分可见",
       "notes": [
         "容器选择器: label workctl.service=demo-order（binding attribute container_label）（bindings: demo-order.attributes.container_label=workctl.service=demo-order）",
         "环境过滤: workctl.env=sandbox（无该标签的容器保留并标注）",
-        "Docker 守护进程只保留最近有限条事件，且重启后清空；窗口内事件不全时以容器 inspect 状态为准"
+        "Docker 守护进程只保留最近有限条事件，且重启后清空；窗口内事件不全时以容器 inspect 状态为准",
+        "守护进程事件缓冲已满（256 条，上限约 256），可见历史只从 2026-10-18T04:33:34.618Z 开始；更早的事件已被挤出（健康检查产生的 exec 事件会快速占满缓冲）。更长历史需要事件采集（如日志/事件转发）"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcob3x5-83a759",
+    "request_id": "req-mvdc0hjm-4ab50e",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -58,7 +60,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T17:31:25.721Z",
-    "duration_ms": 91
+    "started_at": "2026-10-18T04:35:00.946Z",
+    "duration_ms": 79
   }
 }

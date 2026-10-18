@@ -140,7 +140,7 @@
           "ok": true,
           "identity": "workctl（无密码，X-Trino-User 声明身份；/v1/info 不校验身份，授权由查询时的访问控制决定）",
           "version": "476",
-          "detail": "http://127.0.0.1:18085/ GET /v1/info：environment=docker，coordinator=true，starting=false，uptime=4.59m；默认 catalog=tpch，schema=tiny"
+          "detail": "http://127.0.0.1:18085/ GET /v1/info：environment=docker，coordinator=true，starting=false，uptime=19.59m；默认 catalog=tpch，schema=tiny"
         }
       },
       {
@@ -177,7 +177,7 @@
           "ok": true,
           "identity": "anonymous",
           "version": "3.5.21",
-          "detail": "leader 10276657743932975437（即本成员）；db 20480 字节（使用中 20480）；集群版本 3.5.0；认证未开启"
+          "detail": "leader 10276657743932975437（即本成员）；db 53248 字节（使用中 53248）；集群版本 3.5.0；认证未开启"
         }
       },
       {
@@ -201,7 +201,7 @@
           "ok": true,
           "identity": "anonymous",
           "version": "1.20.6",
-          "detail": "数据中心 dc1；节点 c7b64ef06d6b；leader 127.0.0.1:8300；ACL 未开启"
+          "detail": "数据中心 dc1；节点 9ab6800f96d3；leader 127.0.0.1:8300；ACL 未开启"
         }
       },
       {
@@ -230,7 +230,7 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-17T16:59:04.631Z",
+        "observed_at": "2026-10-18T04:36:22.469Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/workctl.yaml",
         "relation": "explicit"
       }
@@ -242,7 +242,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn5ht1-1ed7fd",
+    "request_id": "req-mvdc284b-0cd312",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -250,7 +250,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:59:04.165Z",
-    "duration_ms": 466
+    "started_at": "2026-10-18T04:36:22.043Z",
+    "duration_ms": 426
   }
 }

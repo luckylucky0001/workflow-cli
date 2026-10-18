@@ -600,6 +600,7 @@ const dependencyList = defineCapability({
       }
     }
     const runCache = new Map<string, any>();
+    const lookupFailures: string[] = [];
     for (const w of wf) {
       if (runCache.has(w.workflow)) {
         Object.assign(w, runCache.get(w.workflow));
@@ -615,7 +616,10 @@ const dependencyList = defineCapability({
             ? { run: { run_id: m.run.dag_run_id, state: m.run.state ?? null, match: m.match }, run_lookup: `按业务日期 ${bd} 匹配到 ${r.matched.length} 个 run` }
             : { run: null, run_lookup: `业务日期 ${bd} 没有 run（未调度/未触发）` };
         } catch (e) {
-          look = { run: null, run_lookup: `查询失败: ${e instanceof WorkError ? `${e.code} ${e.message}` : String(e)}` };
+          // not collected ≠ "no run": surface as partial, with only the error code (no raw driver text / endpoint)
+          const code = e instanceof WorkError ? e.code : ((e as NodeJS.ErrnoException)?.code ?? (e as { cause?: NodeJS.ErrnoException })?.cause?.code ?? (e as Error)?.name ?? 'ERROR');
+          lookupFailures.push(`查询关联工作流 ${w.workflow} 的 run 失败（${code}），其 run 未采集`);
+          look = { run: null, run_lookup: `查询失败: ${code}（未采集，不代表没有 run）` };
         }
       }
       runCache.set(w.workflow, look);
@@ -625,7 +629,8 @@ const dependencyList = defineCapability({
     return {
       data: { workflow: dagId, run_id: runId, direction: dir, business_date: bd, task_edges: taskEdges, data_dependencies: data, workflow_dependencies: wf, notes },
       sources,
-      coverage: { complete: !!targets.catalog && store.configured, scope: `${dir} of ${dagId}/${runId}`, notes: ['task_edges 为 DAG 内全部边（两个方向）；数据与跨工作流依赖按 direction 过滤'] },
+      ...(lookupFailures.length ? { status: 'partial' as const, warnings: lookupFailures } : {}),
+      coverage: { complete: !!targets.catalog && store.configured && !lookupFailures.length, scope: `${dir} of ${dagId}/${runId}`, notes: ['task_edges 为 DAG 内全部边（两个方向）；数据与跨工作流依赖按 direction 过滤', ...lookupFailures] },
     };
   },
 });

@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "capability": "postgres.query.explain",
+  "data": {
+    "instance": "demo-postgres",
+    "database": "demo_orders",
+    "statement_type": "SELECT",
+    "estimate_only": true,
+    "generic_plan": true,
+    "summary": {
+      "total_cost": 8.31,
+      "plan_rows": 1,
+      "seq_scans": [],
+      "index_scans": [
+        "orders:orders_pkey"
+      ],
+      "sorts": 0,
+      "planning_ms": null,
+      "execution_ms": null
+    },
+    "nodes": [
+      {
+        "depth": 0,
+        "node_type": "Index Scan",
+        "relation": "orders",
+        "alias": "orders",
+        "index": "orders_pkey",
+        "join_type": null,
+        "startup_cost": 0.29,
+        "total_cost": 8.31,
+        "plan_rows": 1,
+        "filter": null,
+        "index_cond": "(id = $1)"
+      }
+    ],
+    "plan": [
+      {
+        "Plan": {
+          "Node Type": "Index Scan",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Scan Direction": "Forward",
+          "Index Name": "orders_pkey",
+          "Relation Name": "orders",
+          "Alias": "orders",
+          "Startup Cost": 0.29,
+          "Total Cost": 8.31,
+          "Plan Rows": 1,
+          "Plan Width": 49,
+          "Index Cond": "(id = $1)"
+        }
+      }
+    ]
+  },
+  "error": null,
+  "meta": {
+    "sources": [
+      {
+        "system": "postgresql",
+        "adapter": "pg-driver",
+        "observed_at": "2026-10-18T04:36:42.624Z",
+        "endpoint": "postgres/demo-postgres",
+        "method": "EXPLAIN (GENERIC_PLAN, FORMAT JSON)",
+        "version": "16.15",
+        "relation": "derived"
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "notes": [
+        "优化器估计，非实际执行"
+      ]
+    },
+    "warnings": []
+  },
+  "context": {
+    "request_id": "req-mvdc2nyf-d2fdf4",
+    "profile": "demo",
+    "env": "sandbox",
+    "data_mode": "live",
+    "capability_version": "1.0.0",
+    "adapter": "pg-driver",
+    "operation": "read",
+    "cli_version": "0.1.0",
+    "started_at": "2026-10-18T04:36:42.567Z",
+    "duration_ms": 62
+  }
+}

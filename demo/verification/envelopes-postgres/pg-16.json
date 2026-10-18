@@ -15,8 +15,8 @@
       ],
       "index_scans": [],
       "sorts": 1,
-      "planning_ms": 0.835,
-      "execution_ms": 6.587
+      "planning_ms": 0.67,
+      "execution_ms": 3.44
     },
     "nodes": [
       {
@@ -31,7 +31,7 @@
         "plan_rows": 20,
         "filter": null,
         "index_cond": null,
-        "actual_total_ms": 6.486,
+        "actual_total_ms": 3.379,
         "actual_rows": 20,
         "loops": 1,
         "rows_removed_by_filter": null,
@@ -51,7 +51,7 @@
         "plan_rows": 28,
         "filter": null,
         "index_cond": null,
-        "actual_total_ms": 6.481,
+        "actual_total_ms": 3.375,
         "actual_rows": 20,
         "loops": 1,
         "rows_removed_by_filter": null,
@@ -71,7 +71,7 @@
         "plan_rows": 28,
         "filter": "(customer_id = 42)",
         "index_cond": null,
-        "actual_total_ms": 6.403,
+        "actual_total_ms": 3.33,
         "actual_rows": 25,
         "loops": 1,
         "rows_removed_by_filter": 49975,
@@ -90,13 +90,13 @@
           "Total Cost": 1236.99,
           "Plan Rows": 20,
           "Plan Width": 29,
-          "Actual Startup Time": 6.48,
-          "Actual Total Time": 6.486,
+          "Actual Startup Time": 3.375,
+          "Actual Total Time": 3.379,
           "Actual Rows": 20,
           "Actual Loops": 1,
           "Shared Hit Blocks": 550,
           "Shared Read Blocks": 0,
-          "Shared Dirtied Blocks": 0,
+          "Shared Dirtied Blocks": 1,
           "Shared Written Blocks": 0,
           "Local Hit Blocks": 0,
           "Local Read Blocks": 0,
@@ -118,8 +118,8 @@
               "Total Cost": 1237.01,
               "Plan Rows": 28,
               "Plan Width": 29,
-              "Actual Startup Time": 6.478,
-              "Actual Total Time": 6.481,
+              "Actual Startup Time": 3.373,
+              "Actual Total Time": 3.375,
               "Actual Rows": 20,
               "Actual Loops": 1,
               "Sort Key": [
@@ -130,7 +130,7 @@
               "Sort Space Type": "Memory",
               "Shared Hit Blocks": 550,
               "Shared Read Blocks": 0,
-              "Shared Dirtied Blocks": 0,
+              "Shared Dirtied Blocks": 1,
               "Shared Written Blocks": 0,
               "Local Hit Blocks": 0,
               "Local Read Blocks": 0,
@@ -154,15 +154,15 @@
                   "Total Cost": 1236.26,
                   "Plan Rows": 28,
                   "Plan Width": 29,
-                  "Actual Startup Time": 0.139,
-                  "Actual Total Time": 6.403,
+                  "Actual Startup Time": 0.137,
+                  "Actual Total Time": 3.33,
                   "Actual Rows": 25,
                   "Actual Loops": 1,
                   "Filter": "(customer_id = 42)",
                   "Rows Removed by Filter": 49975,
                   "Shared Hit Blocks": 547,
                   "Shared Read Blocks": 0,
-                  "Shared Dirtied Blocks": 0,
+                  "Shared Dirtied Blocks": 1,
                   "Shared Written Blocks": 0,
                   "Local Hit Blocks": 0,
                   "Local Read Blocks": 0,
@@ -195,12 +195,12 @@
           "Temp I/O Read Time": 0,
           "Temp I/O Write Time": 0
         },
-        "Planning Time": 0.835,
+        "Planning Time": 0.67,
         "Triggers": [],
-        "Execution Time": 6.587
+        "Execution Time": 3.44
       }
     ],
-    "elapsed_ms": 12,
+    "elapsed_ms": 8,
     "guards": {
       "read_only_transaction": true,
       "statement_timeout_ms": 5000,
@@ -213,7 +213,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-17T16:59:14.073Z",
+        "observed_at": "2026-10-18T04:36:31.196Z",
         "endpoint": "postgres/demo-postgres",
         "method": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) in READ ONLY transaction",
         "version": "16.15",
@@ -229,7 +229,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcn5pe7-a1bcb2",
+    "request_id": "req-mvdc2f4v-8d7422",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -237,7 +237,7 @@
     "adapter": "pg-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T16:59:13.999Z",
-    "duration_ms": 80
+    "started_at": "2026-10-18T04:36:31.135Z",
+    "duration_ms": 66
   }
 }

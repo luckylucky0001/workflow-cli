@@ -260,6 +260,23 @@ describe('engine guards and input parsing', () => {
       process.chdir(prev);
     }
   });
+
+  it('expands a leading ~/ in file inputs to the home directory (MCP callers have no shell)', async () => {
+    const home = join(dir, 'fake-home');
+    mkdirSync(home, { recursive: true });
+    writeFileSync(join(home, 'q.json'), '{}');
+    const prevHome = process.env.HOME;
+    process.env.HOME = home;
+    try {
+      const env = await invoke(reg, 'rv.inputs', { f: '~/q.json' }, { configPath });
+      expect(env.status).toBe('success');
+      expect((env.data as any).f).toBe(join(home, 'q.json'));
+      // only a leading ~/ is expanded; ~user and embedded ~ stay literal
+      expect((await invoke(reg, 'rv.inputs', { f: '~nobody/q.json' }, { configPath })).error?.code).toBe('INVALID_ARGUMENT');
+    } finally {
+      process.env.HOME = prevHome;
+    }
+  });
 });
 
 describe('config: inline credentials', () => {
@@ -358,6 +375,18 @@ describe('plugin install hardening', () => {
     const tgz = pluginPackage(dir, { version: '../../victim' });
     expect(() => installPlugin(tgz, testRegistry())).toThrow(/插件清单不合法/);
     expect(existsSync(victim)).toBe(true);
+  });
+
+  it('rejects reserved domain names such as the builtin planned pseudo-domain', () => {
+    const reg = testRegistry();
+    const before = reg.domains.get('planned');
+    const tgz = pluginPackage(dir, {
+      domain: { name: 'planned', title: 'X', summary: 's', pillar: 'middleware', guide: 'guide.md' },
+      capabilities: [{ name: 'planned.x', command: 'planned x', summary: 'x', adapter: 'x', operation: 'read', auth_provider: 'x', capability_version: '1.0.0', guide: 'guide.md' }],
+    });
+    expect(() => installPlugin(tgz, reg)).toThrow(/保留/);
+    expect(reg.domains.get('planned')).toBe(before);
+    expect(() => reg.addDomain({ ...before!, title: 'hijack', capabilities: [] }, { fulfillPlanned: true })).toThrow(/duplicate domain planned/);
   });
 
   it('rejects manifest paths outside the package', () => {

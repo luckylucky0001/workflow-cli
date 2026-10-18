@@ -112,6 +112,18 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 
 合计 57 个（此前各领域交叉审查 58 个，累计 115 个）。最终模糊测试轮次 0 违例，完整复位后复跑（2011 + 254 + 143 个 CLI 用例）仍 0 违例；未修复的“疑似”项（如 Consul 检查输出可能含 token、PostgreSQL 数值表达式可绕过按列名脱敏）记录在各领域指南的限制中。
 
+### 4.4b 遗留疑似项修复（2026-10-18）
+
+前几轮审查记录为“疑似、未修复”的项逐一复现后修复（每项有先失败后通过的回归测试），并对较早审查的 data / observability / redis 领域补做一轮查找，共 17 个：
+
+| 范围 | 数量 | 内容 |
+| --- | --- | --- |
+| 配置中心 / 服务发现 | 5 | 非秘密键名的值里嵌着的连接串密码（`db.url = jdbc:...user:pass@`）明文；Consul 健康检查输出里的 token/URL 密码；Nacos 把 `enabled=false` 实例计为健康；`.properties` 末行续行反斜杠；历史超过 500 条时误报“保留期内未变化” |
+| PostgreSQL / 搜索插件 / 核心 | 7 | 用户语句改走扩展协议，由服务端拒绝多语句；单条语句统计被单独重置时窗口差分少算（现标注 `reset_detected` 并返回 partial）；会话/锁/语句文本中的注释内容脱敏；OpenSearch 正则/前导通配符/`max_determinized_states`、嵌套聚合桶数与聚合输出体积上限（不再出现 INTERNAL）；插件不可使用保留领域名 `planned`；文件参数 `~` 展开 |
+| 离线 / 可观测 / 数据 / CLI | 5 | `offline dependency list` 关联运行查询失败时报完整；`metric query` 输出无上限（现最多 200 条序列并标注截断）；`data partition list` 起止颠倒返回“空且完整”；`trace get` 部分容器日志不可读时报完整；超时后 CLI 进程不退出（读/诊断/计划类现在输出信封后立即退出，执行类不受影响） |
+
+修复后：单元 + 契约测试 667 个通过；`WORKCTL_IT=1 WORKCTL_K8S=1` 757/757；逐能力套件 主 74、Trino 15、etcd 16、Nacos 13、Consul 12、PostgreSQL 35、搜索 26、Jenkins 15、Kubernetes 10、Kubernetes 发布 14（含真实回滚）全部通过。累计修复缺陷 132 个。
+
 ### 4.5 Skill 测评与优化（2026-10-17）
 
 - **静态**：`scripts/skill-lint.mjs`（契约测试 `test/contract/skills.test.ts` 强制）检查 13 个 Skill 的 frontmatter（何时使用、不适用于什么）、正文中 116 处 `workctl` 命令与参数是否真实存在、待接入能力是否标注、引用路径是否存在、是否含疑似凭据。首轮 10 个问题全部在 description（9 个没写“不适用/该转给哪个 Skill”，1 个没写何时使用），命令与参数 0 错；已全部修复。

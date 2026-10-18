@@ -5,6 +5,9 @@ import type { PlanDraft, Plan } from './operations';
 
 export type InputType = 'string' | 'int' | 'number' | 'bool' | 'duration' | 'enum' | 'file' | 'list';
 export type Operation = 'read' | 'diagnose' | 'plan' | 'execute';
+/** Builtin domain names a plugin may never claim or replace. */
+export const RESERVED_DOMAIN_NAMES: ReadonlySet<string> = new Set(['core', 'planned', 'plugin']);
+
 export type CapabilityStatus = 'available' | 'requires_auth' | 'planned';
 
 export interface InputSpec {
@@ -102,6 +105,9 @@ export class Registry {
    */
   addDomain(d: DomainDef, opts: { fulfillPlanned?: boolean } = {}): void {
     if (this.domains.has(d.name)) {
+      // reserved builtin domains (e.g. the `planned` pseudo-domain, whose capabilities carry other
+      // domain names) can never be "fulfilled" by a plugin
+      if (RESERVED_DOMAIN_NAMES.has(d.name)) throw new Error(`duplicate domain ${d.name}`);
       const onlyPlanned = [...this.capabilities.values()].filter((c) => c.domain === d.name).every((c) => c.status === 'planned');
       if (!(opts.fulfillPlanned && onlyPlanned)) throw new Error(`duplicate domain ${d.name}`);
     }

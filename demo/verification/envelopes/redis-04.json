@@ -9,12 +9,12 @@
       "max_len": 256,
       "config_readable": true
     },
-    "retained_entries": 3,
+    "retained_entries": 1,
     "entries": [
       {
-        "id": 2,
-        "timestamp": "2026-10-17T16:55:40.000Z",
-        "duration_us": 3498,
+        "id": 0,
+        "timestamp": "2026-10-18T04:19:44.000Z",
+        "duration_us": 4082,
         "command": "ZRANGE",
         "key": "demo:leaderboard:amount:2026-10-16",
         "args": [
@@ -24,63 +24,7 @@
           "?"
         ],
         "arg_count": 4,
-        "client_addr": "172.18.0.1:56862",
-        "client_name": null
-      },
-      {
-        "id": 1,
-        "timestamp": "2026-10-17T16:55:39.000Z",
-        "duration_us": 1094,
-        "command": "GET",
-        "key": "demo:order:8",
-        "args": [
-          "demo:order:8"
-        ],
-        "arg_count": 1,
-        "client_addr": "172.18.0.1:56862",
-        "client_name": null
-      },
-      {
-        "id": 0,
-        "timestamp": "2026-10-17T16:55:39.000Z",
-        "duration_us": 1054,
-        "command": "ZADD",
-        "key": "demo:leaderboard:amount:2026-10-16",
-        "args": [
-          "demo:leaderboard:amount:2026-10-16",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?",
-          "?"
-        ],
-        "arg_count": 31,
-        "client_addr": "172.18.0.1:56862",
+        "client_addr": "172.18.0.1:43554",
         "client_name": null
       }
     ]
@@ -91,7 +35,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-17T17:31:54.466Z",
+        "observed_at": "2026-10-18T04:35:28.900Z",
         "endpoint": "redis/demo-redis",
         "method": "SLOWLOG GET / SLOWLOG LEN / CONFIG GET slowlog-*",
         "version": "7.4.11",
@@ -110,7 +54,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvcobq2f-0a6d3f",
+    "request_id": "req-mvdc1339-622351",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -118,7 +62,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-17T17:31:54.423Z",
-    "duration_ms": 45
+    "started_at": "2026-10-18T04:35:28.869Z",
+    "duration_ms": 33
   }
 }

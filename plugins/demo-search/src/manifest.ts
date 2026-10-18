@@ -84,7 +84,9 @@ export const CAPABILITIES: ManifestCapability[] = [
     command: 'search query',
     summary: '对 OpenSearch 执行受限只读查询（query_string 或受限 DSL），返回命中数、命中与聚合',
     description:
-      '只调用 POST /{index}/_search。--query 以 query_string 执行（禁止前导通配符）；--dsl-file 只允许 query / size / sort / _source / aggs，拒绝脚本（script、script_score、scripted_metric、_script 排序、runtime_mappings、terms_set 的 minimum_should_match_script、base64 的 wrapper 查询等）、聚合中的 top_hits 和跨索引读取（terms lookup、indexed_shape）。size ≤ 100（--max-hits，默认 20），timeout 由时间预算设置，track_total_hits ≤ 10000（--track-total-hits）。',
+      '只调用 POST /{index}/_search。--query 以 query_string 执行（禁止前导通配符）；--dsl-file 只允许 query / size / sort / _source / aggs，拒绝脚本（script、script_score、scripted_metric、_script 排序、runtime_mappings、terms_set 的 minimum_should_match_script、base64 的 wrapper 查询等）、聚合中的 top_hits 和跨索引读取（terms lookup、indexed_shape）。size ≤ 100（--max-hits，默认 20），timeout 由时间预算设置，track_total_hits ≤ 10000（--track-total-hits）。' +
+      '昂贵查询限制：--query 不支持正则（/.../，字面量斜杠请转义或放进双引号短语），max_determinized_states 固定为 10000；DSL 中 allow_leading_wildcard=true、以 * / ? 开头的 wildcard 查询、max_determinized_states > 10000 一律拒绝，未显式设置的 query_string 补上 allow_leading_wildcard=false。' +
+      '聚合限制：单个桶聚合 size ≤ 1000，嵌套 terms 类聚合的 size 乘积（最坏桶数）≤ 10000，否则 INVALID_ARGUMENT；聚合结果序列化后超过 4 MiB 时省略为 aggregations=null 并返回 partial。',
     inputs: {
       cluster,
       index: { type: 'string', required: true, description: '索引、别名或带尾部 * 的前缀，可逗号分隔（≤10 个）；禁止 _all 与 . 开头的系统索引' },

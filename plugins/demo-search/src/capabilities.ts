@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { isAbsolute } from 'node:path';
-import { buildSearchBody, DEFAULT_MAX_HITS, MAX_HITS_CAP, parseDsl, TRACK_TOTAL_HITS_LIMIT, truncateSource, type DslInput } from './dsl';
+import { buildSearchBody, DEFAULT_MAX_HITS, MAX_AGG_OUTPUT_BYTES, MAX_HITS_CAP, parseDsl, TRACK_TOTAL_HITS_LIMIT, truncateSource, type DslInput } from './dsl';
 import { encodeIndexList, makeSource, mapOsError, observeVersion, OsClient, requireIndexName, requireSearchTarget, resolveEndpoint, type ClusterVersion } from './opensearch';
 import { PluginError, type HandlerResult, type PluginRequest, type Source } from './protocol';
 import type { ClusterGetData, IndexGetData, QueryData } from './schemas';
@@ -337,7 +337,12 @@ export function shapeSearchResponse(input: {
   // shards with no active copy (red index) are left out of `failed` and `failures`: only
   // successful (which includes skipped) < total reveals them
   const unavailable = Math.max(0, shards.total - shards.successful - shards.failed);
-  const partial = shards.failed > 0 || unavailable > 0 || timedOut;
+  let aggregations: Record<string, unknown> | null = res?.aggregations && typeof res.aggregations === 'object' ? res.aggregations : null;
+  // histograms and the like have no size: bound the serialized output so it never hits the plugin output limit
+  const aggBytes = aggregations ? Buffer.byteLength(JSON.stringify(aggregations)) : 0;
+  const aggsDropped = aggBytes > MAX_AGG_OUTPUT_BYTES;
+  if (aggsDropped) aggregations = null;
+  const partial = shards.failed > 0 || unavailable > 0 || timedOut || aggsDropped;
   const truncated = total.relation === 'gte' || total.value > hits.length;
   const warnings: string[] = [];
   if (shards.failed > 0) {
@@ -349,6 +354,9 @@ export function shapeSearchResponse(input: {
   if (timedOut) warnings.push(`搜索在 ${guarded.body.timeout} 内未完成（timed_out=true），结果只包含超时前已收集的命中`);
   if (total.relation === 'gte') warnings.push(`total.relation=gte：命中数至少 ${total.value}（达到 track_total_hits=${tth} 后停止精确计数），不是精确值`);
   if (guarded.requested_size > input.maxHits) warnings.push(`DSL size=${guarded.requested_size} 大于 --max-hits=${input.maxHits}，实际只取 ${guarded.size} 条`);
+  if (aggsDropped) {
+    warnings.push(`聚合结果约 ${Math.round(aggBytes / 1024 / 1024)} MiB，超过输出上限 ${MAX_AGG_OUTPUT_BYTES / 1024 / 1024} MiB，已省略（aggregations=null）；请减小 size、加大 histogram interval 或缩小查询范围`);
+  }
   if (anySourceTruncated) warnings.push('部分命中的 _source 过长，已截断（source_truncated=true）');
   const notes = [
     `total 关系为 ${total.relation}：${total.relation === 'eq' ? '精确命中数' : '下限值（实际命中数更多）'}；track_total_hits=${tth}（上限 ${TRACK_TOTAL_HITS_LIMIT}）`,
@@ -377,7 +385,7 @@ export function shapeSearchResponse(input: {
       total,
       returned: hits.length,
       hits,
-      aggregations: res?.aggregations && typeof res.aggregations === 'object' ? res.aggregations : null,
+      aggregations,
       observed_at: input.observedAt,
     },
     status: partial ? 'partial' : 'success',
