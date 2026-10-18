@@ -147,6 +147,13 @@ describe('postgres guardPg deny-list bypasses (review regressions)', () => {
     // assign a transaction ID even inside a READ ONLY transaction
     ['SELECT txid_current()', 'txid_current'],
     ['SELECT pg_current_xact_id()', 'pg_current_xact_id'],
+    // not stopped by a READ ONLY transaction (verified on 16.15: a slot created there survives ROLLBACK)
+    ["SELECT pg_copy_physical_replication_slot('a', 'b')", 'pg_copy_physical_replication_slot'],
+    ["SELECT * FROM pg_catalog.pg_copy_logical_replication_slot('a', 'b')", 'pg_copy_logical_replication_slot'],
+    ["SELECT pg_replication_slot_advance('a', '0/1')", 'pg_replication_slot_advance'],
+    ["SELECT brin_summarize_new_values('i'::regclass)", 'brin_summarize_new_values'],
+    ["SELECT brin_desummarize_range('i'::regclass, 0)", 'brin_desummarize_range'],
+    ["SELECT gin_clean_pending_list('i'::regclass)", 'gin_clean_pending_list'],
   ])('run rejects %s', (sql, fragment) => {
     for (const mode of ['run', 'analyze', 'explain'] as const) {
       let msg = '';

@@ -507,7 +507,7 @@ workctl container workload restart-plan --service demo-order --env sandbox
 
 ```bash
 workctl deploy release get --service demo-order --env sandbox --id 3
-workctl deploy release get --service demo-order --id demo-order-7b48cf7b44
+workctl deploy release get --service demo-order --id <replicaset>
 ```
 
 ### `workctl deploy release list`
@@ -739,6 +739,7 @@ workctl network dns get --name localhost
 - 日志来自 Docker /containers/{id}/logs（stdout+stderr 多路复用流已解帧）；保留期取决于日志驱动与轮转配置，容器重建后旧日志不可见
 - 默认 order=newest：返回窗口内最新的 limit 条，按时间倒序；coverage.truncated=true 表示匹配条数超过 limit
 - 单条日志中超过 8192 字符的文本（msg、raw、字段值）会被截断，该条 entries[].truncated=true，并在 coverage.notes 说明（Docker / Loki 相同）
+- 日志文本中的凭据（URL userinfo 密码、Authorization: Bearer/Basic、password=/token= 等参数、敏感字段名的值）打码为 ***，该条 entries[].credentials_masked=true，coverage.notes 给出条数；--contains/trace_id 过滤基于原始行
 - provider 由资源绑定 attributes.log_provider 或 profile defaults.logs 决定（docker 默认 | loki）；Loki 经 LogQL query_range 查询，输出契约相同，差异（入库延迟、保留期、limit 口径）见指南
 
 ```bash
@@ -828,7 +829,7 @@ workctl metric query --resource demo-order --promql 'sum by (route) (rate(http_r
 - Jaeger / Tempo 等追踪后端是规划中的 provider
 
 ```bash
-workctl trace get --id 0d9ae006bb776f65c5bcca19759fce81 --window 1h
+workctl trace get --id <trace_id> --window 1h
 ```
 
 ### `workctl storage file stat`
@@ -1611,8 +1612,8 @@ workctl redis key hot --instance demo-redis --pattern "demo:*" --max-keys 500
 - --include-value 会读取值（计入 keyspace_hits，并更新 LFU/LRU），值可能含业务数据，按需开启
 
 ```bash
-workctl redis key inspect --instance demo-redis --key demo:order:1
-workctl redis key inspect --instance demo-redis --key demo:customer:1:recent --include-value
+workctl redis key inspect --instance demo-redis --key demo:order:10
+workctl redis key inspect --instance demo-redis --key demo:customer:1:history --include-value
 ```
 
 ### `workctl redis key sample`
@@ -1727,7 +1728,7 @@ workctl --timeout 60s redis stats sample --instance demo-redis --duration 30s
 - 未在 history 中找到：事件日志存在但未加载 → DATA_UNAVAILABLE；只有 driver 日志没有事件日志 → COLLECTION_DISABLED；都没有 → NOT_FOUND
 
 ```bash
-workctl compute job get --id local-1792239950565
+workctl compute job get --id <app_id>
 ```
 
 ### `workctl compute log get`
@@ -1751,7 +1752,7 @@ workctl compute job get --id local-1792239950565
 - driver 日志不是 Spark REST 接口提供的：演示环境由 spark-submit 包装脚本（tee）落盘；YARN/K8s 环境应改用对应的日志聚合适配器
 
 ```bash
-workctl compute log get --job-id local-1792239950565 --limit-lines 100
+workctl compute log get --job-id <app_id> --limit-lines 100
 ```
 
 ### `workctl compute queue get`
@@ -1800,8 +1801,8 @@ workctl compute queue get --id demo-batch-pool
 - duration_ms = completionTime - submissionTime（墙钟时间）；executor_run_time_ms 为所有任务执行时间之和
 
 ```bash
-workctl compute stage list --job-id local-1792239950565
-workctl compute stage list --job-id local-1792239950565 --status failed
+workctl compute stage list --job-id <app_id>
+workctl compute stage list --job-id <app_id> --status failed
 ```
 
 ### `workctl data lineage get`
@@ -2054,6 +2055,7 @@ workctl offline freshness check --dataset analytics.daily_orders --data-date 202
 | `--run-id` | string | 是 |  | run_id |
 | `--task` | string | 是 |  | 任务 ID |
 | `--try` | int | 否 |  | 尝试序号（默认取任务实例当前 try_number） |
+| `--map-index` | int | 否 |  | 动态映射任务（mapped task）的实例序号 map_index；非映射任务省略 |
 | `--workflow` | string | 否 |  | 工作流 ID；省略时查找 |
 | `--limit-lines` | int | 否 | `200` | 返回末尾行数（上限 2000） |
 
@@ -2261,6 +2263,6 @@ workctl sql query get --id q-20261017-1a2b3c
 - Trino：结果页由 sql query get 继续拉取；超过 query.client.timeout（默认 5 分钟）没有客户端拉取，Trino 会以 ABANDONED_QUERY 结束查询
 
 ```bash
-workctl sql query submit --engine spark --file demo/offline-workflows/sql/examples/daily_orders_by_status.sql
+workctl sql query submit --engine spark --file demo/offline-workflows/sql/examples/daily_orders_by_date.sql
 workctl sql query submit --engine trino --file q.sql --catalog tpch --schema tiny
 ```

@@ -229,13 +229,16 @@ export async function findSparkApps(af: AirflowClient, dagId: string, runId: str
   for (const ti of tis) {
     if (!ti.try_number || !['success', 'failed', 'running', 'up_for_retry'].includes(ti.state)) continue;
     const base = `/dags/${encodeURIComponent(dagId)}/dagRuns/${encodeURIComponent(runId)}/taskInstances/${encodeURIComponent(ti.task_id)}`;
-    const x = await af.request('GET', `${base}/xcomEntries/return_value`, { allowStatus: [404, 400] });
+    // mapped task instances (map_index >= 0) are addressed with ?map_index=N; without it Airflow
+    // looks up map_index=-1 and answers 404, hiding the app ids of every mapped Spark task
+    const mapQ = typeof ti.map_index === 'number' && ti.map_index >= 0 ? { map_index: ti.map_index } : {};
+    const x = await af.request('GET', `${base}/xcomEntries/return_value`, { query: mapQ, allowStatus: [404, 400] });
     const xv = x.status === 200 ? String((x.body as any)?.value ?? '') : '';
     let ids = sparkAppIds(xv);
     let via = 'xcom:return_value';
     if (!ids.length && /Bash|Spark/i.test(String(ti.operator ?? ''))) {
       const tryNo = ti.try_number;
-      const lr = await af.request('GET', `${base}/logs/${tryNo}`, { query: { full_content: true }, accept: 'text/plain', allowStatus: [404, 400] });
+      const lr = await af.request('GET', `${base}/logs/${tryNo}`, { query: { full_content: true, ...mapQ }, accept: 'text/plain', allowStatus: [404, 400] });
       if (lr.status === 200) {
         ids = sparkAppIds(lr.text);
         via = `task log try ${tryNo}`;

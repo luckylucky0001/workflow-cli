@@ -1,6 +1,7 @@
 import { StringDecoder } from 'node:string_decoder';
 import { WorkError } from '../../core/output';
 import type { Ctx } from '../../core/runtime';
+import { maskCredentialText, MASK } from '../config/values';
 import { containerName, dockerTime, shortId, type ContainerInspect, type DockerClient } from '../container/docker';
 
 /**
@@ -67,6 +68,8 @@ export interface LogEntry {
   raw: string | null;
   /** msg/raw or a string field was longer than MAX_LOG_TEXT and was cut. */
   truncated: boolean;
+  /** credentials in msg/raw/string fields (URL userinfo passwords, Authorization headers, password=/token= params, secret-named fields) were masked. */
+  credentials_masked: boolean;
 }
 
 /** Per-value cap for log text (msg, raw, string fields): one huge line must not blow up the result. */
@@ -91,13 +94,49 @@ export function longTextNote(n: number): string {
   return `${n} 条日志含超过 ${MAX_LOG_TEXT} 字符的文本，已截断（entries[].truncated=true）`;
 }
 
-/** Apply MAX_LOG_TEXT to every text value of an entry; sets `truncated`. */
+function maskText(v: string, hit: { n: number }): string {
+  const m = maskCredentialText(v);
+  if (m.masked) hit.n++;
+  return m.text;
+}
+
+/** Field names whose string values are credentials (narrower than config's rule: a bare `key`, e.g. a cache key, is not). */
+const SECRET_FIELD = /password|passwd|pwd|passphrase|secret|token|api[_-]?key|private[_-]?key|access[_-]?key|authorization|credential|cookie/i;
+
+/** Mask credentials in every string of a JSON log's fields; scalar strings under secret-named keys are masked whole. */
+function maskValue(v: unknown, hit: { n: number }, depth = 0): unknown {
+  if (typeof v === 'string') return maskText(v, hit);
+  if (depth > 8 || v === null || typeof v !== 'object') return v;
+  if (Array.isArray(v)) return v.map((x) => maskValue(x, hit, depth + 1));
+  const out: Record<string, unknown> = {};
+  for (const [k, x] of Object.entries(v as Record<string, unknown>)) {
+    if (typeof x === 'string' && x !== '' && SECRET_FIELD.test(k)) {
+      hit.n++;
+      out[k] = MASK;
+    } else out[k] = maskValue(x, hit, depth + 1);
+  }
+  return out;
+}
+
+export function maskedNote(n: number): string {
+  return `${n} 条日志含凭据（URL 中的密码、Authorization 头、password=/token= 等参数或敏感字段），已打码为 ***（entries[].credentials_masked=true）`;
+}
+
+/**
+ * Mask credentials in application log text (sets `credentials_masked`), then apply MAX_LOG_TEXT
+ * to every text value (sets `truncated`). Non-credential text is unchanged. Filters (`contains`,
+ * trace id) are evaluated on the original line, not on the masked entry.
+ */
 export function capEntry(e: LogEntry): LogEntry {
+  const masked = { n: 0 };
+  const mMsg = e.msg === null ? null : maskText(e.msg, masked);
+  const mRaw = e.raw === null ? null : maskText(e.raw, masked);
+  const mFields = e.fields === null ? null : (maskValue(e.fields, masked) as Record<string, unknown>);
   const hit = { n: 0 };
-  const msg = e.msg === null ? null : capText(e.msg, hit);
-  const raw = e.raw === null ? null : capText(e.raw, hit);
-  const fields = e.fields === null ? null : (capValue(e.fields, hit) as Record<string, unknown>);
-  return hit.n ? { ...e, msg, raw, fields, truncated: true } : e;
+  const msg = mMsg === null ? null : capText(mMsg, hit);
+  const raw = mRaw === null ? null : capText(mRaw, hit);
+  const fields = mFields === null ? null : (capValue(mFields, hit) as Record<string, unknown>);
+  return { ...e, msg, raw, fields, truncated: e.truncated || hit.n > 0, credentials_masked: e.credentials_masked || masked.n > 0 };
 }
 
 const LEVELS: Record<string, number> = { trace: 5, debug: 10, info: 20, notice: 25, warn: 30, warning: 30, error: 40, err: 40, fatal: 50, critical: 50, panic: 50 };
@@ -137,13 +176,14 @@ export function parseLogLine(line: string, container: string, stream: 'stdout' |
           fields,
           raw: null,
           truncated: false,
+          credentials_masked: false,
         });
       }
     } catch {
       // fall through to raw
     }
   }
-  return capEntry({ ts, container, stream, level: null, msg: null, kind: null, trace_id: null, span_id: null, fields: null, raw: content, truncated: false });
+  return capEntry({ ts, container, stream, level: null, msg: null, kind: null, trace_id: null, span_id: null, fields: null, raw: content, truncated: false, credentials_masked: false });
 }
 
 export interface LogFilter {

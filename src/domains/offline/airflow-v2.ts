@@ -231,6 +231,7 @@ const RULES: Array<{ re: RegExp; norm: (body: any) => any }> = [
   { re: new RegExp(`^/dags/${SEG}/dagRuns/${SEG}$`), norm: normRunV2 },
   { re: new RegExp(`^/dags/${SEG}/dagRuns/${SEG}/taskInstances$`), norm: (b) => ({ ...b, task_instances: (b?.task_instances ?? []).map(normTiV2) }) },
   { re: new RegExp(`^/dags/${SEG}/dagRuns/${SEG}/taskInstances/${SEG}$`), norm: normTiV2 },
+  { re: new RegExp(`^/dags/${SEG}/dagRuns/${SEG}/taskInstances/${SEG}/\\d+$`), norm: normTiV2 },
   { re: new RegExp(`^/dags/${SEG}/clearTaskInstances$`), norm: (b) => ({ ...b, task_instances: (b?.task_instances ?? []).map(normTiV2) }) },
   {
     re: new RegExp(`^/dags/${SEG}/dagRuns/${SEG}/taskInstances/${SEG}/xcomEntries/${SEG}$`),

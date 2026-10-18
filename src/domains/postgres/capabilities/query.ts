@@ -46,12 +46,12 @@ function statementNames(g: GuardResult): string[] {
   return [...new Set(g.tokens.filter((t) => t.kind === 'word' || t.kind === 'ident').map((t) => (t.kind === 'word' ? t.text.toLowerCase() : t.upper)))];
 }
 
-/** Relations named in the statement that carry a sensitive column. */
+/** Relations named in the statement that carry a sensitive column (names are lower-cased, quoted ones too: match case-insensitively). */
 async function sensitiveRelations(s: PgSession, names: string[], sens: Set<string>): Promise<string[]> {
   if (!sens.size || !names.length) return [];
   const rows = await s.query(
     `SELECT DISTINCT c.relname FROM pg_class c JOIN pg_attribute a ON a.attrelid = c.oid
-      WHERE c.relname = ANY($1::text[]) AND c.relkind IN ('r','p','v','m','f') AND a.attnum > 0 AND NOT a.attisdropped
+      WHERE lower(c.relname) = ANY($1::text[]) AND c.relkind IN ('r','p','v','m','f') AND a.attnum > 0 AND NOT a.attisdropped
         AND lower(a.attname) = ANY($2::text[]) ORDER BY 1`,
     [names, [...sens]],
   );

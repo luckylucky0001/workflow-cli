@@ -195,6 +195,10 @@ describe('demo-search error mapping and endpoints', () => {
     const nf = mapOsError(new OsHttpError('GET', '/nope', 404, { error: { root_cause: [{ type: 'index_not_found_exception', reason: 'no such index [nope]', index: 'nope' }], type: 'index_not_found_exception', reason: 'no such index [nope]', index: 'nope' }, status: 404 }), ctx);
     expect(nf.code).toBe('NOT_FOUND');
     expect(nf.details?.index).toBe('nope');
+    // a closed target is not a query syntax problem
+    const closed = mapOsError(http(400, 'index_closed_exception', 'closed'), ctx);
+    expect(closed.code).toBe('DATA_UNAVAILABLE');
+    expect(closed.hint).not.toContain('query_string');
     const parse = mapOsError(
       new OsHttpError('POST', '/demo-orders/_search', 400, {
         error: { root_cause: [{ type: 'query_shard_exception', reason: 'Failed to parse query [status:(paid]' }], type: 'search_phase_execution_exception', reason: 'all shards failed', failed_shards: [{ reason: { type: 'query_shard_exception', caused_by: { type: 'parse_exception', reason: "Cannot parse 'status:(paid'" } } }] },
@@ -310,6 +314,16 @@ describe('demo-search response shaping', () => {
     const skipped = shapeSearchResponse({ cluster: 'c', index: 'i', guarded, maxHits: 2, observedAt: 't', res: { ...base, timed_out: false, _shards: { total: 3, successful: 3, skipped: 2, failed: 0 } } });
     expect(skipped.status).toBe('success');
     expect(skipped.notes.join(' ')).toContain('can_match');
+  });
+
+  it('zero shards searched (wildcard matched no open index) is NOT_FOUND, not an empty success', () => {
+    const res = { took: 0, timed_out: false, _shards: { total: 0, successful: 0, skipped: 0, failed: 0 }, hits: { total: { value: 0, relation: 'eq' }, max_score: 0, hits: [] } };
+    expect(() => shapeSearchResponse({ cluster: 'c', index: 'closed-only*', guarded, maxHits: 2, res, observedAt: 't' })).toThrow(/没有匹配到任何打开的索引/);
+    try {
+      shapeSearchResponse({ cluster: 'c', index: 'closed-only*', guarded, maxHits: 2, res, observedAt: 't' });
+    } catch (e: any) {
+      expect(e.code).toBe('NOT_FOUND');
+    }
   });
 
   it('review: shards without an active copy (red index) are partial although failed=0', () => {
@@ -458,6 +472,31 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('demo-search live (WORKCTL_IT=1,
     expect(r.meta.warnings.join(' ')).toContain('yellow');
     expect(r.meta.sources[0]).toMatchObject({ system: 'opensearch', adapter: 'opensearch-http', endpoint: 'opensearch/demo-search', version: `opensearch ${r.data.version}` });
     expect(OUTPUT_SCHEMAS['search.cluster.get'].safeParse(r.data).success).toBe(true);
+  });
+
+  it('closed index: index get returns settings/mapping as partial (stats not collected); a wildcard over it is NOT_FOUND', async () => {
+    const ix = 'it-closed-probe';
+    const put = (path: string, method: string, body?: unknown) => fetch(`${OS_URL}${path}`, { method, headers: { 'content-type': 'application/json' }, body: body === undefined ? undefined : JSON.stringify(body) });
+    await put(`/${ix}`, 'DELETE');
+    try {
+      expect((await put(`/${ix}`, 'PUT', { settings: { number_of_shards: 1, number_of_replicas: 0 }, aliases: { [`${ix}-alias`]: {} }, mappings: { properties: { user: { properties: { name: { type: 'text' } } } } } })).ok).toBe(true);
+      expect((await put(`/${ix}/_close`, 'POST')).ok).toBe(true);
+      for (const index of [ix, `${ix}-alias`]) {
+        const r = (await runPlugin('search.index.get', { cluster: 'demo-search', index })).json;
+        expect(r.status, JSON.stringify(r.error)).toBe('partial');
+        expect(r.data).toMatchObject({ index: ix, status: 'close', docs: { count: null } });
+        expect(r.data.mapping.top_level_fields).toEqual([{ name: 'user', type: 'object' }]);
+        expect(r.meta.warnings.join(' ')).toContain('关闭');
+        expect(OUTPUT_SCHEMAS['search.index.get'].safeParse(r.data).success).toBe(true);
+      }
+      const q = (await runPlugin('search.query', { cluster: 'demo-search', index: 'it-closed-pro*', query: '*' })).json;
+      expect(q.status).toBe('error');
+      expect(q.error.code).toBe('NOT_FOUND');
+      const qa = (await runPlugin('search.query', { cluster: 'demo-search', index: `${ix}-alias`, query: '*' })).json;
+      expect(qa.error.code).toBe('DATA_UNAVAILABLE');
+    } finally {
+      await put(`/${ix}`, 'DELETE');
+    }
   });
 
   it('search.index.get resolves a single-index alias and reports mapping/stats/shards', async () => {

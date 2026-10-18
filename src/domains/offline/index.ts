@@ -650,6 +650,7 @@ const logGet = defineCapability({
     run_id: { type: 'string', required: true, description: 'run_id' },
     task: { type: 'string', required: true, description: '任务 ID' },
     try: { type: 'int', description: '尝试序号（默认取任务实例当前 try_number）' },
+    map_index: { type: 'int', description: '动态映射任务（mapped task）的实例序号 map_index；非映射任务省略' },
     workflow: { type: 'string', description: '工作流 ID；省略时查找' },
     limit_lines: { type: 'int', default: 200, description: '返回末尾行数（上限 2000）' },
   },
@@ -674,13 +675,26 @@ const logGet = defineCapability({
     const taskId = checkId(inp.task, '--task');
     const found = await af.findRun(runId, inp.workflow ? checkId(inp.workflow, '--workflow') : undefined);
     const base = `/dags/${encodeURIComponent(found.dagId)}/dagRuns/${encodeURIComponent(runId)}/taskInstances/${encodeURIComponent(taskId)}`;
-    const ti = await af.getOrNull(base);
-    if (!ti) throw new WorkError('NOT_FOUND', `run ${runId} 中没有任务实例 ${taskId}`);
+    const mapIndex = inp.map_index;
+    if (mapIndex !== undefined && mapIndex !== null && (!Number.isInteger(mapIndex) || mapIndex < 0)) throw new WorkError('INVALID_ARGUMENT', `--map-index 须为非负整数: ${mapIndex}`);
+    const mapped = mapIndex !== undefined && mapIndex !== null;
+    // a mapped task instance lives at taskInstances/{task_id}/{map_index}; its log takes ?map_index=N
+    const ti = await af.getOrNull(mapped ? `${base}/${mapIndex}` : base);
+    if (!ti) {
+      throw new WorkError('NOT_FOUND', `run ${runId} 中没有任务实例 ${taskId}${mapped ? `[${mapIndex}]` : ''}`, {
+        ...(mapped ? {} : { hint: '动态映射任务（mapped task）的实例需加 --map-index N（offline run get 的 tasks[].map_index）' }),
+      });
+    }
     const tryNo = inp.try ?? ti.try_number ?? 0;
+    // Airflow answers a try that never happened with 200 and a "*** Could not read served logs" stub,
+    // which would otherwise be returned as if it were the task's log
+    if (inp.try !== undefined && inp.try !== null && typeof ti.try_number === 'number' && inp.try > ti.try_number) {
+      throw new WorkError('NOT_FOUND', `任务 ${taskId} 目前只有 ${ti.try_number} 次尝试，没有第 ${inp.try} 次`, { hint: `省略 --try 读取最近一次（第 ${ti.try_number} 次）` });
+    }
     if (!tryNo || tryNo < 1) {
       throw new WorkError('DATA_UNAVAILABLE', `任务 ${taskId} 尚未开始执行（state=${ti.state ?? 'none'}，try_number=0），没有日志`, { hint: '用 workctl offline run get 查看任务状态' });
     }
-    const r = await af.request('GET', `${base}/logs/${tryNo}`, { query: { full_content: true }, accept: 'text/plain', allowStatus: [404] });
+    const r = await af.request('GET', `${base}/logs/${tryNo}`, { query: { full_content: true, ...(mapped ? { map_index: mapIndex } : {}) }, accept: 'text/plain', allowStatus: [404] });
     if (r.status === 404) throw new WorkError('NOT_FOUND', `任务 ${taskId} 没有第 ${tryNo} 次尝试的日志`);
     const all = r.text.replace(/\r\n/g, '\n').split('\n');
     if (all.length && all[all.length - 1] === '') all.pop();
@@ -699,7 +713,7 @@ const logGet = defineCapability({
         spark_app_ids: sparkAppIds(r.text),
         lines,
       },
-      sources: [await af.source(`GET /api/v1/dags/${found.dagId}/dagRuns/${runId}/taskInstances/${taskId}/logs/${tryNo}`)],
+      sources: [await af.source(`GET /api/v1/dags/${found.dagId}/dagRuns/${runId}/taskInstances/${taskId}/logs/${tryNo}${mapped ? `?map_index=${mapIndex}` : ''}`)],
       coverage: { complete: all.length <= lines.length, scope: `try ${tryNo}`, ...(all.length > lines.length ? { truncated: true, limit } : {}) },
     };
   },
@@ -786,7 +800,10 @@ const freshnessCheck = defineCapability({
     if (wfId && ctx.hasEndpoint('airflow')) {
       try {
         const af = new AirflowClient(ctx);
-        const r = await runsForBusinessDate(af, wfId, businessInterval(date, tz));
+        // the business date of a partition is a day in the partition key's timezone; freshness.timezone
+        // only expresses the deadline (an explicit --timezone applies to both)
+        const bizTz = inp.timezone ? tz : requireTimeZone(t.partition_key?.timezone ?? tz);
+        const r = await runsForBusinessDate(af, wfId, businessInterval(date, bizTz));
         producer = {
           workflow: wfId,
           runs: r.matched.map((m) => ({ run_id: m.run.dag_run_id, state: m.run.state ?? null, start_date: timePair(m.run.start_date, tz), end_date: timePair(m.run.end_date, tz) })),

@@ -20,6 +20,7 @@
 - `executable`：是否存在执行器。没有执行器的计划（如 `mysql.index.create`）只作为变更方案参考，交由既有变更流程执行。
 - `expires_at`：计划默认 1 小时过期，过期后需重新生成（目标状态可能已变化）。
 - `history`：状态迁移记录 `planned → running → succeeded | failed`，或 `cancelled` / `expired`。
+- `digest`：`sha256:` + 计划内容（除 `digest` 外所有字段，规范化 JSON）的摘要。计划存储每次写入（生成、状态迁移、执行进度）时重新封存，`operation get/execute/cancel` 读取时校验；手工改动计划文件（前置条件、参数、目标、状态等）会得到 `PRECONDITION_FAILED`（plan file was modified），需重新生成计划。摘要用于发现误改/篡改，不是签名：能写 state_dir 的一方仍能重算摘要，state_dir 的写权限应只给 workctl 的使用者。
 
 **计划预览不能作为执行成功的证据**；执行结果以 `operation get --id` 的状态和 `result` 为准。
 
@@ -46,6 +47,7 @@ workctl --json operation get --id op-20261017-abc123
 
 - 给 Agent 使用的 profile 设置 `allow_execute: false`（演示中 `run-agent-demo.sh` 使用这样的只读 profile），Agent 只能生成计划；
 - MCP 服务默认不暴露 execute 类工具，只有以 `workctl mcp serve --allow-execute` 启动时才暴露；
+- `workctl mcp serve --domain X` 同时限定 `operation.*`：只能为领域 X 的操作类型生成、执行、取消计划，其他领域的计划（如 `container.restart`）返回 `PERMISSION_DENIED`；
 - 执行由授权人员在终端完成，或接入客户既有的变更审批流程（计划 ID 可作为审批单附件）。
 
 同一计划的执行与取消持有独占锁（`operations/<id>.json.lock`）：两个终端或 CLI 与 MCP 同时执行同一计划时，后到者得到 `CONFLICT`；过期计划返回 `PRECONDITION_FAILED`。

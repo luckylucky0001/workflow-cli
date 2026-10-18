@@ -388,7 +388,7 @@ const submit = defineCapability({
     'Trino：结果页由 sql query get 继续拉取；超过 query.client.timeout（默认 5 分钟）没有客户端拉取，Trino 会以 ABANDONED_QUERY 结束查询',
   ],
   examples: [
-    'workctl sql query submit --engine spark --file demo/offline-workflows/sql/examples/daily_orders_by_status.sql',
+    'workctl sql query submit --engine spark --file demo/offline-workflows/sql/examples/daily_orders_by_date.sql',
     'workctl sql query submit --engine trino --file q.sql --catalog tpch --schema tiny',
   ],
   handler: async (ctx, inp) => {
@@ -581,6 +581,17 @@ const cancel = defineCapability({
       } catch {
         /* already gone */
       }
+    }
+    // the runner may have finished between the state check and the signal: a succeeded state
+    // with a complete result must not be overwritten as cancelled (the result would be hidden)
+    const after = readState(ep, inp.id);
+    if (after.state === 'succeeded') {
+      return {
+        data: { query_id: inp.id, previous_state: v.state, state: 'succeeded', signal: null, app_id: after.app_id ?? st.app_id ?? null },
+        sources: [source('workctl-state', ADAPTER, { endpoint: `${ep.id}:query_state_dir`, method: `${inp.id}.json`, observed_at: after.updated_at ?? new Date().toISOString(), relation: 'explicit' })],
+        warnings: [`查询 ${inp.id} 在取消前已成功结束，未标记为 cancelled；结果见 workctl sql query get --id ${inp.id}`],
+        coverage: { complete: true, scope: inp.id },
+      };
     }
     const now = new Date().toISOString();
     writeState(ep, inp.id, { state: 'cancelled', cancelled_at: now, cancel_signal: signal, cancelled_by_request: ctx.requestId });

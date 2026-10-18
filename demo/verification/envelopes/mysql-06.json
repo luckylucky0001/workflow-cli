@@ -6,20 +6,191 @@
     "instance": "demo-mysql",
     "aggregation": "window_delta",
     "window": {
-      "start": "2026-10-18T05:30:17.587Z",
-      "end": "2026-10-18T05:30:27.590Z",
-      "duration_ms": 10003
+      "start": "2026-10-18T05:46:01.796Z",
+      "end": "2026-10-18T05:46:11.800Z",
+      "duration_ms": 10004
     },
     "cumulative_since": null,
     "database": null,
     "top": 10,
-    "digests": [],
+    "digests": [
+      {
+        "schema": null,
+        "digest": "e7f212c90b57a82f376cb7e1e2e9fd61c10c69a112b0df9a7b324d56780f8358",
+        "digest_text": "SHOW GLOBAL VARIABLES WHERE `Variable_name` IN (...)",
+        "count": 3,
+        "total_latency_ms": 6.668,
+        "avg_latency_ms": 2.223,
+        "rows_examined": 21,
+        "rows_sent": 21,
+        "rows_affected": 0,
+        "avg_rows_examined": 7,
+        "no_index_used_count": 3,
+        "no_good_index_used_count": 0,
+        "errors": 0,
+        "first_seen": "2026-10-18T05:16:10.818150Z",
+        "last_seen": "2026-10-18T05:46:07.994605Z"
+      },
+      {
+        "schema": null,
+        "digest": "b0a2105f85f781a2af3593f66431f1528f14f14566499839ea27e23911fb9a5a",
+        "digest_text": "SHOW GLOBAL STATUS WHERE `Variable_name` IN (...)",
+        "count": 2,
+        "total_latency_ms": 1.927,
+        "avg_latency_ms": 0.964,
+        "rows_examined": 11,
+        "rows_sent": 10,
+        "rows_affected": 0,
+        "avg_rows_examined": 5.5,
+        "no_index_used_count": 1,
+        "no_good_index_used_count": 0,
+        "errors": 0,
+        "first_seen": "2026-10-18T05:16:10.822283Z",
+        "last_seen": "2026-10-18T05:46:07.374975Z"
+      },
+      {
+        "schema": null,
+        "digest": "0a3f5effcd7887c474c159e6410c793497cfc1fdfa767d7fc3661e04727fbf4b",
+        "digest_text": "SELECT `VERSION` ( ) AS `version` , CURRENT_USER ( ) AS SYSTEM_USER , `CONNECTION_ID` ( ) AS `thread_id`",
+        "count": 9,
+        "total_latency_ms": 1.822,
+        "avg_latency_ms": 0.202,
+        "rows_examined": 9,
+        "rows_sent": 9,
+        "rows_affected": 0,
+        "avg_rows_examined": 1,
+        "no_index_used_count": 0,
+        "no_good_index_used_count": 0,
+        "errors": 0,
+        "first_seen": "2026-10-18T05:16:10.804942Z",
+        "last_seen": "2026-10-18T05:46:10.107349Z"
+      },
+      {
+        "schema": null,
+        "digest": "704ccdc429d4deb2cf37ec8708e8faae1c46acf5683817670906ba621a14bb85",
+        "digest_text": "SET `time_zone` = ?",
+        "count": 9,
+        "total_latency_ms": 1.557,
+        "avg_latency_ms": 0.173,
+        "rows_examined": 0,
+        "rows_sent": 0,
+        "rows_affected": 0,
+        "avg_rows_examined": 0,
+        "no_index_used_count": 0,
+        "no_good_index_used_count": 0,
+        "errors": 0,
+        "first_seen": "2026-10-18T05:16:10.803376Z",
+        "last_seen": "2026-10-18T05:46:10.097098Z"
+      },
+      {
+        "schema": null,
+        "digest": "8774234fb527be7467c681f2d8016a7fc5578bb57310da02c028c73e60ea06d3",
+        "digest_text": "SELECT `INDEX_NAME` , `NON_UNIQUE` , `SEQ_IN_INDEX` , COLUMN_NAME , `EXPRESSION` , `SUB_PART` , `CARDINALITY` , `INDEX_TYPE` , `NULLABLE` , `IS_VISIBLE` , `INDEX_COMMENT` FROM `information_schema` . `STATISTICS` WHERE `TABLE_SCHEMA` = ? AND TABLE_NAME = ? ORDER BY `INDEX_NAME` = ? DESC , `INDEX_NAME` , `SEQ_IN_INDEX`",
+        "count": 1,
+        "total_latency_ms": 1.463,
+        "avg_latency_ms": 1.463,
+        "rows_examined": 23,
+        "rows_sent": 2,
+        "rows_affected": 0,
+        "avg_rows_examined": 23,
+        "no_index_used_count": 0,
+        "no_good_index_used_count": 0,
+        "errors": 0,
+        "first_seen": "2026-10-18T05:16:10.989397Z",
+        "last_seen": "2026-10-18T05:46:09.048534Z"
+      },
+      {
+        "schema": null,
+        "digest": "e98cfe382f9d3d5a21b97a94e0201972cda37339dfce64c96341788ef533659c",
+        "digest_text": "SELECT `INDEX_NAME` , `COUNT_STAR` , `COUNT_READ` , `COUNT_FETCH` FROM `performance_schema` . `table_io_waits_summary_by_index_usage` WHERE `OBJECT_SCHEMA` = ? AND `OBJECT_NAME` = ? ORDER BY `COUNT_STAR` DESC",
+        "count": 1,
+        "total_latency_ms": 1.245,
+        "avg_latency_ms": 1.245,
+        "rows_examined": 158,
+        "rows_sent": 3,
+        "rows_affected": 0,
+        "avg_rows_examined": 158,
+        "no_index_used_count": 1,
+        "no_good_index_used_count": 0,
+        "errors": 0,
+        "first_seen": "2026-10-18T05:16:10.995895Z",
+        "last_seen": "2026-10-18T05:46:09.087348Z"
+      },
+      {
+        "schema": null,
+        "digest": "c27ebc3d27b6566e2baa097d438a5d5760d00c6a59e95c15d9696af8cfaff735",
+        "digest_text": "SELECT COLUMN_NAME , `ORDINAL_POSITION` , `COLUMN_TYPE` , `DATA_TYPE` , `IS_NULLABLE` , `COLUMN_DEFAULT` , `COLUMN_KEY` , `EXTRA` , `CHARACTER_SET_NAME` , `COLLATION_NAME` , `COLUMN_COMMENT` FROM `information_schema` . `COLUMNS` WHERE `TABLE_SCHEMA` = ? AND TABLE_NAME = ? ORDER BY `ORDINAL_POSITION`",
+        "count": 1,
+        "total_latency_ms": 1.103,
+        "avg_latency_ms": 1.103,
+        "rows_examined": 33,
+        "rows_sent": 7,
+        "rows_affected": 0,
+        "avg_rows_examined": 33,
+        "no_index_used_count": 0,
+        "no_good_index_used_count": 0,
+        "errors": 0,
+        "first_seen": "2026-10-18T05:16:10.918968Z",
+        "last_seen": "2026-10-18T05:46:08.842133Z"
+      },
+      {
+        "schema": null,
+        "digest": "b43c4903b048442fd97631c2a8971b1e8901dacee0593e84d4fee42b41f69ef6",
+        "digest_text": "SELECT `TABLE_TYPE` , ENGINE , `TABLE_ROWS` , `DATA_LENGTH` , `INDEX_LENGTH` , AVG_ROW_LENGTH FROM `information_schema` . `TABLES` WHERE `TABLE_SCHEMA` = ? AND TABLE_NAME = ?",
+        "count": 1,
+        "total_latency_ms": 1.062,
+        "avg_latency_ms": 1.062,
+        "rows_examined": 5,
+        "rows_sent": 1,
+        "rows_affected": 0,
+        "avg_rows_examined": 5,
+        "no_index_used_count": 0,
+        "no_good_index_used_count": 0,
+        "errors": 0,
+        "first_seen": "2026-10-18T05:16:13.939035Z",
+        "last_seen": "2026-10-18T05:46:09.734861Z"
+      },
+      {
+        "schema": null,
+        "digest": "984adfc7ea8519ee22626a21e1c47aaf61e248ca82e8a4b5e3c36d1e272dfd78",
+        "digest_text": "SELECT `TABLE_TYPE` , ENGINE , ROW_FORMAT , `TABLE_ROWS` , AVG_ROW_LENGTH , `DATA_LENGTH` , `INDEX_LENGTH` , `DATA_FREE` , AUTO_INCREMENT , `TABLE_COLLATION` , `TABLE_COMMENT` , `CREATE_TIME` , `UPDATE_TIME` FROM `information_schema` . `TABLES` WHERE `TABLE_SCHEMA` = ? AND TABLE_NAME = ?",
+        "count": 1,
+        "total_latency_ms": 1.05,
+        "avg_latency_ms": 1.05,
+        "rows_examined": 5,
+        "rows_sent": 1,
+        "rows_affected": 0,
+        "avg_rows_examined": 5,
+        "no_index_used_count": 0,
+        "no_good_index_used_count": 0,
+        "errors": 0,
+        "first_seen": "2026-10-18T05:16:10.916144Z",
+        "last_seen": "2026-10-18T05:46:08.825837Z"
+      },
+      {
+        "schema": null,
+        "digest": "d9732b104e69aa5473c6135e495cffe9ef3fa5bbc339f546cbaa2922bc8988b6",
+        "digest_text": "SELECT `w` . `REQUESTING_ENGINE_TRANSACTION_ID` AS `waiting_trx_id` , `w` . `BLOCKING_ENGINE_TRANSACTION_ID` AS `blocking_trx_id` , `rl` . `OBJECT_SCHEMA` , `rl` . `OBJECT_NAME` , `rl` . `INDEX_NAME` , `rl` . `LOCK_TYPE` , `rl` . `LOCK_MODE` AS `waiting_mode` , `bl` . `LOCK_MODE` AS `blocking_mode` , `rt` . `trx_mysql_thread_id` AS `waiting_pid` , TIMESTAMPDIFF ( SQL_TSI_SECOND , `rt` . `trx_wait_started` , NOW ( ) ) AS `wait_age_s` , TIMESTAMPDIFF ( SQL_TSI_SECOND , `rt` . `trx_started` , NOW ( ) ) AS `waiting_trx_age_s` , `rt` . `trx_query` AS `waiting_query` , `bt` . `trx_mysql_thread_id` AS `blocking_pid` , `bt` . `trx_state` AS `blocking_state` , TIMESTAMPDIFF ( SQL_TSI_SECOND , `bt` . `trx_started` , NOW ( ) ) AS `blocking_trx_age_s` , `bt` . `trx_rows_locked` AS `blocking_rows_locked` , `bt` . `trx_query` AS `blocking_query` FROM `performance_schema` . `data_lock_waits` `w` JOIN `performance_schema` . `data_locks` `rl` ON `rl` . `ENGINE_LOCK_ID` = `w` . `REQUESTING_ENGINE_LOCK_ID` AND `rl` . `ENGINE` = `w` . `ENGINE` JOIN `performance_schema` .",
+        "count": 1,
+        "total_latency_ms": 0.991,
+        "avg_latency_ms": 0.991,
+        "rows_examined": 0,
+        "rows_sent": 0,
+        "rows_affected": 0,
+        "avg_rows_examined": 0,
+        "no_index_used_count": 1,
+        "no_good_index_used_count": 0,
+        "errors": 0,
+        "first_seen": "2026-10-18T05:16:13.920963Z",
+        "last_seen": "2026-10-18T05:46:08.699960Z"
+      }
+    ],
     "totals": {
-      "digests_with_activity": 0,
-      "statements": 0,
-      "total_latency_ms": 0
+      "digests_with_activity": 29,
+      "statements": 50,
+      "total_latency_ms": 25.271
     },
-    "excluded_self_digests": 1
+    "excluded_self_digests": 3
   },
   "error": null,
   "meta": {
@@ -27,7 +198,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T05:30:27.594Z",
+        "observed_at": "2026-10-18T05:46:11.804Z",
         "endpoint": "mysql/demo-mysql",
         "method": "performance_schema.events_statements_summary_by_digest (t1 − t0)",
         "version": "8.4.11",
@@ -37,21 +208,21 @@
     "coverage": {
       "complete": true,
       "limit": 10,
-      "truncated": false,
+      "truncated": true,
       "window": {
-        "start": "2026-10-18T05:30:17.587Z",
-        "end": "2026-10-18T05:30:27.590Z"
+        "start": "2026-10-18T05:46:01.796Z",
+        "end": "2026-10-18T05:46:11.800Z"
       },
       "notes": [
         "digest_text 最长 1024 字节（max_digest_length），超出部分被截断",
-        "摘要表占用 61/10000 行（performance_schema_digests_size）；表满后新语句归入 DIGEST=NULL 行",
+        "摘要表占用 66/10000 行（performance_schema_digests_size）；表满后新语句归入 DIGEST=NULL 行",
         "已排除查询 events_statements_summary_by_digest 的语句（含 workctl 自身采样）；窗口内没有执行的摘要不出现"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvddzkn1-1fb6bf",
+    "request_id": "req-mvdejt6s-615174",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -59,7 +230,7 @@
     "adapter": "mysql-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:30:17.533Z",
-    "duration_ms": 10062
+    "started_at": "2026-10-18T05:46:01.732Z",
+    "duration_ms": 10074
   }
 }

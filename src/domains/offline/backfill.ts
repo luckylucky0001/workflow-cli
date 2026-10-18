@@ -184,7 +184,26 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
   }
 
   const actionable = rows.filter((r) => ['trigger_new', 'clear_failed', 'rerun'].includes(r.action));
-  const wm = writeModeCheck(table?.write_mode ?? null, actionable.map((a) => ({ action: a.action, partition_state: a.partition_state })), allowAppend);
+  let wm = writeModeCheck(table?.write_mode ?? null, actionable.map((a) => ({ action: a.action, partition_state: a.partition_state })), allowAppend);
+  // every table the DAG produces is rewritten by a rerun, not only the first: an append table
+  // listed second must not slip past write_mode_safe because the first one is overwrite_partition
+  const extraTables = targets.tables.slice(1);
+  if (extraTables.length && targets.catalog) {
+    const checks = [{ table: table!.name, ...wm }];
+    for (const xt of extraTables) {
+      const acts: { action: BackfillAction; partition_state: string }[] = [];
+      for (const r of actionable) {
+        const xs = partitionSpec(xt, r.business_date);
+        acts.push({ action: r.action, partition_state: xs ? (await partitionLayer(ctx, targets.catalog.name, xt.name, xs)).state : 'unknown' });
+      }
+      checks.push({ table: xt.name, ...writeModeCheck(xt.write_mode ?? null, acts, allowAppend) });
+      for (const c of xt.consumers) if (!downstream.some((d) => d.id === c.id)) downstream.push({ kind: c.type, id: c.id, edge_source: 'catalog-metadata', ...(c.note ? { note: c.note } : {}) });
+      for (const t of downstreamTables(targets.catalog, xt.name)) if (!downstream.some((d) => d.id === t.name)) downstream.push({ kind: 'table', id: t.name, edge_source: 'catalog-metadata', note: `上游含 ${xt.name}` });
+    }
+    wm = { ok: checks.every((c) => c.ok), detail: checks.map((c) => `${c.table}: ${c.detail}`).join('；') };
+    warnings.push(`${dagId} 产出 ${targets.tables.length} 张表（${targets.tables.map((t) => t.name).join(', ')}）：targets 的分区状态只展示 ${table!.name}，写入模式按全部表检查`);
+  }
+  const allOverwrite = targets.tables.length > 0 && targets.tables.every((t) => t.write_mode === 'overwrite_partition');
   const notDue = actionable.filter((r) => r.not_due);
   const missingInputs = actionable.flatMap((r) => r.upstream_inputs.filter((u) => !['present', 'external'].includes(u.state)).map((u) => `${r.business_date}:${u.table}/${u.partition}=${u.state}`));
   const preconditions = [
@@ -203,7 +222,7 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
     { check: 'max_active_runs_valid', ok: requested >= 1 && requested <= dagMax, detail: `计划并发 ${requested}，DAG max_active_runs=${dagMax}` },
   ];
   if (!table) warnings.push(`目录中没有 ${dagId} 产出的表：无法检查目标分区与写入模式（${targets.reason ?? ''}）`);
-  if (rerun && table?.write_mode !== 'overwrite_partition') warnings.push('要求重跑已成功的日期，但目标表不是 overwrite_partition');
+  if (rerun && !allOverwrite) warnings.push('要求重跑已成功的日期，但目标表不是 overwrite_partition');
 
   const counts = rows.reduce<Record<string, number>>((a, r) => ((a[r.action] = (a[r.action] ?? 0) + 1), a), {});
   const draft: PlanDraft = {
@@ -217,7 +236,7 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
       actions: counts,
       target_table: table?.name ?? null,
       write_mode: table?.write_mode ?? null,
-      idempotent_rewrite: table?.write_mode === 'overwrite_partition',
+      idempotent_rewrite: allOverwrite,
       downstream,
       code_version: { ...code, note: '重跑与新触发的 run 使用调度器当前解析的 DAG 代码，而非原 run 当时的代码' },
       concurrency: { planned_max_in_flight: requested, dag_max_active_runs: dagMax, currently_running: active[0], currently_queued: active[1], pools: poolInfo },
@@ -233,7 +252,7 @@ async function buildDraft(ctx: Ctx, params: Record<string, unknown>): Promise<{ 
       })),
       { name: 'throttle', detail: `同时在途的 run 不超过 ${requested} 个；超出时等待已提交的 run 结束` },
     ],
-    idempotent: table?.write_mode === 'overwrite_partition',
+    idempotent: allOverwrite,
     cancellable: false,
     rollback: '已触发的 run 可在 Airflow 中标记失败/删除；已覆盖的分区不能自动恢复（overwrite_partition 会替换旧数据）',
     ttlMs: 2 * 3_600_000,
@@ -299,6 +318,15 @@ export const backfillExecutor: Executor = async (ctx, plan, report) => {
   const rerunSucceeded = plan.params.rerun_succeeded === true || plan.params.rerun_succeeded === 'true';
   const maxInFlight = Math.max(1, Number(plan.params.max_active_runs ?? 1));
   const targets = (plan.targets as z.infer<typeof BackfillTargetSchema>[]).filter((t) => ['trigger_new', 'clear_failed', 'rerun'].includes(t.action));
+  // dag_not_paused was checked at plan time (plans live up to 2h): a DAG paused since then would
+  // leave triggered runs queued and cleared tasks unscheduled, so re-check before any write
+  if (targets.length) {
+    const live = await af.getOrNull(`/dags/${encodeURIComponent(dagId)}`);
+    if (!live) throw new WorkError('NOT_FOUND', `Airflow 中没有 DAG ${dagId}（计划生成后被删除或改名？）`);
+    if (live.is_paused === true) {
+      throw new WorkError('PRECONDITION_FAILED', `DAG ${dagId} 在计划生成后被暂停：触发的 run 不会被调度，未执行任何动作`, { hint: '恢复 DAG（属于变更，需单独授权）后重新生成计划' });
+    }
+  }
   const submitted: Record<string, unknown>[] = [];
   const skipped: Record<string, unknown>[] = [];
   const notSubmitted: Record<string, unknown>[] = [];

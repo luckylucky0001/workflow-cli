@@ -207,6 +207,10 @@ const DENY_FUNCTIONS = [
   /^pg_import_system_collations$/, /^pg_log_backend_memory_contexts$/,
   // ts_rewrite(tsquery, text) runs the text as a query; these assign an XID even in a READ ONLY transaction
   /^ts_rewrite$/, /^txid_current$/, /^pg_current_xact_id$/,
+  // not stopped by a READ ONLY transaction: copying/advancing replication slots (survive ROLLBACK),
+  // BRIN summarisation and GIN pending-list cleanup (modify the index)
+  /^pg_copy_(physical|logical)_replication_slot$/, /^pg_replication_slot_advance$/, /^pg_sync_replication_slots$/, /^brin_(summarize|desummarize)_/,
+  /^gin_clean_pending_list$/,
 ];
 
 const RUN_LEADING = new Set(['SELECT', 'WITH', 'VALUES', 'TABLE']);

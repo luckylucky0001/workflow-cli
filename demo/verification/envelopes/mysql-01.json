@@ -20,8 +20,8 @@
       "version": "8.4.11",
       "version_comment": "MySQL Community Server - GPL",
       "current_user": "workctl_ro@%",
-      "uptime_s": 1189,
-      "started_at": "2026-10-18T05:10:26.827Z",
+      "uptime_s": 2133,
+      "started_at": "2026-10-18T05:10:26.215Z",
       "read_only": false,
       "super_read_only": false
     },
@@ -42,15 +42,15 @@
       "version_comment": "MySQL Community Server - GPL"
     },
     "status": {
-      "Uptime": 1189,
-      "Threads_connected": 2,
+      "Uptime": 2133,
+      "Threads_connected": 5,
       "Threads_running": 2,
-      "Questions": 691,
-      "Slow_queries": 10,
-      "Aborted_connects": 14,
-      "Aborted_clients": 3,
-      "Connections": 327,
-      "Max_used_connections": 3
+      "Questions": 1638,
+      "Slow_queries": 17,
+      "Aborted_connects": 42,
+      "Aborted_clients": 11,
+      "Connections": 661,
+      "Max_used_connections": 6
     },
     "status_semantics": {
       "Uptime": "gauge",
@@ -75,7 +75,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T05:30:15.827Z",
+        "observed_at": "2026-10-18T05:45:59.215Z",
         "endpoint": "mysql/demo-mysql",
         "method": "SHOW GLOBAL VARIABLES; SHOW GLOBAL STATUS; SELECT VERSION(), CURRENT_USER()",
         "version": "8.4.11",
@@ -84,7 +84,7 @@
       {
         "system": "workctl",
         "adapter": "binding-file",
-        "observed_at": "2026-10-18T05:30:15.827Z",
+        "observed_at": "2026-10-18T05:45:59.214Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "method": "resources.forEndpoint(mysql, demo-mysql)",
         "relation": "explicit"
@@ -97,7 +97,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvddzja4-0b4455",
+    "request_id": "req-mvdejr78-81f2a8",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -105,7 +105,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:30:15.772Z",
-    "duration_ms": 56
+    "started_at": "2026-10-18T05:45:59.156Z",
+    "duration_ms": 59
   }
 }

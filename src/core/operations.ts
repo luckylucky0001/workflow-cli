@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { closeSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
@@ -27,6 +27,7 @@ export const PlanSchema = z.object({
   history: z.array(z.object({ at: z.string(), status: PlanStatus, note: z.string() })),
   result: z.unknown().optional(),
   error: z.object({ code: z.string(), message: z.string() }).optional(),
+  digest: z.string().optional().describe('sha256（规范化 JSON，不含 digest 本身）；由计划存储写入时封存、读取时校验，用于发现计划文件被手工改动'),
 });
 export type Plan = z.infer<typeof PlanSchema>;
 
@@ -34,6 +35,18 @@ export type PlanDraft = Pick<Plan, 'kind' | 'title' | 'params' | 'targets' | 'im
   rollback?: string;
   ttlMs?: number;
 };
+
+function canonical(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(canonical);
+  if (v && typeof v === 'object') return Object.fromEntries(Object.keys(v).sort().map((k) => [k, canonical((v as Record<string, unknown>)[k])]));
+  return v;
+}
+
+/** Content digest of a plan: sha256 over canonical JSON (sorted keys, JSON round-trip) of every field but `digest`. */
+export function planDigest(plan: Plan): string {
+  const { digest: _d, ...rest } = plan;
+  return `sha256:${createHash('sha256').update(JSON.stringify(canonical(JSON.parse(JSON.stringify(rest))))).digest('hex')}`;
+}
 
 export class PlanStore {
   constructor(readonly dir: string) {}
@@ -67,6 +80,8 @@ export class PlanStore {
     mkdirSync(this.dir, { recursive: true });
     const f = this.file(plan.id);
     const tmp = `${f}.tmp`;
+    // (re)sealed on every store write: status/history updates go through here, edits on disk do not
+    plan.digest = planDigest(plan);
     writeFileSync(tmp, JSON.stringify(plan, null, 2));
     renameSync(tmp, f);
   }
@@ -82,6 +97,10 @@ export class PlanStore {
     }
     // a file renamed/copied to another id would be locked under one id but written under another
     if (plan.id !== id) throw new WorkError('PRECONDITION_FAILED', `计划文件 ${id}.json 中的 ID 为 ${plan.id}，与文件名不一致`, { hint: '计划文件被改动过；重新生成计划' });
+    // preconditions, params, targets, status... must be what the planner/store wrote
+    if (!plan.digest || plan.digest !== planDigest(plan)) {
+      throw new WorkError('PRECONDITION_FAILED', `plan file was modified: 计划文件 ${id}.json 的内容与封存摘要不一致（不是由 workctl 写入）`, { hint: '不要手工编辑计划文件；重新生成计划（operation plan）' });
+    }
     if (plan.status === 'planned' && Date.parse(plan.expires_at) < Date.now()) {
       plan.status = 'expired';
       plan.history.push({ at: new Date().toISOString(), status: 'expired', note: '超过有效期未执行' });

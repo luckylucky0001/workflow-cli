@@ -392,7 +392,7 @@
       {
         "system": "spark",
         "adapter": "spark-history-rest",
-        "observed_at": "2026-10-18T05:30:47.391Z",
+        "observed_at": "2026-10-18T05:46:44.152Z",
         "endpoint": "spark/demo-spark",
         "method": "GET /api/v1/applications/local-1792300311012/stages",
         "version": "3.5.5",
@@ -406,7 +406,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvde07n5-80d68e",
+    "request_id": "req-mvdekpuz-d03c1c",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -414,7 +414,7 @@
     "adapter": "spark-history-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:30:47.345Z",
-    "duration_ms": 47
+    "started_at": "2026-10-18T05:46:44.075Z",
+    "duration_ms": 78
   }
 }

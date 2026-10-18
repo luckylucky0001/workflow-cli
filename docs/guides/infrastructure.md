@@ -1,6 +1,6 @@
 # 基础设施能力指南：容器、网络、存储
 
-本指南覆盖 `container`、`network`、`storage` 三个领域，以及 `config`（配置中心与服务发现，见“配置中心与服务发现”一节）。命令结构、结果信封和错误码见 `docs/design-principles.md`；每条命令的参数与输出 schema 以 `workctl capability get <name>` 为准。
+本指南覆盖 `container`、`network`、`storage` 三个领域，以及 `config`（配置中心与服务发现，见“配置中心与服务发现”一节）。命令结构、结果信封和错误码见 `docs/design-principles.md`；每条命令的参数与输出 schema 以 `workctl capability get --name <name>` 为准。
 
 ## 对象模型
 

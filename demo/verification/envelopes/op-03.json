@@ -14,7 +14,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvde0cxv-1719eb",
+    "request_id": "req-mvdel00o-0c58b7",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -22,7 +22,7 @@
     "adapter": "plan-store",
     "operation": "execute",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:30:54.211Z",
-    "duration_ms": 20
+    "started_at": "2026-10-18T05:46:57.240Z",
+    "duration_ms": 39
   }
 }

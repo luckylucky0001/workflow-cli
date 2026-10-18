@@ -113,7 +113,7 @@ const releaseGet = defineCapability({
   guide: GUIDE,
   prerequisites: PREREQ,
   notes: [PROVIDER_NOTE, '发布 ID 不在保留范围内时返回 NOT_FOUND（Kubernetes 已按 revisionHistoryLimit 清理 / Jenkins 已按构建丢弃策略清理）', '环境变量/构建参数中名称像凭据的值、控制台日志中的 password/token/secret=… 均遮蔽'],
-  examples: ['workctl deploy release get --service demo-order --env sandbox --id 3', 'workctl deploy release get --service demo-order --id demo-order-7b48cf7b44'],
+  examples: ['workctl deploy release get --service demo-order --env sandbox --id 3', 'workctl deploy release get --service demo-order --id <replicaset>'],
   handler: async (ctx, i): Promise<Result> => {
     const b = binding(ctx, i);
     if (i.tail < 0 || i.tail > 1000) throw new WorkError('INVALID_ARGUMENT', '--tail 须在 0..1000');

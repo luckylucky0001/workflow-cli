@@ -9,8 +9,21 @@
       "max_len": 256,
       "config_readable": true
     },
-    "retained_entries": 5,
+    "retained_entries": 6,
     "entries": [
+      {
+        "id": 5,
+        "timestamp": "2026-10-18T05:37:46.000Z",
+        "duration_us": 3682,
+        "command": "INFO",
+        "key": "server",
+        "args": [
+          "server"
+        ],
+        "arg_count": 1,
+        "client_addr": "172.18.0.1:50538",
+        "client_name": null
+      },
       {
         "id": 4,
         "timestamp": "2026-10-18T05:16:33.000Z",
@@ -125,22 +138,6 @@
         "arg_count": 31,
         "client_addr": "172.18.0.1:47572",
         "client_name": null
-      },
-      {
-        "id": 0,
-        "timestamp": "2026-10-18T05:12:06.000Z",
-        "duration_us": 4008,
-        "command": "SET",
-        "key": "demo:order:2051",
-        "args": [
-          "demo:order:2051",
-          "?",
-          "?",
-          "?"
-        ],
-        "arg_count": 4,
-        "client_addr": "172.18.0.1:47572",
-        "client_name": null
       }
     ]
   },
@@ -150,7 +147,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T05:30:35.564Z",
+        "observed_at": "2026-10-18T05:46:22.342Z",
         "endpoint": "redis/demo-redis",
         "method": "SLOWLOG GET / SLOWLOG LEN / CONFIG GET slowlog-*",
         "version": "7.4.11",
@@ -158,8 +155,8 @@
       }
     ],
     "coverage": {
-      "complete": true,
-      "truncated": false,
+      "complete": false,
+      "truncated": true,
       "limit": 5,
       "notes": [
         "只含命令执行时间，不含网络/排队/I/O",
@@ -169,7 +166,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvddzyiw-7875f8",
+    "request_id": "req-mvdek91c-f6fbce",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -177,7 +174,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:30:35.528Z",
-    "duration_ms": 41
+    "started_at": "2026-10-18T05:46:22.272Z",
+    "duration_ms": 72
   }
 }

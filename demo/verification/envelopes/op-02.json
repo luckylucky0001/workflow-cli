@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.get",
   "data": {
-    "id": "op-20261018-a84635",
+    "id": "op-20261018-769a73",
     "kind": "container.restart",
     "title": "重启服务 demo-order（sandbox）的 1 个容器",
     "status": "planned",
-    "created_at": "2026-10-18T05:30:53.541Z",
-    "expires_at": "2026-10-18T06:00:53.541Z",
+    "created_at": "2026-10-18T05:46:55.560Z",
+    "expires_at": "2026-10-18T06:16:55.560Z",
     "profile": "demo",
     "env": "sandbox",
     "params": {
@@ -22,7 +22,7 @@
         "image": "workctl-demo/demo-order:local",
         "state": "running",
         "health": "none",
-        "started_at": "2026-10-18T05:17:39.44168773Z",
+        "started_at": "2026-10-18T05:43:11.681567489Z",
         "restart_policy": "no",
         "selector": "workctl.service=demo-order",
         "selector_kind": "label",
@@ -100,11 +100,12 @@
     "executable": true,
     "history": [
       {
-        "at": "2026-10-18T05:30:53.541Z",
+        "at": "2026-10-18T05:46:55.560Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
-    ]
+    ],
+    "digest": "sha256:c3d77f0ab292ea944d463391755423743631da77ddfc15fc991dd8b8fc9209eb"
   },
   "error": null,
   "meta": {
@@ -112,7 +113,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-18T05:30:53.886Z",
+        "observed_at": "2026-10-18T05:46:56.508Z",
         "relation": "explicit"
       }
     ],
@@ -123,7 +124,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvde0cob-4a7eb2",
+    "request_id": "req-mvdekzev-8a79ad",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -131,7 +132,7 @@
     "adapter": "plan-store",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:30:53.867Z",
-    "duration_ms": 19
+    "started_at": "2026-10-18T05:46:56.455Z",
+    "duration_ms": 53
   }
 }

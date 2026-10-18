@@ -18,7 +18,8 @@ export function isSecretName(name: string): boolean {
     .filter(Boolean);
   if (segs.some((s) => SECRET_SEGMENTS.has(s))) return true;
   const joined = segs.join('');
-  return /(password|passwd|secret|token|apikey|privatekey|accesskey|secretkey)/.test(joined);
+  // CJK names do not split into segments: 密码/口令 (password), 密钥/私钥 (key), 令牌 (token), 凭据/凭证 (credential)
+  return /(password|passwd|secret|token|apikey|privatekey|accesskey|secretkey|密码|口令|密钥|私钥|令牌|凭据|凭证)/.test(joined);
 }
 
 /**
@@ -65,7 +66,8 @@ function maskJson(v: unknown, path: string, out: string[], secret = false): unkn
   if (Array.isArray(v)) return v.map((x, i) => maskJson(x, `${path}[${i}]`, out, secret));
   if (v && typeof v === 'object') {
     const o: Record<string, unknown> = {};
-    for (const [k, x] of Object.entries(v)) o[k] = maskJson(x, `${path}.${k}`, out, secret || isSecretName(k));
+    // defineProperty: a "__proto__" member is data in JSON, but plain assignment would set the prototype and drop it
+    for (const [k, x] of Object.entries(v)) Object.defineProperty(o, k, { value: maskJson(x, `${path}.${k}`, out, secret || isSecretName(k)), enumerable: true, writable: true, configurable: true });
     return o;
   }
   if (secret && v !== null) {

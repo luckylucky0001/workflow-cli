@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "mysql.index.plan",
   "data": {
-    "id": "op-20261018-9c80e3",
+    "id": "op-20261018-737d82",
     "kind": "mysql.index.create",
     "title": "为 demo.orders 新增索引 idx_customer_id_created_at(customer_id, created_at)",
     "params": {
@@ -33,7 +33,7 @@
           "idx_created_at(created_at)",
           "PRIMARY(id)"
         ],
-        "observed_at": "2026-10-18T05:30:29.133Z"
+        "observed_at": "2026-10-18T05:46:14.778Z"
       }
     ],
     "impact": {
@@ -52,9 +52,9 @@
           "schema": "demo",
           "statement": "SELECT",
           "digest_text": "SELECT `id` , STATUS , `amount` , `created_at` FROM `orders` WHERE `customer_id` = ? ORDER BY `created_at` DESC LIMIT ?",
-          "count": 8,
-          "total_latency_ms": 2024,
-          "avg_rows_examined": 229560,
+          "count": 19,
+          "total_latency_ms": 9998,
+          "avg_rows_examined": 196265,
           "no_index_used_count": 0,
           "references_leading_column": true,
           "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
@@ -87,6 +87,32 @@
           "first_seen": "2026-10-18T05:12:06.582660Z"
         },
         {
+          "digest": "cbc540a780559b66bb51cba4ea074f47f37122292720d013baeff3ed0bf077e7",
+          "schema": "demo",
+          "statement": "SELECT",
+          "digest_text": "SELECT * FROM `orders` WHERE `id` = ?",
+          "count": 22,
+          "total_latency_ms": 15,
+          "avg_rows_examined": 1,
+          "no_index_used_count": 0,
+          "references_leading_column": false,
+          "effect": "不直接相关",
+          "first_seen": "2026-10-18T05:12:55.557427Z"
+        },
+        {
+          "digest": "5df629761cff4a0f23d967b0a36477b807c5bf1b89209f61de942e9a77a1e229",
+          "schema": "demo",
+          "statement": "SELECT",
+          "digest_text": "SELECT * FROM `orders` WHERE `customer_id` = ?",
+          "count": 3,
+          "total_latency_ms": 12,
+          "avg_rows_examined": 19411,
+          "no_index_used_count": 3,
+          "references_leading_column": true,
+          "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
+          "first_seen": "2026-10-18T05:37:14.165663Z"
+        },
+        {
           "digest": "4c13e8a437c41ece13d7722667678f2e84e34a0e28e1b14217d8315d7a2940db",
           "schema": "demo",
           "statement": "SELECT",
@@ -113,17 +139,30 @@
           "first_seen": "2026-10-18T05:12:06.633893Z"
         },
         {
-          "digest": "cbc540a780559b66bb51cba4ea074f47f37122292720d013baeff3ed0bf077e7",
+          "digest": "a8cb2cd2d941904f58c3ee4814d478a2d1ac19d615253bdcab702854fc0a3074",
           "schema": "demo",
           "statement": "SELECT",
-          "digest_text": "SELECT * FROM `orders` WHERE `id` = ?",
-          "count": 6,
-          "total_latency_ms": 3,
+          "digest_text": "SELECT `id` , STATUS FROM `orders` WHERE `customer_id` = ?",
+          "count": 3,
+          "total_latency_ms": 8,
+          "avg_rows_examined": 19411,
+          "no_index_used_count": 3,
+          "references_leading_column": true,
+          "effect": "可能受益（引用了索引首列，需 EXPLAIN 确认）",
+          "first_seen": "2026-10-18T05:37:13.864728Z"
+        },
+        {
+          "digest": "f3b763f2488e9377013d597e694bdf29a5f6d2f957e2969682de6a41e4c1f7e5",
+          "schema": "demo",
+          "statement": "SELECT",
+          "digest_text": "SELECT `id` , STATUS FROM `orders` WHERE `id` = ?",
+          "count": 2,
+          "total_latency_ms": 1,
           "avg_rows_examined": 1,
           "no_index_used_count": 0,
           "references_leading_column": false,
           "effect": "不直接相关",
-          "first_seen": "2026-10-18T05:12:55.557427Z"
+          "first_seen": "2026-10-18T05:41:28.266053Z"
         }
       ],
       "affected_statements_note": "受影响语句来自 events_statements_summary_by_digest 的累计值（自启动/重置以来），按 DIGEST_TEXT 文本匹配表名（推断，relation=inferred）",
@@ -192,18 +231,19 @@
     "idempotent": false,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-18T05:30:29.135Z",
-    "expires_at": "2026-10-18T06:30:29.135Z",
+    "created_at": "2026-10-18T05:46:14.779Z",
+    "expires_at": "2026-10-18T06:46:14.779Z",
     "profile": "demo",
     "env": "sandbox",
     "executable": false,
     "history": [
       {
-        "at": "2026-10-18T05:30:29.135Z",
+        "at": "2026-10-18T05:46:14.779Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
-    ]
+    ],
+    "digest": "sha256:ddeb7bf3edb7383fceefe7aa53d20b6075d85ed9534a3bbd768656f14fdec76c"
   },
   "error": null,
   "meta": {
@@ -211,7 +251,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T05:30:29.135Z",
+        "observed_at": "2026-10-18T05:46:14.780Z",
         "endpoint": "mysql/demo-mysql",
         "version": "8.4.11",
         "method": "information_schema.TABLES/COLUMNS/STATISTICS + INNODB_TRX",
@@ -220,7 +260,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T05:30:29.135Z",
+        "observed_at": "2026-10-18T05:46:14.780Z",
         "endpoint": "mysql/demo-mysql",
         "version": "8.4.11",
         "method": "performance_schema.events_statements_summary_by_digest (cumulative, text match)",
@@ -229,7 +269,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-18T05:30:29.136Z",
+        "observed_at": "2026-10-18T05:46:14.780Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/state/operations",
         "relation": "derived"
       }
@@ -244,7 +284,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvddztjs-73ada5",
+    "request_id": "req-mvdek373-b447ff",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -252,7 +292,7 @@
     "adapter": "mysql-driver",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:30:29.080Z",
-    "duration_ms": 56
+    "started_at": "2026-10-18T05:46:14.703Z",
+    "duration_ms": 77
   }
 }

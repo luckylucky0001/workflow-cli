@@ -25,6 +25,7 @@ const run = (id: string, d: string, state: string) => ({ dag_run_id: id, state, 
 // mutable fake Airflow state
 let runs: any[] = [];
 let activeCount = 0;
+let paused = false;
 let clearResponse: any = { task_instances: [{ task_id: 'agg' }] };
 let triggerStatus: number | ((body: any) => { status: number; json: unknown }) = 200;
 const posts: string[] = [];
@@ -38,6 +39,7 @@ beforeAll(async () => {
   srv = await fakeServer((req, url, body) => {
     const p = url.pathname.replace('/api/v1', '');
     if (p === '/version') return { json: { version: '2.10.5' } };
+    if (p === `/dags/${DAG_ID}`) return { json: { dag_id: DAG_ID, is_paused: paused } };
     if (p === `/dags/${DAG_ID}/dagRuns` && req.method === 'GET') {
       if (url.searchParams.get('state')) return { json: { dag_runs: [], total_entries: url.searchParams.get('state') === 'running' ? activeCount : 0 } };
       return { json: { dag_runs: runs, total_entries: runs.length } };
@@ -66,6 +68,7 @@ afterAll(async () => srv.close());
 beforeEach(() => {
   runs = [];
   activeCount = 0;
+  paused = false;
   clearResponse = { task_instances: [{ task_id: 'agg' }] };
   triggerStatus = 200;
   posts.length = 0;
@@ -150,6 +153,13 @@ describe('backfill executor re-validates live state', () => {
     const res: any = await backfillExecutor(c, makePlan(c, [target('2026-10-14', 'trigger_new', null), target('2026-10-15', 'trigger_new', null)]), () => undefined);
     expect(res.submitted).toEqual([]);
     expect(res.skipped).toHaveLength(2);
+  });
+
+  it('re-checks dag_not_paused before writing: a DAG paused after planning is refused with no POST', async () => {
+    paused = true;
+    const c = ctx();
+    await expect(backfillExecutor(c, makePlan(c, [target('2026-10-14', 'trigger_new', null)]), () => undefined)).rejects.toMatchObject({ code: 'PRECONDITION_FAILED' });
+    expect(posts).toEqual([]);
   });
 
   it('keeps already-submitted runs on the plan when a later submission fails', async () => {

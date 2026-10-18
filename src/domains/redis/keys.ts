@@ -351,7 +351,7 @@ export const keyInspect = defineCapability({
     'lfu_counter 仅在 maxmemory-policy 为 *-lfu 时有意义，否则为 null 并说明原因',
     '--include-value 会读取值（计入 keyspace_hits，并更新 LFU/LRU），值可能含业务数据，按需开启',
   ],
-  examples: ['workctl redis key inspect --instance demo-redis --key demo:order:1', 'workctl redis key inspect --instance demo-redis --key demo:customer:1:recent --include-value'],
+  examples: ['workctl redis key inspect --instance demo-redis --key demo:order:10', 'workctl redis key inspect --instance demo-redis --key demo:customer:1:history --include-value'],
   handler: async (ctx, i) =>
     withRedis(ctx, i.instance, async (s) => {
       const key = String(i.key);

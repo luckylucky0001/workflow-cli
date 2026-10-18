@@ -288,21 +288,54 @@ export function pluginEnv(): Record<string, string> {
   return env;
 }
 
-/** Endpoint configs for the plugin's kinds, with credential references resolved (passed only via stdin). */
-function pluginEndpoints(ctx: Ctx, kinds: string[], secrets: string[] = []): Record<string, Record<string, Record<string, unknown>>> {
+/** Endpoint names of `kind` that a call may use: one named by an input value, else the kind's default, else the only one. */
+function neededEndpoints(names: string[], inputs: Record<string, unknown>, def: string | undefined): Set<string> {
+  const named = new Set<string>();
+  const visit = (v: unknown) => {
+    if (typeof v === 'string' && names.includes(v)) named.add(v);
+    else if (Array.isArray(v)) v.forEach(visit);
+  };
+  Object.values(inputs).forEach(visit);
+  if (!named.size) {
+    if (def && names.includes(def)) named.add(def);
+    else if (names.length === 1) named.add(names[0]);
+  }
+  return named;
+}
+
+/**
+ * Endpoint configs for the plugin's kinds, with credential references resolved (passed only via stdin).
+ * A `*_ref` that cannot be resolved fails the call only when its endpoint is one the call uses (named in
+ * the inputs, or the default); a broken unrelated endpoint is left out of the request with a warning.
+ */
+function pluginEndpoints(ctx: Ctx, kinds: string[], secrets: string[] = [], inputs: Record<string, unknown> = {}): Record<string, Record<string, Record<string, unknown>>> {
   const out: Record<string, Record<string, Record<string, unknown>>> = {};
   const profile = ctx.profile;
   if (!profile) return out;
   for (const kind of kinds) {
-    for (const [name, cfg] of Object.entries(profile.endpoints[kind] ?? {})) {
+    const all = profile.endpoints[kind] ?? {};
+    const needed = neededEndpoints(Object.keys(all), inputs, profile.defaults[kind]);
+    for (const [name, cfg] of Object.entries(all)) {
       const resolved: Record<string, unknown> = {};
+      const found: string[] = [];
+      let broken: unknown;
       for (const [k, v] of Object.entries(cfg)) {
         if (k.endsWith('_ref')) {
-          const value = resolveSecretRef(String(v), ctx.loaded.baseDir);
-          resolved[k.slice(0, -4)] = value;
-          if (value) secrets.push(value);
+          try {
+            const value = resolveSecretRef(String(v), ctx.loaded.baseDir);
+            resolved[k.slice(0, -4)] = value;
+            if (value) found.push(value);
+          } catch (e) {
+            broken ??= e;
+          }
         } else resolved[k] = v;
       }
+      if (broken !== undefined) {
+        if (needed.has(name)) throw broken;
+        ctx.warn(`${kind} 端点 ${name} 的凭据引用无法解析（${broken instanceof Error ? broken.message : String(broken)}），未传给插件`);
+        continue;
+      }
+      secrets.push(...found);
       (out[kind] ??= {})[name] = resolved;
     }
   }
@@ -338,7 +371,7 @@ async function execPlugin(ctx: Ctx, p: InstalledPlugin, m: PluginManifest, capab
     protocol: PLUGIN_API,
     capability,
     inputs,
-    endpoints: pluginEndpoints(ctx, m.endpoint_kinds, secrets),
+    endpoints: pluginEndpoints(ctx, m.endpoint_kinds, secrets, inputs),
     defaults: Object.fromEntries(m.endpoint_kinds.map((k) => [k, ctx.profile?.defaults[k]]).filter(([, v]) => v)),
     profile: ctx.profileName,
     env: ctx.env,

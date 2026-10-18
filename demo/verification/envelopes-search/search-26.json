@@ -10,12 +10,12 @@
       "size": 1,
       "requested_size": 1,
       "max_hits": 1,
-      "timeout": "27998ms",
+      "timeout": "27992ms",
       "track_total_hits": 10000,
       "sort": false,
       "aggs": false
     },
-    "took_ms": 8,
+    "took_ms": 14,
     "timed_out": false,
     "shards": {
       "total": 2,
@@ -48,7 +48,7 @@
       }
     ],
     "aggregations": null,
-    "observed_at": "2026-10-18T05:32:02.090Z"
+    "observed_at": "2026-10-18T05:46:59.997Z"
   },
   "error": null,
   "meta": {
@@ -58,7 +58,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "POST /demo-orders/_search",
-        "observed_at": "2026-10-18T05:32:02.090Z",
+        "observed_at": "2026-10-18T05:46:59.997Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       }
@@ -77,7 +77,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvde1t7a-0abe94",
+    "request_id": "req-mvdel1p5-0514e8",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -85,7 +85,7 @@
     "adapter": "opensearch-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:32:01.942Z",
-    "duration_ms": 156
+    "started_at": "2026-10-18T05:46:59.417Z",
+    "duration_ms": 588
   }
 }

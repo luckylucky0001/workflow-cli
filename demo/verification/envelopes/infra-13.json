@@ -3,32 +3,32 @@
   "status": "success",
   "capability": "observability.trace.get",
   "data": {
-    "trace_id": "09350e7d93dcad26c6efd507f225d296",
-    "start": "2026-10-18T05:29:39.499Z",
-    "end": "2026-10-18T05:29:39.816Z",
-    "duration_ms": 317.072,
+    "trace_id": "d995b0c0ce3a0507d9d84184dec8014b",
+    "start": "2026-10-18T05:45:31.649Z",
+    "end": "2026-10-18T05:45:32.868Z",
+    "duration_ms": 1219.771,
     "span_count": 5,
     "services": [
       "demo-order"
     ],
     "error_spans": 0,
     "roots": [
-      "363f5479d964f88e"
+      "92c054d26d4baccd"
     ],
     "cyclic_parents": [],
     "external_parent": null,
     "spans": [
       {
-        "span_id": "363f5479d964f88e",
+        "span_id": "92c054d26d4baccd",
         "parent_span_id": null,
         "name": "http.request",
         "service": "demo-order",
         "container": "demo-order",
         "depth": 0,
-        "start": "2026-10-18T05:29:39.499Z",
+        "start": "2026-10-18T05:45:31.649Z",
         "offset_ms": 0,
-        "duration_ms": 317.072,
-        "self_ms": 1.303,
+        "duration_ms": 1219.757,
+        "self_ms": 1.001,
         "pct_of_trace": 100,
         "status": "ok",
         "attributes": {
@@ -38,14 +38,14 @@
           "http.status_code": 200
         },
         "children": [
-          "b8c05415b7dc4437",
-          "a0960b7ded19123c",
-          "c7ce762423f45789",
-          "24f76a3955ace150"
+          "42703d0ba972cff9",
+          "ff41a07469104771",
+          "ce23350a90c2a417",
+          "d8023687f80e86c7"
         ],
         "logs": [
           {
-            "ts": "2026-10-18T05:29:39.816720369Z",
+            "ts": "2026-10-18T05:45:32.869715170Z",
             "level": "info",
             "msg": "request completed",
             "fields": {
@@ -54,27 +54,27 @@
               "route": "/customers/:id/orders",
               "path": "/customers/1696/orders",
               "status": 200,
-              "duration_ms": 316.676,
+              "duration_ms": 1219.458,
               "cache_mode": "normal",
               "parent_span_id": null,
-              "app_ts": "2026-10-18T05:29:39.816Z"
+              "app_ts": "2026-10-18T05:45:32.869Z"
             }
           }
         ],
         "orphan": false
       },
       {
-        "span_id": "b8c05415b7dc4437",
-        "parent_span_id": "363f5479d964f88e",
+        "span_id": "42703d0ba972cff9",
+        "parent_span_id": "92c054d26d4baccd",
         "name": "redis.get",
         "service": "demo-order",
         "container": "demo-order",
         "depth": 1,
-        "start": "2026-10-18T05:29:39.499Z",
+        "start": "2026-10-18T05:45:31.649Z",
         "offset_ms": 0,
-        "duration_ms": 0.587,
-        "self_ms": 0.587,
-        "pct_of_trace": 0.2,
+        "duration_ms": 0.642,
+        "self_ms": 0.642,
+        "pct_of_trace": 0.1,
         "status": "ok",
         "attributes": {
           "db.system": "redis",
@@ -87,17 +87,17 @@
         "orphan": false
       },
       {
-        "span_id": "a0960b7ded19123c",
-        "parent_span_id": "363f5479d964f88e",
+        "span_id": "ff41a07469104771",
+        "parent_span_id": "92c054d26d4baccd",
         "name": "mysql.query",
         "service": "demo-order",
         "container": "demo-order",
         "depth": 1,
-        "start": "2026-10-18T05:29:39.500Z",
+        "start": "2026-10-18T05:45:31.650Z",
         "offset_ms": 1,
-        "duration_ms": 314.316,
-        "self_ms": 314.316,
-        "pct_of_trace": 99.1,
+        "duration_ms": 1217.357,
+        "self_ms": 1217.357,
+        "pct_of_trace": 99.8,
         "status": "ok",
         "attributes": {
           "db.system": "mysql",
@@ -111,16 +111,16 @@
         "orphan": false
       },
       {
-        "span_id": "c7ce762423f45789",
-        "parent_span_id": "363f5479d964f88e",
+        "span_id": "ce23350a90c2a417",
+        "parent_span_id": "92c054d26d4baccd",
         "name": "mysql.pool.acquire",
         "service": "demo-order",
         "container": "demo-order",
         "depth": 1,
-        "start": "2026-10-18T05:29:39.500Z",
+        "start": "2026-10-18T05:45:31.650Z",
         "offset_ms": 1,
-        "duration_ms": 0.13,
-        "self_ms": 0.13,
+        "duration_ms": 0.096,
+        "self_ms": 0.096,
         "pct_of_trace": 0,
         "status": "ok",
         "attributes": {
@@ -132,17 +132,17 @@
         "orphan": false
       },
       {
-        "span_id": "24f76a3955ace150",
-        "parent_span_id": "363f5479d964f88e",
+        "span_id": "d8023687f80e86c7",
+        "parent_span_id": "92c054d26d4baccd",
         "name": "redis.set",
         "service": "demo-order",
         "container": "demo-order",
         "depth": 1,
-        "start": "2026-10-18T05:29:39.815Z",
-        "offset_ms": 316,
-        "duration_ms": 0.866,
-        "self_ms": 0.866,
-        "pct_of_trace": 0.3,
+        "start": "2026-10-18T05:45:32.868Z",
+        "offset_ms": 1219,
+        "duration_ms": 0.771,
+        "self_ms": 0.771,
+        "pct_of_trace": 0.1,
         "status": "ok",
         "attributes": {
           "db.system": "redis",
@@ -159,36 +159,36 @@
       {
         "name": "mysql.query",
         "count": 1,
-        "total_ms": 314.316,
-        "self_ms": 314.316,
-        "pct_of_trace": 99.1
+        "total_ms": 1217.357,
+        "self_ms": 1217.357,
+        "pct_of_trace": 99.8
       },
       {
         "name": "http.request",
         "count": 1,
-        "total_ms": 317.072,
-        "self_ms": 1.303,
-        "pct_of_trace": 0.4
+        "total_ms": 1219.757,
+        "self_ms": 1.001,
+        "pct_of_trace": 0.1
       },
       {
         "name": "redis.set",
         "count": 1,
-        "total_ms": 0.866,
-        "self_ms": 0.866,
-        "pct_of_trace": 0.3
+        "total_ms": 0.771,
+        "self_ms": 0.771,
+        "pct_of_trace": 0.1
       },
       {
         "name": "redis.get",
         "count": 1,
-        "total_ms": 0.587,
-        "self_ms": 0.587,
-        "pct_of_trace": 0.2
+        "total_ms": 0.642,
+        "self_ms": 0.642,
+        "pct_of_trace": 0.1
       },
       {
         "name": "mysql.pool.acquire",
         "count": 1,
-        "total_ms": 0.13,
-        "self_ms": 0.13,
+        "total_ms": 0.096,
+        "self_ms": 0.096,
         "pct_of_trace": 0
       }
     ],
@@ -199,7 +199,7 @@
         "containers": [
           "demo-order"
         ],
-        "lines_scanned": 792
+        "lines_scanned": 1025
       },
       {
         "service": "demo-payment",
@@ -219,7 +219,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T05:30:15.045Z",
+        "observed_at": "2026-10-18T05:45:57.955Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/logs（kind=span 记录重建）",
         "relation": "derived",
@@ -229,8 +229,8 @@
     "coverage": {
       "complete": true,
       "window": {
-        "start": "2026-10-17T23:30:14.972Z",
-        "end": "2026-10-18T05:30:14.972Z"
+        "start": "2026-10-17T23:45:57.841Z",
+        "end": "2026-10-18T05:45:57.841Z"
       },
       "scope": "服务: demo-order, demo-payment, demo-inventory 的容器日志",
       "notes": [
@@ -240,7 +240,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvddzimw-deb5ab",
+    "request_id": "req-mvdejq5a-2a97f6",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -248,7 +248,7 @@
     "adapter": "docker-engine-api|loki-http-api",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:30:14.936Z",
-    "duration_ms": 110
+    "started_at": "2026-10-18T05:45:57.790Z",
+    "duration_ms": 165
   }
 }

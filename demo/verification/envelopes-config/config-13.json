@@ -9,7 +9,7 @@
     "service": "demo-order",
     "env": null,
     "prefix": "/services/demo-order/",
-    "observed_revision": 41,
+    "observed_revision": 68,
     "instances": [
       {
         "instance_id": "order-1",
@@ -20,7 +20,7 @@
           "version": "1.4.2",
           "healthy": true,
           "env": "sandbox",
-          "registered_at": "2026-10-18T05:29:25.694Z"
+          "registered_at": "2026-10-18T05:45:10.731Z"
         },
         "payload_error": null,
         "address": "10.88.0.11",
@@ -29,13 +29,13 @@
         "env": "sandbox",
         "healthy": true,
         "health_basis": "self_reported",
-        "registered_at": "2026-10-18T05:29:25.694Z",
-        "create_revision": 39,
-        "mod_revision": 39,
+        "registered_at": "2026-10-18T05:45:10.731Z",
+        "create_revision": 66,
+        "mod_revision": 66,
         "lease": {
-          "id": "7587898301066017786",
+          "id": "7587898301066018284",
           "granted_ttl_s": 86400,
-          "remaining_ttl_s": 86288,
+          "remaining_ttl_s": 86333,
           "error": null
         }
       },
@@ -48,7 +48,7 @@
           "version": "1.4.2",
           "healthy": false,
           "env": "sandbox",
-          "registered_at": "2026-10-18T05:29:25.694Z"
+          "registered_at": "2026-10-18T05:45:10.731Z"
         },
         "payload_error": null,
         "address": "10.88.0.12",
@@ -57,13 +57,13 @@
         "env": "sandbox",
         "healthy": false,
         "health_basis": "self_reported",
-        "registered_at": "2026-10-18T05:29:25.694Z",
-        "create_revision": 40,
-        "mod_revision": 40,
+        "registered_at": "2026-10-18T05:45:10.731Z",
+        "create_revision": 67,
+        "mod_revision": 67,
         "lease": {
-          "id": "7587898301066017788",
+          "id": "7587898301066018286",
           "granted_ttl_s": 86400,
-          "remaining_ttl_s": 86288,
+          "remaining_ttl_s": 86333,
           "error": null
         }
       },
@@ -86,8 +86,8 @@
         "healthy": true,
         "health_basis": "self_reported",
         "registered_at": "2026-01-05T08:00:00Z",
-        "create_revision": 41,
-        "mod_revision": 41,
+        "create_revision": 68,
+        "mod_revision": 68,
         "lease": null
       }
     ],
@@ -111,7 +111,7 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-18T05:31:16.796Z",
+        "observed_at": "2026-10-18T05:46:16.836Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
         "method": "POST /v3/kv/range prefix=/services/demo-order/",
         "relation": "explicit",
@@ -120,7 +120,7 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-18T05:31:16.807Z",
+        "observed_at": "2026-10-18T05:46:16.861Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
         "method": "POST /v3/lease/timetolive",
         "relation": "sampled",
@@ -130,7 +130,7 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "etcd etcd/demo-etcd 键前缀 /services/demo-order/，修订 41",
+      "scope": "etcd etcd/demo-etcd 键前缀 /services/demo-order/，修订 68",
       "notes": [
         "1 个实例的注册没有租约，不会因实例下线而自动过期"
       ]
@@ -138,7 +138,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvde0uc3-1efc4f",
+    "request_id": "req-mvdek4ra-8631b1",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -146,7 +146,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:31:16.754Z",
-    "duration_ms": 53
+    "started_at": "2026-10-18T05:46:16.726Z",
+    "duration_ms": 135
   }
 }

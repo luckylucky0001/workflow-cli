@@ -191,6 +191,14 @@ export function mapOsError(e: unknown, ctx: { cluster: string; index?: string })
       });
     }
     if (e.status === 404) return new PluginError('NOT_FOUND', `OpenSearch 返回 404: ${msg}`, { details });
+    if (type === 'index_closed_exception') {
+      // not a query problem: the target (or an alias' backing index) is closed and cannot be searched
+      const index = e.body?.error?.index ?? ctx.index ?? null;
+      return new PluginError('DATA_UNAVAILABLE', `索引处于关闭状态（close），不可搜索: ${index ?? '(未知)'}`, {
+        hint: '关闭的索引需由管理员 _open 后才能查询；workctl search index get 可查看其设置与映射',
+        details: { ...details, index },
+      });
+    }
     if (e.status === 400) {
       return new PluginError('INVALID_ARGUMENT', `OpenSearch 拒绝了查询（${type ?? 'bad_request'}）: ${msg}`, {
         hint: '检查 query_string 语法（括号、引号、字段名:值）或 DSL 结构',

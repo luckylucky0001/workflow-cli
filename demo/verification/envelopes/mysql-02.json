@@ -126,7 +126,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T05:30:16.178Z",
+        "observed_at": "2026-10-18T05:45:59.602Z",
         "endpoint": "mysql/demo-mysql",
         "method": "information_schema.TABLES + information_schema.COLUMNS",
         "version": "8.4.11",
@@ -142,7 +142,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvddzjk3-aed7fb",
+    "request_id": "req-mvdejrii-b400a2",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -150,7 +150,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:30:16.131Z",
-    "duration_ms": 48
+    "started_at": "2026-10-18T05:45:59.562Z",
+    "duration_ms": 41
   }
 }

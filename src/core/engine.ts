@@ -18,6 +18,8 @@ export interface InvokeOptions {
   debug?: boolean;
   /** MCP and other agent hosts pass false: execute operations are refused unless explicitly allowed. */
   allowExecute?: boolean;
+  /** Domain allow-list (`mcp serve --domain`): capabilities of other domains are refused; `core` stays callable. */
+  allowedDomains?: string[];
   loaded?: LoadedConfig;
 }
 
@@ -158,6 +160,11 @@ export async function invoke(registry: Registry, capName: string, rawInputs: Rec
     if (cap.status === 'planned' || !cap.handler) {
       throw new WorkError('CAPABILITY_PLANNED', `能力 ${cap.name} 已列入目录，尚未接入`, { hint: `参考 ${cap.guide}` });
     }
+    if (opts.allowedDomains?.length && cap.domain !== 'core' && !opts.allowedDomains.includes(cap.domain)) {
+      throw new WorkError('PERMISSION_DENIED', `能力 ${cap.name} 属于领域 ${cap.domain}，不在当前入口开放的领域（${opts.allowedDomains.join(', ')}）内`, {
+        hint: '用包含该领域的 --domain 启动 MCP 服务，或在终端调用',
+      });
+    }
     const timeoutMs = checkTimeoutBudget(opts.timeoutMs ?? 30_000);
     const loaded = opts.loaded ?? loadConfig(opts.configPath);
     const profileName = resolveProfileName(loaded, opts.profile);
@@ -170,6 +177,7 @@ export async function invoke(registry: Registry, capName: string, rawInputs: Rec
       capability: cap,
       debug: opts.debug,
       allowExecute: opts.allowExecute,
+      allowedDomains: opts.allowedDomains,
     });
     const inputs = validateInputs(cap, rawInputs);
     if (cap.operation === 'execute') {

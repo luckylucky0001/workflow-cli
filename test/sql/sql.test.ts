@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Registry } from '../../src/core/registry';
@@ -51,6 +52,29 @@ describe('sql query capabilities (no Spark needed)', () => {
     expect(env.meta.warnings).toEqual([]);
     expect(env.data).toMatchObject({ state: 'lost' });
     expect((await call('sql.query.cancel', { id })).error?.code).toBe('CONFLICT');
+  });
+
+  it('cancel does not overwrite a query that succeeded between the state check and the signal', async () => {
+    const id = 'q-20261017-c0ffee';
+    const stateFile = join(cfg.dir, 'queries', `${id}.json`);
+    // stands in for the runner: on SIGTERM it has just finished, writes succeeded and exits
+    const script = `const fs=require('fs');process.on('SIGTERM',()=>{const s=JSON.parse(fs.readFileSync(${JSON.stringify(stateFile)},'utf8'));fs.writeFileSync(${JSON.stringify(stateFile)},JSON.stringify({...s,state:'succeeded',row_count:3,result_location:'/r'}));process.exit(0)});setInterval(()=>{},1000);`;
+    const child = spawn(process.execPath, ['-e', script, id], { detached: true, stdio: 'ignore' });
+    try {
+      writeFileSync(stateFile, JSON.stringify({ query_id: id, engine: 'spark', state: 'running', pid: child.pid, app_id: 'local-9', submitted_at: '2026-10-17T00:00:00Z' }));
+      await new Promise((ok) => setTimeout(ok, 300));
+      const env = await call('sql.query.cancel', { id });
+      expect(env.data).toMatchObject({ state: 'succeeded', previous_state: 'running' });
+      const st = JSON.parse(readFileSync(stateFile, 'utf8'));
+      expect(st.state).toBe('succeeded');
+      expect((await call('sql.query.get', { id })).data).toMatchObject({ state: 'succeeded', result_location: '/r' });
+    } finally {
+      try {
+        process.kill(child.pid!, 'SIGKILL');
+      } catch {
+        /* exited */
+      }
+    }
   });
 
   it('returns preview (≤ 20 rows) for succeeded queries', async () => {

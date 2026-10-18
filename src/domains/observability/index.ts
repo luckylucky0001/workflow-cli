@@ -4,7 +4,7 @@ import { defineCapability, defineDomain } from '../../core/registry';
 import { formatDuration, windowFromNow, type Ctx } from '../../core/runtime';
 import { dockerClient, type ContainerInspect } from '../container/docker';
 import { checkWindow, listServiceContainers, resolveEnv, selectionNotes, type ServiceContainers } from '../container/workload';
-import { BoundedCollector, longTextNote, matches, MAX_LOG_TEXT, parseLogLine, scanContainerLogs, type ContainerScan, type FilterStats, type LogEntry } from './logs';
+import { BoundedCollector, longTextNote, maskedNote, matches, MAX_LOG_TEXT, parseLogLine, scanContainerLogs, type ContainerScan, type FilterStats, type LogEntry } from './logs';
 import { lokiClient, resolveLogProvider } from './loki';
 import { lokiLogQuery, lokiTraceScan } from './loki-query';
 import { catalog, promClient, renderQuery, summarize, type MatrixSeries } from './prometheus';
@@ -219,6 +219,7 @@ const LogEntrySchema = z.object({
   fields: z.record(z.string(), z.unknown()).nullable().describe('JSON 日志的其余字段；非 JSON 行为 null'),
   raw: z.string().nullable().describe('非 JSON 行的原文'),
   truncated: z.boolean().describe('msg/raw/字段中有超过 8192 字符的文本被截断（末尾带“…[截断，原长 N 字符]”）'),
+  credentials_masked: z.boolean().describe('msg/raw/字段中的凭据（URL 密码、Authorization 头、password=/token= 参数、敏感字段名）已打码为 ***'),
 });
 
 const ContainerScanSchema = z.object({
@@ -295,6 +296,7 @@ const logQuery = defineCapability({
     '日志来自 Docker /containers/{id}/logs（stdout+stderr 多路复用流已解帧）；保留期取决于日志驱动与轮转配置，容器重建后旧日志不可见',
     '默认 order=newest：返回窗口内最新的 limit 条，按时间倒序；coverage.truncated=true 表示匹配条数超过 limit',
     `单条日志中超过 ${MAX_LOG_TEXT} 字符的文本（msg、raw、字段值）会被截断，该条 entries[].truncated=true，并在 coverage.notes 说明（Docker / Loki 相同）`,
+    '日志文本中的凭据（URL userinfo 密码、Authorization: Bearer/Basic、password=/token= 等参数、敏感字段名的值）打码为 ***，该条 entries[].credentials_masked=true，coverage.notes 给出条数；--contains/trace_id 过滤基于原始行',
     'provider 由资源绑定 attributes.log_provider 或 profile defaults.logs 决定（docker 默认 | loki）；Loki 经 LogQL query_range 查询，输出契约相同，差异（入库延迟、保留期、limit 口径）见指南',
   ],
   examples: [
@@ -354,6 +356,8 @@ const logQuery = defineCapability({
     if (truncated) notes.push(`匹配 ${collector.matched} 条，只返回 ${entries.length} 条（--limit）`);
     const cut = entries.filter((e) => e.truncated).length;
     if (cut) notes.push(longTextNote(cut));
+    const maskedN = entries.filter((e) => e.credentials_masked).length;
+    if (maskedN) notes.push(maskedNote(maskedN));
     if (stats.spans_skipped && !i.include_spans) notes.push(`省略了 ${stats.spans_skipped} 条 span 记录（--include-spans 返回，或用 trace get）`);
     return {
       status: failed.length ? 'partial' : 'success',
@@ -448,7 +452,7 @@ const traceGet = defineCapability({
     '日志来源按服务的日志 provider（docker 默认 | loki）；Loki 下以 |= "<trace_id>" 拉取后用同一逻辑重建',
     'Jaeger / Tempo 等追踪后端是规划中的 provider',
   ],
-  examples: ['workctl trace get --id 0d9ae006bb776f65c5bcca19759fce81 --window 1h'],
+  examples: ['workctl trace get --id <trace_id> --window 1h'],
   handler: async (ctx, i): Promise<Result> => {
     const id = String(i.id).toLowerCase();
     if (!/^[0-9a-f]{16,32}$/.test(id)) throw new WorkError('INVALID_ARGUMENT', `trace_id 格式不正确: ${i.id}`, { hint: '16-32 位十六进制' });
@@ -468,6 +472,7 @@ const traceGet = defineCapability({
     const lokiSources: Source[] = [];
     let dockerUsed = false;
     let longLines = 0;
+    let maskedLines = 0;
     let lokiIncomplete = false;
     const dockerScans: { name: string; status: string }[] = [];
     for (const svc of services) {
@@ -478,6 +483,7 @@ const traceGet = defineCapability({
         logs.push(...ls.logs);
         notes.push(...ls.notes);
         longLines += ls.truncated_lines;
+        maskedLines += ls.masked_lines;
         if (ls.incomplete) lokiIncomplete = true;
         scanned.push({ service: svc, containers: ls.containers, lines_scanned: ls.lines_scanned });
         if (!lokiSources.some((x) => x.endpoint === ls.source.endpoint)) lokiSources.push(ls.source);
@@ -499,6 +505,7 @@ const traceGet = defineCapability({
             const e = parseLogLine(line, container, stream);
             if (!e.fields || e.trace_id !== id) return;
             if (e.truncated) longLines++;
+            if (e.credentials_masked) maskedLines++;
             if (e.kind === 'span') {
               const s = spanFromFields({ ...e.fields, trace_id: e.trace_id, span_id: e.span_id }, container);
               if (s) spans.push(s);
@@ -531,6 +538,7 @@ const traceGet = defineCapability({
     if (view.roots.length > 1) notes.push(`有 ${view.roots.length} 个根 span（部分父 span 不在已扫描日志中）`);
     if (view.external_parent) notes.push(`根 span 的父 span ${view.external_parent} 来自未记录日志的调用方`);
     if (view.cyclic_parents.length) notes.push(`span 父子关系成环（${view.cyclic_parents.join(', ')}），日志中的 parent_span_id 不可信，相关层级仅供参考`);
+    if (maskedLines) notes.push(maskedNote(maskedLines));
     if (longLines) notes.push(`${longLines} 条 span/日志记录含超过 ${MAX_LOG_TEXT} 字符的文本，已截断`);
     if (failedScans.length) notes.push(`${failedScans.length} 个容器的日志未能读取（${failedScans.map((x) => x.name).join(', ')}），调用链可能缺少 span`);
     return {

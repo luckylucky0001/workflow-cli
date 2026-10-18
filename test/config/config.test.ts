@@ -55,6 +55,15 @@ describe('etcd helpers (pure)', () => {
     for (const n of ['cache.ttl_seconds', 'cache.mode', 'db.pool_size', 'feature.flags', 'monkey.count']) expect(isSecretName(n), n).toBe(false);
   });
 
+  it('CJK secret names are masked; a JSON "__proto__" member is kept (and masked), not dropped', () => {
+    for (const n of ['数据库.密码', 'redis.口令', 'jwt.密钥', 'api.访问令牌', 'oss.凭证']) expect(isSecretName(n), n).toBe(true);
+    for (const n of ['缓存.过期秒数', '数据库.连接池']) expect(isSecretName(n), n).toBe(false);
+    expect(decodeValue(Buffer.from('hunter2'), '数据库.密码')).toMatchObject({ value: '***', masked: true });
+    const d = decodeValue(Buffer.from('[{"__proto__":{"token":"t1","ttl":5}}]'), 'conf.json');
+    expect(JSON.stringify(d.value)).toBe('[{"__proto__":{"token":"***","ttl":5}}]');
+    expect(d.masked_paths).toEqual(['$[0].__proto__.token']);
+  });
+
   it('decodes JSON / text / binary values and masks secrets (whole value or JSON fields)', () => {
     expect(decodeValue(Buffer.from('300'), 'cache.ttl_seconds')).toMatchObject({ value: 300, value_format: 'json', masked: false });
     expect(decodeValue(Buffer.from('read-through'), 'cache.mode')).toMatchObject({ value: 'read-through', value_format: 'text' });

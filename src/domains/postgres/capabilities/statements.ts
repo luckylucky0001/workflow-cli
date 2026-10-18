@@ -71,7 +71,11 @@ export function entryWasReset(a: PssRow, b: PssRow): boolean {
 }
 
 /** Window delta t1 − t0 keyed by (userid, dbid, queryid, toplevel). A reset entry counts only its post-reset values. */
-export function diffStatements(t0: PssRow[], t1: PssRow[]): { stats: PssStat[]; reset: number; disappeared: number } {
+export function diffStatements(t0In: PssRow[], t1In: PssRow[]): { stats: PssStat[]; reset: number; disappeared: number } {
+  // without pg_read_all_stats other roles' entries have queryid NULL, so several statements share one
+  // key: diff their per-key sums instead of pairing arbitrary entries (which fakes resets / deltas)
+  const t0 = mergeByKey(t0In);
+  const t1 = mergeByKey(t1In);
   const before = new Map(t0.map((r) => [r.key, r]));
   const afterKeys = new Set(t1.map((r) => r.key));
   let reset = 0;
@@ -98,6 +102,31 @@ export function diffStatements(t0: PssRow[], t1: PssRow[]): { stats: PssStat[]; 
   }
   const disappeared = t0.filter((r) => !afterKeys.has(r.key)).length;
   return { stats, reset, disappeared };
+}
+
+function mergeByKey(rows: PssRow[]): PssRow[] {
+  const out = new Map<string, PssRow>();
+  for (const r of rows) {
+    const a = out.get(r.key);
+    if (!a) {
+      out.set(r.key, { ...r });
+      continue;
+    }
+    const pick = (x: number | null | undefined, y: number | null | undefined, f: (...v: number[]) => number) => (x == null ? (y ?? null) : y == null ? x : f(x, y));
+    out.set(r.key, {
+      ...a,
+      calls: a.calls + r.calls,
+      total_ms: a.total_ms + r.total_ms,
+      rows: a.rows + r.rows,
+      shared_blks_hit: a.shared_blks_hit + r.shared_blks_hit,
+      shared_blks_read: a.shared_blks_read + r.shared_blks_read,
+      temp_blks_written: a.temp_blks_written + r.temp_blks_written,
+      max_ms: pick(a.max_ms, r.max_ms, Math.max),
+      min_ms: pick(a.min_ms, r.min_ms, Math.min),
+      stats_since: null,
+    });
+  }
+  return [...out.values()];
 }
 
 export function toStat(r: PssRow, withMax = false): PssStat {
@@ -285,6 +314,10 @@ export const statementSummary = defineCapability({
       const coll = await assertPssCollection(s);
       const vis = await statsVisibility(s);
       const db = typeof i.database === 'string' && i.database ? i.database : undefined;
+      // a misspelt --database would otherwise read as "no statements"
+      if (db !== undefined && !(await s.query('SELECT 1 FROM pg_database WHERE datname = $1', [db])).length) {
+        throw new WorkError('NOT_FOUND', `数据库不存在: ${db} (${s.ep.id})`, { hint: '用 workctl pg database list 查看可见的库（名称区分大小写）' });
+      }
       const collection = (dealloc: number | null) => ({ extension_version: coll.version, track: coll.track, max_entries: coll.max, dealloc, text_visible: vis.all });
       const visibilityNotes = vis.all ? [] : [`角色 ${s.user} 没有 pg_read_all_stats：其他角色的语句文本不可见（query=null）`];
       if (windowMs === 0) {

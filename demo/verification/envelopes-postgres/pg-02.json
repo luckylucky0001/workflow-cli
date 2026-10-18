@@ -24,7 +24,7 @@
       "current_user": "workctl_ro",
       "connected_database": "demo_orders",
       "started_at": "2026-10-18T05:10:20.910923Z",
-      "uptime_s": 1269,
+      "uptime_s": 2116,
       "in_recovery": false,
       "role": "primary"
     },
@@ -218,7 +218,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T05:31:29.805Z",
+        "observed_at": "2026-10-18T05:45:37.281Z",
         "endpoint": "postgres/demo-postgres",
         "method": "version(); pg_settings; pg_stat_activity; pg_is_in_recovery(); pg_extension",
         "version": "16.15",
@@ -227,7 +227,7 @@
       {
         "system": "workctl",
         "adapter": "binding-file",
-        "observed_at": "2026-10-18T05:31:29.805Z",
+        "observed_at": "2026-10-18T05:45:37.277Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "method": "resources.forEndpoint(postgres, demo-postgres)",
         "relation": "explicit"
@@ -243,7 +243,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvde14cp-81caa0",
+    "request_id": "req-mvdeja7m-87703f",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -251,7 +251,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:31:29.737Z",
-    "duration_ms": 78
+    "started_at": "2026-10-18T05:45:37.138Z",
+    "duration_ms": 149
   }
 }

@@ -56,7 +56,7 @@ const jobGet = defineCapability({
     'history server 不记录 local 模式驱动的退出码：status 由 attempt.completed 与作业状态推导（derived），依据见 status_basis',
     '未在 history 中找到：事件日志存在但未加载 → DATA_UNAVAILABLE；只有 driver 日志没有事件日志 → COLLECTION_DISABLED；都没有 → NOT_FOUND',
   ],
-  examples: ['workctl compute job get --id local-1792239950565'],
+  examples: ['workctl compute job get --id <app_id>'],
   handler: async (ctx, inp) => {
     const sh = new SparkHistory(ctx);
     const id = checkAppId(inp.id);
@@ -190,7 +190,7 @@ const stageList = defineCapability({
   }),
   prerequisites: ['spark 端点配置 history_url；应用开启事件日志'],
   notes: ['duration_ms = completionTime - submissionTime（墙钟时间）；executor_run_time_ms 为所有任务执行时间之和'],
-  examples: ['workctl compute stage list --job-id local-1792239950565', 'workctl compute stage list --job-id local-1792239950565 --status failed'],
+  examples: ['workctl compute stage list --job-id <app_id>', 'workctl compute stage list --job-id <app_id> --status failed'],
   handler: async (ctx, inp) => {
     const sh = new SparkHistory(ctx);
     const id = checkAppId(inp.job_id);
@@ -262,7 +262,7 @@ const logGet = defineCapability({
   }),
   prerequisites: ['spark 端点配置 driver_log_dir；提交脚本把 driver 输出落盘为 <driver_log_dir>/<app_id>.log'],
   notes: ['driver 日志不是 Spark REST 接口提供的：演示环境由 spark-submit 包装脚本（tee）落盘；YARN/K8s 环境应改用对应的日志聚合适配器'],
-  examples: ['workctl compute log get --job-id local-1792239950565 --limit-lines 100'],
+  examples: ['workctl compute log get --job-id <app_id> --limit-lines 100'],
   handler: async (ctx, inp) => {
     const ep = ctx.endpoint('spark');
     const id = checkAppId(inp.job_id);

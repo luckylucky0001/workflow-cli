@@ -285,7 +285,7 @@ const IndexSchema = z.object({
   unique: z.boolean(),
   valid: z.boolean().describe('false 表示 CREATE INDEX CONCURRENTLY 失败留下的无效索引'),
   columns: z.array(z.string()),
-  size_bytes: z.number().nullable(),
+  size_bytes: z.number().nullable().describe('分区表上的分区索引（relkind I）本身没有存储，为 null；大小见各分区的索引'),
   idx_scan: z.number().nullable().describe('自统计重置以来的索引扫描次数（累计）'),
   idx_tup_read: z.number().nullable(),
   idx_tup_fetch: z.number().nullable(),
@@ -401,7 +401,7 @@ export const tableGet = defineCapability({
         const lastIdxScan = s.versionNum >= 160000 ? 'su.last_idx_scan' : 'NULL::timestamptz';
         const idx = await s.query(
           `SELECT ic.relname AS name, pg_get_indexdef(x.indexrelid) AS def, x.indisprimary, x.indisunique, x.indisvalid,
-                  pg_relation_size(x.indexrelid) AS size_bytes, su.idx_scan, su.idx_tup_read, su.idx_tup_fetch, ${lastIdxScan} AS last_idx_scan,
+                  CASE WHEN ic.relkind = 'I' THEN NULL ELSE pg_relation_size(x.indexrelid) END AS size_bytes, su.idx_scan, su.idx_tup_read, su.idx_tup_fetch, ${lastIdxScan} AS last_idx_scan,
                   ARRAY(SELECT CASE WHEN k.attnum = 0 THEN pg_get_indexdef(x.indexrelid, k.ord::int, true) ELSE a.attname::text END
                           FROM unnest(x.indkey::int2[]) WITH ORDINALITY AS k(attnum, ord)
                           LEFT JOIN pg_attribute a ON a.attrelid = x.indrelid AND a.attnum = k.attnum
@@ -419,6 +419,23 @@ export const tableGet = defineCapability({
           [t.oid],
         );
         const [db] = await s.query('SELECT stats_reset FROM pg_stat_database WHERE datname = current_database()');
+        const relkind = String(t.relkind);
+        // views / foreign tables have no local storage, and a partitioned parent stores nothing itself:
+        // its pg_*_size() is 0 and its pg_stat row counts nothing, which would read as "empty table"
+        let size = { heap_bytes: num(t.heap_bytes), table_bytes: num(t.table_bytes), indexes_bytes: num(t.indexes_bytes), total_bytes: num(t.total_bytes) };
+        let partitions: number | null = null;
+        if (relkind === 'v' || relkind === 'f') size = { heap_bytes: null, table_bytes: null, indexes_bytes: null, total_bytes: null };
+        if (relkind === 'p') {
+          const [ps] = await s.query(
+            `SELECT count(*)::int AS n, sum(pg_relation_size(relid)) AS heap_bytes, sum(pg_table_size(relid)) AS table_bytes,
+                    sum(pg_indexes_size(relid)) AS indexes_bytes, sum(pg_total_relation_size(relid)) AS total_bytes
+               FROM pg_partition_tree($1) WHERE isleaf`,
+            [t.oid],
+          );
+          partitions = Number(ps?.n ?? 0);
+          size = { heap_bytes: num(ps?.heap_bytes) ?? 0, table_bytes: num(ps?.table_bytes) ?? 0, indexes_bytes: num(ps?.indexes_bytes) ?? 0, total_bytes: num(ps?.total_bytes) ?? 0 };
+        }
+        const statsApply = !!st && relkind !== 'p';
         const sens = sensitiveColumns(s.ep);
         const live = num(st?.n_live_tup);
         const dead = num(st?.n_dead_tup);
@@ -437,7 +454,7 @@ export const tableGet = defineCapability({
             kind: KIND[String(t.relkind)] ?? String(t.relkind),
             comment: t.comment ?? null,
             access: { select: t.can_select === true },
-            size: { heap_bytes: num(t.heap_bytes), table_bytes: num(t.table_bytes), indexes_bytes: num(t.indexes_bytes), total_bytes: num(t.total_bytes) },
+            size,
             rows_estimate: num(t.reltuples),
             columns: cols.map((c) => ({
               name: String(c.attname),
@@ -462,7 +479,7 @@ export const tableGet = defineCapability({
               idx_tup_fetch: num(x.idx_tup_fetch),
               last_idx_scan: isoFromPg(x.last_idx_scan),
             })),
-            stats: st
+            stats: statsApply
               ? {
                   seq_scan: num(st.seq_scan),
                   seq_tup_read: num(st.seq_tup_read),
@@ -495,6 +512,10 @@ export const tableGet = defineCapability({
               'n_live_tup / n_dead_tup / rows_estimate 为估计值；seq_scan / idx_scan / n_tup_* 为自 stats_reset 以来的累计值',
               ...(t.can_select === true ? [] : [`角色 ${s.user} 对该表没有 SELECT 权限：结构来自系统目录（对所有角色可见），数据查询会返回 PERMISSION_DENIED`]),
               ...(st ? [] : ['该对象没有表级统计（视图等）']),
+              ...(relkind === 'v' || relkind === 'f' ? ['视图/外部表没有本地存储：size 为 null'] : []),
+              ...(relkind === 'p'
+                ? [`分区表父表本身不存数据：size 为 ${partitions} 个叶子分区之和（pg_partition_tree）；扫描/元组统计按分区记录，父表不汇总（stats=null），请对各分区执行 pg table get`]
+                : []),
               ...(countersSinceReset
                 ? [`统计在 ${dbReset} 被重置，之后该表尚未 vacuum/analyze：n_live_tup / n_dead_tup 只反映重置后的变化，dead_ratio 不可用（null）；行数以 rows_estimate 为准`]
                 : []),

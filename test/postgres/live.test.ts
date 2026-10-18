@@ -302,4 +302,38 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('postgres live (demo-postgres)',
       await b.end();
     }
   });
+  it('table get on partitioned tables / views is not reported as empty; masking sees quoted mixed-case relations; unknown --database is NOT_FOUND', async () => {
+    const a = await admin('it-edge-objects');
+    try {
+      await a.query('DROP SCHEMA IF EXISTS "It Edge" CASCADE');
+      await a.query('CREATE SCHEMA "It Edge"');
+      await a.query('CREATE TABLE "It Edge"."Events"(id int, ts date, phone text) PARTITION BY RANGE (ts)');
+      await a.query(`CREATE TABLE "It Edge"."Events_2026" PARTITION OF "It Edge"."Events" FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')`);
+      await a.query(`INSERT INTO "It Edge"."Events" SELECT g, '2026-05-01', '1380013800' || g FROM generate_series(1, 500) g`);
+      await a.query('CREATE VIEW "It Edge".v AS SELECT id FROM "It Edge"."Events"');
+      await a.query('GRANT USAGE ON SCHEMA "It Edge" TO workctl_ro');
+      await a.query('GRANT SELECT ON ALL TABLES IN SCHEMA "It Edge" TO workctl_ro');
+      const p = ok(await call('postgres.table.get', { schema: 'It Edge', table: 'Events' }));
+      expect(p.kind).toBe('partitioned table');
+      expect(p.size.total_bytes).toBeGreaterThan(0);
+      expect(p.stats).toBeNull();
+      await a.query('CREATE INDEX ON "It Edge"."Events"(id)');
+      const pi = ok(await call('postgres.table.get', { schema: 'It Edge', table: 'Events' }));
+      expect(pi.indexes[0].size_bytes).toBeNull();
+      expect(pi.size.indexes_bytes).toBeGreaterThan(0);
+      const v = ok(await call('postgres.table.get', { schema: 'It Edge', table: 'v' }));
+      expect(v.kind).toBe('view');
+      expect(v.size.total_bytes).toBeNull();
+      for (const sql of ['SELECT e FROM "It Edge"."Events" e ORDER BY id LIMIT 1', 'SELECT row_to_json(e) AS j FROM "It Edge"."Events" e ORDER BY id LIMIT 1']) {
+        const q = await call('postgres.query.run', { sql });
+        expect(JSON.stringify(q.data)).not.toContain('13800138001');
+        expect((q.data as any).masked_columns.length).toBe(1);
+      }
+      const st = await call('postgres.statement.summary', { sample_window: '0', database: 'no_such_db_it' });
+      expect(st.error?.code).toBe('NOT_FOUND');
+    } finally {
+      await a.query('DROP SCHEMA IF EXISTS "It Edge" CASCADE');
+      await a.end();
+    }
+  });
 });

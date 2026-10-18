@@ -168,6 +168,7 @@
             }
           },
           "size_bytes": {
+            "description": "分区表上的分区索引（relkind I）本身没有存储，为 null；大小见各分区的索引",
             "type": [
               "number",
               "null"

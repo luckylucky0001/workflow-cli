@@ -410,8 +410,10 @@ const operationPlan = defineCapability({
   handler: async (ctx, i) => {
     const planner = ctx.registry.planners.get(i.action);
     if (!planner) {
-      throw new WorkError('NOT_FOUND', `没有操作类型 ${i.action} 的计划器`, { hint: `可用: ${[...ctx.registry.planners.keys()].join(', ') || '(无)'}` });
+      const avail = [...ctx.registry.planners.keys()].filter((k) => kindAllowed(ctx, k));
+      throw new WorkError('NOT_FOUND', `没有操作类型 ${i.action} 的计划器`, { hint: `可用: ${avail.join(', ') || '(无)'}` });
     }
+    assertKindAllowed(ctx, i.action);
     const params: Record<string, string> = {};
     let lastKey: string | undefined;
     for (const kv of (i.param as string[] | undefined) ?? []) {
@@ -426,6 +428,7 @@ const operationPlan = defineCapability({
       params[lastKey] = kv.slice(idx + 1).trim();
     }
     const draft = await planner.plan(ctx, params);
+    assertKindAllowed(ctx, draft.kind);
     const plan = ctx.plans().create(draft, { profile: ctx.profileName, env: ctx.env, executable: ctx.registry.executors.has(draft.kind) });
     return { data: plan, sources: [source('workctl', 'plan-store', { endpoint: ctx.plans().dir, relation: 'derived' })], coverage: { complete: true, scope: `计划 ${plan.id}（仅预览，未执行）` } };
   },
@@ -486,7 +489,7 @@ const operationExecute = defineCapability({
   handler: async (ctx, i) => {
     if (i.confirm !== i.id) throw new WorkError('PRECONDITION_FAILED', '--confirm 必须与计划 ID 一致');
     const store = ctx.plans();
-    store.get(i.id); // NOT_FOUND / id format before taking the lock
+    assertKindAllowed(ctx, store.get(i.id).kind); // NOT_FOUND / id format / domain before taking the lock
     const release = store.lock(i.id);
     try {
       return await executePlan(ctx, store, i.id);
@@ -496,10 +499,34 @@ const operationExecute = defineCapability({
   },
 });
 
+/** Domain that registered the planner/executor of a plan kind (fallback: the kind's first segment). */
+function planKindDomain(ctx: Ctx, kind: string): string {
+  for (const d of ctx.registry.domains.values()) {
+    if (d.planners?.some((p) => p.kind === kind) || (d.executors && Object.hasOwn(d.executors, kind))) return d.name;
+  }
+  return kind.split('.')[0];
+}
+
+function kindAllowed(ctx: Ctx, kind: string): boolean {
+  const allowed = ctx.allowedDomains;
+  if (!allowed?.length) return true;
+  const domain = planKindDomain(ctx, kind);
+  return domain === 'core' || allowed.includes(domain);
+}
+
+/** `mcp serve --domain X` bounds operation.* too: no plans or executions of other domains' actions. */
+function assertKindAllowed(ctx: Ctx, kind: string): void {
+  if (kindAllowed(ctx, kind)) return;
+  throw new WorkError('PERMISSION_DENIED', `操作类型 ${kind} 属于领域 ${planKindDomain(ctx, kind)}，不在当前入口开放的领域（${ctx.allowedDomains!.join(', ')}）内`, {
+    hint: '用包含该领域的 --domain 启动 MCP 服务，或在终端操作',
+  });
+}
+
 async function executePlan(ctx: Ctx, store: ReturnType<Ctx['plans']>, id: string) {
   {
     // re-read under the lock: another process may have run it in the meantime
     const plan = store.get(id);
+    assertKindAllowed(ctx, plan.kind);
     if (plan.status === 'expired') throw new WorkError('PRECONDITION_FAILED', `计划 ${plan.id} 已过期（${plan.expires_at}），请重新生成计划`);
     if (plan.status !== 'planned') throw new WorkError('CONFLICT', `计划状态为 ${plan.status}，只能执行 planned 状态的计划`);
     if (plan.profile !== ctx.profileName || plan.env !== ctx.env) {
@@ -539,7 +566,7 @@ const operationCancel = defineCapability({
   guide: 'docs/guides/operations.md',
   handler: async (ctx, i) => {
     const store = ctx.plans();
-    store.get(i.id);
+    assertKindAllowed(ctx, store.get(i.id).kind);
     const release = store.lock(i.id); // not while an execution holds the plan
     try {
       const p = store.get(i.id);

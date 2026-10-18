@@ -241,28 +241,34 @@ export const indexGet: Handler = async (req, inputs, timeoutMs) => {
     const mapping = await client.request('GET', `/${ienc}/_mapping`);
     const aliases = await client.request('GET', `/${ienc}/_alias`);
     const metaAt = new Date().toISOString();
-    const stats = await client.request<any>('GET', `/${ienc}/_stats/docs,store,search,indexing,refresh`);
+    // a closed index has settings / mapping / aliases, but _stats and _cat/shards reject it (index_closed_exception)
+    const closed = cat?.status === 'close';
+    const stats = closed ? null : await client.request<any>('GET', `/${ienc}/_stats/docs,store,search,indexing,refresh`);
     const statsAt = new Date().toISOString();
-    const shards = await client.request<any[]>('GET', `/_cat/shards/${ienc}?format=json&bytes=b&h=index,shard,prirep,state,docs,store,node,unassigned.reason`);
+    const shards = closed ? [] : await client.request<any[]>('GET', `/_cat/shards/${ienc}?format=json&bytes=b&h=index,shard,prirep,state,docs,store,node,unassigned.reason`);
     const observedAt = new Date().toISOString();
     const data = shapeIndexGet({ cluster: ep.name, requested, index, resolvedFromAlias, cat, settings, mapping, stats, shards, aliases, observedAt });
 
     const statsFailed = int(stats?._shards?.failed) ?? 0;
     if (statsFailed > 0) warnings.push(`_stats 有 ${statsFailed} 个分片未返回统计，docs/store/累计统计偏小`);
-    if (data.status === 'close') warnings.push('索引处于关闭状态（close），不可搜索，统计可能为空');
+    if (closed) warnings.push('索引处于关闭状态（close），不可搜索；_stats 与 _cat/shards 不接受关闭的索引，docs/store/累计统计与分片分配未采集（null / 空）');
     if (data.health === 'red') warnings.push('索引健康为 red：有主分片未分配，部分数据当前不可读');
     if (data.shards.unassigned.length) {
       warnings.push(`有 ${data.shards.unassigned.length} 个分片副本未分配（${data.shards.unassigned.map((u) => `${u.shard}${u.prirep}${u.unassigned_reason ? `:${u.unassigned_reason}` : ''}`).join(', ')}）`);
     }
-    const partial = statsFailed > 0;
+    const partial = statsFailed > 0 || closed;
     return {
       status: partial ? 'partial' : 'success',
       data,
       sources: [
         makeSource(ep, version, `GET /_cat/indices/${requested}?bytes=b`, 'explicit', catAt),
         makeSource(ep, version, `GET /${index}/_settings, /${index}/_mapping, /${index}/_alias`, 'explicit', metaAt),
-        makeSource(ep, version, `GET /${index}/_stats/docs,store,search,indexing,refresh`, 'explicit', statsAt),
-        makeSource(ep, version, `GET /_cat/shards/${index}?bytes=b`, 'explicit', observedAt),
+        ...(closed
+          ? []
+          : [
+              makeSource(ep, version, `GET /${index}/_stats/docs,store,search,indexing,refresh`, 'explicit', statsAt),
+              makeSource(ep, version, `GET /_cat/shards/${index}?bytes=b`, 'explicit', observedAt),
+            ]),
         makeSource(ep, version, 'mapping.field_count / shards 汇总', 'derived', observedAt),
       ],
       coverage: {
@@ -309,6 +315,14 @@ export function shapeSearchResponse(input: {
   const tth = Number(guarded.body.track_total_hits);
   const sh = res?._shards ?? {};
   const shards = { total: int(sh.total) ?? 0, successful: int(sh.successful) ?? 0, skipped: int(sh.skipped) ?? 0, failed: int(sh.failed) ?? 0 };
+  // every index has >= 1 shard: zero shards means a wildcard matched no open index (expand_wildcards=open,
+  // allow_no_indices) — nothing was searched, which must not read as "0 matching documents"
+  if (sh.total !== undefined && shards.total === 0) {
+    throw new PluginError('NOT_FOUND', `${input.index} 没有匹配到任何打开的索引，未搜索任何数据`, {
+      hint: '通配符只展开打开的索引（关闭的索引不可搜索）；用 search cluster get 查看索引数与 closed 计数，或用具体索引名/别名',
+      details: { cluster: input.cluster, index: input.index },
+    });
+  }
   const failures = (Array.isArray(sh.failures) ? sh.failures : []).slice(0, 20).map((f: any) => ({
     index: f?.index ?? null,
     shard: int(f?.shard),

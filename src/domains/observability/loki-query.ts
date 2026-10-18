@@ -2,7 +2,7 @@ import { WorkError, type Result, type Source } from '../../core/output';
 import { formatDuration, windowFromNow, type Ctx } from '../../core/runtime';
 import { shortId } from '../container/docker';
 import { resolveEnv } from '../container/workload';
-import { longTextNote, matches, type ContainerScan, type FilterStats, type LogEntry, type LogFilter } from './logs';
+import { longTextNote, maskedNote, matches, type ContainerScan, type FilterStats, type LogEntry, type LogFilter } from './logs';
 import {
   buildLogQuery,
   buildStatQueries,
@@ -175,6 +175,8 @@ export async function lokiLogQuery(ctx: Ctx, i: Record<string, any>, choice: Log
   if (spansSkipped && !filter.includeSpans) notes.push(`省略了 ${spansSkipped} 条 span 记录（--include-spans 返回，或用 trace get）`);
   const cut = entries.filter((e) => e.truncated).length;
   if (cut) notes.push(longTextNote(cut));
+  const maskedN = entries.filter((e) => e.credentials_masked).length;
+  if (maskedN) notes.push(maskedNote(maskedN));
   if (paged.streamUnknown) notes.push(`${paged.streamUnknown} 条日志所在的 Loki 流没有 stream 标签，stream 记为 stdout`);
   if (paged.clientRejected) notes.push(`LogQL 预过滤后有 ${paged.clientRejected} 行被本地过滤排除（口径差异，见指南）`);
   notes.push(ingestionNote(loki));
@@ -229,6 +231,8 @@ export interface LokiTraceScan {
   source: Source;
   /** span/log records whose text hit MAX_LOG_TEXT */
   truncated_lines: number;
+  /** span/log records with masked credentials */
+  masked_lines: number;
   /** the page budget ran out before all lines with the trace_id were read */
   incomplete: boolean;
 }
@@ -244,10 +248,12 @@ export async function lokiTraceScan(ctx: Ctx, service: string, traceId: string, 
   const spans: SpanRecord[] = [];
   const logs: SpanLog[] = [];
   let truncatedLines = 0;
+  let maskedLines = 0;
   const [paged, scanned] = await Promise.all([
     pagedQuery(loki, query, { startNs, endNs }, 'forward', Number.POSITIVE_INFINITY, (e) => {
       if (!e.fields || e.trace_id !== traceId) return false;
       if (e.truncated) truncatedLines++;
+      if (e.credentials_masked) maskedLines++;
       if (e.kind === 'span') {
         const s = spanFromFields({ ...e.fields, trace_id: e.trace_id, span_id: e.span_id }, e.container);
         if (s) spans.push(s);
@@ -268,6 +274,7 @@ export async function lokiTraceScan(ctx: Ctx, service: string, traceId: string, 
     logs,
     notes,
     truncated_lines: truncatedLines,
+    masked_lines: maskedLines,
     incomplete: !paged.exhausted,
     source: await loki.source(`GET /loki/api/v1/query_range query=${query}（kind=span 记录重建）`, 'derived'),
   };

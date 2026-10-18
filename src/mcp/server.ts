@@ -1,4 +1,4 @@
-import { createInterface } from 'node:readline';
+import type { Readable, Writable } from 'node:stream';
 import { CLI_VERSION, invoke } from '../core/engine';
 import type { CapabilityDef, InputSpec, Registry } from '../core/registry';
 
@@ -35,7 +35,14 @@ function inputJsonSchema(spec: InputSpec): Record<string, unknown> {
     case 'list':
       return { ...base, type: 'array', items: { type: 'string' } };
     case 'duration':
-      return { ...base, type: 'string', pattern: '^[0-9]+(\\.[0-9]+)?(ms|s|m|h|d)$' };
+      // same as the engine: a non-negative integer (milliseconds) or a string like 0, 500ms, 30s, 1.5h
+      return {
+        ...base,
+        anyOf: [
+          { type: 'integer', minimum: 0, description: '毫秒' },
+          { type: 'string', pattern: '^\\s*(0|[0-9]+(\\.[0-9]+)?(ms|s|m|h|d))\\s*$' },
+        ],
+      };
     case 'file':
       return { ...base, type: 'string', description: `${spec.description}（本地文件路径）` };
     default:
@@ -74,7 +81,18 @@ export function toolsFor(registry: Registry, o: Pick<McpOptions, 'allowExecute' 
     }));
 }
 
-export async function handleMcpMessage(registry: Registry, o: McpOptions, msg: any): Promise<any | null> {
+/**
+ * Per-connection state of a stdio session. Only `serveMcp` passes one: direct (programmatic)
+ * calls without a session are not gated on initialization.
+ */
+export interface McpSession {
+  initialized: boolean;
+}
+
+/** JSON-RPC server error used for requests sent before `initialize` (as in LSP's ServerNotInitialized). */
+export const NOT_INITIALIZED = -32002;
+
+export async function handleMcpMessage(registry: Registry, o: McpOptions, msg: any, session?: McpSession): Promise<any | null> {
   const id = msg?.id;
   const reply = (result: unknown) => ({ jsonrpc: '2.0', id, result });
   const fail = (code: number, message: string) => ({ jsonrpc: '2.0', id, error: { code, message } });
@@ -89,8 +107,13 @@ export async function handleMcpMessage(registry: Registry, o: McpOptions, msg: a
   if (!('id' in msg)) return null;
   // JSON-RPC: when the id cannot be determined the error's id is null (never echo an object/array id)
   if (id !== null && typeof id !== 'string' && typeof id !== 'number') return { jsonrpc: '2.0', id: null, error: { code: -32600, message: 'Invalid Request: id must be a string or number' } };
+  // MCP lifecycle: before initialize only pings are served (tools are never listed or run)
+  if (session && !session.initialized && (msg.method === 'tools/call' || msg.method === 'tools/list')) {
+    return fail(NOT_INITIALIZED, `Server not initialized: send initialize before ${msg.method}`);
+  }
   switch (msg.method) {
     case 'initialize': {
+      if (session) session.initialized = true;
       const requested = msg.params?.protocolVersion;
       return reply({
         protocolVersion: SUPPORTED_PROTOCOLS.includes(requested) ? requested : SUPPORTED_PROTOCOLS[0],
@@ -116,6 +139,8 @@ export async function handleMcpMessage(registry: Registry, o: McpOptions, msg: a
         profile: o.profile,
         timeoutMs: o.timeoutMs,
         allowExecute: o.allowExecute,
+        // the domain filter also bounds core operation.* (plans/executions of other domains' actions)
+        allowedDomains: o.domains?.length ? o.domains : undefined,
       });
       return reply({
         content: [{ type: 'text', text: JSON.stringify(env, null, 2) }],
@@ -133,38 +158,87 @@ export async function handleMcpMessage(registry: Registry, o: McpOptions, msg: a
  * server negotiates, requires receiving batches). A batch is answered with an array of the
  * non-null replies, or nothing when it holds only notifications/responses; an empty batch is invalid.
  */
-export async function handleMcpPayload(registry: Registry, o: McpOptions, payload: unknown): Promise<any | null> {
-  if (!Array.isArray(payload)) return handleMcpMessage(registry, o, payload);
+export async function handleMcpPayload(registry: Registry, o: McpOptions, payload: unknown, session?: McpSession): Promise<any | null> {
+  if (!Array.isArray(payload)) return handleMcpMessage(registry, o, payload, session);
   if (payload.length === 0) return { jsonrpc: '2.0', id: null, error: { code: -32600, message: 'Invalid Request: empty batch' } };
   const replies = await Promise.all(
     payload.map((m) =>
       Array.isArray(m)
         ? { jsonrpc: '2.0', id: null, error: { code: -32600, message: 'Invalid Request' } }
-        : handleMcpMessage(registry, o, m).catch((e) => ({ jsonrpc: '2.0', id: (m as any)?.id ?? null, error: { code: -32603, message: String(e) } })),
+        : handleMcpMessage(registry, o, m, session).catch((e) => ({ jsonrpc: '2.0', id: (m as any)?.id ?? null, error: { code: -32603, message: String(e) } })),
     ),
   );
   const out = replies.filter((r) => r !== null);
   return out.length ? out : null;
 }
 
-export async function serveMcp(registry: Registry, o: McpOptions): Promise<void> {
-  const rl = createInterface({ input: process.stdin, crlfDelay: Infinity });
+/** Largest accepted stdio line (one JSON-RPC message or batch); longer lines are discarded unbuffered. */
+export const MAX_MCP_LINE_BYTES = 4 * 1024 * 1024;
+
+type StdioLine = { line: string } | { tooLong: number };
+
+/**
+ * Newline-delimited reader with a per-line cap: an oversized line is never held in memory
+ * beyond the cap; its remainder is skipped up to the next newline and reported once.
+ */
+export async function* readLines(input: Readable, maxBytes = MAX_MCP_LINE_BYTES): AsyncGenerator<StdioLine> {
+  let parts: Buffer[] = [];
+  let size = 0;
+  let skipping = 0; // bytes of an oversized line seen so far (0: not skipping)
+  for await (const chunk of input) {
+    let buf: Buffer = typeof chunk === 'string' ? Buffer.from(chunk) : chunk;
+    while (buf.length) {
+      const nl = buf.indexOf(10);
+      const piece = nl === -1 ? buf : buf.subarray(0, nl);
+      if (skipping) skipping += piece.length;
+      else if (size + piece.length > maxBytes) {
+        skipping = size + piece.length;
+        parts = [];
+        size = 0;
+      } else {
+        parts.push(piece);
+        size += piece.length;
+      }
+      if (nl === -1) break;
+      buf = buf.subarray(nl + 1);
+      if (skipping) {
+        yield { tooLong: skipping };
+        skipping = 0;
+      } else {
+        yield { line: Buffer.concat(parts).toString('utf8').replace(/\r$/, '') };
+        parts = [];
+        size = 0;
+      }
+    }
+  }
+  if (skipping) yield { tooLong: skipping };
+  else if (size) yield { line: Buffer.concat(parts).toString('utf8').replace(/\r$/, '') };
+}
+
+export async function serveMcp(registry: Registry, o: McpOptions, io: { input: Readable; output: Writable } = { input: process.stdin, output: process.stdout }): Promise<void> {
+  const write = (v: unknown) => io.output.write(JSON.stringify(v) + '\n');
+  const session: McpSession = { initialized: false };
   const pending = new Set<Promise<void>>();
-  for await (const line of rl) {
+  for await (const item of readLines(io.input)) {
+    if ('tooLong' in item) {
+      write({ jsonrpc: '2.0', id: null, error: { code: -32600, message: `Invalid Request: message exceeds ${MAX_MCP_LINE_BYTES} bytes (got ${item.tooLong}+)` } });
+      continue;
+    }
+    const line = item.line;
     if (!line.trim()) continue;
     let msg: unknown;
     try {
       msg = JSON.parse(line);
     } catch {
-      process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } }) + '\n');
+      write({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } });
       continue;
     }
-    const p = handleMcpPayload(registry, o, msg)
+    const p = handleMcpPayload(registry, o, msg, session)
       .then((res) => {
-        if (res) process.stdout.write(JSON.stringify(res) + '\n');
+        if (res) write(res);
       })
       .catch((e) => {
-        process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: ['string', 'number'].includes(typeof (msg as any)?.id) ? (msg as any).id : null, error: { code: -32603, message: String(e) } }) + '\n');
+        write({ jsonrpc: '2.0', id: ['string', 'number'].includes(typeof (msg as any)?.id) ? (msg as any).id : null, error: { code: -32603, message: String(e) } });
       })
       .finally(() => pending.delete(p));
     pending.add(p);

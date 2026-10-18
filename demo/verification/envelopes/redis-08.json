@@ -20,7 +20,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T05:30:37.044Z",
+        "observed_at": "2026-10-18T05:46:24.842Z",
         "endpoint": "redis/demo-redis",
         "method": "CONFIG GET maxmemory*",
         "version": "7.4.11",
@@ -34,7 +34,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvddzzo7-876622",
+    "request_id": "req-mvdekaz9-775255",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -42,7 +42,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:30:37.015Z",
-    "duration_ms": 33
+    "started_at": "2026-10-18T05:46:24.788Z",
+    "duration_ms": 55
   }
 }

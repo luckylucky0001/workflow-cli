@@ -79,6 +79,8 @@ export interface CtxOptions {
   debug?: boolean;
   /** Execute guard of the entry point (MCP passes false); inherited by ctx.call(). */
   allowExecute?: boolean;
+  /** Domain allow-list of the entry point (`mcp serve --domain`); inherited by ctx.call() and enforced on plan kinds. */
+  allowedDomains?: string[];
 }
 
 export class Ctx {
@@ -95,6 +97,7 @@ export class Ctx {
   private planStore?: PlanStore;
   private readonly debugOn: boolean;
   readonly allowExecute?: boolean;
+  readonly allowedDomains?: string[];
 
   constructor(o: CtxOptions) {
     this.registry = o.registry;
@@ -106,6 +109,7 @@ export class Ctx {
     this.signal = o.signal ?? AbortSignal.timeout(o.timeoutMs);
     this.debugOn = o.debug ?? false;
     this.allowExecute = o.allowExecute;
+    this.allowedDomains = o.allowedDomains;
   }
 
   get profile(): Profile | null {
@@ -198,6 +202,7 @@ export class Ctx {
       debug: this.debugOn,
       // a capability reached through composition must not escape the caller's execute guard
       allowExecute: this.allowExecute,
+      allowedDomains: this.allowedDomains,
     });
   }
 

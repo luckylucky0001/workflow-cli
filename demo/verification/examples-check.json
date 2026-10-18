@@ -1,0 +1,3518 @@
+{
+  "generated_at": "2026-10-18T05:46:54.744Z",
+  "vars": {
+    "trace_id": "09350e7d93dcad26c6efd507f225d296",
+    "app_id": "local-1792300311012",
+    "plan_id": "op-20261018-bf95e6",
+    "sql_query_id": "q-20261018-6bcc04",
+    "replicaset": "demo-order-77fdb45bf4"
+  },
+  "summary": {
+    "example": {
+      "total": 115,
+      "pass": 112,
+      "expected_error": 2,
+      "fail": 0,
+      "skipped": 1
+    },
+    "doc": {
+      "total": 74,
+      "pass": 63,
+      "expected_error": 1,
+      "fail": 0,
+      "skipped": 10
+    },
+    "skill": {
+      "total": 109,
+      "pass": 98,
+      "expected_error": 1,
+      "fail": 0,
+      "skipped": 10
+    }
+  },
+  "results": [
+    {
+      "kind": "example",
+      "where": "capability.list",
+      "capability": "capability.list",
+      "operation": "read",
+      "command": "workctl --json capability list --domain mysql",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2892
+    },
+    {
+      "kind": "example",
+      "where": "capability.list",
+      "capability": "capability.list",
+      "operation": "read",
+      "command": "workctl capability list --status planned",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2901
+    },
+    {
+      "kind": "example",
+      "where": "capability.get",
+      "capability": "capability.get",
+      "operation": "read",
+      "command": "workctl capability get --name mysql.table.get",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2595
+    },
+    {
+      "kind": "example",
+      "where": "resource.list",
+      "capability": "resource.list",
+      "operation": "read",
+      "command": "workctl --json resource list --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3478
+    },
+    {
+      "kind": "example",
+      "where": "service.dependency.list",
+      "capability": "service.dependency.list",
+      "operation": "read",
+      "command": "workctl --json service dependency list --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3447
+    },
+    {
+      "kind": "example",
+      "where": "operation.plan",
+      "capability": "operation.plan",
+      "operation": "plan",
+      "command": "workctl --json operation plan --action container.restart --param service=demo-order --param env=sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2848
+    },
+    {
+      "kind": "example",
+      "where": "container.workload.get",
+      "capability": "container.workload.get",
+      "operation": "read",
+      "command": "workctl container workload get --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4320
+    },
+    {
+      "kind": "example",
+      "where": "container.event.list",
+      "capability": "container.event.list",
+      "operation": "read",
+      "command": "workctl container event list --service demo-order --window 1h",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 5250
+    },
+    {
+      "kind": "example",
+      "where": "container.stats.get",
+      "capability": "container.stats.get",
+      "operation": "read",
+      "command": "workctl container stats get --service demo-order",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 6686
+    },
+    {
+      "kind": "example",
+      "where": "container.capacity.summary",
+      "capability": "container.capacity.summary",
+      "operation": "read",
+      "command": "workctl capacity summary --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 5720
+    },
+    {
+      "kind": "example",
+      "where": "container.workload.restart_plan",
+      "capability": "container.workload.restart_plan",
+      "operation": "plan",
+      "command": "workctl container workload restart-plan --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4648
+    },
+    {
+      "kind": "example",
+      "where": "network.dns.get",
+      "capability": "network.dns.get",
+      "operation": "read",
+      "command": "workctl network dns get --name localhost",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4735
+    },
+    {
+      "kind": "example",
+      "where": "network.backend.list",
+      "capability": "network.backend.list",
+      "operation": "diagnose",
+      "command": "workctl network backend list --service demo-order",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4357
+    },
+    {
+      "kind": "example",
+      "where": "network.connectivity.check",
+      "capability": "network.connectivity.check",
+      "operation": "diagnose",
+      "command": "workctl network connectivity check --target 127.0.0.1:13306 --count 3",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4264
+    },
+    {
+      "kind": "example",
+      "where": "storage.volume.get",
+      "capability": "storage.volume.get",
+      "operation": "read",
+      "command": "workctl storage volume get --id workctl-demo_mysql-data",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3766
+    },
+    {
+      "kind": "example",
+      "where": "storage.file.stat",
+      "capability": "storage.file.stat",
+      "operation": "read",
+      "command": "workctl storage file stat --path demo/environment/workctl.yaml",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3132
+    },
+    {
+      "kind": "example",
+      "where": "observability.metric.query",
+      "capability": "observability.metric.query",
+      "operation": "read",
+      "command": "workctl metric query --resource demo-order --metric request_latency --window 15m",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3898
+    },
+    {
+      "kind": "example",
+      "where": "observability.metric.query",
+      "capability": "observability.metric.query",
+      "operation": "read",
+      "command": "workctl metric query --resource demo-order --promql 'sum by (route) (rate(http_requests_total{service=\"demo-order\"}[1m]))'",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4138
+    },
+    {
+      "kind": "example",
+      "where": "observability.metric.list",
+      "capability": "observability.metric.list",
+      "operation": "read",
+      "command": "workctl metric list --resource demo-order",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2891
+    },
+    {
+      "kind": "example",
+      "where": "observability.log.query",
+      "capability": "observability.log.query",
+      "operation": "read",
+      "command": "workctl log query --service demo-order --window 15m --level error",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3495
+    },
+    {
+      "kind": "example",
+      "where": "observability.log.query",
+      "capability": "observability.log.query",
+      "operation": "read",
+      "command": "workctl log query --service demo-order --trace-id <trace_id> --include-spans",
+      "executed": "workctl log query --service demo-order --trace-id 09350e7d93dcad26c6efd507f225d296 --include-spans",
+      "subs": [
+        "<trace_id> -> 09350e7d93dcad26c6efd507f225d296"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4264
+    },
+    {
+      "kind": "example",
+      "where": "observability.trace.get",
+      "capability": "observability.trace.get",
+      "operation": "diagnose",
+      "command": "workctl trace get --id <trace_id> --window 1h",
+      "executed": "workctl trace get --id 09350e7d93dcad26c6efd507f225d296 --window 1h",
+      "subs": [
+        "<trace_id> -> 09350e7d93dcad26c6efd507f225d296"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4460
+    },
+    {
+      "kind": "example",
+      "where": "mysql.instance.get",
+      "capability": "mysql.instance.get",
+      "operation": "read",
+      "command": "workctl mysql instance get --instance demo-mysql",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 5153
+    },
+    {
+      "kind": "example",
+      "where": "mysql.table.get",
+      "capability": "mysql.table.get",
+      "operation": "read",
+      "command": "workctl mysql table get --instance demo-mysql --database demo --table orders",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4433
+    },
+    {
+      "kind": "example",
+      "where": "mysql.index.list",
+      "capability": "mysql.index.list",
+      "operation": "read",
+      "command": "workctl mysql index list --instance demo-mysql --database demo --table orders",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3344
+    },
+    {
+      "kind": "example",
+      "where": "mysql.session.list",
+      "capability": "mysql.session.list",
+      "operation": "read",
+      "command": "workctl mysql session list --instance demo-mysql",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4144
+    },
+    {
+      "kind": "example",
+      "where": "mysql.session.list",
+      "capability": "mysql.session.list",
+      "operation": "read",
+      "command": "workctl mysql session list --instance demo-mysql --include-idle",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2742
+    },
+    {
+      "kind": "example",
+      "where": "mysql.lock.list",
+      "capability": "mysql.lock.list",
+      "operation": "read",
+      "command": "workctl mysql lock list --instance demo-mysql",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3255
+    },
+    {
+      "kind": "example",
+      "where": "mysql.statement.summary",
+      "capability": "mysql.statement.summary",
+      "operation": "diagnose",
+      "command": "workctl mysql statement summary --instance demo-mysql --sample-window 5s --top 10",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 7393
+    },
+    {
+      "kind": "example",
+      "where": "mysql.statement.summary",
+      "capability": "mysql.statement.summary",
+      "operation": "diagnose",
+      "command": "workctl --timeout 60s mysql statement summary --instance demo-mysql --sample-window 30s --database demo",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 32361
+    },
+    {
+      "kind": "example",
+      "where": "mysql.statement.summary",
+      "capability": "mysql.statement.summary",
+      "operation": "diagnose",
+      "command": "workctl mysql statement summary --instance demo-mysql --sample-window 0",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2742
+    },
+    {
+      "kind": "example",
+      "where": "mysql.slowlog.list",
+      "capability": "mysql.slowlog.list",
+      "operation": "read",
+      "command": "workctl mysql slowlog list --instance demo-mysql --since 1h --limit 20",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1210
+    },
+    {
+      "kind": "example",
+      "where": "mysql.query.explain",
+      "capability": "mysql.query.explain",
+      "operation": "read",
+      "command": "workctl mysql query explain --instance demo-mysql --database demo --sql \"SELECT * FROM orders WHERE customer_id = 42\"",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1022
+    },
+    {
+      "kind": "example",
+      "where": "mysql.query.explain",
+      "capability": "mysql.query.explain",
+      "operation": "read",
+      "command": "workctl mysql query explain --instance demo-mysql --database demo --sql-file ./q.sql",
+      "executed": "workctl mysql query explain --instance demo-mysql --database demo --sql-file /tmp/workctl-examples-L3hvBR/mysql.sql",
+      "subs": [
+        "q.sql -> mysql sample (SELECT * FROM orders WHERE customer_id = 42)"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2499
+    },
+    {
+      "kind": "example",
+      "where": "mysql.query.analyze",
+      "capability": "mysql.query.analyze",
+      "operation": "diagnose",
+      "command": "workctl mysql query analyze --instance demo-mysql --database demo --sql \"SELECT * FROM orders WHERE customer_id = 42\"",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2021
+    },
+    {
+      "kind": "example",
+      "where": "mysql.query.analyze",
+      "capability": "mysql.query.analyze",
+      "operation": "diagnose",
+      "command": "workctl mysql query analyze --instance demo-mysql --database demo --sql-file ./q.sql",
+      "executed": "workctl mysql query analyze --instance demo-mysql --database demo --sql-file /tmp/workctl-examples-L3hvBR/mysql.sql",
+      "subs": [
+        "q.sql -> mysql sample (SELECT * FROM orders WHERE customer_id = 42)"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2498
+    },
+    {
+      "kind": "example",
+      "where": "mysql.query.execute",
+      "capability": "mysql.query.execute",
+      "operation": "read",
+      "command": "workctl mysql query execute --instance demo-mysql --database demo --sql \"SELECT id, status FROM orders WHERE customer_id = 42\" --max-rows 20",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3375
+    },
+    {
+      "kind": "example",
+      "where": "mysql.query.execute",
+      "capability": "mysql.query.execute",
+      "operation": "read",
+      "command": "workctl mysql query execute --instance demo-mysql --database demo --sql-file ./q.sql --max-rows 20",
+      "executed": "workctl mysql query execute --instance demo-mysql --database demo --sql-file /tmp/workctl-examples-L3hvBR/mysql.sql --max-rows 20",
+      "subs": [
+        "q.sql -> mysql sample (SELECT * FROM orders WHERE customer_id = 42)"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3061
+    },
+    {
+      "kind": "example",
+      "where": "mysql.index.plan",
+      "capability": "mysql.index.plan",
+      "operation": "plan",
+      "command": "workctl mysql index plan --instance demo-mysql --database demo --table orders --columns customer_id",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1500
+    },
+    {
+      "kind": "example",
+      "where": "postgres.instance.get",
+      "capability": "postgres.instance.get",
+      "operation": "read",
+      "command": "workctl pg instance get --instance demo-postgres",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3675
+    },
+    {
+      "kind": "example",
+      "where": "postgres.database.list",
+      "capability": "postgres.database.list",
+      "operation": "read",
+      "command": "workctl pg database list --instance demo-postgres",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3388
+    },
+    {
+      "kind": "example",
+      "where": "postgres.table.get",
+      "capability": "postgres.table.get",
+      "operation": "read",
+      "command": "workctl pg table get --instance demo-postgres --database demo_orders --table orders",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4361
+    },
+    {
+      "kind": "example",
+      "where": "postgres.table.get",
+      "capability": "postgres.table.get",
+      "operation": "read",
+      "command": "workctl pg table get --instance demo-postgres --schema public --table order_items",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4151
+    },
+    {
+      "kind": "example",
+      "where": "postgres.session.list",
+      "capability": "postgres.session.list",
+      "operation": "read",
+      "command": "workctl pg session list --instance demo-postgres",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3441
+    },
+    {
+      "kind": "example",
+      "where": "postgres.session.list",
+      "capability": "postgres.session.list",
+      "operation": "read",
+      "command": "workctl pg session list --instance demo-postgres --include-idle",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3576
+    },
+    {
+      "kind": "example",
+      "where": "postgres.lock.list",
+      "capability": "postgres.lock.list",
+      "operation": "read",
+      "command": "workctl pg lock list --instance demo-postgres",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3182
+    },
+    {
+      "kind": "example",
+      "where": "postgres.statement.summary",
+      "capability": "postgres.statement.summary",
+      "operation": "diagnose",
+      "command": "workctl pg statement summary --instance demo-postgres --sample-window 10s --top 10",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 13806
+    },
+    {
+      "kind": "example",
+      "where": "postgres.statement.summary",
+      "capability": "postgres.statement.summary",
+      "operation": "diagnose",
+      "command": "workctl pg statement summary --instance demo-postgres --sample-window 0 --order-by mean_time --database demo_orders",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2675
+    },
+    {
+      "kind": "example",
+      "where": "postgres.query.explain",
+      "capability": "postgres.query.explain",
+      "operation": "read",
+      "command": "workctl pg query explain --instance demo-postgres --sql \"SELECT * FROM orders WHERE customer_id = 42\"",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2796
+    },
+    {
+      "kind": "example",
+      "where": "postgres.query.explain",
+      "capability": "postgres.query.explain",
+      "operation": "read",
+      "command": "workctl pg query explain --instance demo-postgres --database demo_orders --sql-file ./q.sql",
+      "executed": "workctl pg query explain --instance demo-postgres --database demo_orders --sql-file /tmp/workctl-examples-L3hvBR/pg.sql",
+      "subs": [
+        "q.sql -> pg sample (SELECT * FROM orders WHERE customer_id = 42)"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2608
+    },
+    {
+      "kind": "example",
+      "where": "postgres.query.analyze",
+      "capability": "postgres.query.analyze",
+      "operation": "diagnose",
+      "command": "workctl pg query analyze --instance demo-postgres --sql \"SELECT * FROM orders WHERE customer_id = 42\"",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3501
+    },
+    {
+      "kind": "example",
+      "where": "postgres.query.analyze",
+      "capability": "postgres.query.analyze",
+      "operation": "diagnose",
+      "command": "workctl pg query analyze --instance demo-postgres --database demo_orders --sql-file ./q.sql",
+      "executed": "workctl pg query analyze --instance demo-postgres --database demo_orders --sql-file /tmp/workctl-examples-L3hvBR/pg.sql",
+      "subs": [
+        "q.sql -> pg sample (SELECT * FROM orders WHERE customer_id = 42)"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2819
+    },
+    {
+      "kind": "example",
+      "where": "postgres.query.run",
+      "capability": "postgres.query.run",
+      "operation": "read",
+      "command": "workctl pg query run --instance demo-postgres --sql \"SELECT id, status, amount FROM orders WHERE customer_id = 42\" --max-rows 20",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2790
+    },
+    {
+      "kind": "example",
+      "where": "postgres.query.run",
+      "capability": "postgres.query.run",
+      "operation": "read",
+      "command": "workctl pg query run --instance demo-postgres --database demo_orders --sql-file ./q.sql --max-rows 50",
+      "executed": "workctl pg query run --instance demo-postgres --database demo_orders --sql-file /tmp/workctl-examples-L3hvBR/pg.sql --max-rows 50",
+      "subs": [
+        "q.sql -> pg sample (SELECT * FROM orders WHERE customer_id = 42)"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3725
+    },
+    {
+      "kind": "example",
+      "where": "redis.instance.get",
+      "capability": "redis.instance.get",
+      "operation": "read",
+      "command": "workctl redis instance get --instance demo-redis",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2634
+    },
+    {
+      "kind": "example",
+      "where": "redis.info.get",
+      "capability": "redis.info.get",
+      "operation": "read",
+      "command": "workctl redis info get --instance demo-redis --section stats",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2556
+    },
+    {
+      "kind": "example",
+      "where": "redis.stats.sample",
+      "capability": "redis.stats.sample",
+      "operation": "diagnose",
+      "command": "workctl redis stats sample --instance demo-redis --duration 10s",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 11917
+    },
+    {
+      "kind": "example",
+      "where": "redis.stats.sample",
+      "capability": "redis.stats.sample",
+      "operation": "diagnose",
+      "command": "workctl --timeout 60s redis stats sample --instance demo-redis --duration 30s",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 32475
+    },
+    {
+      "kind": "example",
+      "where": "redis.slowlog.list",
+      "capability": "redis.slowlog.list",
+      "operation": "read",
+      "command": "workctl redis slowlog list --instance demo-redis --limit 10",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1856
+    },
+    {
+      "kind": "example",
+      "where": "redis.key.inspect",
+      "capability": "redis.key.inspect",
+      "operation": "read",
+      "command": "workctl redis key inspect --instance demo-redis --key demo:order:1",
+      "profile": "docker",
+      "status": "expected-error",
+      "envelope_status": "error",
+      "error_code": "NOT_FOUND",
+      "message": "键不存在: demo:order:1",
+      "ms": 1782
+    },
+    {
+      "kind": "example",
+      "where": "redis.key.inspect",
+      "capability": "redis.key.inspect",
+      "operation": "read",
+      "command": "workctl redis key inspect --instance demo-redis --key demo:customer:1:recent --include-value",
+      "profile": "docker",
+      "status": "expected-error",
+      "envelope_status": "error",
+      "error_code": "NOT_FOUND",
+      "message": "键不存在: demo:customer:1:recent",
+      "ms": 784
+    },
+    {
+      "kind": "example",
+      "where": "redis.key.sample",
+      "capability": "redis.key.sample",
+      "operation": "diagnose",
+      "command": "workctl redis key sample --instance demo-redis --pattern \"demo:*\" --max-keys 200",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1089
+    },
+    {
+      "kind": "example",
+      "where": "redis.key.hot",
+      "capability": "redis.key.hot",
+      "operation": "diagnose",
+      "command": "workctl redis key hot --instance demo-redis --pattern \"demo:*\" --max-keys 500",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 745
+    },
+    {
+      "kind": "example",
+      "where": "redis.config.get",
+      "capability": "redis.config.get",
+      "operation": "read",
+      "command": "workctl redis config get --instance demo-redis --pattern \"maxmemory*\"",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1168
+    },
+    {
+      "kind": "example",
+      "where": "offline.workflow.get",
+      "capability": "offline.workflow.get",
+      "operation": "read",
+      "command": "workctl offline workflow get --id demo-daily-orders",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "warnings": [
+        "DAG 处于暂停状态：调度器不会创建新的定时 run，已触发的 run 也不会被调度"
+      ],
+      "ms": 1188
+    },
+    {
+      "kind": "example",
+      "where": "offline.task.get",
+      "capability": "offline.task.get",
+      "operation": "read",
+      "command": "workctl offline task get --workflow demo-daily-orders --task aggregate_orders",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1493
+    },
+    {
+      "kind": "example",
+      "where": "offline.run.list",
+      "capability": "offline.run.list",
+      "operation": "read",
+      "command": "workctl offline run list --workflow demo-daily-orders --data-date 2026-10-16 --timezone Asia/Shanghai",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1725
+    },
+    {
+      "kind": "example",
+      "where": "offline.run.get",
+      "capability": "offline.run.get",
+      "operation": "diagnose",
+      "command": "workctl offline run get --workflow demo-daily-orders --id demo__2026-10-16__wrong_partition",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3025
+    },
+    {
+      "kind": "example",
+      "where": "offline.dependency.list",
+      "capability": "offline.dependency.list",
+      "operation": "diagnose",
+      "command": "workctl offline dependency list --workflow demo-daily-orders --run-id demo__2026-10-14__missing_upstream --direction upstream",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3363
+    },
+    {
+      "kind": "example",
+      "where": "offline.log.get",
+      "capability": "offline.log.get",
+      "operation": "read",
+      "command": "workctl offline log get --workflow demo-daily-orders --run-id demo__2026-10-16__wrong_partition --task aggregate_orders --limit-lines 50",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1596
+    },
+    {
+      "kind": "example",
+      "where": "offline.backfill.plan",
+      "capability": "offline.backfill.plan",
+      "operation": "plan",
+      "command": "workctl offline backfill plan --workflow demo-daily-orders --from 2026-10-14 --to 2026-10-16 --timezone Asia/Shanghai",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "warnings": [
+        "2026-10-16: 调度层 success 但目标分区 missing"
+      ],
+      "ms": 5213
+    },
+    {
+      "kind": "example",
+      "where": "offline.backfill.get",
+      "capability": "offline.backfill.get",
+      "operation": "read",
+      "command": "workctl offline backfill get --id op-20261017-abc123",
+      "executed": "workctl offline backfill get --id op-20261018-bf95e6",
+      "subs": [
+        "op-20261017-abc123 -> op-20261018-bf95e6"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2626
+    },
+    {
+      "kind": "example",
+      "where": "offline.freshness.check",
+      "capability": "offline.freshness.check",
+      "operation": "diagnose",
+      "command": "workctl offline freshness check --dataset analytics.daily_orders --data-date 2026-10-16",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2908
+    },
+    {
+      "kind": "example",
+      "where": "compute.job.get",
+      "capability": "compute.job.get",
+      "operation": "read",
+      "command": "workctl compute job get --id <app_id>",
+      "executed": "workctl compute job get --id local-1792300311012",
+      "subs": [
+        "<app_id> -> local-1792300311012"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1777
+    },
+    {
+      "kind": "example",
+      "where": "compute.stage.list",
+      "capability": "compute.stage.list",
+      "operation": "read",
+      "command": "workctl compute stage list --job-id <app_id>",
+      "executed": "workctl compute stage list --job-id local-1792300311012",
+      "subs": [
+        "<app_id> -> local-1792300311012"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2960
+    },
+    {
+      "kind": "example",
+      "where": "compute.stage.list",
+      "capability": "compute.stage.list",
+      "operation": "read",
+      "command": "workctl compute stage list --job-id <app_id> --status failed",
+      "executed": "workctl compute stage list --job-id local-1792300311012 --status failed",
+      "subs": [
+        "<app_id> -> local-1792300311012"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2041
+    },
+    {
+      "kind": "example",
+      "where": "compute.log.get",
+      "capability": "compute.log.get",
+      "operation": "read",
+      "command": "workctl compute log get --job-id <app_id> --limit-lines 100",
+      "executed": "workctl compute log get --job-id local-1792300311012 --limit-lines 100",
+      "subs": [
+        "<app_id> -> local-1792300311012"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3156
+    },
+    {
+      "kind": "example",
+      "where": "compute.queue.get",
+      "capability": "compute.queue.get",
+      "operation": "read",
+      "command": "workctl compute queue get --id demo-batch-pool",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4746
+    },
+    {
+      "kind": "example",
+      "where": "sql.query.submit",
+      "capability": "sql.query.submit",
+      "operation": "read",
+      "command": "workctl sql query submit --engine spark --file demo/offline-workflows/sql/examples/daily_orders_by_date.sql",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2951
+    },
+    {
+      "kind": "example",
+      "where": "sql.query.submit",
+      "capability": "sql.query.submit",
+      "operation": "read",
+      "command": "workctl sql query submit --engine trino --file q.sql --catalog tpch --schema tiny",
+      "executed": "workctl sql query submit --engine trino --file /tmp/workctl-examples-L3hvBR/trino.sql --catalog tpch --schema tiny",
+      "subs": [
+        "q.sql -> trino sample (SELECT name FROM nation ORDER BY nationkey LIMIT 5)"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3270
+    },
+    {
+      "kind": "example",
+      "where": "sql.query.get",
+      "capability": "sql.query.get",
+      "operation": "read",
+      "command": "workctl sql query get --id q-20261017-1a2b3c",
+      "executed": "workctl sql query get --id q-20261018-6bcc04",
+      "subs": [
+        "q-20261017-1a2b3c -> q-20261018-6bcc04"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2386
+    },
+    {
+      "kind": "example",
+      "where": "sql.query.cancel",
+      "capability": "sql.query.cancel",
+      "operation": "execute",
+      "command": "workctl sql query cancel --id q-20261017-1a2b3c",
+      "status": "skipped",
+      "reason": "operation=execute"
+    },
+    {
+      "kind": "example",
+      "where": "data.table.get",
+      "capability": "data.table.get",
+      "operation": "read",
+      "command": "workctl data table get --catalog demo --table analytics.daily_orders",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4205
+    },
+    {
+      "kind": "example",
+      "where": "data.partition.list",
+      "capability": "data.partition.list",
+      "operation": "read",
+      "command": "workctl data partition list --catalog demo --table ods.orders --from 2026-10-10 --to 2026-10-16",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 5087
+    },
+    {
+      "kind": "example",
+      "where": "data.partition.get",
+      "capability": "data.partition.get",
+      "operation": "read",
+      "command": "workctl data partition get --catalog demo --table analytics.daily_orders --partition 'dt=2026-10-16'",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3481
+    },
+    {
+      "kind": "example",
+      "where": "data.lineage.get",
+      "capability": "data.lineage.get",
+      "operation": "read",
+      "command": "workctl data lineage get --catalog demo --table analytics.daily_orders --direction upstream",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3210
+    },
+    {
+      "kind": "example",
+      "where": "data.lineage.get",
+      "capability": "data.lineage.get",
+      "operation": "read",
+      "command": "workctl data lineage get --catalog demo --table ods.orders --direction downstream --depth 3",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2286
+    },
+    {
+      "kind": "example",
+      "where": "data.quality.check",
+      "capability": "data.quality.check",
+      "operation": "diagnose",
+      "command": "workctl data quality check --dataset demo.daily_orders --partition 'dt=2026-10-16' --ruleset demo-daily-rules",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4035
+    },
+    {
+      "kind": "example",
+      "where": "config.get",
+      "capability": "config.get",
+      "operation": "read",
+      "command": "workctl config get --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3797
+    },
+    {
+      "kind": "example",
+      "where": "config.get",
+      "capability": "config.get",
+      "operation": "read",
+      "command": "workctl config get --service demo-order --key cache.ttl_seconds",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4498
+    },
+    {
+      "kind": "example",
+      "where": "config.get",
+      "capability": "config.get",
+      "operation": "read",
+      "command": "workctl config get --service demo-payment --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3021
+    },
+    {
+      "kind": "example",
+      "where": "config.get",
+      "capability": "config.get",
+      "operation": "read",
+      "command": "workctl config get --service demo-inventory --endpoint consul/demo-consul",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2809
+    },
+    {
+      "kind": "example",
+      "where": "config.diff",
+      "capability": "config.diff",
+      "operation": "read",
+      "command": "workctl config diff --service demo-order --env sandbox --from-rev 2",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3616
+    },
+    {
+      "kind": "example",
+      "where": "config.diff",
+      "capability": "config.diff",
+      "operation": "read",
+      "command": "workctl config diff --service demo-order --key cache.ttl_seconds",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3391
+    },
+    {
+      "kind": "example",
+      "where": "config.diff",
+      "capability": "config.diff",
+      "operation": "read",
+      "command": "workctl config diff --service demo-payment --key order.timeout_ms",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3406
+    },
+    {
+      "kind": "example",
+      "where": "discovery.list",
+      "capability": "discovery.list",
+      "operation": "read",
+      "command": "workctl discovery list --service demo-order",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2940
+    },
+    {
+      "kind": "example",
+      "where": "discovery.list",
+      "capability": "discovery.list",
+      "operation": "read",
+      "command": "workctl discovery list --service demo-order --env sandbox --healthy-only",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2262
+    },
+    {
+      "kind": "example",
+      "where": "discovery.list",
+      "capability": "discovery.list",
+      "operation": "read",
+      "command": "workctl discovery list --service demo-payment",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4298
+    },
+    {
+      "kind": "example",
+      "where": "discovery.list",
+      "capability": "discovery.list",
+      "operation": "read",
+      "command": "workctl discovery list --service demo-inventory",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2904
+    },
+    {
+      "kind": "example",
+      "where": "deploy.release.list",
+      "capability": "deploy.release.list",
+      "operation": "read",
+      "command": "workctl deploy release list --service demo-order --env sandbox --window 7d",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3545
+    },
+    {
+      "kind": "example",
+      "where": "deploy.release.get",
+      "capability": "deploy.release.get",
+      "operation": "read",
+      "command": "workctl deploy release get --service demo-order --env sandbox --id 3",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4384
+    },
+    {
+      "kind": "example",
+      "where": "deploy.release.get",
+      "capability": "deploy.release.get",
+      "operation": "read",
+      "command": "workctl deploy release get --service demo-order --id <replicaset>",
+      "executed": "workctl deploy release get --service demo-order --id demo-order-77fdb45bf4",
+      "subs": [
+        "<replicaset> -> demo-order-77fdb45bf4"
+      ],
+      "profile": "k8s",
+      "tried": [
+        "docker:INVALID_ARGUMENT",
+        "k8s:success"
+      ],
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2184
+    },
+    {
+      "kind": "example",
+      "where": "deploy.status.get",
+      "capability": "deploy.status.get",
+      "operation": "read",
+      "command": "workctl deploy status get --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4312
+    },
+    {
+      "kind": "example",
+      "where": "deploy.rollback.plan",
+      "capability": "deploy.rollback.plan",
+      "operation": "plan",
+      "command": "workctl deploy rollback plan --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3041
+    },
+    {
+      "kind": "example",
+      "where": "deploy.rollback.plan",
+      "capability": "deploy.rollback.plan",
+      "operation": "plan",
+      "command": "workctl deploy rollback plan --service demo-order --to 3",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3483
+    },
+    {
+      "kind": "example",
+      "where": "mq.consumer.lag",
+      "capability": "mq.consumer.lag",
+      "operation": "read",
+      "command": "workctl mq consumer lag --cluster demo-mq --group demo-consumer",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4993
+    },
+    {
+      "kind": "example",
+      "where": "mq.consumer.lag",
+      "capability": "mq.consumer.lag",
+      "operation": "read",
+      "command": "workctl mq consumer lag --cluster demo-mq --group demo-consumer --topic demo.order.events --json",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2963
+    },
+    {
+      "kind": "example",
+      "where": "mq.topic.get",
+      "capability": "mq.topic.get",
+      "operation": "read",
+      "command": "workctl mq topic get --cluster demo-mq --topic demo.order.events",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4420
+    },
+    {
+      "kind": "example",
+      "where": "mq.topic.list",
+      "capability": "mq.topic.list",
+      "operation": "read",
+      "command": "workctl mq topic list --cluster demo-mq",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4544
+    },
+    {
+      "kind": "example",
+      "where": "mq.topic.list",
+      "capability": "mq.topic.list",
+      "operation": "read",
+      "command": "workctl mq topic list --cluster demo-mq --include-internal",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2964
+    },
+    {
+      "kind": "example",
+      "where": "search.cluster.get",
+      "capability": "search.cluster.get",
+      "operation": "read",
+      "command": "workctl search cluster get --cluster demo-search",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "warnings": [
+        "集群状态 yellow：所有主分片可用，但有 1 个副本分片未分配（单节点集群上配置了副本时必然如此），数据冗余不足"
+      ],
+      "ms": 2673
+    },
+    {
+      "kind": "example",
+      "where": "search.index.get",
+      "capability": "search.index.get",
+      "operation": "read",
+      "command": "workctl search index get --cluster demo-search --index demo-orders",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 5585
+    },
+    {
+      "kind": "example",
+      "where": "search.index.get",
+      "capability": "search.index.get",
+      "operation": "read",
+      "command": "workctl search index get --cluster demo-search --index demo-orders-current --json",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "warnings": [
+        "demo-orders-current 是别名，已解析为索引 demo-orders"
+      ],
+      "ms": 4112
+    },
+    {
+      "kind": "example",
+      "where": "search.query",
+      "capability": "search.query",
+      "operation": "read",
+      "command": "workctl search query --cluster demo-search --index demo-orders --query \"status:paid AND city:shanghai\"",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4128
+    },
+    {
+      "kind": "example",
+      "where": "search.query",
+      "capability": "search.query",
+      "operation": "read",
+      "command": "workctl search query --cluster demo-search --index demo-orders --dsl-file \"$PWD/demo/scenarios/search/dsl/paid_by_city.json\"",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2983
+    },
+    {
+      "kind": "doc",
+      "where": "docs/quickstart.md:7",
+      "command": "workctl --version",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "ok(non-json)",
+      "ms": 3782
+    },
+    {
+      "kind": "doc",
+      "where": "docs/quickstart.md:8",
+      "command": "workctl capability list",
+      "also": [
+        "demo/walkthrough.md:18",
+        "README.md:38"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1757
+    },
+    {
+      "kind": "doc",
+      "where": "docs/quickstart.md:41",
+      "command": "workctl --json auth status --probe",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4443
+    },
+    {
+      "kind": "doc",
+      "where": "docs/quickstart.md:42",
+      "command": "workctl --json access check --capability mysql.query.execute --target demo-mysql",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3483
+    },
+    {
+      "kind": "doc",
+      "where": "docs/quickstart.md:48",
+      "command": "workctl --json mysql table get --instance demo-mysql --database demo --table orders",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 5202
+    },
+    {
+      "kind": "doc",
+      "where": "docs/quickstart.md:49",
+      "command": "workctl --json redis info get --instance demo-redis --section memory",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2762
+    },
+    {
+      "kind": "doc",
+      "where": "docs/quickstart.md:50",
+      "command": "workctl --json offline run list --workflow demo-daily-orders --data-date 2026-10-16 --timezone Asia/Shanghai",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3755
+    },
+    {
+      "kind": "doc",
+      "where": "docs/quickstart.md:69",
+      "command": "workctl skills install --dir .claude/skills",
+      "status": "skipped",
+      "reason": "installs files"
+    },
+    {
+      "kind": "doc",
+      "where": "docs/quickstart.md:70",
+      "command": "workctl mcp serve",
+      "also": [
+        "README.md:8"
+      ],
+      "status": "skipped",
+      "reason": "long-running server"
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:15",
+      "command": "workctl doctor",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2706
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:18",
+      "command": "workctl capability get --name mysql.statement.summary",
+      "also": [
+        "README.md:39"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3379
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:25",
+      "command": "workctl service dependency list --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2690
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:26",
+      "command": "workctl container workload get --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3758
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:27",
+      "command": "workctl container event list --service demo-order --env sandbox --window 1h",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4096
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:28",
+      "command": "workctl container stats get --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3786
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:29",
+      "command": "workctl capacity summary --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 5071
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:30",
+      "command": "workctl network backend list --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2420
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:31",
+      "command": "workctl metric query --resource demo-order --metric request_latency --window 15m",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3263
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:32",
+      "command": "workctl container workload restart-plan --service demo-order --env sandbox",
+      "also": [
+        "docs/guides/infrastructure.md:49"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3335
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:52",
+      "command": "workctl metric query --resource demo-order --metric cache_hit_ratio --window 15m",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4169
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:53",
+      "command": "workctl metric query --resource demo-order --metric db_query_rate --window 15m",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3349
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:54",
+      "command": "workctl log query --service demo-order --env sandbox --window 15m --contains \"cache mode changed\"",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3661
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:55",
+      "command": "workctl log query --service demo-order --env sandbox --window 15m --level error",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3992
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:56",
+      "command": "workctl trace get --id <最慢请求的 trace_id>",
+      "executed": "workctl trace get --id 09350e7d93dcad26c6efd507f225d296",
+      "subs": [
+        "<最慢请求的 trace_id> -> 09350e7d93dcad26c6efd507f225d296"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3074
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:57",
+      "command": "workctl --timeout 30s redis stats sample --instance demo-redis --duration 10s",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 12745
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:58",
+      "command": "workctl --timeout 40s mysql statement summary --instance demo-mysql --sample-window 10s",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 12691
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:59",
+      "command": "workctl mysql query explain --instance demo-mysql --database demo --sql-file demo/scenarios/latency/customer_recent.sql",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2979
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:60",
+      "command": "workctl mysql query analyze --instance demo-mysql --database demo --sql-file demo/scenarios/latency/customer_recent.sql",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2070
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:61",
+      "command": "workctl mysql index plan --instance demo-mysql --database demo --table orders --columns customer_id,created_at",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1629
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:73",
+      "command": "workctl offline run list --workflow demo-daily-orders --data-date 2026-10-16 --timezone Asia/Shanghai",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2325
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:74",
+      "command": "workctl --timeout 60s offline run get --id demo__2026-10-16__wrong_partition --workflow demo-daily-orders",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3834
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:76",
+      "command": "workctl offline log get --run-id demo__2026-10-16__wrong_partition --workflow demo-daily-orders --task aggregate_orders",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2631
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:77",
+      "command": "workctl compute job get --id <app_id>",
+      "executed": "workctl compute job get --id local-1792300311012",
+      "subs": [
+        "<app_id> -> local-1792300311012"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1748
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:78",
+      "command": "workctl compute stage list --job-id <app_id>",
+      "executed": "workctl compute stage list --job-id local-1792300311012",
+      "subs": [
+        "<app_id> -> local-1792300311012"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1044
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:79",
+      "command": "workctl data partition get --catalog demo --table analytics.daily_orders --partition dt=2026-10-16",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1379
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:80",
+      "command": "workctl data quality check --dataset demo.daily_orders --partition dt=2026-10-17 --ruleset demo-daily-rules",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2053
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:82",
+      "command": "workctl data lineage get --catalog demo --table analytics.daily_orders --direction downstream",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1897
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:83",
+      "command": "workctl --timeout 60s offline dependency list --run-id demo__2026-10-14__missing_upstream --workflow demo-daily-orders --direction upstream",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3165
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:85",
+      "command": "workctl --timeout 60s offline backfill plan --workflow demo-daily-orders --from 2026-10-14 --to 2026-10-16 --timezone Asia/Shanghai",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "warnings": [
+        "2026-10-16: 调度层 success 但目标分区 missing"
+      ],
+      "ms": 4761
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:98",
+      "command": "workctl plugin install --file plugins/demo-mq/dist/demo-mq-plugin.tgz",
+      "status": "skipped",
+      "reason": "installs files"
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:98",
+      "command": "workctl --json capability list --domain mq",
+      "also": [
+        "skills/mq-operations/SKILL.md:10"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1426
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:98",
+      "command": "workctl mq consumer lag --help",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "ok(non-json)",
+      "ms": 987
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:98",
+      "command": "workctl --json mq consumer lag --cluster demo-mq --group demo-consumer",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2373
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:99",
+      "command": "workctl plugin install --file plugins/demo-search/dist/demo-search-plugin.tgz",
+      "status": "skipped",
+      "reason": "installs files"
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:99",
+      "command": "workctl --json capability list --domain search",
+      "also": [
+        "skills/search-operations/SKILL.md:10"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2950
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:99",
+      "command": "workctl --json search index get --cluster demo-search --index demo-orders-current",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "warnings": [
+        "demo-orders-current 是别名，已解析为索引 demo-orders"
+      ],
+      "ms": 2860
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:99",
+      "command": "workctl --json search query --cluster demo-search --index demo-orders-all --dsl-file demo/scenarios/search/dsl/latest_across_archive.json",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "partial",
+      "warnings": [
+        "1/3 个分片查询失败，命中数与聚合只来自成功的分片（见 data.shard_failures）"
+      ],
+      "ms": 2979
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:100",
+      "command": "workctl --json config get --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1210
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:100",
+      "command": "workctl --json config diff --service demo-order --key cache.ttl_seconds",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1903
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:100",
+      "command": "workctl --json discovery list --service demo-order --healthy-only",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1404
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:101",
+      "command": "workctl --json config get --service demo-payment",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1874
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:101",
+      "command": "workctl --json config diff --service demo-payment --key <k>",
+      "executed": "workctl --json config diff --service demo-payment --key order.timeout_ms",
+      "subs": [
+        "<k> -> order.timeout_ms"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2345
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:101",
+      "command": "workctl --json config diff --service demo-inventory --key <k>",
+      "executed": "workctl --json config diff --service demo-inventory --key cache.ttl_seconds",
+      "subs": [
+        "<k> -> cache.ttl_seconds"
+      ],
+      "profile": "docker",
+      "status": "expected-error",
+      "envelope_status": "error",
+      "error_code": "DATA_UNAVAILABLE",
+      "message": "Consul KV 不保留历史，无法给出 config/sandbox/demo-inventory/cache.ttl_seconds 的上一版本",
+      "ms": 2295
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:102",
+      "command": "workctl --json deploy release list --service demo-order --env sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2041
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:102",
+      "command": "WORKCTL_CONFIG=demo/environment/k8s/workctl.k8s.yaml workctl --json deploy status get --service demo-order --env sandbox",
+      "profile": "k8s",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2038
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:104",
+      "command": "WORKCTL_CONFIG=demo/environment/k8s/workctl.k8s.yaml workctl container workload get --service demo-order --env sandbox",
+      "profile": "k8s",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3716
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:105",
+      "command": "workctl sql query submit --engine trino --file test/sql/fixtures/trino/orders_by_status.sql",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3200
+    },
+    {
+      "kind": "doc",
+      "where": "demo/walkthrough.md:105",
+      "command": "workctl sql query get --id <q>",
+      "executed": "workctl sql query get --id q-20261018-6bcc04",
+      "subs": [
+        "<q> -> q-20261018-6bcc04"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2972
+    },
+    {
+      "kind": "doc",
+      "where": "README.md:104",
+      "command": "workctl --help",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "ok(non-json)",
+      "ms": 2940
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/infrastructure.md:3",
+      "command": "workctl capability get --name <name>",
+      "executed": "workctl capability get --name mysql.table.get",
+      "subs": [
+        "<name> -> mysql.table.get"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3512
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/infrastructure.md:50",
+      "command": "workctl operation get --id <plan>",
+      "executed": "workctl operation get --id op-20261018-bf95e6",
+      "subs": [
+        "<plan> -> op-20261018-bf95e6"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2541
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/infrastructure.md:51",
+      "command": "workctl operation execute --id <plan> --confirm <plan>",
+      "status": "skipped",
+      "reason": "operation execute"
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/infrastructure.md:52",
+      "command": "workctl container workload get --service demo-order",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2760
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/infrastructure.md:53",
+      "command": "workctl network backend list --service demo-order",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2067
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/infrastructure.md:289",
+      "command": "workctl capability list --status planned",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1626
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/mysql.md:89",
+      "command": "workctl access check",
+      "also": [
+        "docs/guides/postgres.md:85"
+      ],
+      "profile": "docker",
+      "status": "skipped",
+      "reason": "prose mention without required arguments",
+      "error_code": "INVALID_ARGUMENT"
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/mysql.md:89",
+      "command": "workctl auth status --probe",
+      "also": [
+        "docs/guides/postgres.md:85"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3388
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/offline.md:101",
+      "command": "workctl operation execute --id op-20261017-xxxxxx --confirm op-20261017-xxxxxx",
+      "status": "skipped",
+      "reason": "operation execute"
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/offline.md:102",
+      "command": "workctl offline backfill get --id op-20261017-xxxxxx",
+      "executed": "workctl offline backfill get --id op-20261018-bf95e6",
+      "subs": [
+        "op-20261017-xxxxxx -> op-20261018-bf95e6"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1652
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/offline.md:205",
+      "command": "WORKCTL_CONFIG=demo/environment/workctl.af3.yaml workctl --json offline run get --workflow demo-daily-orders --id demo__2026-10-16__wrong_partition",
+      "status": "skipped",
+      "reason": "Airflow 3 profile (not running in this check)"
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/operations.md:29",
+      "command": "workctl --json operation plan --action container.restart --param service=demo-order --param env=sandbox",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2111
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/operations.md:30",
+      "command": "workctl --json operation execute --id op-20261017-abc123 --confirm op-20261017-abc123",
+      "status": "skipped",
+      "reason": "operation execute"
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/operations.md:31",
+      "command": "workctl --json operation get --id op-20261017-abc123",
+      "executed": "workctl --json operation get --id op-20261018-bf95e6",
+      "subs": [
+        "op-20261017-abc123 -> op-20261018-bf95e6"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2035
+    },
+    {
+      "kind": "doc",
+      "where": "docs/guides/operations.md:48",
+      "command": "workctl mcp serve --allow-execute",
+      "status": "skipped",
+      "reason": "long-running server"
+    },
+    {
+      "kind": "skill",
+      "where": "skills/data-validation/SKILL.md:14",
+      "command": "workctl --json data table get --catalog demo --table <db.table>",
+      "executed": "workctl --json data table get --catalog demo --table analytics.daily_orders",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2369
+    },
+    {
+      "kind": "skill",
+      "where": "skills/data-validation/SKILL.md:15",
+      "command": "workctl --json data partition list --table <db.table> [--from D1 --to D2]",
+      "executed": "workctl --json data partition list --table analytics.daily_orders",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2294
+    },
+    {
+      "kind": "skill",
+      "where": "skills/data-validation/SKILL.md:16",
+      "command": "workctl --json data partition get --table <db.table> --partition 'dt=YYYY-MM-DD'",
+      "executed": "workctl --json data partition get --table analytics.daily_orders --partition 'dt=2026-10-16'",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2525
+    },
+    {
+      "kind": "skill",
+      "where": "skills/data-validation/SKILL.md:17",
+      "command": "workctl --json data quality check --dataset demo.<db>.<table> --partition 'dt=YYYY-MM-DD' [--ruleset <name>] [--sample-rows N]",
+      "executed": "workctl --json data quality check --dataset demo.analytics.daily_orders --partition 'dt=2026-10-16'",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2061
+    },
+    {
+      "kind": "skill",
+      "where": "skills/data-validation/SKILL.md:18",
+      "command": "workctl --json data lineage get --table <db.table> --direction upstream\\|downstream [--depth N]",
+      "executed": "workctl --json data lineage get --table analytics.daily_orders --direction upstream",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2703
+    },
+    {
+      "kind": "skill",
+      "where": "skills/deploy-operations/SKILL.md:25",
+      "command": "workctl --json deploy release list --service <svc> --window 24h",
+      "executed": "workctl --json deploy release list --service demo-order --window 24h",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2666
+    },
+    {
+      "kind": "skill",
+      "where": "skills/deploy-operations/SKILL.md:26",
+      "command": "workctl --json deploy status get --service <svc>",
+      "also": [
+        "skills/deploy-operations/SKILL.md:41",
+        "skills/deploy-operations/SKILL.md:56"
+      ],
+      "executed": "workctl --json deploy status get --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2883
+    },
+    {
+      "kind": "skill",
+      "where": "skills/deploy-operations/SKILL.md:33",
+      "command": "workctl --json deploy release get --service <svc> --id <release id>",
+      "executed": "workctl --json deploy release get --service demo-order --id 3",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2401
+    },
+    {
+      "kind": "skill",
+      "where": "skills/deploy-operations/SKILL.md:49",
+      "command": "workctl --json deploy rollback plan --service <svc>",
+      "executed": "workctl --json deploy rollback plan --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2979
+    },
+    {
+      "kind": "skill",
+      "where": "skills/deploy-operations/SKILL.md:49",
+      "command": "workctl --json operation execute --id <id> --confirm <id>",
+      "also": [
+        "skills/deploy-operations/SKILL.md:54",
+        "skills/enterprise-infra/SKILL.md:36",
+        "skills/infra-operations/SKILL.md:61",
+        "skills/infra-operations/SKILL.md:69",
+        "skills/offline-operations/SKILL.md:42",
+        "skills/offline-operations/SKILL.md:47"
+      ],
+      "status": "skipped",
+      "reason": "operation execute"
+    },
+    {
+      "kind": "skill",
+      "where": "skills/deploy-operations/SKILL.md:49",
+      "command": "workctl --json operation get --id <id>",
+      "also": [
+        "skills/deploy-operations/SKILL.md:55",
+        "skills/enterprise-infra/SKILL.md:36",
+        "skills/infra-operations/SKILL.md:61",
+        "skills/infra-operations/SKILL.md:70",
+        "skills/offline-operations/SKILL.md:42"
+      ],
+      "executed": "workctl --json operation get --id op-20261018-bf95e6",
+      "subs": [
+        "skill placeholders -> demo values",
+        "<plan> -> op-20261018-bf95e6"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1096
+    },
+    {
+      "kind": "skill",
+      "where": "skills/deploy-operations/SKILL.md:52",
+      "command": "workctl --json deploy rollback plan --service <svc> [--to <release id>]",
+      "executed": "workctl --json deploy rollback plan --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2772
+    },
+    {
+      "kind": "skill",
+      "where": "skills/enterprise-infra/SKILL.md:16",
+      "command": "workctl --json resource list --service <svc> --env <env>",
+      "executed": "workctl --json resource list --service demo-order --env sandbox",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2574
+    },
+    {
+      "kind": "skill",
+      "where": "skills/enterprise-infra/SKILL.md:16",
+      "command": "workctl --json service dependency list --service <svc>",
+      "executed": "workctl --json service dependency list --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2492
+    },
+    {
+      "kind": "skill",
+      "where": "skills/enterprise-infra/SKILL.md:17",
+      "command": "workctl --json capability list [--domain mysql]",
+      "executed": "workctl --json capability list",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2187
+    },
+    {
+      "kind": "skill",
+      "where": "skills/enterprise-infra/SKILL.md:18",
+      "command": "workctl --json capability get --name <cap>",
+      "executed": "workctl --json capability get --name mysql.table.get",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2197
+    },
+    {
+      "kind": "skill",
+      "where": "skills/enterprise-infra/SKILL.md:36",
+      "command": "workctl --json operation plan --action <type> ...",
+      "executed": "workctl --json operation plan --action <type> ...",
+      "status": "skipped",
+      "reason": "template with \"...\" (not runnable as written)"
+    },
+    {
+      "kind": "skill",
+      "where": "skills/infra-operations/SKILL.md:23",
+      "command": "workctl --json container workload get --service <svc>",
+      "also": [
+        "skills/infra-operations/SKILL.md:31",
+        "skills/infra-operations/SKILL.md:71",
+        "skills/resource-capacity-review/SKILL.md:39"
+      ],
+      "executed": "workctl --json container workload get --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3845
+    },
+    {
+      "kind": "skill",
+      "where": "skills/infra-operations/SKILL.md:24",
+      "command": "workctl --json network backend list --service <svc>",
+      "also": [
+        "skills/infra-operations/SKILL.md:72"
+      ],
+      "executed": "workctl --json network backend list --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1177
+    },
+    {
+      "kind": "skill",
+      "where": "skills/infra-operations/SKILL.md:32",
+      "command": "workctl --json container event list --service <svc> --window 6h",
+      "executed": "workctl --json container event list --service demo-order --window 6h",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2145
+    },
+    {
+      "kind": "skill",
+      "where": "skills/infra-operations/SKILL.md:33",
+      "command": "workctl --json log query --service <svc> --window 30m --level error",
+      "executed": "workctl --json log query --service demo-order --window 30m --level error",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3843
+    },
+    {
+      "kind": "skill",
+      "where": "skills/infra-operations/SKILL.md:42",
+      "command": "workctl --json network dns get --name <host>",
+      "executed": "workctl --json network dns get --name localhost",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2421
+    },
+    {
+      "kind": "skill",
+      "where": "skills/infra-operations/SKILL.md:43",
+      "command": "workctl --json network connectivity check --target <host:port> --count 5",
+      "executed": "workctl --json network connectivity check --target 127.0.0.1:13306 --count 5",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2712
+    },
+    {
+      "kind": "skill",
+      "where": "skills/infra-operations/SKILL.md:51",
+      "command": "workctl --json storage volume get --id <volume>",
+      "also": [
+        "skills/resource-capacity-review/SKILL.md:61"
+      ],
+      "executed": "workctl --json storage volume get --id workctl-demo_mysql-data",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3559
+    },
+    {
+      "kind": "skill",
+      "where": "skills/infra-operations/SKILL.md:52",
+      "command": "workctl --json storage file stat --path <path>",
+      "executed": "workctl --json storage file stat --path demo/environment/workctl.yaml",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1908
+    },
+    {
+      "kind": "skill",
+      "where": "skills/infra-operations/SKILL.md:59",
+      "command": "workctl --json container workload restart-plan --service <svc> --env <env>",
+      "also": [
+        "skills/infra-operations/SKILL.md:61"
+      ],
+      "executed": "workctl --json container workload restart-plan --service demo-order --env sandbox",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2388
+    },
+    {
+      "kind": "skill",
+      "where": "skills/infra-operations/SKILL.md:79",
+      "command": "workctl --json config get --service <svc> [--key <name>]",
+      "executed": "workctl --json config get --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2126
+    },
+    {
+      "kind": "skill",
+      "where": "skills/infra-operations/SKILL.md:80",
+      "command": "workctl --json config diff --service <svc> --from-rev <rev>",
+      "executed": "workctl --json config diff --service demo-order --from-rev 2",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2327
+    },
+    {
+      "kind": "skill",
+      "where": "skills/infra-operations/SKILL.md:81",
+      "command": "workctl --json discovery list --service <svc> [--healthy-only]",
+      "executed": "workctl --json discovery list --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1952
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mq-operations/SKILL.md:10",
+      "command": "workctl --json plugin install --file <demo-mq-plugin.tgz>",
+      "status": "skipped",
+      "reason": "installs files"
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mq-operations/SKILL.md:16",
+      "command": "workctl --json mq consumer lag --cluster <c> --group <g> [--topic <t>]",
+      "executed": "workctl --json mq consumer lag --cluster demo-mq --group demo-consumer",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2365
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mq-operations/SKILL.md:17",
+      "command": "workctl --json mq topic get --cluster <c> --topic <t>",
+      "executed": "workctl --json mq topic get --cluster demo-mq --topic demo.order.events",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3140
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mq-operations/SKILL.md:18",
+      "command": "workctl --json mq topic list --cluster <c> [--include-internal]",
+      "executed": "workctl --json mq topic list --cluster demo-mq",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2444
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mysql-operations/SKILL.md:24",
+      "command": "workctl --json mysql instance get --instance <i>",
+      "executed": "workctl --json mysql instance get --instance demo-mysql",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2249
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mysql-operations/SKILL.md:25",
+      "command": "workctl --json --timeout 45s mysql statement summary --instance <i> --sample-window 30s --top 10",
+      "executed": "workctl --json --timeout 45s mysql statement summary --instance demo-mysql --sample-window 30s --top 10",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 31721
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mysql-operations/SKILL.md:26",
+      "command": "workctl --json mysql slowlog list --instance <i> --since 1h --limit 20",
+      "executed": "workctl --json mysql slowlog list --instance demo-mysql --since 1h --limit 20",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2034
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mysql-operations/SKILL.md:38",
+      "command": "workctl --json mysql query explain --instance <i> --database <db> --sql \"SELECT ... WHERE customer_id = 42\"",
+      "executed": "workctl --json mysql query explain --instance demo-mysql --database demo --sql \"SELECT ... WHERE customer_id = 42\"",
+      "status": "skipped",
+      "reason": "template with \"...\" (not runnable as written)"
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mysql-operations/SKILL.md:39",
+      "command": "workctl --json mysql table get   --instance <i> --database <db> --table <t>",
+      "executed": "workctl --json mysql table get   --instance demo-mysql --database demo --table orders",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2311
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mysql-operations/SKILL.md:40",
+      "command": "workctl --json mysql index list  --instance <i> --database <db> --table <t>",
+      "executed": "workctl --json mysql index list  --instance demo-mysql --database demo --table orders",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1782
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mysql-operations/SKILL.md:41",
+      "command": "workctl --json mysql query analyze --instance <i> --database <db> --sql \"SELECT ...\"",
+      "executed": "workctl --json mysql query analyze --instance demo-mysql --database demo --sql \"SELECT ...\"",
+      "status": "skipped",
+      "reason": "template with \"...\" (not runnable as written)"
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mysql-operations/SKILL.md:50",
+      "command": "workctl --json mysql lock list --instance <i>",
+      "executed": "workctl --json mysql lock list --instance demo-mysql",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1437
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mysql-operations/SKILL.md:51",
+      "command": "workctl --json mysql session list --instance <i>",
+      "executed": "workctl --json mysql session list --instance demo-mysql",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2194
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mysql-operations/SKILL.md:61",
+      "command": "workctl --json mysql index plan --instance <i> --database <db> --table <t> --columns c1[,c2]",
+      "executed": "workctl --json mysql index plan --instance demo-mysql --database demo --table orders --columns customer_id",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1955
+    },
+    {
+      "kind": "skill",
+      "where": "skills/mysql-operations/SKILL.md:70",
+      "command": "workctl --json mysql query execute --instance <i> --database <db> --sql \"SELECT id, status FROM orders WHERE id = 1\" --max-rows 20",
+      "executed": "workctl --json mysql query execute --instance demo-mysql --database demo --sql \"SELECT id, status FROM orders WHERE id = 1\" --max-rows 20",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2638
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-delay-investigation/SKILL.md:15",
+      "command": "workctl --json offline freshness check --dataset <db.table> --data-date D",
+      "executed": "workctl --json offline freshness check --dataset analytics.daily_orders --data-date 2026-10-16",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3686
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-delay-investigation/SKILL.md:21",
+      "command": "workctl --json offline run get --workflow <dag> --id <run_id>",
+      "executed": "workctl --json offline run get --workflow demo-daily-orders --id demo__2026-10-16__wrong_partition",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 6155
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-delay-investigation/SKILL.md:33",
+      "command": "workctl --json offline dependency list --run-id <run_id> --direction upstream",
+      "executed": "workctl --json offline dependency list --run-id demo__2026-10-16__wrong_partition --direction upstream",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4844
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-delay-investigation/SKILL.md:55",
+      "command": "workctl --json offline backfill plan ...",
+      "also": [
+        "skills/offline-operations/SKILL.md:42"
+      ],
+      "executed": "workctl --json offline backfill plan ...",
+      "status": "skipped",
+      "reason": "template with \"...\" (not runnable as written)"
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-operations/SKILL.md:14",
+      "command": "workctl --json offline workflow get --id <dag_id>",
+      "executed": "workctl --json offline workflow get --id demo-daily-orders",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "warnings": [
+        "DAG 处于暂停状态：调度器不会创建新的定时 run，已触发的 run 也不会被调度"
+      ],
+      "ms": 4275
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-operations/SKILL.md:15",
+      "command": "workctl --json offline task get --workflow <dag_id> --task <task_id>",
+      "executed": "workctl --json offline task get --workflow demo-daily-orders --task aggregate_orders",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2030
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-operations/SKILL.md:16",
+      "command": "workctl --json offline run list --workflow <dag_id> --data-date YYYY-MM-DD [--timezone Asia/Shanghai]",
+      "executed": "workctl --json offline run list --workflow demo-daily-orders --data-date 2026-10-16",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2633
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-operations/SKILL.md:17",
+      "command": "workctl --json offline run get --workflow <dag_id> --id <run_id>",
+      "executed": "workctl --json offline run get --workflow demo-daily-orders --id demo__2026-10-16__wrong_partition",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4056
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-operations/SKILL.md:18",
+      "command": "workctl --json offline dependency list --run-id <run_id> --direction upstream\\|downstream",
+      "executed": "workctl --json offline dependency list --run-id demo__2026-10-16__wrong_partition --direction upstream",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3860
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-operations/SKILL.md:19",
+      "command": "workctl --json offline log get --run-id <run_id> --task <task_id> [--try N] [--limit-lines 200]",
+      "executed": "workctl --json offline log get --run-id demo__2026-10-16__wrong_partition --task aggregate_orders",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3346
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-operations/SKILL.md:21",
+      "command": "workctl --json compute queue get --id demo-batch-pool",
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1413
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-operations/SKILL.md:22",
+      "command": "workctl sql query get --id q-...",
+      "executed": "workctl sql query get --id q-...",
+      "status": "skipped",
+      "reason": "template with \"...\" (not runnable as written)"
+    },
+    {
+      "kind": "skill",
+      "where": "skills/offline-operations/SKILL.md:43",
+      "command": "workctl --json offline backfill plan --workflow <dag> --from D1 --to D2 [--timezone <tz>] [--rerun-succeeded] [--max-active-runs N]",
+      "executed": "workctl --json offline backfill plan --workflow demo-daily-orders --from 2026-10-14 --to 2026-10-16",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "warnings": [
+        "2026-10-16: 调度层 success 但目标分区 missing"
+      ],
+      "ms": 4167
+    },
+    {
+      "kind": "skill",
+      "where": "skills/postgres-operations/SKILL.md:23",
+      "command": "workctl --json pg instance get --instance <i>",
+      "executed": "workctl --json pg instance get --instance demo-postgres",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 621
+    },
+    {
+      "kind": "skill",
+      "where": "skills/postgres-operations/SKILL.md:24",
+      "command": "workctl --json --timeout 45s pg statement summary --instance <i> --sample-window 20s --top 10",
+      "executed": "workctl --json --timeout 45s pg statement summary --instance demo-postgres --sample-window 20s --top 10",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 21193
+    },
+    {
+      "kind": "skill",
+      "where": "skills/postgres-operations/SKILL.md:25",
+      "command": "workctl --json pg statement summary --instance <i> --sample-window 0 --order-by mean_time --top 10",
+      "executed": "workctl --json pg statement summary --instance demo-postgres --sample-window 0 --order-by mean_time --top 10",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1483
+    },
+    {
+      "kind": "skill",
+      "where": "skills/postgres-operations/SKILL.md:36",
+      "command": "workctl --json pg query explain --instance <i> --sql \"SELECT ... WHERE customer_id = 42\"",
+      "executed": "workctl --json pg query explain --instance demo-postgres --sql \"SELECT ... WHERE customer_id = 42\"",
+      "status": "skipped",
+      "reason": "template with \"...\" (not runnable as written)"
+    },
+    {
+      "kind": "skill",
+      "where": "skills/postgres-operations/SKILL.md:37",
+      "command": "workctl --json pg table get     --instance <i> --table <t> [--schema <s>]",
+      "executed": "workctl --json pg table get     --instance demo-postgres --table orders",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2266
+    },
+    {
+      "kind": "skill",
+      "where": "skills/postgres-operations/SKILL.md:38",
+      "command": "workctl --json pg query analyze --instance <i> --sql \"SELECT ...\"",
+      "executed": "workctl --json pg query analyze --instance demo-postgres --sql \"SELECT ...\"",
+      "status": "skipped",
+      "reason": "template with \"...\" (not runnable as written)"
+    },
+    {
+      "kind": "skill",
+      "where": "skills/postgres-operations/SKILL.md:48",
+      "command": "workctl --json pg lock list --instance <i>",
+      "executed": "workctl --json pg lock list --instance demo-postgres",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1825
+    },
+    {
+      "kind": "skill",
+      "where": "skills/postgres-operations/SKILL.md:49",
+      "command": "workctl --json pg session list --instance <i>",
+      "executed": "workctl --json pg session list --instance demo-postgres",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1740
+    },
+    {
+      "kind": "skill",
+      "where": "skills/postgres-operations/SKILL.md:59",
+      "command": "workctl --json pg table get --instance <i> --table <t>",
+      "executed": "workctl --json pg table get --instance demo-postgres --table orders",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2418
+    },
+    {
+      "kind": "skill",
+      "where": "skills/postgres-operations/SKILL.md:60",
+      "command": "workctl --json pg database list --instance <i>",
+      "executed": "workctl --json pg database list --instance demo-postgres",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1638
+    },
+    {
+      "kind": "skill",
+      "where": "skills/postgres-operations/SKILL.md:69",
+      "command": "workctl --json pg query run --instance <i> --sql \"SELECT id, status FROM orders WHERE id = 1\" --max-rows 20",
+      "executed": "workctl --json pg query run --instance demo-postgres --sql \"SELECT id, status FROM orders WHERE id = 1\" --max-rows 20",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1573
+    },
+    {
+      "kind": "skill",
+      "where": "skills/redis-operations/SKILL.md:25",
+      "command": "workctl --json redis instance get --instance <i>",
+      "executed": "workctl --json redis instance get --instance demo-redis",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1512
+    },
+    {
+      "kind": "skill",
+      "where": "skills/redis-operations/SKILL.md:26",
+      "command": "workctl --json --timeout 45s redis stats sample --instance <i> --duration 30s",
+      "executed": "workctl --json --timeout 45s redis stats sample --instance demo-redis --duration 30s",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 31121
+    },
+    {
+      "kind": "skill",
+      "where": "skills/redis-operations/SKILL.md:38",
+      "command": "workctl --json redis key sample --instance <i> --pattern \"<prefix>:*\" --max-keys 1000 --max-scan-calls 200",
+      "executed": "workctl --json redis key sample --instance demo-redis --pattern \"demo:*\" --max-keys 1000 --max-scan-calls 200",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2734
+    },
+    {
+      "kind": "skill",
+      "where": "skills/redis-operations/SKILL.md:39",
+      "command": "workctl --json redis key inspect --instance <i> --key <top_key>",
+      "executed": "workctl --json redis key inspect --instance demo-redis --key demo:order:1",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "expected-error",
+      "envelope_status": "error",
+      "error_code": "NOT_FOUND",
+      "message": "键不存在: demo:order:1",
+      "ms": 1184
+    },
+    {
+      "kind": "skill",
+      "where": "skills/redis-operations/SKILL.md:48",
+      "command": "workctl --json redis key hot --instance <i> --pattern \"<prefix>:*\" --max-keys 2000 --max-scan-calls 500 --top 10",
+      "executed": "workctl --json redis key hot --instance demo-redis --pattern \"demo:*\" --max-keys 2000 --max-scan-calls 500 --top 10",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1605
+    },
+    {
+      "kind": "skill",
+      "where": "skills/redis-operations/SKILL.md:56",
+      "command": "workctl --json redis slowlog list --instance <i> --limit 20",
+      "executed": "workctl --json redis slowlog list --instance demo-redis --limit 20",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2317
+    },
+    {
+      "kind": "skill",
+      "where": "skills/redis-operations/SKILL.md:64",
+      "command": "workctl --json redis config get --instance <i> --pattern \"maxmemory*\"",
+      "executed": "workctl --json redis config get --instance demo-redis --pattern \"maxmemory*\"",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2022
+    },
+    {
+      "kind": "skill",
+      "where": "skills/resource-capacity-review/SKILL.md:24",
+      "command": "workctl --json capacity summary --env <env>",
+      "executed": "workctl --json capacity summary --env sandbox",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 4251
+    },
+    {
+      "kind": "skill",
+      "where": "skills/resource-capacity-review/SKILL.md:40",
+      "command": "workctl --json container stats get --service <svc>",
+      "executed": "workctl --json container stats get --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2160
+    },
+    {
+      "kind": "skill",
+      "where": "skills/resource-capacity-review/SKILL.md:47",
+      "command": "workctl --json metric query --resource <svc> --metric request_rate --window 6h --step 1m",
+      "executed": "workctl --json metric query --resource demo-order --metric request_rate --window 6h --step 1m",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1361
+    },
+    {
+      "kind": "skill",
+      "where": "skills/resource-capacity-review/SKILL.md:48",
+      "command": "workctl --json metric query --resource <svc> --promql 'process_resident_memory_bytes{service=\"<svc>\"}' --window 6h --step 1m",
+      "executed": "workctl --json metric query --resource demo-order --promql 'process_resident_memory_bytes{service=\"demo-order\"}' --window 6h --step 1m",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1113
+    },
+    {
+      "kind": "skill",
+      "where": "skills/resource-capacity-review/SKILL.md:55",
+      "command": "workctl --json deploy release list --service <svc> --window 7d",
+      "executed": "workctl --json deploy release list --service demo-order --window 7d",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1312
+    },
+    {
+      "kind": "skill",
+      "where": "skills/search-operations/SKILL.md:10",
+      "command": "workctl --json plugin install --file <demo-search-plugin.tgz>",
+      "status": "skipped",
+      "reason": "installs files"
+    },
+    {
+      "kind": "skill",
+      "where": "skills/search-operations/SKILL.md:16",
+      "command": "workctl --json search cluster get --cluster <c>",
+      "executed": "workctl --json search cluster get --cluster demo-search",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "warnings": [
+        "集群状态 yellow：所有主分片可用，但有 1 个副本分片未分配（单节点集群上配置了副本时必然如此），数据冗余不足"
+      ],
+      "ms": 3609
+    },
+    {
+      "kind": "skill",
+      "where": "skills/search-operations/SKILL.md:17",
+      "command": "workctl --json search index get --cluster <c> --index <索引或单索引别名>",
+      "executed": "workctl --json search index get --cluster demo-search --index demo-orders-current",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "warnings": [
+        "demo-orders-current 是别名，已解析为索引 demo-orders"
+      ],
+      "ms": 2040
+    },
+    {
+      "kind": "skill",
+      "where": "skills/search-operations/SKILL.md:18",
+      "command": "workctl --json search query --cluster <c> --index <i> --query '<query_string>' [--max-hits N]",
+      "executed": "workctl --json search query --cluster demo-search --index demo-orders-current --query 'status:paid'",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1574
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:23",
+      "command": "workctl --json resource get --id <service>",
+      "executed": "workctl --json resource get --id demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1039
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:24",
+      "command": "workctl --json service dependency list --service <service>",
+      "executed": "workctl --json service dependency list --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2440
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:25",
+      "command": "workctl --json container workload get --service <service>",
+      "executed": "workctl --json container workload get --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1669
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:31",
+      "command": "workctl --json container event list --service <service> --window 1h",
+      "executed": "workctl --json container event list --service demo-order --window 1h",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2299
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:37",
+      "command": "workctl --json config get --service <service>",
+      "executed": "workctl --json config get --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2433
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:38",
+      "command": "workctl --json config diff --service <service> --key <name>",
+      "executed": "workctl --json config diff --service demo-order --key cache.ttl_seconds",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2357
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:44",
+      "command": "workctl --json deploy release list --service <service> --window 24h",
+      "executed": "workctl --json deploy release list --service demo-order --window 24h",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2024
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:45",
+      "command": "workctl --json deploy status get --service <service>",
+      "executed": "workctl --json deploy status get --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2441
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:51",
+      "command": "workctl --json metric list --resource <service>",
+      "executed": "workctl --json metric list --resource demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1364
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:52",
+      "command": "workctl --json metric query --resource <service> --metric request_latency --window 30m",
+      "executed": "workctl --json metric query --resource demo-order --metric request_latency --window 30m",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2492
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:53",
+      "command": "workctl --json metric query --resource <service> --metric error_rate --window 30m",
+      "executed": "workctl --json metric query --resource demo-order --metric error_rate --window 30m",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3028
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:54",
+      "command": "workctl --json metric query --resource <service> --metric cache_hit_ratio --window 30m",
+      "executed": "workctl --json metric query --resource demo-order --metric cache_hit_ratio --window 30m",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2842
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:55",
+      "command": "workctl --json metric query --resource <service> --metric db_query_rate --window 30m",
+      "executed": "workctl --json metric query --resource demo-order --metric db_query_rate --window 30m",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3980
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:60",
+      "command": "workctl --json metric query --resource <service> --promql 'sum by (result) (rate(cache_requests_total{service=\"<service>\"}[1m]))'",
+      "executed": "workctl --json metric query --resource demo-order --promql 'sum by (result) (rate(cache_requests_total{service=\"demo-order\"}[1m]))'",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2480
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:65",
+      "command": "workctl --json log query --service <service> --window 15m --level warn",
+      "executed": "workctl --json log query --service demo-order --window 15m --level warn",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3291
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:66",
+      "command": "workctl --json log query --service <service> --window 1h --contains 'cache mode changed'",
+      "executed": "workctl --json log query --service demo-order --window 1h --contains 'cache mode changed'",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 3048
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:67",
+      "command": "workctl --json trace get --id <trace_id> --window 1h",
+      "executed": "workctl --json trace get --id 09350e7d93dcad26c6efd507f225d296 --window 1h",
+      "subs": [
+        "<trace_id> -> 09350e7d93dcad26c6efd507f225d296"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1991
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:74",
+      "command": "workctl --json redis stats sample --instance <redis> --duration 10s",
+      "executed": "workctl --json redis stats sample --instance demo-redis --duration 10s",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 12775
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:75",
+      "command": "workctl --json redis key sample --instance <redis> --pattern 'demo:order:*'",
+      "executed": "workctl --json redis key sample --instance demo-redis --pattern 'demo:order:*'",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2312
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:81",
+      "command": "workctl --json mysql statement summary --instance <mysql> --sample-window 10s",
+      "executed": "workctl --json mysql statement summary --instance demo-mysql --sample-window 10s",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 12538
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:82",
+      "command": "workctl --json mysql query explain --instance <mysql> --database <db> --sql-file q.sql",
+      "executed": "workctl --json mysql query explain --instance demo-mysql --database demo --sql-file /tmp/workctl-examples-L3hvBR/mysql.sql",
+      "subs": [
+        "skill placeholders -> demo values",
+        "q.sql -> mysql sample (SELECT * FROM orders WHERE customer_id = 42)"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 2512
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:86",
+      "command": "workctl --json pg statement summary --instance <pg> --sample-window 10s --top 10",
+      "executed": "workctl --json pg statement summary --instance demo-postgres --sample-window 10s --top 10",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 11229
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:92",
+      "command": "workctl --json container stats get --service <service>",
+      "executed": "workctl --json container stats get --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1805
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:93",
+      "command": "workctl --json network backend list --service <service>",
+      "executed": "workctl --json network backend list --service demo-order",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 1188
+    },
+    {
+      "kind": "skill",
+      "where": "skills/service-latency-investigation/SKILL.md:94",
+      "command": "workctl --json network connectivity check --target <db_host:port>",
+      "executed": "workctl --json network connectivity check --target 127.0.0.1:13306",
+      "subs": [
+        "skill placeholders -> demo values"
+      ],
+      "profile": "docker",
+      "status": "pass",
+      "envelope_status": "success",
+      "ms": 941
+    }
+  ]
+}

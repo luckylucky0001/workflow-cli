@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { businessInterval, dateRange, formatInZone, matchInterval, zonedToInstant } from '../../src/domains/offline/time';
 import { decideAction, writeModeCheck } from '../../src/domains/offline/backfill';
 import { sparkAppIds } from '../../src/domains/offline/airflow';
+import { zonedToInstant as dataZonedToInstant } from '../../src/domains/data/time';
 
 describe('business date mapping', () => {
   it('maps a business date to [D 00:00, D+1 00:00) in Asia/Shanghai', () => {
@@ -10,6 +11,23 @@ describe('business date mapping', () => {
     expect(iv.end_utc).toBe('2026-10-16T16:00:00.000Z');
     expect(iv.start_local).toBe('2026-10-16T00:00:00+08:00');
     expect(iv.end_local).toBe('2026-10-17T00:00:00+08:00');
+  });
+
+  it('a midnight DST gap (America/Santiago 2026-09-06 skips 00:00→01:00) starts the day at 01:00, not inside the previous day', () => {
+    const iv = businessInterval('2026-09-06', 'America/Santiago');
+    expect(iv.start_local).toBe('2026-09-06T01:00:00-03:00');
+    expect(iv.start_utc).toBe('2026-09-06T04:00:00.000Z');
+    expect((iv.endMs - iv.startMs) / 3_600_000).toBe(23);
+    const prev = businessInterval('2026-09-05', 'America/Santiago');
+    expect(prev.endMs).toBe(iv.startMs);
+    expect((prev.endMs - prev.startMs) / 3_600_000).toBe(24);
+    // a wall-clock time in a gap shifts forward (02:30 does not exist in New York on 2026-03-08)
+    expect(formatInZone(zonedToInstant('2026-03-08', '02:30', 'America/New_York'), 'America/New_York')).toBe('2026-03-08T03:30:00-04:00');
+    // an ambiguous wall-clock time resolves to the first occurrence, east and west of UTC
+    expect(new Date(zonedToInstant('2026-11-01', '01:30', 'America/New_York')).toISOString()).toBe('2026-11-01T05:30:00.000Z');
+    expect(new Date(zonedToInstant('2026-10-25', '02:30', 'Europe/Berlin')).toISOString()).toBe('2026-10-25T00:30:00.000Z');
+    // the data domain's copy (partition deadlines) agrees
+    expect(dataZonedToInstant('2026-09-06', '00:00', 'America/Santiago')).toBe(iv.startMs);
   });
 
   it('handles DST days (America/New_York 2026-11-01 is 25h long)', () => {

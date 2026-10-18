@@ -114,6 +114,10 @@
           "truncated": {
             "type": "boolean",
             "description": "msg/raw/字段中有超过 8192 字符的文本被截断（末尾带“…[截断，原长 N 字符]”）"
+          },
+          "credentials_masked": {
+            "type": "boolean",
+            "description": "msg/raw/字段中的凭据（URL 密码、Authorization 头、password=/token= 参数、敏感字段名）已打码为 ***"
           }
         },
         "required": [
@@ -127,7 +131,8 @@
           "span_id",
           "fields",
           "raw",
-          "truncated"
+          "truncated",
+          "credentials_masked"
         ],
         "additionalProperties": false
       }

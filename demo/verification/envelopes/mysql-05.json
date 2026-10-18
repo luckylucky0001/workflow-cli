@@ -18,7 +18,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T05:30:17.248Z",
+        "observed_at": "2026-10-18T05:46:01.212Z",
         "endpoint": "mysql/demo-mysql",
         "method": "performance_schema.data_lock_waits JOIN data_locks / information_schema.INNODB_TRX",
         "version": "8.4.11",
@@ -27,7 +27,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T05:30:17.251Z",
+        "observed_at": "2026-10-18T05:46:01.215Z",
         "endpoint": "mysql/demo-mysql",
         "method": "performance_schema.metadata_locks (LOCK_STATUS=PENDING)",
         "version": "8.4.11",
@@ -44,7 +44,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvddzkdx-ec0af7",
+    "request_id": "req-mvdejsrc-a7030a",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -52,7 +52,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:30:17.205Z",
-    "duration_ms": 46
+    "started_at": "2026-10-18T05:46:01.176Z",
+    "duration_ms": 40
   }
 }

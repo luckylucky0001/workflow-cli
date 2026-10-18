@@ -170,6 +170,17 @@ describe('postgres helpers', () => {
     expect(entryWasReset(base, { ...base, calls: 11, total_ms: 101, rows: 11, shared_blks_hit: 110, max_ms: 31, min_ms: 0.5 })).toBe(false);
   });
 
+  it('diffs hidden entries (queryid NULL without pg_read_all_stats) by their per-key sums, not by an arbitrary pair', () => {
+    const hidden = (calls: number, total: number, max: number): PssRow => ({
+      key: '10/5//t', queryid: null, database: 'd', user: 'app', query: '<insufficient privilege>', calls, total_ms: total, max_ms: max, min_ms: 1, rows: calls, shared_blks_hit: calls, shared_blks_read: 0, temp_blks_written: 0,
+    });
+    // two different statements of the same role/db; only the second one ran during the window (+3 calls)
+    const d = diffStatements([hidden(100, 1000, 50), hidden(5, 10, 3)], [hidden(100, 1000, 50), hidden(8, 16, 3)]);
+    expect(d.reset).toBe(0);
+    expect(d.stats).toHaveLength(1);
+    expect(d.stats[0]).toMatchObject({ calls: 3, total_exec_ms: 6, rows: 3 });
+  });
+
   it('flattens EXPLAIN JSON and finds sequential scans', () => {
     const plan = [
       {

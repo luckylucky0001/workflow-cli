@@ -54,10 +54,14 @@ export function zonedToInstant(date: string, hhmm: string, tz: string): number {
   const [y, mo, d] = date.split('-').map(Number);
   const [h, mi] = hhmm.split(':').map(Number);
   const guess = Date.UTC(y, mo - 1, d, h, mi, 0);
-  let instant = guess - tzOffsetMs(guess, tz);
-  const second = guess - tzOffsetMs(instant, tz);
-  if (second !== instant) instant = second;
-  return instant;
+  // candidates from the offsets in force a day before / after: the wall-clock time maps back
+  // to one instant (normal), two (DST fall-back: take the earlier, like fold=0) or none (DST
+  // gap, e.g. America/Santiago skips 00:00 → 01:00: shift forward by the gap, as pendulum /
+  // zoneinfo do, so a business day never starts inside the previous day)
+  const before = tzOffsetMs(guess - 86_400_000, tz);
+  const after = tzOffsetMs(guess + 86_400_000, tz);
+  const valid = [guess - before, guess - after].filter((i) => i + tzOffsetMs(i, tz) === guess).sort((a, b) => a - b);
+  return valid.length ? valid[0] : guess - before;
 }
 
 /** 2026-10-16T00:00:00+08:00 */
