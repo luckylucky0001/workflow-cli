@@ -43,8 +43,8 @@
       "parse_warnings": [],
       "md5": null,
       "content_bytes": null,
-      "last_modified": "2026-10-18T06:04:11.366Z",
-      "latest_history_id": 19
+      "last_modified": "2026-10-18T06:30:57.453Z",
+      "latest_history_id": 3
     }
   },
   "error": null,
@@ -53,7 +53,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-18T06:05:08.378Z",
+        "observed_at": "2026-10-18T06:34:25.057Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/cs/configs?show=all dataId=demo-payment.properties group=DEFAULT_GROUP tenant=sandbox",
         "relation": "explicit",
@@ -62,7 +62,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-18T06:05:08.397Z",
+        "observed_at": "2026-10-18T06:34:25.066Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v2/cs/history/list",
         "relation": "explicit",
@@ -82,7 +82,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdf8dvs-3c5377",
+    "request_id": "req-mvdga1co-602f8e",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -90,7 +90,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:05:08.296Z",
-    "duration_ms": 107
+    "started_at": "2026-10-18T06:34:24.984Z",
+    "duration_ms": 84
   }
 }

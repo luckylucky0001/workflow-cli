@@ -3,83 +3,83 @@
   "status": "success",
   "capability": "observability.trace.get",
   "data": {
-    "trace_id": "c683f50c3902a1f658e98fc79ed0589a",
-    "start": "2026-10-18T06:09:04.716Z",
-    "end": "2026-10-18T06:09:05.258Z",
-    "duration_ms": 542.048,
+    "trace_id": "42c0926c7d5e392b9fff5cfc77e7ac76",
+    "start": "2026-10-18T06:32:41.599Z",
+    "end": "2026-10-18T06:32:41.983Z",
+    "duration_ms": 384.072,
     "span_count": 5,
     "services": [
       "demo-order"
     ],
     "error_spans": 0,
     "roots": [
-      "ce292d7ccbe441a8"
+      "1a06bfa5fa237a09"
     ],
     "cyclic_parents": [],
     "external_parent": null,
     "spans": [
       {
-        "span_id": "ce292d7ccbe441a8",
+        "span_id": "1a06bfa5fa237a09",
         "parent_span_id": null,
         "name": "http.request",
         "service": "demo-order",
         "container": "demo-order",
         "depth": 0,
-        "start": "2026-10-18T06:09:04.716Z",
+        "start": "2026-10-18T06:32:41.599Z",
         "offset_ms": 0,
-        "duration_ms": 542.048,
-        "self_ms": 0.767,
+        "duration_ms": 384.072,
+        "self_ms": 0.96,
         "pct_of_trace": 100,
         "status": "ok",
         "attributes": {
           "http.method": "GET",
           "http.route": "/customers/:id/orders",
-          "http.target": "/customers/1696/orders",
+          "http.target": "/customers/181/orders",
           "http.status_code": 200
         },
         "children": [
-          "0b259f9447b0a0c6",
-          "ae4cde8884d5437b",
-          "a4afdda2127fb8a5",
-          "44513916625feb02"
+          "795d141349fa47f3",
+          "1a2b8c2bb3909ea3",
+          "c882cf3325b43159",
+          "d913311f47affec1"
         ],
         "logs": [
           {
-            "ts": "2026-10-18T06:09:05.259844805Z",
+            "ts": "2026-10-18T06:32:41.983968543Z",
             "level": "info",
             "msg": "request completed",
             "fields": {
               "service": "demo-order",
               "method": "GET",
               "route": "/customers/:id/orders",
-              "path": "/customers/1696/orders",
+              "path": "/customers/181/orders",
               "status": 200,
-              "duration_ms": 541.833,
+              "duration_ms": 383.883,
               "cache_mode": "normal",
               "parent_span_id": null,
-              "app_ts": "2026-10-18T06:09:05.258Z"
+              "app_ts": "2026-10-18T06:32:41.983Z"
             }
           }
         ],
         "orphan": false
       },
       {
-        "span_id": "0b259f9447b0a0c6",
-        "parent_span_id": "ce292d7ccbe441a8",
+        "span_id": "795d141349fa47f3",
+        "parent_span_id": "1a06bfa5fa237a09",
         "name": "redis.get",
         "service": "demo-order",
         "container": "demo-order",
         "depth": 1,
-        "start": "2026-10-18T06:09:04.716Z",
+        "start": "2026-10-18T06:32:41.599Z",
         "offset_ms": 0,
-        "duration_ms": 0.754,
-        "self_ms": 0.754,
-        "pct_of_trace": 0.1,
+        "duration_ms": 0.65,
+        "self_ms": 0.65,
+        "pct_of_trace": 0.2,
         "status": "ok",
         "attributes": {
           "db.system": "redis",
           "db.operation": "GET",
-          "key": "demo:customer:1696:recent",
+          "key": "demo:customer:181:recent",
           "hit": false
         },
         "children": [],
@@ -87,41 +87,41 @@
         "orphan": false
       },
       {
-        "span_id": "ae4cde8884d5437b",
-        "parent_span_id": "ce292d7ccbe441a8",
+        "span_id": "1a2b8c2bb3909ea3",
+        "parent_span_id": "1a06bfa5fa237a09",
         "name": "mysql.query",
         "service": "demo-order",
         "container": "demo-order",
         "depth": 1,
-        "start": "2026-10-18T06:09:04.717Z",
+        "start": "2026-10-18T06:32:41.600Z",
         "offset_ms": 1,
-        "duration_ms": 539.916,
-        "self_ms": 539.916,
-        "pct_of_trace": 99.6,
+        "duration_ms": 381.834,
+        "self_ms": 381.834,
+        "pct_of_trace": 99.4,
         "status": "ok",
         "attributes": {
           "db.system": "mysql",
           "db.name": "demo",
           "query": "customer_recent_orders",
           "statement": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT 20",
-          "rows": 15
+          "rows": 0
         },
         "children": [],
         "logs": [],
         "orphan": false
       },
       {
-        "span_id": "a4afdda2127fb8a5",
-        "parent_span_id": "ce292d7ccbe441a8",
+        "span_id": "c882cf3325b43159",
+        "parent_span_id": "1a06bfa5fa237a09",
         "name": "mysql.pool.acquire",
         "service": "demo-order",
         "container": "demo-order",
         "depth": 1,
-        "start": "2026-10-18T06:09:04.717Z",
+        "start": "2026-10-18T06:32:41.600Z",
         "offset_ms": 1,
-        "duration_ms": 0.046,
-        "self_ms": 0.046,
-        "pct_of_trace": 0,
+        "duration_ms": 0.207,
+        "self_ms": 0.207,
+        "pct_of_trace": 0.1,
         "status": "ok",
         "attributes": {
           "db.system": "mysql",
@@ -132,22 +132,22 @@
         "orphan": false
       },
       {
-        "span_id": "44513916625feb02",
-        "parent_span_id": "ce292d7ccbe441a8",
+        "span_id": "d913311f47affec1",
+        "parent_span_id": "1a06bfa5fa237a09",
         "name": "redis.set",
         "service": "demo-order",
         "container": "demo-order",
         "depth": 1,
-        "start": "2026-10-18T06:09:05.257Z",
-        "offset_ms": 541,
-        "duration_ms": 0.611,
-        "self_ms": 0.611,
-        "pct_of_trace": 0.1,
+        "start": "2026-10-18T06:32:41.982Z",
+        "offset_ms": 383,
+        "duration_ms": 0.628,
+        "self_ms": 0.628,
+        "pct_of_trace": 0.2,
         "status": "ok",
         "attributes": {
           "db.system": "redis",
           "db.operation": "SET",
-          "key": "demo:customer:1696:recent",
+          "key": "demo:customer:181:recent",
           "ttl_seconds": 300
         },
         "children": [],
@@ -159,37 +159,37 @@
       {
         "name": "mysql.query",
         "count": 1,
-        "total_ms": 539.916,
-        "self_ms": 539.916,
-        "pct_of_trace": 99.6
+        "total_ms": 381.834,
+        "self_ms": 381.834,
+        "pct_of_trace": 99.4
       },
       {
         "name": "http.request",
         "count": 1,
-        "total_ms": 542.048,
-        "self_ms": 0.767,
-        "pct_of_trace": 0.1
+        "total_ms": 384.072,
+        "self_ms": 0.96,
+        "pct_of_trace": 0.2
       },
       {
         "name": "redis.get",
         "count": 1,
-        "total_ms": 0.754,
-        "self_ms": 0.754,
-        "pct_of_trace": 0.1
+        "total_ms": 0.65,
+        "self_ms": 0.65,
+        "pct_of_trace": 0.2
       },
       {
         "name": "redis.set",
         "count": 1,
-        "total_ms": 0.611,
-        "self_ms": 0.611,
-        "pct_of_trace": 0.1
+        "total_ms": 0.628,
+        "self_ms": 0.628,
+        "pct_of_trace": 0.2
       },
       {
         "name": "mysql.pool.acquire",
         "count": 1,
-        "total_ms": 0.046,
-        "self_ms": 0.046,
-        "pct_of_trace": 0
+        "total_ms": 0.207,
+        "self_ms": 0.207,
+        "pct_of_trace": 0.1
       }
     ],
     "unattached_logs": [],
@@ -199,7 +199,7 @@
         "containers": [
           "demo-order"
         ],
-        "lines_scanned": 1331
+        "lines_scanned": 794
       },
       {
         "service": "demo-payment",
@@ -219,7 +219,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T06:23:19.832Z",
+        "observed_at": "2026-10-18T06:32:53.739Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/logs（kind=span 记录重建）",
         "relation": "derived",
@@ -229,8 +229,8 @@
     "coverage": {
       "complete": true,
       "window": {
-        "start": "2026-10-18T00:23:19.769Z",
-        "end": "2026-10-18T06:23:19.769Z"
+        "start": "2026-10-18T00:32:53.666Z",
+        "end": "2026-10-18T06:32:53.666Z"
       },
       "scope": "服务: demo-order, demo-payment, demo-inventory 的容器日志",
       "notes": [
@@ -240,7 +240,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfvs1n-615b8b",
+    "request_id": "req-mvdg82v7-3785e7",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -248,7 +248,7 @@
     "adapter": "docker-engine-api|loki-http-api",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:23:19.739Z",
-    "duration_ms": 93
+    "started_at": "2026-10-18T06:32:53.635Z",
+    "duration_ms": 104
   }
 }

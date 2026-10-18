@@ -39,7 +39,7 @@
         "area": "endpoints",
         "item": "mysql/demo-mysql",
         "ok": true,
-        "detail": "127.0.0.1:13306 可达 (8ms)"
+        "detail": "127.0.0.1:13306 可达 (10ms)"
       },
       {
         "area": "credentials",
@@ -51,25 +51,25 @@
         "area": "endpoints",
         "item": "postgres/demo-postgres",
         "ok": true,
-        "detail": "127.0.0.1:15432 可达 (10ms)"
+        "detail": "127.0.0.1:15432 可达 (9ms)"
       },
       {
         "area": "endpoints",
         "item": "redis/demo-redis",
         "ok": true,
-        "detail": "127.0.0.1:16379 可达 (11ms)"
+        "detail": "127.0.0.1:16379 可达 (9ms)"
       },
       {
         "area": "endpoints",
         "item": "prometheus/demo-prometheus",
         "ok": true,
-        "detail": "127.0.0.1:19090 可达 (11ms)"
+        "detail": "127.0.0.1:19090 可达 (9ms)"
       },
       {
         "area": "endpoints",
         "item": "loki/demo-loki",
         "ok": true,
-        "detail": "127.0.0.1:13100 可达 (14ms)"
+        "detail": "127.0.0.1:13100 可达 (8ms)"
       },
       {
         "area": "credentials",
@@ -81,19 +81,19 @@
         "area": "endpoints",
         "item": "airflow/demo-airflow",
         "ok": true,
-        "detail": "127.0.0.1:18080 可达 (14ms)"
+        "detail": "127.0.0.1:18080 可达 (9ms)"
       },
       {
         "area": "endpoints",
         "item": "spark/demo-spark",
         "ok": true,
-        "detail": "127.0.0.1:18088 可达 (13ms)"
+        "detail": "127.0.0.1:18088 可达 (9ms)"
       },
       {
         "area": "endpoints",
         "item": "trino/demo-trino",
         "ok": true,
-        "detail": "127.0.0.1:18085 可达 (13ms)"
+        "detail": "127.0.0.1:18085 可达 (9ms)"
       },
       {
         "area": "endpoints",
@@ -105,31 +105,31 @@
         "area": "endpoints",
         "item": "kafka/demo-mq",
         "ok": true,
-        "detail": "127.0.0.1:19092 可达 (13ms)"
+        "detail": "127.0.0.1:19092 可达 (9ms)"
       },
       {
         "area": "endpoints",
         "item": "opensearch/demo-search",
         "ok": true,
-        "detail": "127.0.0.1:19200 可达 (13ms)"
+        "detail": "127.0.0.1:19200 可达 (9ms)"
       },
       {
         "area": "endpoints",
         "item": "etcd/demo-etcd",
         "ok": true,
-        "detail": "127.0.0.1:12379 可达 (13ms)"
+        "detail": "127.0.0.1:12379 可达 (9ms)"
       },
       {
         "area": "endpoints",
         "item": "nacos/demo-nacos",
         "ok": true,
-        "detail": "127.0.0.1:18848 可达 (13ms)"
+        "detail": "127.0.0.1:18848 可达 (9ms)"
       },
       {
         "area": "endpoints",
         "item": "consul/demo-consul",
         "ok": true,
-        "detail": "127.0.0.1:18500 可达 (13ms)"
+        "detail": "127.0.0.1:18500 可达 (9ms)"
       },
       {
         "area": "credentials",
@@ -141,7 +141,7 @@
         "area": "endpoints",
         "item": "jenkins/demo-jenkins",
         "ok": true,
-        "detail": "127.0.0.1:18091 可达 (13ms)"
+        "detail": "127.0.0.1:18091 可达 (9ms)"
       },
       {
         "area": "plugins",
@@ -169,7 +169,7 @@
       {
         "system": "workctl",
         "adapter": "local",
-        "observed_at": "2026-10-18T06:23:09.021Z",
+        "observed_at": "2026-10-18T06:32:42.403Z",
         "relation": "derived"
       }
     ],
@@ -181,7 +181,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfvjqc-fc42ed",
+    "request_id": "req-mvdg7u5n-99d5d1",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -189,7 +189,7 @@
     "adapter": "local",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:23:08.964Z",
-    "duration_ms": 60
+    "started_at": "2026-10-18T06:32:42.347Z",
+    "duration_ms": 57
   }
 }

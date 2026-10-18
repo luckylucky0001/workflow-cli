@@ -15,21 +15,21 @@
     "provider": "docker",
     "containers": [
       {
-        "id": "4272d71ae71b",
+        "id": "fe002b06231e",
         "name": "demo-order",
         "service": "demo-order",
         "env": "sandbox",
         "image": "workctl-demo/demo-order:local",
-        "image_id": "acb351d93844",
-        "created": "2026-10-18T05:10:05.907075164Z",
+        "image_id": "edfc8d2fed8e",
+        "created": "2026-10-18T06:28:36.549315675Z",
         "state": "running",
         "health": "none",
         "health_failing_streak": null,
         "last_health_check": null,
         "restart_count": 0,
         "restart_policy": "no",
-        "started_at": "2026-10-18T06:10:12.119304964Z",
-        "finished_at": "2026-10-18T06:10:11.909662778Z",
+        "started_at": "2026-10-18T06:28:58.615639343Z",
+        "finished_at": null,
         "exit_code": 0,
         "oom_killed": false,
         "error": null,
@@ -97,7 +97,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T06:23:12.103Z",
+        "observed_at": "2026-10-18T06:32:45.546Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/json?all=1&filters={label:workctl.service=demo-order}",
         "relation": "explicit",
@@ -106,7 +106,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T06:23:12.103Z",
+        "observed_at": "2026-10-18T06:32:45.547Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/json",
         "relation": "explicit",
@@ -115,7 +115,7 @@
       {
         "system": "workctl",
         "adapter": "resource-bindings",
-        "observed_at": "2026-10-18T06:23:12.103Z",
+        "observed_at": "2026-10-18T06:32:45.547Z",
         "method": "bindings: demo-order.attributes.container_label=workctl.service=demo-order",
         "relation": "explicit"
       }
@@ -131,7 +131,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfvm3e-66c322",
+    "request_id": "req-mvdg7wkg-96451b",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -139,7 +139,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:23:12.026Z",
-    "duration_ms": 77
+    "started_at": "2026-10-18T06:32:45.472Z",
+    "duration_ms": 75
   }
 }

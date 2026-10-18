@@ -6,7 +6,7 @@
   "error": {
     "code": "NOT_FOUND",
     "message": "Deployment workctl-demo/demo-order 没有保留发布 demo-order-0000000000",
-    "hint": "保留的修订: 11=demo-order-688f8f66b5, 10=demo-order-77fdb45bf4, 9=demo-order-7ff6c97699, 7=demo-order-98c7489c5, 6=demo-order-5b86776b9c, 5=demo-order-64cbd89d66, 3=demo-order-5b8467c6d8, 2=demo-order-67bcb78747, 1=demo-order-5f6b55b9d8；超出 revisionHistoryLimit 的 ReplicaSet 已被清理",
+    "hint": "保留的修订: 16=demo-order-7488d677c9, 15=demo-order-797945d9d8, 14=demo-order-b9b7f69, 12=demo-order-77fdb45bf4, 11=demo-order-688f8f66b5, 9=demo-order-7ff6c97699, 7=demo-order-98c7489c5, 6=demo-order-5b86776b9c, 5=demo-order-64cbd89d66, 3=demo-order-5b8467c6d8, 2=demo-order-67bcb78747, 1=demo-order-5f6b55b9d8；超出 revisionHistoryLimit 的 ReplicaSet 已被清理",
     "retryable": false
   },
   "meta": {
@@ -15,7 +15,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvde361n-94ab77",
+    "request_id": "req-mvdgejj2-1f7bb4",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -23,7 +23,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:33:05.243Z",
-    "duration_ms": 70
+    "started_at": "2026-10-18T06:37:55.166Z",
+    "duration_ms": 55
   }
 }

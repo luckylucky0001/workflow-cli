@@ -13,62 +13,18 @@
     },
     "releases": [
       {
-        "id": "6",
-        "provider": "jenkins",
-        "version": "v1.4.1",
-        "images": [],
-        "revision": 6,
-        "started_at": "2026-10-18T05:21:29.635Z",
-        "finished_at": "2026-10-18T05:21:31.647Z",
-        "timestamps": "explicit",
-        "duration_ms": 2012,
-        "status": "succeeded",
-        "status_basis": "Jenkins 构建结果 SUCCESS；最近一次成功的部署构建，视为当前版本（Jenkins 不观测目标环境实际运行的版本）",
-        "current": true,
-        "triggered_by": "admin",
-        "cause": "Started by user admin",
-        "source_ref": {
-          "system": "jenkins",
-          "kind": "jenkins.build",
-          "name": "deploy-demo-order#6",
-          "url": "http://127.0.0.1:18091/job/deploy-demo-order/6/"
-        }
-      },
-      {
-        "id": "5",
-        "provider": "jenkins",
-        "version": "v1.4.0",
-        "images": [],
-        "revision": 5,
-        "started_at": "2026-10-18T05:17:59.610Z",
-        "finished_at": "2026-10-18T05:18:01.640Z",
-        "timestamps": "explicit",
-        "duration_ms": 2030,
-        "status": "succeeded",
-        "status_basis": "Jenkins 构建结果 SUCCESS",
-        "current": false,
-        "triggered_by": "admin",
-        "cause": "Started by user admin",
-        "source_ref": {
-          "system": "jenkins",
-          "kind": "jenkins.build",
-          "name": "deploy-demo-order#5",
-          "url": "http://127.0.0.1:18091/job/deploy-demo-order/5/"
-        }
-      },
-      {
         "id": "4",
         "provider": "jenkins",
         "version": "v1.4.1",
         "images": [],
         "revision": 4,
-        "started_at": "2026-10-18T05:12:59.544Z",
-        "finished_at": "2026-10-18T05:13:01.558Z",
+        "started_at": "2026-10-18T06:31:41.354Z",
+        "finished_at": "2026-10-18T06:31:43.368Z",
         "timestamps": "explicit",
         "duration_ms": 2014,
         "status": "succeeded",
-        "status_basis": "Jenkins 构建结果 SUCCESS",
-        "current": false,
+        "status_basis": "Jenkins 构建结果 SUCCESS；最近一次成功的部署构建，视为当前版本（Jenkins 不观测目标环境实际运行的版本）",
+        "current": true,
         "triggered_by": "admin",
         "cause": "Started by user admin",
         "source_ref": {
@@ -84,8 +40,8 @@
         "version": "v1.4.2-bad",
         "images": [],
         "revision": 3,
-        "started_at": "2026-10-18T05:12:49.541Z",
-        "finished_at": "2026-10-18T05:12:51.553Z",
+        "started_at": "2026-10-18T06:31:31.351Z",
+        "finished_at": "2026-10-18T06:31:33.363Z",
         "timestamps": "explicit",
         "duration_ms": 2012,
         "status": "failed",
@@ -106,10 +62,10 @@
         "version": "v1.4.1",
         "images": [],
         "revision": 2,
-        "started_at": "2026-10-18T05:12:39.537Z",
-        "finished_at": "2026-10-18T05:12:41.551Z",
+        "started_at": "2026-10-18T06:31:21.343Z",
+        "finished_at": "2026-10-18T06:31:23.354Z",
         "timestamps": "explicit",
-        "duration_ms": 2014,
+        "duration_ms": 2011,
         "status": "succeeded",
         "status_basis": "Jenkins 构建结果 SUCCESS",
         "current": false,
@@ -128,8 +84,8 @@
         "version": "v1.4.0",
         "images": [],
         "revision": 1,
-        "started_at": "2026-10-18T05:12:29.535Z",
-        "finished_at": "2026-10-18T05:12:31.585Z",
+        "started_at": "2026-10-18T06:31:11.341Z",
+        "finished_at": "2026-10-18T06:31:13.391Z",
         "timestamps": "explicit",
         "duration_ms": 2050,
         "status": "succeeded",
@@ -145,7 +101,7 @@
         }
       }
     ],
-    "retained": 6
+    "retained": 4
   },
   "error": null,
   "meta": {
@@ -153,7 +109,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-18T05:32:03.245Z",
+        "observed_at": "2026-10-18T06:34:35.726Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100}",
         "relation": "explicit",
@@ -166,8 +122,8 @@
       "limit": 20,
       "truncated": false,
       "window": {
-        "start": "2026-10-11T05:32:03.243Z",
-        "end": "2026-10-18T05:32:03.245Z"
+        "start": "2026-10-11T06:34:35.724Z",
+        "end": "2026-10-18T06:34:35.726Z"
       },
       "notes": [
         "Jenkins job 构建丢弃策略只保留最近 20 个构建；更早的发布不可见",
@@ -179,7 +135,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvde1u17-03d6e0",
+    "request_id": "req-mvdga9g9-7e0a15",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -187,7 +143,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:32:03.019Z",
-    "duration_ms": 226
+    "started_at": "2026-10-18T06:34:35.481Z",
+    "duration_ms": 245
   }
 }

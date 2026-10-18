@@ -9,38 +9,12 @@
       "max_len": 256,
       "config_readable": true
     },
-    "retained_entries": 6,
+    "retained_entries": 5,
     "entries": [
       {
-        "id": 5,
-        "timestamp": "2026-10-18T05:37:46.000Z",
-        "duration_us": 3682,
-        "command": "INFO",
-        "key": "server",
-        "args": [
-          "server"
-        ],
-        "arg_count": 1,
-        "client_addr": "172.18.0.1:50538",
-        "client_name": null
-      },
-      {
         "id": 4,
-        "timestamp": "2026-10-18T05:16:33.000Z",
-        "duration_us": 1322,
-        "command": "CONFIG GET",
-        "key": null,
-        "args": [
-          "?"
-        ],
-        "arg_count": 2,
-        "client_addr": "172.18.0.1:41060",
-        "client_name": null
-      },
-      {
-        "id": 3,
-        "timestamp": "2026-10-18T05:12:07.000Z",
-        "duration_us": 3965,
+        "timestamp": "2026-10-18T06:30:43.000Z",
+        "duration_us": 5218,
         "command": "ZRANGE",
         "key": "demo:leaderboard:amount:2026-10-16",
         "args": [
@@ -50,13 +24,26 @@
           "?"
         ],
         "arg_count": 4,
-        "client_addr": "172.18.0.1:47572",
+        "client_addr": "172.18.0.1:48898",
+        "client_name": null
+      },
+      {
+        "id": 3,
+        "timestamp": "2026-10-18T06:30:43.000Z",
+        "duration_us": 3310,
+        "command": "HGETALL",
+        "key": "demo:customer:4:profile",
+        "args": [
+          "demo:customer:4:profile"
+        ],
+        "arg_count": 1,
+        "client_addr": "172.18.0.1:48898",
         "client_name": null
       },
       {
         "id": 2,
-        "timestamp": "2026-10-18T05:12:06.000Z",
-        "duration_us": 1057,
+        "timestamp": "2026-10-18T06:30:42.000Z",
+        "duration_us": 1679,
         "command": "ZADD",
         "key": "demo:leaderboard:amount:2026-10-16",
         "args": [
@@ -93,13 +80,13 @@
           "?"
         ],
         "arg_count": 31,
-        "client_addr": "172.18.0.1:47572",
+        "client_addr": "172.18.0.1:48898",
         "client_name": null
       },
       {
         "id": 1,
-        "timestamp": "2026-10-18T05:12:06.000Z",
-        "duration_us": 2349,
+        "timestamp": "2026-10-18T06:30:42.000Z",
+        "duration_us": 2220,
         "command": "ZADD",
         "key": "demo:leaderboard:amount:2026-10-16",
         "args": [
@@ -136,7 +123,50 @@
           "?"
         ],
         "arg_count": 31,
-        "client_addr": "172.18.0.1:47572",
+        "client_addr": "172.18.0.1:48898",
+        "client_name": null
+      },
+      {
+        "id": 0,
+        "timestamp": "2026-10-18T06:30:42.000Z",
+        "duration_us": 1611,
+        "command": "RPUSH",
+        "key": "demo:customer:3:history",
+        "args": [
+          "demo:customer:3:history",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?"
+        ],
+        "arg_count": 31,
+        "client_addr": "172.18.0.1:48898",
         "client_name": null
       }
     ]
@@ -147,7 +177,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T06:23:40.549Z",
+        "observed_at": "2026-10-18T06:33:14.488Z",
         "endpoint": "redis/demo-redis",
         "method": "SLOWLOG GET / SLOWLOG LEN / CONFIG GET slowlog-*",
         "version": "7.4.11",
@@ -155,8 +185,8 @@
       }
     ],
     "coverage": {
-      "complete": false,
-      "truncated": true,
+      "complete": true,
+      "truncated": false,
       "limit": 5,
       "notes": [
         "只含命令执行时间，不含网络/排队/I/O",
@@ -166,7 +196,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfw82w-0fa75d",
+    "request_id": "req-mvdg8ixk-1fc47b",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -174,7 +204,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:23:40.520Z",
-    "duration_ms": 31
+    "started_at": "2026-10-18T06:33:14.456Z",
+    "duration_ms": 36
   }
 }

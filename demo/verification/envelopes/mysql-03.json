@@ -47,21 +47,21 @@
     "io_by_index": [
       {
         "index": "idx_created_at",
-        "count_star": 6389579,
-        "count_read": 6389579,
-        "count_fetch": 6389579
+        "count_star": 2122059,
+        "count_read": 2122059,
+        "count_fetch": 2122059
       },
       {
         "index": null,
-        "count_star": 6016220,
-        "count_read": 6016220,
-        "count_fetch": 6016220
+        "count_star": 300000,
+        "count_read": 300000,
+        "count_fetch": 300000
       },
       {
         "index": "PRIMARY",
-        "count_star": 3061,
-        "count_read": 3061,
-        "count_fetch": 3061
+        "count_star": 3017,
+        "count_read": 3017,
+        "count_fetch": 3017
       }
     ]
   },
@@ -71,7 +71,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T06:23:21.263Z",
+        "observed_at": "2026-10-18T06:32:55.307Z",
         "endpoint": "mysql/demo-mysql",
         "method": "information_schema.STATISTICS",
         "version": "8.4.11",
@@ -80,7 +80,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T06:23:21.267Z",
+        "observed_at": "2026-10-18T06:32:55.313Z",
         "endpoint": "mysql/demo-mysql",
         "method": "performance_schema.table_io_waits_summary_by_index_usage",
         "version": "8.4.11",
@@ -96,7 +96,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfvt6w-7eb1ae",
+    "request_id": "req-mvdg8444-6a17ee",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -104,7 +104,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:23:21.224Z",
-    "duration_ms": 43
+    "started_at": "2026-10-18T06:32:55.252Z",
+    "duration_ms": 62
   }
 }

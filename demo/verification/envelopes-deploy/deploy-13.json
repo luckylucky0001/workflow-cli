@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.execute",
   "data": {
-    "id": "op-20261018-b22f42",
+    "id": "op-20261018-350dcf",
     "kind": "deploy.rollback",
-    "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #5（v1.4.0）",
+    "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #1（v1.4.0）",
     "status": "succeeded",
-    "created_at": "2026-10-18T05:32:08.562Z",
-    "expires_at": "2026-10-18T06:02:08.562Z",
+    "created_at": "2026-10-18T06:34:41.128Z",
+    "expires_at": "2026-10-18T07:04:41.128Z",
     "profile": "demo",
     "env": "sandbox",
     "params": {
@@ -31,9 +31,9 @@
       {
         "provider": "jenkins",
         "job": "deploy-demo-order",
-        "current_build": 6,
+        "current_build": 4,
         "current_version": "v1.4.1",
-        "target_build": 5,
+        "target_build": 1,
         "target_version": "v1.4.0",
         "target_result": "SUCCESS",
         "target_parameters": {
@@ -83,7 +83,7 @@
       {
         "check": "target_release_retained",
         "ok": true,
-        "detail": "构建 #5 仍保留"
+        "detail": "构建 #1 仍保留"
       },
       {
         "check": "target_succeeded",
@@ -93,7 +93,7 @@
       {
         "check": "target_differs_from_current",
         "ok": true,
-        "detail": "当前 v1.4.1（#6）→ 目标 v1.4.0"
+        "detail": "当前 v1.4.1（#4）→ 目标 v1.4.0"
       },
       {
         "check": "no_deploy_in_progress",
@@ -114,60 +114,62 @@
     "steps": [
       {
         "name": "recheck",
-        "detail": "执行前重读 job：当前成功构建仍为 #6、没有进行中的部署构建（否则拒绝执行）"
+        "detail": "执行前重读 job：当前成功构建仍为 #4、没有进行中的部署构建（否则拒绝执行）"
       },
       {
         "name": "trigger deploy job",
-        "detail": "POST /job/deploy-demo-order/buildWithParameters（参数取自构建 #5: SERVICE=demo-order&VERSION=v1.4.0&ENV=sandbox；需要 Job/Build 权限，密码认证时附带 crumb）"
+        "detail": "POST /job/deploy-demo-order/buildWithParameters（参数取自构建 #1: SERVICE=demo-order&VERSION=v1.4.0&ENV=sandbox；需要 Job/Build 权限，密码认证时附带 crumb）"
       },
       {
         "name": "verify",
         "detail": "轮询队列项直到分配构建号，再轮询构建直到结束；结果 SUCCESS 才算成功（最多 300s，且不超过 --timeout）。部署 job 的成功不等于服务健康：再用 container workload get / 指标核对"
       }
     ],
-    "rollback": "再生成回滚计划 --to 6，用当前版本 v1.4.1 再次触发部署 job",
+    "rollback": "再生成回滚计划 --to 4，用当前版本 v1.4.1 再次触发部署 job",
     "idempotent": false,
     "cancellable": false,
     "executable": true,
     "history": [
       {
-        "at": "2026-10-18T05:32:08.562Z",
+        "at": "2026-10-18T06:34:41.128Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       },
       {
-        "at": "2026-10-18T05:32:08.880Z",
+        "at": "2026-10-18T06:34:41.473Z",
         "status": "running",
-        "note": "由 req-mvde1yjb-f0a176 开始执行"
+        "note": "由 req-mvdgae21-817ab4 开始执行"
       },
       {
-        "at": "2026-10-18T05:32:09.065Z",
+        "at": "2026-10-18T06:34:41.659Z",
         "status": "running",
         "note": "trigger deploy-demo-order buildWithParameters SERVICE=demo-order&VERSION=v1.4.0&ENV=sandbox"
       },
       {
-        "at": "2026-10-18T05:32:15.602Z",
+        "at": "2026-10-18T06:34:52.940Z",
         "status": "running",
-        "note": "queue item 7 → build #7"
+        "note": "queue item 5 → build #5"
       },
       {
-        "at": "2026-10-18T05:32:17.272Z",
+        "at": "2026-10-18T06:34:54.621Z",
         "status": "running",
-        "note": "build #7 SUCCESS"
+        "note": "build #5 SUCCESS"
       },
       {
-        "at": "2026-10-18T05:32:17.275Z",
+        "at": "2026-10-18T06:34:54.624Z",
         "status": "succeeded",
         "note": "执行器返回成功"
       }
     ],
+    "config_identity": "sha256:6e827e7c8071f7f6f727057bfcf84f617b9b45596d246475de39290a05d43109",
+    "digest": "sha256:d0b87590d3bad593ccc80c7c589d91347d63325b38f1f69d8a11101449ac142f",
     "result": {
       "service": "demo-order",
       "provider": "jenkins",
       "rollback": {
         "job": "deploy-demo-order",
-        "build": 7,
-        "url": "http://127.0.0.1:18091/job/deploy-demo-order/7/",
+        "build": 5,
+        "url": "http://127.0.0.1:18091/job/deploy-demo-order/5/",
         "result": "SUCCESS",
         "version": "v1.4.0",
         "parameters": {
@@ -175,7 +177,7 @@
           "VERSION": "v1.4.0",
           "ENV": "sandbox"
         },
-        "duration_ms": 8205,
+        "duration_ms": 12960,
         "verified": true
       },
       "jenkins_version": "2.541.3",
@@ -188,7 +190,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-18T05:32:17.276Z",
+        "observed_at": "2026-10-18T06:34:54.625Z",
         "relation": "explicit"
       }
     ],
@@ -196,7 +198,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvde1yjb-f0a176",
+    "request_id": "req-mvdgae21-817ab4",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -204,7 +206,7 @@
     "adapter": "plan-store",
     "operation": "execute",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:32:08.855Z",
-    "duration_ms": 8421
+    "started_at": "2026-10-18T06:34:41.449Z",
+    "duration_ms": 13176
   }
 }

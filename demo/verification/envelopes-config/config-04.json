@@ -12,9 +12,9 @@
     "key": null,
     "revision_space": "etcd-cluster-revision",
     "mode": "revisions",
-    "from_revision": 79,
-    "to_revision": 86,
-    "current_revision": 90,
+    "from_revision": 8,
+    "to_revision": 15,
+    "current_revision": 19,
     "changes": [
       {
         "name": "cache.max_entries",
@@ -28,9 +28,9 @@
           "value_bytes": 5,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 84,
+          "mod_revision": 13,
           "version": 1,
-          "create_revision": 84
+          "create_revision": 13
         }
       },
       {
@@ -44,9 +44,9 @@
           "value_bytes": 3,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 74,
+          "mod_revision": 3,
           "version": 1,
-          "create_revision": 74
+          "create_revision": 3
         },
         "new": {
           "value": 60,
@@ -54,9 +54,9 @@
           "value_bytes": 2,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 83,
+          "mod_revision": 12,
           "version": 2,
-          "create_revision": 74
+          "create_revision": 3
         }
       },
       {
@@ -72,9 +72,9 @@
           "masked_paths": [
             "$"
           ],
-          "mod_revision": 76,
+          "mod_revision": 5,
           "version": 1,
-          "create_revision": 76
+          "create_revision": 5
         },
         "new": {
           "value": "***",
@@ -84,9 +84,9 @@
           "masked_paths": [
             "$"
           ],
-          "mod_revision": 85,
+          "mod_revision": 14,
           "version": 2,
-          "create_revision": 76
+          "create_revision": 5
         }
       },
       {
@@ -100,9 +100,9 @@
           "value_bytes": 2,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 75,
+          "mod_revision": 4,
           "version": 1,
-          "create_revision": 75
+          "create_revision": 4
         },
         "new": {
           "value": 20,
@@ -110,9 +110,9 @@
           "value_bytes": 2,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 81,
+          "mod_revision": 10,
           "version": 2,
-          "create_revision": 75
+          "create_revision": 4
         }
       },
       {
@@ -130,9 +130,9 @@
           "value_bytes": 61,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 77,
+          "mod_revision": 6,
           "version": 1,
-          "create_revision": 77
+          "create_revision": 6
         },
         "new": {
           "value": {
@@ -144,9 +144,9 @@
           "value_bytes": 61,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 80,
+          "mod_revision": 9,
           "version": 2,
-          "create_revision": 77
+          "create_revision": 6
         }
       },
       {
@@ -160,9 +160,9 @@
           "value_bytes": 2,
           "masked": false,
           "masked_paths": [],
-          "mod_revision": 78,
+          "mod_revision": 7,
           "version": 1,
-          "create_revision": 78
+          "create_revision": 7
         },
         "new": null
       },
@@ -183,9 +183,9 @@
           "masked_paths": [
             "$.token"
           ],
-          "mod_revision": 79,
+          "mod_revision": 8,
           "version": 1,
-          "create_revision": 79
+          "create_revision": 8
         },
         "new": {
           "value": {
@@ -199,9 +199,9 @@
           "masked_paths": [
             "$.token"
           ],
-          "mod_revision": 86,
+          "mod_revision": 15,
           "version": 2,
-          "create_revision": 79
+          "create_revision": 8
         }
       }
     ],
@@ -219,9 +219,9 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-18T05:52:46.330Z",
+        "observed_at": "2026-10-18T06:33:56.671Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
-        "method": "POST /v3/kv/range prefix=/config/sandbox/demo-order/ revision=79 / revision=86",
+        "method": "POST /v3/kv/range prefix=/config/sandbox/demo-order/ revision=8 / revision=15",
         "relation": "explicit",
         "version": "3.5.21"
       }
@@ -229,7 +229,7 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "etcd etcd/demo-etcd 前缀 /config/sandbox/demo-order/，修订 79 → 86",
+      "scope": "etcd etcd/demo-etcd 前缀 /config/sandbox/demo-order/，修订 8 → 15",
       "notes": [
         "部分差异项的值已遮蔽（***），changed 依据原始字节判断",
         "只比较两个修订的快照；区间内的中间值不可见。历史只保留到最近一次压缩"
@@ -238,7 +238,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdeshc0-cf151b",
+    "request_id": "req-mvdg9fgk-458384",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -246,7 +246,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:52:46.272Z",
-    "duration_ms": 59
+    "started_at": "2026-10-18T06:33:56.612Z",
+    "duration_ms": 60
   }
 }

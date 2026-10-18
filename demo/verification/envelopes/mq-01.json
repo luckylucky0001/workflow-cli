@@ -18,29 +18,29 @@
         "partitions": [
           {
             "partition": 0,
-            "committed_offset": 34,
-            "end_offset": 86,
+            "committed_offset": 47,
+            "end_offset": 118,
             "log_start_offset": 0,
             "assigned_member": null,
-            "lag": 52,
+            "lag": 71,
             "state": "ok"
           },
           {
             "partition": 1,
-            "committed_offset": 41,
-            "end_offset": 104,
+            "committed_offset": 32,
+            "end_offset": 82,
             "log_start_offset": 0,
             "assigned_member": null,
-            "lag": 63,
+            "lag": 50,
             "state": "ok"
           },
           {
             "partition": 2,
-            "committed_offset": 44,
-            "end_offset": 110,
+            "committed_offset": 40,
+            "end_offset": 100,
             "log_start_offset": 0,
             "assigned_member": null,
-            "lag": 66,
+            "lag": 60,
             "state": "ok"
           }
         ],
@@ -58,14 +58,14 @@
       "total_lag": 181,
       "max_partition_lag": {
         "topic": "demo.order.events",
-        "partition": 2,
-        "lag": 66
+        "partition": 0,
+        "lag": 71
       }
     },
     "lag_unit": "offsets",
     "lag_basis": "offset_difference",
     "end_offset_isolation": "read_committed",
-    "observed_at": "2026-10-18T06:23:42.632Z"
+    "observed_at": "2026-10-18T06:33:16.412Z"
   },
   "error": null,
   "meta": {
@@ -75,7 +75,7 @@
         "adapter": "kafka-admin",
         "endpoint": "kafka/demo-mq",
         "method": "DescribeGroups(demo-consumer)",
-        "observed_at": "2026-10-18T06:23:42.617Z",
+        "observed_at": "2026-10-18T06:33:16.393Z",
         "version": "inter.broker.protocol.version=3.9-IV0",
         "relation": "explicit"
       },
@@ -84,7 +84,7 @@
         "adapter": "kafka-admin",
         "endpoint": "kafka/demo-mq",
         "method": "OffsetFetch(group=demo-consumer)",
-        "observed_at": "2026-10-18T06:23:42.626Z",
+        "observed_at": "2026-10-18T06:33:16.406Z",
         "version": "inter.broker.protocol.version=3.9-IV0",
         "relation": "explicit"
       },
@@ -93,7 +93,7 @@
         "adapter": "kafka-admin",
         "endpoint": "kafka/demo-mq",
         "method": "ListOffsets(latest+earliest, read_committed)",
-        "observed_at": "2026-10-18T06:23:42.632Z",
+        "observed_at": "2026-10-18T06:33:16.412Z",
         "version": "inter.broker.protocol.version=3.9-IV0",
         "relation": "explicit"
       },
@@ -102,7 +102,7 @@
         "adapter": "kafka-admin",
         "endpoint": "kafka/demo-mq",
         "method": "lag = end_offset - committed_offset",
-        "observed_at": "2026-10-18T06:23:42.632Z",
+        "observed_at": "2026-10-18T06:33:16.412Z",
         "version": "inter.broker.protocol.version=3.9-IV0",
         "relation": "derived"
       }
@@ -120,7 +120,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfw9kw-b535d7",
+    "request_id": "req-mvdg8kap-b62b47",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -128,7 +128,7 @@
     "adapter": "kafka-admin",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:23:42.464Z",
-    "duration_ms": 180
+    "started_at": "2026-10-18T06:33:16.225Z",
+    "duration_ms": 200
   }
 }

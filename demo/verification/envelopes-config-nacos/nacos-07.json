@@ -21,7 +21,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdf8fk9-98e5a1",
+    "request_id": "req-mvdga2nr-fef960",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -29,7 +29,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:05:10.473Z",
-    "duration_ms": 128
+    "started_at": "2026-10-18T06:34:26.679Z",
+    "duration_ms": 67
   }
 }

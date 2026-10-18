@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.execute",
   "data": {
-    "id": "op-20261018-864e10",
+    "id": "op-20261018-b5b3ce",
     "kind": "container.restart",
     "title": "滚动重启服务 demo-order（sandbox）的 1 个 Kubernetes 工作负载",
     "status": "succeeded",
-    "created_at": "2026-10-18T05:32:21.131Z",
-    "expires_at": "2026-10-18T06:02:21.131Z",
+    "created_at": "2026-10-18T06:37:12.534Z",
+    "expires_at": "2026-10-18T07:07:12.534Z",
     "profile": "k8s-demo",
     "env": "sandbox",
     "params": {
@@ -26,8 +26,8 @@
         "namespace": "workctl-demo",
         "name": "demo-order",
         "uid": "24a4510c-2621-49bd-a8b2-08e2ba4ba79b",
-        "generation": 8,
-        "observed_generation": 8,
+        "generation": 14,
+        "observed_generation": 14,
         "replicas": 2,
         "ready_replicas": 2,
         "updated_replicas": 2,
@@ -100,31 +100,33 @@
     "executable": true,
     "history": [
       {
-        "at": "2026-10-18T05:32:21.131Z",
+        "at": "2026-10-18T06:37:12.534Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       },
       {
-        "at": "2026-10-18T05:32:21.456Z",
+        "at": "2026-10-18T06:37:12.873Z",
         "status": "running",
-        "note": "由 req-mvde288x-7d702f 开始执行"
+        "note": "由 req-mvdgdmvn-6bf71b 开始执行"
       },
       {
-        "at": "2026-10-18T05:32:21.487Z",
+        "at": "2026-10-18T06:37:12.909Z",
         "status": "running",
         "note": "rollout restart deployment/demo-order (namespace workctl-demo)"
       },
       {
-        "at": "2026-10-18T05:32:25.527Z",
+        "at": "2026-10-18T06:37:14.938Z",
         "status": "running",
         "note": "deployment/demo-order: rollout 完成：2/2 个副本已更新并可用"
       },
       {
-        "at": "2026-10-18T05:32:25.534Z",
+        "at": "2026-10-18T06:37:14.947Z",
         "status": "succeeded",
         "note": "执行器返回成功"
       }
     ],
+    "config_identity": "sha256:1367ca64864c68552154c621e497dd0f8b22587f8eaa92b29ce57e662df83dbb",
+    "digest": "sha256:682607204b59af612f0bf71a980e83fc9ab6368f53715db37f56ee41c2f3435b",
     "result": {
       "service": "demo-order",
       "provider": "kubernetes",
@@ -133,16 +135,16 @@
           "kind": "Deployment",
           "namespace": "workctl-demo",
           "name": "demo-order",
-          "restarted_at": "2026-10-18T05:32:21Z",
-          "generation_before": 8,
-          "generation_after": 9,
+          "restarted_at": "2026-10-18T06:37:12Z",
+          "generation_before": 14,
+          "generation_after": 15,
           "status": {
             "kind": "Deployment",
             "name": "demo-order",
             "namespace": "workctl-demo",
             "uid": "24a4510c-2621-49bd-a8b2-08e2ba4ba79b",
-            "generation": 9,
-            "observed_generation": 9,
+            "generation": 15,
+            "observed_generation": 15,
             "replicas": 2,
             "ready_replicas": 2,
             "updated_replicas": 2,
@@ -152,10 +154,10 @@
               "status": "True",
               "reason": "NewReplicaSetAvailable"
             },
-            "restarted_at": "2026-10-18T05:32:21Z"
+            "restarted_at": "2026-10-18T06:37:12Z"
           },
           "verified": true,
-          "duration_ms": 4040,
+          "duration_ms": 2029,
           "detail": "rollout 完成：2/2 个副本已更新并可用"
         }
       ],
@@ -170,7 +172,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-18T05:32:25.536Z",
+        "observed_at": "2026-10-18T06:37:14.948Z",
         "relation": "explicit"
       }
     ],
@@ -178,7 +180,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvde288x-7d702f",
+    "request_id": "req-mvdgdmvn-6bf71b",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -186,7 +188,7 @@
     "adapter": "plan-store",
     "operation": "execute",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:32:21.441Z",
-    "duration_ms": 4096
+    "started_at": "2026-10-18T06:37:12.851Z",
+    "duration_ms": 2098
   }
 }

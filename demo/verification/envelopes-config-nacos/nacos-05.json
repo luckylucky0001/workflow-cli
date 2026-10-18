@@ -12,9 +12,9 @@
     "key": null,
     "revision_space": "nacos-history-id",
     "mode": "revisions",
-    "from_revision": 17,
-    "to_revision": 19,
-    "current_revision": 19,
+    "from_revision": 1,
+    "to_revision": 3,
+    "current_revision": 3,
     "changes": [
       {
         "name": "callback.token",
@@ -164,18 +164,18 @@
       "group": "DEFAULT_GROUP",
       "data_id": "demo-payment.properties",
       "from_history": {
-        "id": 17,
+        "id": 1,
         "op_type": "I",
-        "modified_at": "2026-10-18T14:04:10.647+08:00",
+        "modified_at": "2026-10-18T14:30:56.651+08:00",
         "src_user": null
       },
       "to_history": {
-        "id": 19,
+        "id": 3,
         "op_type": "U",
-        "modified_at": "2026-10-18T14:04:11.365+08:00",
+        "modified_at": "2026-10-18T14:30:57.451+08:00",
         "src_user": null
       },
-      "history_records": 19,
+      "history_records": 3,
       "oldest_history_id": 1
     }
   },
@@ -185,7 +185,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-18T06:05:09.382Z",
+        "observed_at": "2026-10-18T06:34:25.909Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v1/cs/configs?show=all dataId=demo-payment.properties",
         "relation": "explicit",
@@ -194,7 +194,7 @@
       {
         "system": "nacos",
         "adapter": "nacos-open-api",
-        "observed_at": "2026-10-18T06:05:09.382Z",
+        "observed_at": "2026-10-18T06:34:25.909Z",
         "endpoint": "nacos/demo-nacos (http://127.0.0.1:18848/nacos)",
         "method": "GET /v2/cs/history/list + GET /v2/cs/history?nid=（前像记录）",
         "relation": "explicit",
@@ -204,7 +204,7 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "Nacos nacos/demo-nacos 配置 sandbox/DEFAULT_GROUP/demo-payment.properties，历史 ID 17 → 19",
+      "scope": "Nacos nacos/demo-nacos 配置 sandbox/DEFAULT_GROUP/demo-payment.properties，历史 ID 1 → 3",
       "notes": [
         "部分差异项的值已遮蔽（***），changed 依据原始内容判断",
         "修订空间为 Nacos 配置历史 ID（全局递增的 nid）：起点/终点表示“不晚于该 ID 的最后一次变更生效后”的文档；只比较两个时刻，中间值不可见。历史保留 30 天"
@@ -213,7 +213,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdf8enw-3b5215",
+    "request_id": "req-mvdga205-acc5ea",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -221,7 +221,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:05:09.308Z",
-    "duration_ms": 84
+    "started_at": "2026-10-18T06:34:25.829Z",
+    "duration_ms": 90
   }
 }

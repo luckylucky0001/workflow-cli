@@ -137,6 +137,18 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 
 修复后：单元 + 契约测试 727 个；`WORKCTL_IT=1 WORKCTL_K8S=1` 818/818；逐能力套件 230/230（含真实回滚）。累计修复 166 个。仍记录为“疑似 / 策略问题”的项：网络探测与 `storage file stat` 不限制目标（设计上是宿主视角探测，是否限制为绑定资源属于策略决定）、`mcp serve --domain` 不限制 `operation.*`、计划文件除 id 外的字段可被篡改、无 leader 的 Kafka 分区、应用日志正文不做凭据遮蔽。
 
+### 4.4d 第三轮修复（2026-10-18 13:30–15:20 SGT）
+
+| 范围 | 数量 | 典型缺陷 |
+| --- | --- | --- |
+| 策略与安全遗留 | 6 | `mcp serve --domain` 现在也约束 `operation.*`；计划文件带内容摘要（篡改即拒绝执行）；应用日志正文中的凭据遮蔽（Docker 与 Loki）；MCP 单行大小上限与先 initialize；MCP duration 参数与引擎一致；插件凭据引用只解析本次需要的端点 |
+| 离线 / Spark / 数据 | 13 | 午夜切换夏令时的业务日起点；补数执行前复查 DAG 是否被暂停、检查所有产出表的写入方式；mapped task 的 XCom 与日志；`--try` 超出实际次数返回占位文本；时效检查用错时区；Spark SQL 取消与成功竞态覆盖结果；带 attempt id 的 Spark 应用；共享 HTTP 客户端 16 MiB 响应上限（日志读取保留尾部）；Airflow 任务日志与 Spark driver 日志凭据遮蔽；`run list` 与 `run get` 业务时区统一；补数计划写明实际重算区间 |
+| PostgreSQL / 配置中心 / 搜索 | 17 | 大小写混合表名绕过脱敏；派生数值表达式与 `substr` 滑动窗口还原敏感值（现除简单 `count()` 外全部遮蔽，计算列整体 `***`）；无 queryid 时窗口差分错配；分区表 / 视图大小；复制槽相关函数绕过只读；错拼的 `--database`；关闭的索引与只匹配关闭索引的通配；仅聚合查询误报截断；terms 聚合只返回头部桶的说明；`__proto__` JSON 键；中文秘密名；Consul 未来 `--to-rev`；Nacos 重复 / 冲突 YAML 键；63 字节标识符；Top-N 稳定排序 |
+| 核心配置 / profile / 绑定 / CLI | 15 | YAML 合并键被忽略；`WORKCTL_CONFIG` 指向不存在文件时静默回退到其他配置；未知配置键静默忽略；空 env 引用视为可解析；资源与依赖查询不按 profile 环境过滤；`auth status --probe` / `doctor` 一个端点挂起导致整体超时；`access check` 在 MCP 与插件能力上误判；未知 `--domain` 报空成功；组合调用预算不留余量；相对 Docker socket 路径；旧版计划可查看但不可执行；`--json -o yaml` 冲突；`mcp serve` 默认超时；计划绑定配置身份，防止在另一套端点上执行 |
+| 文档与示例 | 11 | `scripts/examples-check.mjs` 实跑全部 115 个能力示例与 184 条文档 / Skill 命令：10 个示例（不存在的文件、过期的 trace / Spark 应用 id、随发布变化的 ReplicaSet 名、会过期的 Redis 键）与 1 处指南写法错误 |
+
+本轮共修复代码缺陷 51 个（另修文档与示例 11 处），累计 217 个；最终代码从完整复位验证（`WITH_AF3=1 WITH_K8S=1 K3S_OOM_WORKAROUND=1 demo/verify-all.sh`，06:28–06:39 UTC）：10 个逐能力套件 231/231、三种消费者同一契约、日志来源与 Airflow 版本替换、Kubernetes 真实回滚、集成测试 896/896，ALL CHECKS PASSED；契约模糊测试回归（87 个能力、2372 个 CLI 用例 + 1184 次 MCP 调用）0 违例。
+
 ### 4.5 Skill 测评与优化（2026-10-17）
 
 - **静态**：`scripts/skill-lint.mjs`（契约测试 `test/contract/skills.test.ts` 强制）检查 13 个 Skill 的 frontmatter（何时使用、不适用于什么）、正文中 116 处 `workctl` 命令与参数是否真实存在、待接入能力是否标注、引用路径是否存在、是否含疑似凭据。首轮 10 个问题全部在 description（9 个没写“不适用/该转给哪个 Skill”，1 个没写何时使用），命令与参数 0 错；已全部修复。

@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.execute",
   "data": {
-    "id": "op-20261018-82fb28",
+    "id": "op-20261018-0e6cc7",
     "kind": "deploy.rollback",
-    "title": "回滚服务 demo-order（sandbox）的 Deployment workctl-demo/demo-order 到修订 10",
+    "title": "回滚服务 demo-order（sandbox）的 Deployment workctl-demo/demo-order 到修订 15",
     "status": "succeeded",
-    "created_at": "2026-10-18T05:33:07.274Z",
-    "expires_at": "2026-10-18T06:03:07.274Z",
+    "created_at": "2026-10-18T06:37:57.067Z",
+    "expires_at": "2026-10-18T07:07:57.067Z",
     "profile": "k8s-demo",
     "env": "sandbox",
     "params": {
@@ -27,15 +27,15 @@
         "namespace": "workctl-demo",
         "name": "demo-order",
         "uid": "24a4510c-2621-49bd-a8b2-08e2ba4ba79b",
-        "generation": 12,
-        "current_revision": 11,
-        "current_replicaset": "demo-order-688f8f66b5",
+        "generation": 18,
+        "current_revision": 16,
+        "current_replicaset": "demo-order-7488d677c9",
         "current_images": [
           "nginx:1.27-alpine-workctl-missing"
         ],
-        "target_release": "demo-order-77fdb45bf4",
-        "target_revision": 10,
-        "target_replicaset_uid": "e30538c2-d002-4921-9a15-b8a481378212",
+        "target_release": "demo-order-797945d9d8",
+        "target_revision": 15,
+        "target_replicaset_uid": "a100684f-a319-4d15-ae86-ba84e1e66d38",
         "target_images": [
           "nginx:1.27-alpine"
         ],
@@ -67,12 +67,12 @@
       {
         "check": "target_release_retained",
         "ok": true,
-        "detail": "目标 ReplicaSet workctl-demo/demo-order-77fdb45bf4（修订 10）仍保留"
+        "detail": "目标 ReplicaSet workctl-demo/demo-order-797945d9d8（修订 15）仍保留"
       },
       {
         "check": "target_differs_from_current",
         "ok": true,
-        "detail": "当前修订 11 → 目标修订 10"
+        "detail": "当前修订 16 → 目标修订 15"
       },
       {
         "check": "deployment_not_paused",
@@ -82,7 +82,7 @@
       {
         "check": "no_rollout_in_progress",
         "ok": true,
-        "detail": "当前修订的 rollout 已失败（Progressing=False ProgressDeadlineExceeded: ReplicaSet \"demo-order-688f8f66b5\" has timed out progressing.），没有进行中的 rollout"
+        "detail": "当前修订的 rollout 已失败（Progressing=False ProgressDeadlineExceeded: ReplicaSet \"demo-order-7488d677c9\" has timed out progressing.），没有进行中的 rollout"
       },
       {
         "check": "profile_allow_execute",
@@ -98,7 +98,7 @@
     "steps": [
       {
         "name": "recheck",
-        "detail": "GET Deployment 与目标 ReplicaSet：uid 与计划一致、当前修订仍为 11（否则拒绝执行）"
+        "detail": "GET Deployment 与目标 ReplicaSet：uid 与计划一致、当前修订仍为 16（否则拒绝执行）"
       },
       {
         "name": "patch template",
@@ -109,53 +109,55 @@
         "detail": "轮询 Deployment 直到 observedGeneration ≥ 新 generation、updatedReplicas=availableReplicas=replicas；ProgressDeadlineExceeded 视为失败（最多 300s，且不超过 --timeout）"
       }
     ],
-    "rollback": "再次回滚：workctl deploy rollback plan --service demo-order --to demo-order-688f8f66b5（回滚后原当前修订会成为旧修订）",
+    "rollback": "再次回滚：workctl deploy rollback plan --service demo-order --to demo-order-7488d677c9（回滚后原当前修订会成为旧修订）",
     "idempotent": false,
     "cancellable": false,
     "executable": true,
     "history": [
       {
-        "at": "2026-10-18T05:33:07.274Z",
+        "at": "2026-10-18T06:37:57.067Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       },
       {
-        "at": "2026-10-18T05:33:07.651Z",
+        "at": "2026-10-18T06:37:57.415Z",
         "status": "running",
-        "note": "由 req-mvde37w2-a1423f 开始执行"
+        "note": "由 req-mvdgel91-7a16a3 开始执行"
       },
       {
-        "at": "2026-10-18T05:33:07.703Z",
+        "at": "2026-10-18T06:37:57.471Z",
         "status": "running",
-        "note": "rollback deployment/demo-order → ReplicaSet demo-order-77fdb45bf4（修订 10）"
+        "note": "rollback deployment/demo-order → ReplicaSet demo-order-797945d9d8（修订 15）"
       },
       {
-        "at": "2026-10-18T05:33:09.727Z",
+        "at": "2026-10-18T06:37:59.494Z",
         "status": "running",
         "note": "rollout 完成：2/2 个副本已更新并可用"
       },
       {
-        "at": "2026-10-18T05:33:09.734Z",
+        "at": "2026-10-18T06:37:59.501Z",
         "status": "succeeded",
         "note": "执行器返回成功"
       }
     ],
+    "config_identity": "sha256:1367ca64864c68552154c621e497dd0f8b22587f8eaa92b29ce57e662df83dbb",
+    "digest": "sha256:2ff5e6d5b3372fb4f2606c21cfcb17a465ab4be31ca5f6de68e9b482a3855f16",
     "result": {
       "service": "demo-order",
       "provider": "kubernetes",
       "rollback": {
         "deployment": "workctl-demo/demo-order",
-        "from_revision": 11,
-        "to_replicaset": "demo-order-77fdb45bf4",
-        "new_revision": 12,
+        "from_revision": 16,
+        "to_replicaset": "demo-order-797945d9d8",
+        "new_revision": 17,
         "images": [
           "nginx:1.27-alpine"
         ],
-        "generation_before": 12,
-        "generation_after": 13,
+        "generation_before": 18,
+        "generation_after": 19,
         "verified": true,
         "detail": "rollout 完成：2/2 个副本已更新并可用",
-        "duration_ms": 2023
+        "duration_ms": 2022
       },
       "kubernetes_version": "v1.31.4+k3s1",
       "note": "校验依据为 Deployment rollout 状态；业务可用性请再探测"
@@ -167,7 +169,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-18T05:33:09.735Z",
+        "observed_at": "2026-10-18T06:37:59.502Z",
         "relation": "explicit"
       }
     ],
@@ -175,7 +177,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvde37w2-a1423f",
+    "request_id": "req-mvdgel91-7a16a3",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -183,7 +185,7 @@
     "adapter": "plan-store",
     "operation": "execute",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T05:33:07.634Z",
-    "duration_ms": 2101
+    "started_at": "2026-10-18T06:37:57.397Z",
+    "duration_ms": 2106
   }
 }

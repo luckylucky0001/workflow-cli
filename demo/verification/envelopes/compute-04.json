@@ -10,12 +10,12 @@
     "occupied_slots": 0,
     "running_slots": 0,
     "queued_slots": 0,
-    "scheduled_slots": 1,
+    "scheduled_slots": 0,
     "deferred_slots": 0,
     "open_slots": 2,
     "include_deferred": false,
     "utilization": 0,
-    "waiting_slots": 1
+    "waiting_slots": 0
   },
   "error": null,
   "meta": {
@@ -23,7 +23,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-18T06:23:53.138Z",
+        "observed_at": "2026-10-18T06:33:28.245Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/pools/demo-batch-pool",
         "version": "2.10.5",
@@ -40,7 +40,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfwhpa-c8db0f",
+    "request_id": "req-mvdg8tgj-2973b3",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -48,7 +48,7 @@
     "adapter": "airflow-pool",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:23:52.990Z",
-    "duration_ms": 148
+    "started_at": "2026-10-18T06:33:28.099Z",
+    "duration_ms": 146
   }
 }

@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.get",
   "data": {
-    "id": "op-20261018-f30a4c",
+    "id": "op-20261018-2283ec",
     "kind": "container.restart",
     "title": "重启服务 demo-order（sandbox）的 1 个容器",
     "status": "planned",
-    "created_at": "2026-10-18T06:23:58.539Z",
-    "expires_at": "2026-10-18T06:53:58.539Z",
+    "created_at": "2026-10-18T06:33:33.719Z",
+    "expires_at": "2026-10-18T07:03:33.719Z",
     "profile": "demo",
     "env": "sandbox",
     "params": {
@@ -17,12 +17,12 @@
     },
     "targets": [
       {
-        "container_id": "4272d71ae71b5c32ea937b780af510ce28bb1699a07e1c23467cce239da416d8",
+        "container_id": "fe002b06231e08ffe5d1e675df065ba7d1edfd605f371f90b97269ae6682f5bb",
         "name": "demo-order",
         "image": "workctl-demo/demo-order:local",
         "state": "running",
         "health": "none",
-        "started_at": "2026-10-18T06:10:12.119304964Z",
+        "started_at": "2026-10-18T06:28:58.615639343Z",
         "restart_policy": "no",
         "selector": "workctl.service=demo-order",
         "selector_kind": "label",
@@ -87,7 +87,7 @@
     "steps": [
       {
         "name": "restart demo-order",
-        "detail": "POST /containers/4272d71ae71b/restart?t=10"
+        "detail": "POST /containers/fe002b06231e/restart?t=10"
       },
       {
         "name": "verify",
@@ -100,13 +100,13 @@
     "executable": true,
     "history": [
       {
-        "at": "2026-10-18T06:23:58.539Z",
+        "at": "2026-10-18T06:33:33.719Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
     ],
     "config_identity": "sha256:6e827e7c8071f7f6f727057bfcf84f617b9b45596d246475de39290a05d43109",
-    "digest": "sha256:67496f90ee82fcd8bb42cd99469023c6a4595b6455f819a489a7910e4418c694"
+    "digest": "sha256:d04f753e2349c410f03b05cff34fbc02b6311cc4477b1604c3749ba586cf4e1a"
   },
   "error": null,
   "meta": {
@@ -114,7 +114,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-18T06:23:59.034Z",
+        "observed_at": "2026-10-18T06:33:34.128Z",
         "relation": "explicit"
       }
     ],
@@ -125,7 +125,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfwmck-67e249",
+    "request_id": "req-mvdg8y38-5ae224",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -133,7 +133,7 @@
     "adapter": "plan-store",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:23:59.012Z",
-    "duration_ms": 22
+    "started_at": "2026-10-18T06:33:34.100Z",
+    "duration_ms": 29
   }
 }

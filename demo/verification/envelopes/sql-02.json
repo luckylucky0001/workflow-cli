@@ -3,11 +3,11 @@
   "status": "success",
   "capability": "sql.query.get",
   "data": {
-    "query_id": "q-20261018-9a143f",
+    "query_id": "q-20261018-111b2e",
     "engine": "spark",
     "state": "submitted",
     "state_basis": "状态文件由 Spark 运行器写入",
-    "submitted_at": "2026-10-18T06:23:53.471Z",
+    "submitted_at": "2026-10-18T06:33:28.582Z",
     "started_at": null,
     "finished_at": null,
     "duration_ms": null,
@@ -30,20 +30,20 @@
       {
         "system": "workctl-state",
         "adapter": "spark-submit-local",
-        "observed_at": "2026-10-18T06:23:53.478Z",
+        "observed_at": "2026-10-18T06:33:28.588Z",
         "endpoint": "spark/demo-spark:query_state_dir",
-        "method": "q-20261018-9a143f.json",
+        "method": "q-20261018-111b2e.json",
         "relation": "explicit"
       }
     ],
     "coverage": {
       "complete": true,
-      "scope": "q-20261018-9a143f"
+      "scope": "q-20261018-111b2e"
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfwibn-d2fbd5",
+    "request_id": "req-mvdg8u5g-713da5",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -51,7 +51,7 @@
     "adapter": "spark-submit-local|trino-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:23:53.795Z",
+    "started_at": "2026-10-18T06:33:28.996Z",
     "duration_ms": 20
   }
 }
