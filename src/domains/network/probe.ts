@@ -47,7 +47,8 @@ export function httpProbe(url: string, timeoutMs: number): Promise<HttpProbe> {
   return new Promise((resolve) => {
     const t0 = performance.now();
     const u = new URL(url);
-    const req = httpRequest({ hostname: u.hostname, port: u.port || 80, path: `${u.pathname}${u.search}`, method: 'GET', headers: { 'user-agent': 'workctl-probe' } }, (res) => {
+    // URL keeps IPv6 literals bracketed ([::1]); node:http would resolve "[::1]" as a name (ENOTFOUND)
+    const req = httpRequest({ hostname: u.hostname.replace(/^\[(.*)\]$/, '$1'), port: u.port || 80, path: `${u.pathname}${u.search}`, method: 'GET', headers: { 'user-agent': 'workctl-probe' } }, (res) => {
       const chunks: Buffer[] = [];
       let size = 0;
       res.on('data', (c: Buffer) => {

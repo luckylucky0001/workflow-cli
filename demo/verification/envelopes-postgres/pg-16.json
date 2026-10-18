@@ -15,8 +15,8 @@
       ],
       "index_scans": [],
       "sorts": 1,
-      "planning_ms": 0.67,
-      "execution_ms": 3.44
+      "planning_ms": 0.716,
+      "execution_ms": 3.565
     },
     "nodes": [
       {
@@ -31,7 +31,7 @@
         "plan_rows": 20,
         "filter": null,
         "index_cond": null,
-        "actual_total_ms": 3.379,
+        "actual_total_ms": 3.501,
         "actual_rows": 20,
         "loops": 1,
         "rows_removed_by_filter": null,
@@ -51,7 +51,7 @@
         "plan_rows": 28,
         "filter": null,
         "index_cond": null,
-        "actual_total_ms": 3.375,
+        "actual_total_ms": 3.497,
         "actual_rows": 20,
         "loops": 1,
         "rows_removed_by_filter": null,
@@ -71,7 +71,7 @@
         "plan_rows": 28,
         "filter": "(customer_id = 42)",
         "index_cond": null,
-        "actual_total_ms": 3.33,
+        "actual_total_ms": 3.458,
         "actual_rows": 25,
         "loops": 1,
         "rows_removed_by_filter": 49975,
@@ -90,8 +90,8 @@
           "Total Cost": 1236.99,
           "Plan Rows": 20,
           "Plan Width": 29,
-          "Actual Startup Time": 3.375,
-          "Actual Total Time": 3.379,
+          "Actual Startup Time": 3.497,
+          "Actual Total Time": 3.501,
           "Actual Rows": 20,
           "Actual Loops": 1,
           "Shared Hit Blocks": 550,
@@ -118,8 +118,8 @@
               "Total Cost": 1237.01,
               "Plan Rows": 28,
               "Plan Width": 29,
-              "Actual Startup Time": 3.373,
-              "Actual Total Time": 3.375,
+              "Actual Startup Time": 3.495,
+              "Actual Total Time": 3.497,
               "Actual Rows": 20,
               "Actual Loops": 1,
               "Sort Key": [
@@ -154,8 +154,8 @@
                   "Total Cost": 1236.26,
                   "Plan Rows": 28,
                   "Plan Width": 29,
-                  "Actual Startup Time": 0.137,
-                  "Actual Total Time": 3.33,
+                  "Actual Startup Time": 0.113,
+                  "Actual Total Time": 3.458,
                   "Actual Rows": 25,
                   "Actual Loops": 1,
                   "Filter": "(customer_id = 42)",
@@ -195,9 +195,9 @@
           "Temp I/O Read Time": 0,
           "Temp I/O Write Time": 0
         },
-        "Planning Time": 0.67,
+        "Planning Time": 0.716,
         "Triggers": [],
-        "Execution Time": 3.44
+        "Execution Time": 3.565
       }
     ],
     "elapsed_ms": 8,
@@ -213,7 +213,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T04:36:31.196Z",
+        "observed_at": "2026-10-18T05:31:38.366Z",
         "endpoint": "postgres/demo-postgres",
         "method": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) in READ ONLY transaction",
         "version": "16.15",
@@ -229,7 +229,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc2f4v-8d7422",
+    "request_id": "req-mvde1ayt-03cbb1",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -237,7 +237,7 @@
     "adapter": "pg-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:36:31.135Z",
-    "duration_ms": 66
+    "started_at": "2026-10-18T05:31:38.309Z",
+    "duration_ms": 61
   }
 }

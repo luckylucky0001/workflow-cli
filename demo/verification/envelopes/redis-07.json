@@ -20,50 +20,50 @@
     },
     "hot_keys": [
       {
-        "key": "demo:order:4",
-        "lfu_counter": 43
+        "key": "demo:order:10",
+        "lfu_counter": 32
       },
       {
-        "key": "demo:customer:16333:recent",
-        "lfu_counter": 4
-      },
-      {
-        "key": "demo:customer:8:recent",
+        "key": "demo:customer:72:recent",
         "lfu_counter": 1
       },
       {
-        "key": "demo:order:2131",
+        "key": "demo:order:2780",
         "lfu_counter": 0
       },
       {
-        "key": "demo:order:428",
+        "key": "demo:order:784",
         "lfu_counter": 0
       },
       {
-        "key": "demo:order:626",
+        "key": "demo:order:1283",
         "lfu_counter": 0
       },
       {
-        "key": "demo:order:1856",
+        "key": "demo:order:2849",
         "lfu_counter": 0
       },
       {
-        "key": "demo:order:1991",
+        "key": "demo:order:2003",
         "lfu_counter": 0
       },
       {
-        "key": "demo:order:308",
+        "key": "demo:order:21",
         "lfu_counter": 0
       },
       {
-        "key": "demo:order:2674",
+        "key": "demo:customer:199:recent",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:order:163",
         "lfu_counter": 0
       }
     ],
     "counter_distribution": {
       "p50": 0,
       "p90": 0,
-      "max": 43
+      "max": 32
     }
   },
   "error": null,
@@ -72,7 +72,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T04:35:30.062Z",
+        "observed_at": "2026-10-18T05:30:36.688Z",
         "endpoint": "redis/demo-redis",
         "method": "SCAN MATCH demo:* + OBJECT FREQ",
         "version": "7.4.11",
@@ -91,7 +91,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc13z9-488f9f",
+    "request_id": "req-mvddzze3-05dd29",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -99,7 +99,7 @@
     "adapter": "redis-client",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:35:30.021Z",
-    "duration_ms": 43
+    "started_at": "2026-10-18T05:30:36.651Z",
+    "duration_ms": 38
   }
 }

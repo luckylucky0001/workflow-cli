@@ -7,7 +7,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { invoke } from '../../src/core/engine';
 import { Registry } from '../../src/core/registry';
 import network from '../../src/domains/network';
-import { latencySummary, parseTarget, tcpConnect } from '../../src/domains/network/probe';
+import { httpProbe, latencySummary, parseTarget, tcpConnect } from '../../src/domains/network/probe';
+import { rawRequest } from '../../src/core/http';
 import { startFakeDocker, writeTestConfig } from '../container/fake-docker';
 
 process.env.WORKCTL_VALIDATE_OUTPUT = '1';
@@ -120,5 +121,18 @@ describe('network capabilities', () => {
     expect(d.resolver).toBe('system');
     expect(d.lookup.status).toBe('ok');
     expect(d.resolved).toBe(true);
+  });
+});
+
+describe('IPv6 literal URLs', () => {
+  // new URL() keeps the brackets in hostname; passing "[::1]" to node:http makes it a DNS name (ENOTFOUND)
+  it('http probe connects to the address, not a DNS lookup of "[::1]"', async () => {
+    const p = await httpProbe('http://[::1]:9/health', 1000);
+    expect(p.ok).toBe(false);
+    expect(p.error_code).not.toBe('ENOTFOUND');
+  });
+  it('shared HTTP client does the same', async () => {
+    const err = await rawRequest('http://[::1]:9/x', { method: 'GET', headers: {}, timeoutMs: 1000 }).catch((e) => e);
+    expect(err?.code).not.toBe('ENOTFOUND');
   });
 });

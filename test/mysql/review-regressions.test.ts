@@ -174,3 +174,89 @@ describe('review: inline --sql input', () => {
     expect(c.inputs.sql.type).toBe('string');
   });
 });
+
+// ---------------------------------------------------------------- bug hunt 2026-10-18 (verified live on 8.4)
+
+import { mapMysqlError } from '../../src/domains/mysql/client';
+import { maskPlanConditions, maskPlanTree, redactErrorValues } from '../../src/domains/mysql/capabilities/query';
+
+describe('review: `*` expansions the driver metadata cannot attribute', () => {
+  const sens = new Set(['phone', 'email']);
+  const plan = (sql: string) => sensitiveOutputPlan(guardSql(sql, 'execute').tokens, sens);
+  it('UNION branch with * under the first branch column names masks everything (live: phone came back as column "3")', () => {
+    expect(plan('SELECT 1,2,3,4,5,6 UNION ALL SELECT * FROM customers').all).toBe(true);
+    expect(plan('(SELECT id, name FROM t) UNION (SELECT c.* FROM customers c)').all).toBe(true);
+  });
+  it('derived table / CTE column lists can rename a * expansion (live: phone came back as c3)', () => {
+    expect(plan('SELECT * FROM (SELECT * FROM customers) d(c1,c2,c3,c4,c5,c6)').all).toBe(true);
+    expect(plan('WITH d(c1,c2,c3) AS (SELECT * FROM customers) SELECT * FROM d').all).toBe(true);
+  });
+  it('COUNT(*), multiplication and a plain * stay unaffected', () => {
+    const p = plan('SELECT COUNT(*), 2 * 3 FROM customers');
+    expect(p.all).toBe(false);
+    expect(p.positions.size).toBe(0);
+    expect(plan('SELECT * FROM customers').all).toBe(false); // metadata names each column
+    expect(plan('SELECT id FROM t UNION SELECT id FROM u').all).toBe(false);
+  });
+});
+
+describe('review: values leaking around result masking', () => {
+  const sens = new Set(['phone']);
+  const driverErr = (code: string, msg: string) =>
+    mapMysqlError(Object.assign(new Error(msg), { code, errno: 1105, sqlState: 'HY000', sqlMessage: msg })) as WorkError;
+  it('server error text echoing a row value is redacted (live: XPATH syntax error: \'~13800007919\')', () => {
+    const toks = guardSql("SELECT EXTRACTVALUE(1, CONCAT(0x7e, (SELECT phone FROM customers LIMIT 1)))", 'execute').tokens;
+    const e = redactErrorValues(driverErr('ER_UNKNOWN_ERROR', "XPATH syntax error: '~13800007919'"), toks, sens) as WorkError;
+    expect(JSON.stringify({ m: e.message, d: e.details })).not.toContain('13800007919');
+    const e2 = redactErrorValues(driverErr('ER_MALFORMED_GTID_SET_SPECIFICATION', "Malformed GTID set specification 'a@b.com'."), guardSql('SELECT GTID_SUBSET((SELECT * FROM x), 1)', 'execute').tokens, sens) as WorkError;
+    expect(e2.message).not.toContain('a@b.com');
+  });
+  it('identifier-only errors and statements without sensitive references keep their text', () => {
+    const toks = guardSql('SELECT phone FROM nope', 'execute').tokens;
+    const nf = Object.assign(new Error("Table 'demo.nope' doesn't exist"), { code: 'ER_NO_SUCH_TABLE', errno: 1146, sqlState: '42S02', sqlMessage: "Table 'demo.nope' doesn't exist" });
+    expect((redactErrorValues(mapMysqlError(nf), toks, sens) as WorkError).message).toContain('demo.nope');
+    const plain = driverErr('ER_UNKNOWN_ERROR', "XPATH syntax error: 'abc'");
+    expect(redactErrorValues(plain, guardSql("SELECT EXTRACTVALUE(1, 'abc')", 'execute').tokens, sens)).toBe(plain);
+  });
+  it('const-table values substituted into plan conditions are masked; stats are kept (live: o.status = \'13800007919\')', () => {
+    const tree = "-> Filter: (o.`status` = '13800007919')  (cost=3304 rows=29915) (actual time=56.5..56.5 rows=0 loops=1)\n    -> Table scan on o  (cost=3304 rows=299145) (actual time=0.177..38.7 rows=300000 loops=1)\n";
+    const m = maskPlanTree(tree);
+    expect(m).not.toContain('13800007919');
+    expect(parseAnalyzeTree(m)[0]).toMatchObject({ operation: 'Filter: (o.`status` = ?)', estimated_cost: 3304, actual_rows: 0, loops: 1 });
+    const p = maskPlanConditions({ query_block: { cost_info: { query_cost: '1.00' }, nested_loop: [{ table: { attached_condition: "(`o`.`status` = '13800007919')" } }] } }) as any;
+    expect(p.query_block.cost_info.query_cost).toBe('1.00');
+    expect(p.query_block.nested_loop[0].table.attached_condition).toBe('(`o`.`status` = ?)');
+  });
+});
+
+describe('review: statements outside MAX_EXECUTION_TIME', () => {
+  it('SHOW ... WHERE cannot call SLEEP/BENCHMARK or run subqueries (live: SHOW DATABASES WHERE SLEEP(2) = 0 ran 8s against a 5s limit)', () => {
+    rejects('SHOW DATABASES WHERE SLEEP(2) = 0', 'execute', /SLEEP/);
+    rejects("SHOW TABLES WHERE `benchmark`(1e9, MD5('x'))", 'execute', /BENCHMARK/);
+    rejects('SHOW TABLES WHERE (SELECT COUNT(*) FROM orders a, orders b) > 0', 'execute', /子查询/);
+    expect(() => guardSql("SHOW TABLES LIKE 'ord%'", 'execute')).not.toThrow();
+    expect(() => guardSql('SELECT SLEEP(1)', 'execute')).not.toThrow(); // bounded by MAX_EXECUTION_TIME
+  });
+  it("mysql2's client-side query timeout maps to TIMEOUT, not INTERNAL", () => {
+    const e = Object.assign(new Error('Query inactivity timeout'), { code: 'PROTOCOL_SEQUENCE_TIMEOUT', errorno: 'PROTOCOL_SEQUENCE_TIMEOUT', syscall: 'query' });
+    expect(mapMysqlError(e)?.code).toBe('TIMEOUT');
+  });
+});
+
+describe('review: EXPLAIN evaluates const subqueries while optimizing', () => {
+  it('explain refuses side-effecting functions (live: a const derived table ran SLEEP(3) during EXPLAIN)', () => {
+    rejects("SELECT * FROM customers WHERE id = (SELECT 1 FROM (SELECT GET_LOCK('x', 0)) d)", 'explain', /GET_LOCK/);
+    rejects("SELECT * FROM t WHERE a = (SELECT LOAD_FILE('/etc/passwd'))", 'explain', /LOAD_FILE/);
+    expect(() => guardSql('UPDATE orders SET status = 1 WHERE id = 2', 'explain')).not.toThrow();
+  });
+});
+
+import { digestTableFull } from '../../src/domains/mysql/capabilities/statements';
+
+describe('review: cumulative statement summary with a full digest table', () => {
+  it('a full digest table is detected (coverage.complete=false instead of a note contradicting complete=true)', () => {
+    expect(digestTableFull({ digests_size: 200, rows: 200 })).toBe(true);
+    expect(digestTableFull({ digests_size: 200, rows: 12 })).toBe(false);
+    expect(digestTableFull({ digests_size: null, rows: 12 })).toBe(false);
+  });
+});

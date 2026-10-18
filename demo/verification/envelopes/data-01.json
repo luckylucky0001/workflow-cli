@@ -129,7 +129,7 @@
       {
         "system": "file-catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T04:35:43.022Z",
+        "observed_at": "2026-10-18T05:30:49.631Z",
         "endpoint": "catalog/demo",
         "method": "read tables/analytics.daily_orders.yaml",
         "relation": "explicit"
@@ -137,7 +137,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T04:35:43.022Z",
+        "observed_at": "2026-10-18T05:30:49.631Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "readdir analytics/daily_orders",
         "relation": "derived"
@@ -145,7 +145,7 @@
       {
         "system": "binding-file",
         "adapter": "resources",
-        "observed_at": "2026-10-18T04:35:43.022Z",
+        "observed_at": "2026-10-18T05:30:49.631Z",
         "method": "relations",
         "relation": "explicit"
       }
@@ -160,7 +160,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc1dz0-2a7af6",
+    "request_id": "req-mvde09dd-b92e46",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -168,7 +168,7 @@
     "adapter": "file-catalog",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:35:42.972Z",
-    "duration_ms": 50
+    "started_at": "2026-10-18T05:30:49.585Z",
+    "duration_ms": 46
   }
 }

@@ -74,7 +74,14 @@ export class PlanStore {
   get(id: string): Plan {
     const f = this.file(id);
     if (!existsSync(f)) throw new WorkError('NOT_FOUND', `计划不存在: ${id}`, { hint: '用 workctl operation list 查看当前 profile 的计划' });
-    const plan = PlanSchema.parse(JSON.parse(readFileSync(f, 'utf8')));
+    let plan: Plan;
+    try {
+      plan = PlanSchema.parse(JSON.parse(readFileSync(f, 'utf8')));
+    } catch {
+      throw new WorkError('PRECONDITION_FAILED', `计划文件已损坏或结构不合法: ${id}`, { hint: '重新生成计划（operation plan）' });
+    }
+    // a file renamed/copied to another id would be locked under one id but written under another
+    if (plan.id !== id) throw new WorkError('PRECONDITION_FAILED', `计划文件 ${id}.json 中的 ID 为 ${plan.id}，与文件名不一致`, { hint: '计划文件被改动过；重新生成计划' });
     if (plan.status === 'planned' && Date.parse(plan.expires_at) < Date.now()) {
       plan.status = 'expired';
       plan.history.push({ at: new Date().toISOString(), status: 'expired', note: '超过有效期未执行' });

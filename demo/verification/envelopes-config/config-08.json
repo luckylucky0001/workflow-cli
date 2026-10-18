@@ -5,11 +5,11 @@
   "data": null,
   "error": {
     "code": "NOT_FOUND",
-    "message": "配置项不存在: /config/sandbox/demo-order/cache.not_exist（修订 154）",
+    "message": "配置项不存在: /config/sandbox/demo-order/cache.not_exist（修订 41）",
     "hint": "该前缀下的键（前 20 个）: cache.max_entries, cache.mode, cache.ttl_seconds, db.password, db.pool_size, feature.flags, upstream.payment",
     "retryable": false,
     "details": {
-      "observed_revision": 154
+      "observed_revision": 41
     }
   },
   "meta": {
@@ -18,7 +18,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc1xdw-374bd7",
+    "request_id": "req-mvde0sv3-977cf4",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -26,7 +26,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:36:08.132Z",
-    "duration_ms": 46
+    "started_at": "2026-10-18T05:31:14.847Z",
+    "duration_ms": 48
   }
 }

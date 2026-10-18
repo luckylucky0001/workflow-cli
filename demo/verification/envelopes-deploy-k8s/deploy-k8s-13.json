@@ -15,33 +15,33 @@
     "state": "complete",
     "detail": "Deployment rollout 完成（2/2 个副本已更新并可用；Progressing=True NewReplicaSetAvailable）",
     "current_release": {
-      "id": "demo-order-7476646848",
+      "id": "demo-order-77fdb45bf4",
       "provider": "kubernetes",
       "version": "1.27-alpine",
       "images": [
         "nginx:1.27-alpine"
       ],
-      "revision": 41,
-      "started_at": "2026-10-18T04:37:14Z",
-      "finished_at": "2026-10-18T04:38:01Z",
+      "revision": 12,
+      "started_at": "2026-10-18T05:32:21Z",
+      "finished_at": "2026-10-18T05:33:07Z",
       "timestamps": "derived",
-      "duration_ms": 47000,
+      "duration_ms": 46000,
       "status": "succeeded",
-      "status_basis": "Deployment rollout 完成（2/2 个副本已更新并可用；Progressing=True NewReplicaSetAvailable）；该 ReplicaSet 曾是修订 37,39（回滚复用），started_at 为首次创建时间",
+      "status_basis": "Deployment rollout 完成（2/2 个副本已更新并可用；Progressing=True NewReplicaSetAvailable）；该 ReplicaSet 曾是修订 8,10（回滚复用），started_at 为首次创建时间",
       "current": true,
       "triggered_by": null,
-      "cause": "workctl deploy rollback to revision 39 (demo-order-7476646848, plan op-20261018-b53f57)",
+      "cause": "workctl deploy rollback to revision 10 (demo-order-77fdb45bf4, plan op-20261018-82fb28)",
       "source_ref": {
         "system": "kubernetes",
         "kind": "ReplicaSet",
-        "name": "workctl-demo/demo-order-7476646848",
+        "name": "workctl-demo/demo-order-77fdb45bf4",
         "url": null
       }
     },
     "in_progress": false,
     "kubernetes": {
-      "generation": 47,
-      "observed_generation": 47,
+      "generation": 13,
+      "observed_generation": 13,
       "paused": false,
       "progress_deadline_seconds": 30,
       "replicas": {
@@ -58,20 +58,20 @@
           "status": "True",
           "reason": "MinimumReplicasAvailable",
           "message": "Deployment has minimum availability.",
-          "last_update": "2026-10-18T04:14:49Z"
+          "last_update": "2026-10-18T05:16:49Z"
         },
         {
           "type": "Progressing",
           "status": "True",
           "reason": "NewReplicaSetAvailable",
-          "message": "ReplicaSet \"demo-order-7476646848\" has successfully progressed.",
-          "last_update": "2026-10-18T04:38:01Z"
+          "message": "ReplicaSet \"demo-order-77fdb45bf4\" has successfully progressed.",
+          "last_update": "2026-10-18T05:33:07Z"
         }
       ],
       "pods": [
         {
-          "name": "demo-order-7476646848-q67q6",
-          "revision": 41,
+          "name": "demo-order-77fdb45bf4-cqwkj",
+          "revision": 12,
           "phase": "Running",
           "ready": true,
           "waiting_reasons": [],
@@ -79,8 +79,8 @@
           "terminating": false
         },
         {
-          "name": "demo-order-7476646848-qqbjp",
-          "revision": 41,
+          "name": "demo-order-77fdb45bf4-th5cn",
+          "revision": 12,
           "phase": "Running",
           "ready": true,
           "waiting_reasons": [],
@@ -97,7 +97,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-18T04:38:04.358Z",
+        "observed_at": "2026-10-18T05:33:10.138Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/deployments/demo-order",
         "relation": "explicit",
@@ -106,7 +106,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-18T04:38:04.358Z",
+        "observed_at": "2026-10-18T05:33:10.138Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /apis/apps/v1/namespaces/workctl-demo/replicasets?labelSelector=app=demo-order",
         "relation": "explicit",
@@ -115,7 +115,7 @@
       {
         "system": "kubernetes",
         "adapter": "kubernetes-api",
-        "observed_at": "2026-10-18T04:38:04.358Z",
+        "observed_at": "2026-10-18T05:33:10.138Z",
         "endpoint": "kubernetes/k3s (https://127.0.0.1:16443/)",
         "method": "GET /api/v1/namespaces/workctl-demo/pods?labelSelector=app=demo-order",
         "relation": "explicit",
@@ -130,7 +130,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc4ezx-8bb62f",
+    "request_id": "req-mvde39r6-bb1b8a",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -138,7 +138,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:38:04.269Z",
+    "started_at": "2026-10-18T05:33:10.050Z",
     "duration_ms": 89
   }
 }

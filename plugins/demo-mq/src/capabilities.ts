@@ -1,5 +1,5 @@
 import { AssignerProtocol, ConfigResourceTypes, type Admin } from 'kafkajs';
-import { summarizeTopic, summarizeTotals, parseOffset, type PartitionOffsets, type TopicLag } from './lag';
+import { partitionsWithoutEnd, summarizeTopic, summarizeTotals, parseOffset, type PartitionOffsets, type TopicLag } from './lag';
 import { KAFKA_INTERNAL_TOPICS, makeSource, mapKafkaError, observeCluster, requireTopicName, resolveEndpoint, withAdmin } from './kafka';
 import { PluginError, type HandlerResult, type PluginRequest, type Source } from './protocol';
 import type { ConsumerLagData, TopicGetData, TopicListData } from './schemas';
@@ -150,6 +150,10 @@ export const consumerLag: Handler = async (req, inputs, timeoutMs) => {
       const totals = summarizeTotals(topicLags);
 
       if (missingTopics.length) warnings.push(`topic 已不存在但消费组仍保留其位点: ${missingTopics.join(', ')}；这些分区的 lag 未计算`);
+      const noEnd = partitionsWithoutEnd(topicLags).filter((p) => !missingTopics.includes(p.topic));
+      if (noEnd.length) {
+        warnings.push(`${noEnd.length} 个分区有已提交位点但 topic 当前没有该分区（可能被删除后以更少分区重建）: ${noEnd.slice(0, 20).map((p) => `${p.topic}-${p.partition}`).join(', ')}；lag 未计算`);
+      }
       if (totals.partitions_without_commit > 0) {
         warnings.push(`${totals.partitions_without_commit} 个分区没有已提交位点，lag 为 null，未计入 total_lag（见各分区 explanation）`);
       }
@@ -179,7 +183,7 @@ export const consumerLag: Handler = async (req, inputs, timeoutMs) => {
         end_offset_isolation: 'read_committed',
         observed_at: observedAt,
       };
-      const partial = missingTopics.length > 0;
+      const partial = missingTopics.length > 0 || noEnd.length > 0;
       const sources: Source[] = [
         makeSource(ep, info, `DescribeGroups(${group})`, 'explicit', groupObservedAt),
         makeSource(ep, info, `OffsetFetch(group=${group})`, 'explicit', committedObservedAt),

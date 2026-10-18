@@ -78,13 +78,17 @@ export async function handleMcpMessage(registry: Registry, o: McpOptions, msg: a
   const id = msg?.id;
   const reply = (result: unknown) => ({ jsonrpc: '2.0', id, result });
   const fail = (code: number, message: string) => ({ jsonrpc: '2.0', id, error: { code, message } });
+  // a response from the client (result/error, no method) is never answered: replying would
+  // reuse the id of a response, which the client may correlate with one of its own requests
+  if (msg && typeof msg === 'object' && !Array.isArray(msg) && msg.jsonrpc === '2.0' && !('method' in msg) && ('result' in msg || 'error' in msg)) return null;
   if (!msg || typeof msg !== 'object' || Array.isArray(msg) || msg.jsonrpc !== '2.0' || typeof msg.method !== 'string') {
     return { jsonrpc: '2.0', id: typeof id === 'string' || typeof id === 'number' ? id : null, error: { code: -32600, message: 'Invalid Request' } };
   }
   // JSON-RPC: a request without an id is a notification. It is never answered and,
   // for tools/call, never executed (a capability must not run without a reply channel).
   if (!('id' in msg)) return null;
-  if (id !== null && typeof id !== 'string' && typeof id !== 'number') return fail(-32600, 'Invalid Request: id must be a string or number');
+  // JSON-RPC: when the id cannot be determined the error's id is null (never echo an object/array id)
+  if (id !== null && typeof id !== 'string' && typeof id !== 'number') return { jsonrpc: '2.0', id: null, error: { code: -32600, message: 'Invalid Request: id must be a string or number' } };
   switch (msg.method) {
     case 'initialize': {
       const requested = msg.params?.protocolVersion;
@@ -124,6 +128,25 @@ export async function handleMcpMessage(registry: Registry, o: McpOptions, msg: a
   }
 }
 
+/**
+ * One parsed stdio line: a single message or a JSON-RPC batch (protocol 2025-03-26, which this
+ * server negotiates, requires receiving batches). A batch is answered with an array of the
+ * non-null replies, or nothing when it holds only notifications/responses; an empty batch is invalid.
+ */
+export async function handleMcpPayload(registry: Registry, o: McpOptions, payload: unknown): Promise<any | null> {
+  if (!Array.isArray(payload)) return handleMcpMessage(registry, o, payload);
+  if (payload.length === 0) return { jsonrpc: '2.0', id: null, error: { code: -32600, message: 'Invalid Request: empty batch' } };
+  const replies = await Promise.all(
+    payload.map((m) =>
+      Array.isArray(m)
+        ? { jsonrpc: '2.0', id: null, error: { code: -32600, message: 'Invalid Request' } }
+        : handleMcpMessage(registry, o, m).catch((e) => ({ jsonrpc: '2.0', id: (m as any)?.id ?? null, error: { code: -32603, message: String(e) } })),
+    ),
+  );
+  const out = replies.filter((r) => r !== null);
+  return out.length ? out : null;
+}
+
 export async function serveMcp(registry: Registry, o: McpOptions): Promise<void> {
   const rl = createInterface({ input: process.stdin, crlfDelay: Infinity });
   const pending = new Set<Promise<void>>();
@@ -136,12 +159,12 @@ export async function serveMcp(registry: Registry, o: McpOptions): Promise<void>
       process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } }) + '\n');
       continue;
     }
-    const p = handleMcpMessage(registry, o, msg)
+    const p = handleMcpPayload(registry, o, msg)
       .then((res) => {
         if (res) process.stdout.write(JSON.stringify(res) + '\n');
       })
       .catch((e) => {
-        process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: (msg as any)?.id ?? null, error: { code: -32603, message: String(e) } }) + '\n');
+        process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: ['string', 'number'].includes(typeof (msg as any)?.id) ? (msg as any).id : null, error: { code: -32603, message: String(e) } }) + '\n');
       })
       .finally(() => pending.delete(p));
     pending.add(p);

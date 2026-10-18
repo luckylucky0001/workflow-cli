@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import YAML from 'yaml';
 import { z } from 'zod';
+import { yamlErrorSummary } from './config';
 import { WorkError } from './output';
 
 export const ResourceSchema = z.object({
@@ -41,7 +42,13 @@ export class ResourceStore {
   static load(path: string | null): ResourceStore {
     if (!path) return new ResourceStore(null, [], []);
     if (!existsSync(path)) throw new WorkError('NOT_CONFIGURED', `资源绑定文件不存在: ${path}`);
-    const parsed = BindingsSchema.safeParse(YAML.parse(readFileSync(path, 'utf8')) ?? {});
+    let raw: unknown;
+    try {
+      raw = YAML.parse(readFileSync(path, 'utf8')) ?? {};
+    } catch (e) {
+      throw new WorkError('INVALID_ARGUMENT', `资源绑定文件无法解析: ${path}`, { details: { reason: yamlErrorSummary(e) } });
+    }
+    const parsed = BindingsSchema.safeParse(raw);
     if (!parsed.success) {
       throw new WorkError('INVALID_ARGUMENT', `资源绑定文件不合法: ${path}`, {
         details: { issues: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`) },

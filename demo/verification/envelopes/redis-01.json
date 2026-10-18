@@ -19,9 +19,9 @@
     "server": {
       "redis_version": "7.4.11",
       "redis_mode": "standalone",
-      "run_id": "33f2be69b6419abf20556ad019cd877a1a742151",
-      "uptime_s": 1261,
-      "started_at": "2026-10-18T04:14:21.816Z",
+      "run_id": "d5b5eecc6da72b73828a87281e343874e14364c9",
+      "uptime_s": 1223,
+      "started_at": "2026-10-18T05:10:06.503Z",
       "tcp_port": 6379
     },
     "replication": {
@@ -36,20 +36,20 @@
       "maxclients": 10000
     },
     "memory": {
-      "used_memory": 6195016,
-      "used_memory_human": "5.91M",
-      "used_memory_peak": 6245288,
+      "used_memory": 6261672,
+      "used_memory_human": "5.97M",
+      "used_memory_peak": 6320080,
       "maxmemory": 67108864,
       "maxmemory_human": "64.00M",
       "maxmemory_policy": "allkeys-lfu",
-      "usage_ratio": 0.0923,
-      "mem_fragmentation_ratio": 2.56
+      "usage_ratio": 0.0933,
+      "mem_fragmentation_ratio": 2.54
     },
     "persistence": {
       "loading": false,
       "rdb_last_bgsave_status": "ok",
-      "rdb_last_save_at": "2026-10-18T04:33:18.000Z",
-      "rdb_changes_since_last_save": 67,
+      "rdb_last_save_at": "2026-10-18T05:17:07.000Z",
+      "rdb_changes_since_last_save": 70,
       "aof_enabled": false,
       "aof_last_write_status": "ok"
     },
@@ -57,7 +57,7 @@
       "db0": {
         "keys": 3806,
         "expires": 2985,
-        "avg_ttl": 1137639,
+        "avg_ttl": 976282,
         "subexpiry": 0
       }
     }
@@ -68,7 +68,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T04:35:22.816Z",
+        "observed_at": "2026-10-18T05:30:29.503Z",
         "endpoint": "redis/demo-redis",
         "method": "INFO server replication persistence clients memory keyspace",
         "version": "7.4.11",
@@ -77,7 +77,7 @@
       {
         "system": "workctl",
         "adapter": "binding-file",
-        "observed_at": "2026-10-18T04:35:22.810Z",
+        "observed_at": "2026-10-18T05:30:29.498Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "method": "resources.forEndpoint(redis, demo-redis)",
         "relation": "explicit"
@@ -90,7 +90,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc0ydq-f96d0f",
+    "request_id": "req-mvddztu6-01a1cf",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -98,7 +98,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:35:22.766Z",
-    "duration_ms": 51
+    "started_at": "2026-10-18T05:30:29.454Z",
+    "duration_ms": 50
   }
 }

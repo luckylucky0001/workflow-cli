@@ -144,3 +144,15 @@ export function selectionNotes(sc: ServiceContainers): string[] {
 export function resolveEnv(ctx: Ctx, env: unknown): string | null {
   return typeof env === 'string' && env ? env : ctx.env;
 }
+
+/**
+ * Validate a look-back window / step (ms): must be > 0 and must not reach before the
+ * Unix epoch (a 0s window would silently return an empty or single-point result,
+ * a huge one an invalid Date).
+ */
+export function checkWindow(ms: unknown, flag = '--window'): number {
+  const n = Number(ms);
+  if (!Number.isFinite(n) || n <= 0) throw new WorkError('INVALID_ARGUMENT', `${flag} 须为大于 0 的时长，收到 ${String(ms)}ms`, { hint: '使用如 15m、1h、7d' });
+  if (n > Date.now()) throw new WorkError('INVALID_ARGUMENT', `${flag} 过大（起点早于 1970-01-01）`, { hint: '使用如 15m、1h、7d' });
+  return n;
+}

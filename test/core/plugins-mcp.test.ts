@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { invoke } from '../../src/core/engine';
 import { installPlugin, listInstalled, loadPlugins, removePlugin } from '../../src/core/plugins';
-import { handleMcpMessage } from '../../src/mcp/server';
+import { handleMcpMessage, handleMcpPayload } from '../../src/mcp/server';
 import { tempDir, testRegistry, writeConfig } from './helpers';
 
 function buildFakePlugin(dir: string, backend = 'live'): string {
@@ -159,5 +159,33 @@ describe('mcp', () => {
     const allowed = await handleMcpMessage(reg, { ...o, allowExecute: true }, { jsonrpc: '2.0', id: 5, method: 'tools/call', params: { name: 'fake_write', arguments: {} } });
     expect(allowed.result.structuredContent.data.done).toBe(true);
     expect(await handleMcpMessage(reg, o, { jsonrpc: '2.0', method: 'notifications/initialized' })).toBeNull();
+  });
+
+  it('never answers a client response (its id may collide with a pending client request)', async () => {
+    expect(await handleMcpMessage(reg, o, { jsonrpc: '2.0', id: 3, result: {} })).toBeNull();
+    expect(await handleMcpMessage(reg, o, { jsonrpc: '2.0', id: 4, error: { code: -1, message: 'x' } })).toBeNull();
+  });
+
+  it('answers an undeterminable (object/array) id with id null', async () => {
+    const res = await handleMcpMessage(reg, o, { jsonrpc: '2.0', id: { a: 1 }, method: 'ping' });
+    expect(res.id).toBeNull();
+    expect(res.error.code).toBe(-32600);
+  });
+
+  it('accepts JSON-RPC batches (required by protocol 2025-03-26)', async () => {
+    const res = await handleMcpPayload(reg, o, [
+      { jsonrpc: '2.0', id: 1, method: 'ping' },
+      { jsonrpc: '2.0', method: 'notifications/initialized' },
+      { jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'fake_echo', arguments: { text: 'b' } } },
+      { jsonrpc: '2.0', id: 3, method: 'nope' },
+    ]);
+    expect(Array.isArray(res)).toBe(true);
+    expect(res.map((r: any) => r.id)).toEqual([1, 2, 3]);
+    expect(res[0].result).toEqual({});
+    expect(res[1].result.structuredContent.data.text).toBe('b');
+    expect(res[2].error.code).toBe(-32601);
+    expect(await handleMcpPayload(reg, o, [{ jsonrpc: '2.0', method: 'notifications/initialized' }])).toBeNull();
+    const empty = await handleMcpPayload(reg, o, []);
+    expect(empty).toMatchObject({ id: null, error: { code: -32600 } });
   });
 });

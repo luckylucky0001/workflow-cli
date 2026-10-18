@@ -87,6 +87,11 @@ describe('deploy domain (jenkins provider, fake server)', () => {
     expect(lim.meta.coverage).toMatchObject({ truncated: true, complete: false });
   });
 
+  it('release list: rejects a non-positive window', async () => {
+    const env = await invoke(r, 'deploy.release.list', { service: 'demo-order', window: '0s' }, { configPath });
+    expect(env.error?.code).toBe('INVALID_ARGUMENT');
+  });
+
   it('release get: parameters (secret masked), causes, masked console tail', async () => {
     const env = await invoke(r, 'deploy.release.get', { service: 'demo-order', id: '3', tail: 3 }, { configPath });
     expect(env.status).toBe('success');

@@ -91,7 +91,7 @@ export function rawRequest(
       {
         method: o.method,
         headers: o.body ? { ...o.headers, 'content-length': String(Buffer.byteLength(o.body)) } : o.headers,
-        ...(o.socketPath ? { socketPath: o.socketPath, path: `${u.pathname}${u.search}` } : { hostname: u.hostname, port: u.port || 80, path: `${u.pathname}${u.search}` }),
+        ...(o.socketPath ? { socketPath: o.socketPath, path: `${u.pathname}${u.search}` } : { hostname: u.hostname.replace(/^\[(.*)\]$/, '$1'), port: u.port || 80, path: `${u.pathname}${u.search}` }),
         ...(u.username ? { auth: `${decodeURIComponent(u.username)}:${decodeURIComponent(u.password)}` } : {}),
       },
       (res) => {

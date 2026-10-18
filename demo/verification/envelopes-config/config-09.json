@@ -11,7 +11,7 @@
     "prefix": "/config/prod/demo-order/",
     "key": null,
     "revision_space": "etcd-cluster-revision",
-    "observed_revision": 154,
+    "observed_revision": 41,
     "count": 0,
     "truncated": false,
     "items": []
@@ -22,7 +22,7 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-18T04:36:08.563Z",
+        "observed_at": "2026-10-18T05:31:15.249Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
         "method": "POST /v3/kv/range prefix=/config/prod/demo-order/",
         "relation": "explicit",
@@ -33,15 +33,15 @@
       "complete": true,
       "truncated": false,
       "limit": 200,
-      "scope": "etcd etcd/demo-etcd 键前缀 /config/prod/demo-order/，修订 154",
+      "scope": "etcd etcd/demo-etcd 键前缀 /config/prod/demo-order/，修订 41",
       "notes": [
-        "前缀 /config/prod/demo-order/ 下没有配置项（修订 154）；不同环境/服务的键前缀不同，检查 --env / --service"
+        "前缀 /config/prod/demo-order/ 下没有配置项（修订 41）；不同环境/服务的键前缀不同，检查 --env / --service"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc1xo0-3b2c5f",
+    "request_id": "req-mvde0t4w-240ae4",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -49,7 +49,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:36:08.496Z",
-    "duration_ms": 67
+    "started_at": "2026-10-18T05:31:15.200Z",
+    "duration_ms": 49
   }
 }

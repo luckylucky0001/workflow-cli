@@ -25,6 +25,8 @@ export interface FakeK8sState {
   replicasets?: Obj[];
   /** null → metrics.k8s.io is not registered (404 like a cluster without metrics-server). */
   podMetrics: Obj[] | null;
+  /** true → the metrics.k8s.io APIService is registered but unavailable (503). */
+  metricsUnavailable?: boolean;
   nodes: Obj[];
   /** `verb resource` pairs the service account may not use, e.g. `patch deployments`, `list nodes`. */
   forbidden?: Set<string>;
@@ -385,6 +387,7 @@ export async function startFakeK8s(
         return list('ReplicaSet', state.replicasets.filter((x) => x.metadata.namespace === m![1] && matchSelector(sel, x.metadata.labels)), 'apps/v1');
       }
       if ((m = /^\/apis\/metrics\.k8s\.io\/v1beta1\/namespaces\/([^/]+)\/pods$/.exec(p))) {
+        if (state.metricsUnavailable) return send(503, status(503, 'ServiceUnavailable', 'the server is currently unable to handle the request'));
         if (!state.podMetrics) return send(404, status(404, 'NotFound', 'the server could not find the requested resource'));
         if (deny('list', 'pods', 'metrics.k8s.io', m[1])) return;
         return send(200, { kind: 'PodMetricsList', apiVersion: 'metrics.k8s.io/v1beta1', metadata: {}, items: state.podMetrics.filter((x) => x.metadata.namespace === m![1] && matchSelector(sel, x.metadata.labels)) });

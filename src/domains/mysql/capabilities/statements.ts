@@ -39,8 +39,13 @@ export async function assertDigestCollection(s: MysqlSession): Promise<{ digests
   return { digests_size: num(v.performance_schema_digests_size), max_digest_length: num(v.max_digest_length), rows: num(cnt?.n) };
 }
 
+/** The digest table is full: new statements land in the DIGEST=NULL row, per-digest stats are incomplete. */
+export function digestTableFull(info: { digests_size: number | null; rows: number | null }): boolean {
+  return info.digests_size !== null && info.rows !== null && info.digests_size > 0 && info.rows >= info.digests_size;
+}
+
 function capacityNote(info: { digests_size: number | null; rows: number | null }): string {
-  const full = info.digests_size !== null && info.rows !== null && info.digests_size > 0 && info.rows >= info.digests_size;
+  const full = digestTableFull(info);
   return `摘要表占用 ${info.rows ?? 'unknown'}/${info.digests_size ?? 'unknown'} 行（performance_schema_digests_size）${full ? '：已满，新语句归入 DIGEST=NULL 行，统计不完整' : '；表满后新语句归入 DIGEST=NULL 行'}`;
 }
 
@@ -148,7 +153,8 @@ export const statementSummary = defineCapability({
           },
           sources: [s.src('performance_schema.events_statements_summary_by_digest (cumulative)')],
           coverage: {
-            complete: true,
+            // a full table (or a DIGEST=NULL overflow row) means statements were not attributed to digests
+            complete: !digestTableFull(info) && !rows.some((r) => r.digest === null),
             limit: top,
             truncated: stats.length > top,
             notes: [

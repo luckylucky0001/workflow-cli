@@ -56,7 +56,7 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-18T04:37:11.506Z",
+        "observed_at": "2026-10-18T05:32:18.779Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/k8s/workctl.k8s.yaml",
         "relation": "explicit"
       }
@@ -68,7 +68,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc3a89-3ce84f",
+    "request_id": "req-mvde264v-af96bf",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -76,7 +76,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:37:11.433Z",
-    "duration_ms": 74
+    "started_at": "2026-10-18T05:32:18.703Z",
+    "duration_ms": 77
   }
 }

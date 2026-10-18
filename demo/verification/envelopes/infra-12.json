@@ -7,1132 +7,1182 @@
     "env": "sandbox",
     "matched_by": "label workctl.service=demo-order（binding attribute container_label）",
     "window": {
-      "start": "2026-10-17T22:35:07.862Z",
-      "end": "2026-10-18T04:35:07.862Z"
+      "start": "2026-10-17T23:30:14.559Z",
+      "end": "2026-10-18T05:30:14.559Z"
     },
     "order": "newest",
     "entries": [
       {
-        "ts": "2026-10-18T04:34:27.146969453Z",
+        "ts": "2026-10-18T05:29:39.816720369Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "6d50200f9b0f294fe6e895b402b03e4c",
-        "span_id": "b6c50e40b2c69692",
-        "fields": {
-          "service": "demo-order",
-          "method": "GET",
-          "route": "/orders/:id",
-          "path": "/orders/1408",
-          "status": 200,
-          "duration_ms": 0.885,
-          "cache_mode": "normal",
-          "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:27.146Z"
-        },
-        "raw": null
-      },
-      {
-        "ts": "2026-10-18T04:34:27.047316405Z",
-        "container": "demo-order",
-        "stream": "stdout",
-        "level": "info",
-        "msg": "request completed",
-        "kind": "access",
-        "trace_id": "8c391176742b0025a6e866ccb51b3adc",
-        "span_id": "02f33f6d8166c7e9",
+        "trace_id": "09350e7d93dcad26c6efd507f225d296",
+        "span_id": "363f5479d964f88e",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/customers/:id/orders",
           "path": "/customers/1696/orders",
           "status": 200,
-          "duration_ms": 0.877,
+          "duration_ms": 316.676,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:27.046Z"
+          "app_ts": "2026-10-18T05:29:39.816Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:26.947852842Z",
+        "ts": "2026-10-18T05:29:39.601158263Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "cd641da723aac95f13f32fa573bcf470",
-        "span_id": "3d1d1af4017aa8d8",
+        "trace_id": "d87b2265072075f3684fc11d3d45fec3",
+        "span_id": "2fe35a4731fd07fa",
+        "fields": {
+          "service": "demo-order",
+          "method": "GET",
+          "route": "/orders/:id",
+          "path": "/orders/1408",
+          "status": 200,
+          "duration_ms": 1.292,
+          "cache_mode": "normal",
+          "parent_span_id": null,
+          "app_ts": "2026-10-18T05:29:39.600Z"
+        },
+        "raw": null,
+        "truncated": false
+      },
+      {
+        "ts": "2026-10-18T05:29:39.401393476Z",
+        "container": "demo-order",
+        "stream": "stdout",
+        "level": "info",
+        "msg": "request completed",
+        "kind": "access",
+        "trace_id": "8b30222de7f3b4d7ceba3d432b170313",
+        "span_id": "e854cf8dbdb5ee33",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/327",
           "status": 200,
-          "duration_ms": 0.835,
+          "duration_ms": 0.753,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:26.946Z"
+          "app_ts": "2026-10-18T05:29:39.401Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:26.847911204Z",
+        "ts": "2026-10-18T05:29:39.323683982Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "0453dfea37fe0da3012d1c99fe37f105",
-        "span_id": "dc6e2004e3a4f631",
-        "fields": {
-          "service": "demo-order",
-          "method": "GET",
-          "route": "/orders/:id",
-          "path": "/orders/2",
-          "status": 200,
-          "duration_ms": 0.958,
-          "cache_mode": "normal",
-          "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:26.847Z"
-        },
-        "raw": null
-      },
-      {
-        "ts": "2026-10-18T04:34:26.748100252Z",
-        "container": "demo-order",
-        "stream": "stdout",
-        "level": "info",
-        "msg": "request completed",
-        "kind": "access",
-        "trace_id": "b8661bb255fe0accfbbceea156620f5c",
-        "span_id": "d5d74f8255ac3555",
-        "fields": {
-          "service": "demo-order",
-          "method": "GET",
-          "route": "/orders/:id",
-          "path": "/orders/1139",
-          "status": 200,
-          "duration_ms": 0.833,
-          "cache_mode": "normal",
-          "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:26.748Z"
-        },
-        "raw": null
-      },
-      {
-        "ts": "2026-10-18T04:34:26.647767555Z",
-        "container": "demo-order",
-        "stream": "stdout",
-        "level": "info",
-        "msg": "request completed",
-        "kind": "access",
-        "trace_id": "7fab8bcd832ff16829e8613eef6586b9",
-        "span_id": "8f9e19cd7f2df1d8",
-        "fields": {
-          "service": "demo-order",
-          "method": "GET",
-          "route": "/orders/:id",
-          "path": "/orders/11",
-          "status": 200,
-          "duration_ms": 0.738,
-          "cache_mode": "normal",
-          "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:26.647Z"
-        },
-        "raw": null
-      },
-      {
-        "ts": "2026-10-18T04:34:26.548157657Z",
-        "container": "demo-order",
-        "stream": "stdout",
-        "level": "info",
-        "msg": "request completed",
-        "kind": "access",
-        "trace_id": "ac006845f42f4a1ec2178de063b2b09e",
-        "span_id": "61294a9e4afa7a49",
+        "trace_id": "4f285d9449fcf609aa4a360c61fe5f5d",
+        "span_id": "84858ad17f188ec2",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/customers/:id/orders",
           "path": "/customers/16333/orders",
           "status": 200,
-          "duration_ms": 0.841,
+          "duration_ms": 322.978,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:26.547Z"
+          "app_ts": "2026-10-18T05:29:39.322Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:26.446577481Z",
+        "ts": "2026-10-18T05:29:39.303906301Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "6968af481ce1bf59dc98f595cc8daaf6",
-        "span_id": "2f9d16de038930c9",
+        "trace_id": "ac0ce2e8e8a934748d65a04fe7e95cd1",
+        "span_id": "1657768b3fa6ad05",
+        "fields": {
+          "service": "demo-order",
+          "method": "GET",
+          "route": "/orders/:id",
+          "path": "/orders/2",
+          "status": 200,
+          "duration_ms": 2.325,
+          "cache_mode": "normal",
+          "parent_span_id": null,
+          "app_ts": "2026-10-18T05:29:39.303Z"
+        },
+        "raw": null,
+        "truncated": false
+      },
+      {
+        "ts": "2026-10-18T05:29:39.206207782Z",
+        "container": "demo-order",
+        "stream": "stdout",
+        "level": "info",
+        "msg": "request completed",
+        "kind": "access",
+        "trace_id": "cad75f25228ad1f3818cdeadca838cb2",
+        "span_id": "b34275da37e01a9e",
+        "fields": {
+          "service": "demo-order",
+          "method": "GET",
+          "route": "/orders/:id",
+          "path": "/orders/1139",
+          "status": 200,
+          "duration_ms": 1.087,
+          "cache_mode": "normal",
+          "parent_span_id": null,
+          "app_ts": "2026-10-18T05:29:39.205Z"
+        },
+        "raw": null,
+        "truncated": false
+      },
+      {
+        "ts": "2026-10-18T05:29:39.102961407Z",
+        "container": "demo-order",
+        "stream": "stdout",
+        "level": "info",
+        "msg": "request completed",
+        "kind": "access",
+        "trace_id": "ed841404302f9b0fa79405dbacae3d55",
+        "span_id": "7a100a20f6e60c4a",
+        "fields": {
+          "service": "demo-order",
+          "method": "GET",
+          "route": "/orders/:id",
+          "path": "/orders/11",
+          "status": 200,
+          "duration_ms": 1.104,
+          "cache_mode": "normal",
+          "parent_span_id": null,
+          "app_ts": "2026-10-18T05:29:39.102Z"
+        },
+        "raw": null,
+        "truncated": false
+      },
+      {
+        "ts": "2026-10-18T05:29:38.901820045Z",
+        "container": "demo-order",
+        "stream": "stdout",
+        "level": "info",
+        "msg": "request completed",
+        "kind": "access",
+        "trace_id": "1b33df7956d907af072a04ec158ccea9",
+        "span_id": "9c485c5f1aaed12b",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/customers/:id/orders",
           "path": "/customers/167/orders",
           "status": 200,
-          "duration_ms": 0.818,
+          "duration_ms": 0.742,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:26.446Z"
+          "app_ts": "2026-10-18T05:29:38.901Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:26.346677222Z",
+        "ts": "2026-10-18T05:29:38.801060746Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "9a181c3a3c3511fde9c72dcfb640b464",
-        "span_id": "43d80553146c9638",
+        "trace_id": "697c8aa5921eb2bbcd7263ac128548b0",
+        "span_id": "4af4728539026678",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/customers/:id/orders",
           "path": "/customers/216/orders",
           "status": 200,
-          "duration_ms": 0.89,
+          "duration_ms": 0.799,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:26.346Z"
+          "app_ts": "2026-10-18T05:29:38.800Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:26.247632363Z",
+        "ts": "2026-10-18T05:29:38.701304001Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "1f4a18df4321cb239af4181205b7560d",
-        "span_id": "a091b9a825849cdf",
+        "trace_id": "0d0404b9482b39ce1b89fc1a87b42e9a",
+        "span_id": "2f77527069293a0e",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/985",
           "status": 200,
-          "duration_ms": 1.108,
+          "duration_ms": 1.041,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:26.246Z"
+          "app_ts": "2026-10-18T05:29:38.701Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:26.146760599Z",
+        "ts": "2026-10-18T05:29:38.601093700Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "e3a62f2ea7a31301d4d410095ad18782",
-        "span_id": "102c5e5470a46dd9",
+        "trace_id": "40381a91b6358773224a8c04de2d1624",
+        "span_id": "7eaa0aa5db66dc02",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/143",
           "status": 200,
-          "duration_ms": 0.927,
+          "duration_ms": 0.861,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:26.146Z"
+          "app_ts": "2026-10-18T05:29:38.600Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:26.047564928Z",
+        "ts": "2026-10-18T05:29:38.501895220Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "d523c73b94f4dc4580760a3a8c52818b",
-        "span_id": "9da186a8eabd0a23",
+        "trace_id": "fb217d29a891c9cd08bb2c042b13b597",
+        "span_id": "3041b4ffad8cc9db",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/754",
           "status": 200,
-          "duration_ms": 0.927,
+          "duration_ms": 0.726,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:26.047Z"
+          "app_ts": "2026-10-18T05:29:38.501Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:25.950065302Z",
+        "ts": "2026-10-18T05:29:38.401167575Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "0e19ba6e09105e4dadd9cf47ddf7adf8",
-        "span_id": "51ce2cc73d5df1d1",
+        "trace_id": "bcfc64441182ffa5372e966a8cb900e6",
+        "span_id": "7cfcdf48ad86a1c7",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1945",
           "status": 200,
-          "duration_ms": 2.219,
+          "duration_ms": 1.312,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:25.949Z"
+          "app_ts": "2026-10-18T05:29:38.400Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:25.846648797Z",
+        "ts": "2026-10-18T05:29:38.300249935Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "189d1777a07060c1436e078ee8137411",
-        "span_id": "487a16494be284de",
+        "trace_id": "0145f178a0179e45656ec1914d605994",
+        "span_id": "7e4da64d4b25f134",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/271",
           "status": 200,
-          "duration_ms": 1.071,
+          "duration_ms": 0.903,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:25.846Z"
+          "app_ts": "2026-10-18T05:29:38.300Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:25.747942139Z",
+        "ts": "2026-10-18T05:29:38.204497352Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "9ae62e7b170fc01d012a36a78d74abc4",
-        "span_id": "4311504764582950",
+        "trace_id": "e34231fc56223b6db6ce817360f7f2ff",
+        "span_id": "91c3c2425c8dafc4",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/195244",
           "status": 200,
-          "duration_ms": 0.76,
+          "duration_ms": 3.652,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:25.747Z"
+          "app_ts": "2026-10-18T05:29:38.203Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:25.647381999Z",
+        "ts": "2026-10-18T05:29:38.101601476Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "61ab91e52d4ccfb3d95c565ae0b41704",
-        "span_id": "c1f6c6ddb58a931f",
+        "trace_id": "0a5ddce83d18bc05ceaaa184595cb0fb",
+        "span_id": "ea72af206b74a49f",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/975",
           "status": 200,
-          "duration_ms": 0.971,
+          "duration_ms": 0.872,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:25.646Z"
+          "app_ts": "2026-10-18T05:29:38.101Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:25.551111954Z",
+        "ts": "2026-10-18T05:29:37.999928614Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "3f057ee7c3679439b0a066ff1acb7b32",
-        "span_id": "f58ef3a2bdd22d7b",
+        "trace_id": "7d7def3b83f6808423abc59be9dd0e45",
+        "span_id": "80ef950a03bb43a4",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1197",
           "status": 200,
-          "duration_ms": 2.108,
+          "duration_ms": 0.74,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:25.550Z"
+          "app_ts": "2026-10-18T05:29:37.999Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:25.448507358Z",
+        "ts": "2026-10-18T05:29:37.902671055Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "7c0db278d67abbccf73aa138589b6b70",
-        "span_id": "d81f6ecd8c3afd39",
+        "trace_id": "8b0f79192955059e832c4e351a236cfa",
+        "span_id": "eec9229149c14570",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1245",
           "status": 200,
-          "duration_ms": 1.088,
+          "duration_ms": 1.274,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:25.447Z"
+          "app_ts": "2026-10-18T05:29:37.902Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:25.347014209Z",
+        "ts": "2026-10-18T05:29:37.802860995Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "accf6eb9570d746d30ddffa2a9fc25f9",
-        "span_id": "bdfd236db2da93a4",
+        "trace_id": "decb29727aa1e9e33d0483eb4cc9b597",
+        "span_id": "b244d95028de7c8f",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1029",
           "status": 200,
-          "duration_ms": 0.758,
+          "duration_ms": 1.086,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:25.346Z"
+          "app_ts": "2026-10-18T05:29:37.802Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:25.248380116Z",
+        "ts": "2026-10-18T05:29:37.703176000Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "cc67f9b8a706bbf4aaa03f77e30c1098",
-        "span_id": "ba5f97d48572c973",
+        "trace_id": "4f94b8070e40f6c909bea7d03d62873d",
+        "span_id": "5fbdf886e0348d4a",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/customers/:id/orders",
           "path": "/customers/24/orders",
           "status": 200,
-          "duration_ms": 0.819,
+          "duration_ms": 1.29,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:25.248Z"
+          "app_ts": "2026-10-18T05:29:37.701Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:25.147969797Z",
+        "ts": "2026-10-18T05:29:37.600830413Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "ab0ac77259e4f5927b1261173bd8cdb7",
-        "span_id": "f325cc2ed324a2fa",
+        "trace_id": "1cc2d5a752bc10a41a313cc5b01ade1b",
+        "span_id": "9997d85d5c587938",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/604",
           "status": 200,
-          "duration_ms": 1.028,
+          "duration_ms": 0.687,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:25.147Z"
+          "app_ts": "2026-10-18T05:29:37.600Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:25.047685129Z",
+        "ts": "2026-10-18T05:29:37.504069119Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "7700dafaf3192ad64ab329705ca00693",
-        "span_id": "59a4e46acffd7a20",
+        "trace_id": "f59fa1a264ab9afa082822d75fe4df2d",
+        "span_id": "a3afe6ae89334a03",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1030",
           "status": 200,
-          "duration_ms": 1.024,
+          "duration_ms": 1.118,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:25.047Z"
+          "app_ts": "2026-10-18T05:29:37.502Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:24.946562750Z",
+        "ts": "2026-10-18T05:29:37.401130018Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "064640933aa76c03be3a30915150847d",
-        "span_id": "5557dde275314c56",
+        "trace_id": "34a571189a0d2aebbf704cf69913837b",
+        "span_id": "ec26c69e4714031f",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1175",
           "status": 200,
-          "duration_ms": 0.778,
+          "duration_ms": 0.939,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:24.946Z"
+          "app_ts": "2026-10-18T05:29:37.400Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:24.847024274Z",
+        "ts": "2026-10-18T05:29:37.301239552Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "0f0a43b09d6803393d0d48079df163c3",
-        "span_id": "65d5ee4443087009",
+        "trace_id": "a3409c95a01f77b74530187209908175",
+        "span_id": "1dd3071b694cba7f",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1260",
           "status": 200,
-          "duration_ms": 0.745,
+          "duration_ms": 0.955,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:24.846Z"
+          "app_ts": "2026-10-18T05:29:37.300Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:24.747536863Z",
+        "ts": "2026-10-18T05:29:37.206920061Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "43b7e20f1e021efdd45d7e447f964545",
-        "span_id": "2986586a187c3fef",
+        "trace_id": "b96b1916294cfc960dfaac997b2a6f7e",
+        "span_id": "383e8adbbba9bcce",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/113286",
           "status": 200,
-          "duration_ms": 1.258,
+          "duration_ms": 4.929,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:24.747Z"
+          "app_ts": "2026-10-18T05:29:37.205Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:24.648191248Z",
+        "ts": "2026-10-18T05:29:37.101588413Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "a11e1a6274888876faa7eddf66670f9f",
-        "span_id": "fe40a7042cf0761d",
+        "trace_id": "25141caaf54b863b6f5599424bea27a5",
+        "span_id": "65f85222ac4fc543",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1248",
           "status": 200,
-          "duration_ms": 1.165,
+          "duration_ms": 0.964,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:24.648Z"
+          "app_ts": "2026-10-18T05:29:37.101Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:24.546983183Z",
+        "ts": "2026-10-18T05:29:37.001227338Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "5020270201d2979696b60d6889857fd8",
-        "span_id": "808415b758b6a9ac",
+        "trace_id": "b030872059570f5cd5029c9af0478acc",
+        "span_id": "eaaaa28e127b09ab",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/321",
           "status": 200,
-          "duration_ms": 0.706,
+          "duration_ms": 0.723,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:24.546Z"
+          "app_ts": "2026-10-18T05:29:37.000Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:24.447284496Z",
+        "ts": "2026-10-18T05:29:36.902363612Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "6482e29d0e145afcbb3e0b13f00b6c92",
-        "span_id": "3a1ed729d2ec6c41",
+        "trace_id": "4d0aa43c0f9a26cf11a9557b052c0b37",
+        "span_id": "19679f4088c36c4b",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1110",
           "status": 200,
-          "duration_ms": 1.397,
+          "duration_ms": 0.737,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:24.446Z"
+          "app_ts": "2026-10-18T05:29:36.902Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:24.347656955Z",
+        "ts": "2026-10-18T05:29:36.802212984Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "0621dc94a23d5a2920223bbd35f8e987",
-        "span_id": "61f4035739105f46",
+        "trace_id": "07954e1df175939f1fc28d793ce11b67",
+        "span_id": "37ac10430ca40052",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/839",
           "status": 200,
-          "duration_ms": 0.702,
+          "duration_ms": 0.742,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:24.346Z"
+          "app_ts": "2026-10-18T05:29:36.802Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:24.247677184Z",
+        "ts": "2026-10-18T05:29:36.700384427Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "764f2e4f913f18df62aa1fd6645297e3",
-        "span_id": "af3034b6f39efdce",
+        "trace_id": "0a94b8fb047beb35187e508fd5d9a0e4",
+        "span_id": "3c22f860f1ac97c2",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/706",
           "status": 200,
-          "duration_ms": 0.959,
+          "duration_ms": 0.847,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:24.247Z"
+          "app_ts": "2026-10-18T05:29:36.700Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:24.148608954Z",
+        "ts": "2026-10-18T05:29:36.601915887Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "beb1fad3dd6960aa58969b4124481a6f",
-        "span_id": "f77b665182adfabc",
+        "trace_id": "3a414eb8ff9ce0ec1c83acc5ab654275",
+        "span_id": "756a415e33f9537f",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1969",
           "status": 200,
-          "duration_ms": 1.022,
+          "duration_ms": 1.045,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:24.148Z"
+          "app_ts": "2026-10-18T05:29:36.601Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:24.046989964Z",
+        "ts": "2026-10-18T05:29:36.501337822Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "345d4ab5e9cd6831f6dba621d69f51f1",
-        "span_id": "b2192372798736dc",
+        "trace_id": "008e723060a06d057373038b8734bd08",
+        "span_id": "4ec9be5da75fd326",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/91",
           "status": 200,
-          "duration_ms": 1.037,
+          "duration_ms": 0.746,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:24.046Z"
+          "app_ts": "2026-10-18T05:29:36.501Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:23.948722947Z",
+        "ts": "2026-10-18T05:29:36.401016918Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "5dc568ea90a49e9b11efbb27531a840d",
-        "span_id": "8d0b0aa5c8223535",
+        "trace_id": "4e227e1cb2162c5ca80b02da71aa0d48",
+        "span_id": "3cac30a0413c9939",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1469",
           "status": 200,
-          "duration_ms": 1.322,
+          "duration_ms": 0.863,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:23.947Z"
+          "app_ts": "2026-10-18T05:29:36.400Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:23.847207643Z",
+        "ts": "2026-10-18T05:29:36.301539940Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "8f0a3abf61bd957228c74515579bf138",
-        "span_id": "7ea0d17757e67174",
+        "trace_id": "424256dff7d8fc34b68d0c8fcd53cc94",
+        "span_id": "d3559b6f101cc08e",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1053",
           "status": 200,
-          "duration_ms": 1.093,
+          "duration_ms": 0.704,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:23.846Z"
+          "app_ts": "2026-10-18T05:29:36.301Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:23.746473125Z",
+        "ts": "2026-10-18T05:29:36.203583813Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "90071c7de1a895a6052ca858edf114bd",
-        "span_id": "b06b045e4afe46fc",
+        "trace_id": "d6edba522c70df0fbb0c35274271c7b5",
+        "span_id": "e7df7d1162791d21",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/customers/:id/orders",
           "path": "/customers/24/orders",
           "status": 200,
-          "duration_ms": 0.93,
+          "duration_ms": 2.084,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:23.746Z"
+          "app_ts": "2026-10-18T05:29:36.203Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:23.646344542Z",
+        "ts": "2026-10-18T05:29:36.101915188Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "14d9069531bc95c34b3e70842768fb76",
-        "span_id": "0a7242b1b7fdb37d",
+        "trace_id": "d3a69c656456219d6b784f464a4ef12f",
+        "span_id": "d288c24f40b5af4f",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1641",
           "status": 200,
-          "duration_ms": 0.705,
+          "duration_ms": 0.843,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:23.646Z"
+          "app_ts": "2026-10-18T05:29:36.101Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:23.547629047Z",
+        "ts": "2026-10-18T05:29:36.000971308Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "57ef6c7ed4c43d1a5a4e0ab1a642787d",
-        "span_id": "82295a469e9fb3ae",
+        "trace_id": "eac5703f77d04b3da4fdf1a18fa4fc2f",
+        "span_id": "ac68c4a3d9d4460f",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1692",
           "status": 200,
-          "duration_ms": 0.937,
+          "duration_ms": 0.576,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:23.547Z"
+          "app_ts": "2026-10-18T05:29:36.000Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:23.447280852Z",
+        "ts": "2026-10-18T05:29:35.900950330Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "a085bf79f0a6fb5b08c6ed6ab94542f5",
-        "span_id": "170ede30e5f9770e",
+        "trace_id": "a40d7c3e00e1cf5962fb1fba1736bdab",
+        "span_id": "4cfa1b701afedbd5",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/695",
           "status": 200,
-          "duration_ms": 0.731,
+          "duration_ms": 0.882,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:23.446Z"
+          "app_ts": "2026-10-18T05:29:35.900Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:23.348699077Z",
+        "ts": "2026-10-18T05:29:35.802283700Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "d5a5dda0476b908221da51cd9044dd08",
-        "span_id": "3eb564d216054a0c",
+        "trace_id": "a812827df30bf1f1a06276a2528d78f6",
+        "span_id": "3b4a630d7bbd63f0",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/594",
           "status": 200,
-          "duration_ms": 1.089,
+          "duration_ms": 1.915,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:23.348Z"
+          "app_ts": "2026-10-18T05:29:35.802Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:23.248074404Z",
+        "ts": "2026-10-18T05:29:35.702442243Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "21be01444b84e3bf79d340d164168eac",
-        "span_id": "e283ca08ea897375",
+        "trace_id": "f7e459a79df92d1fafc4efa6eff2e3d4",
+        "span_id": "2fde17e28bed3f08",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/customers/:id/orders",
           "path": "/customers/17/orders",
           "status": 200,
-          "duration_ms": 0.823,
+          "duration_ms": 0.804,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:23.247Z"
+          "app_ts": "2026-10-18T05:29:35.702Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:23.149109875Z",
+        "ts": "2026-10-18T05:29:35.606171487Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "71e8b5c9fc788d99919e02c3645ae8f3",
-        "span_id": "7f2f171d87ab3c9e",
+        "trace_id": "c7f226cbe13338b176e8d72cbec92b61",
+        "span_id": "f144c874f448d0c1",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/636",
           "status": 200,
-          "duration_ms": 1.152,
+          "duration_ms": 1.752,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:23.148Z"
+          "app_ts": "2026-10-18T05:29:35.604Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:23.049004499Z",
+        "ts": "2026-10-18T05:29:35.502018976Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "f8ea9c545e0d10c9f7dc5af43122ee91",
-        "span_id": "82ca17319ca92721",
+        "trace_id": "31b6032487079ceccfa3c19dd0b9a9d8",
+        "span_id": "cd59e0a73c40b9fd",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1689",
           "status": 200,
-          "duration_ms": 2.043,
+          "duration_ms": 0.761,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:23.048Z"
+          "app_ts": "2026-10-18T05:29:35.501Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:22.949281550Z",
+        "ts": "2026-10-18T05:29:35.415042935Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "6deca551bbde10752facd6329250a122",
-        "span_id": "f35caae1019230c9",
+        "trace_id": "73f52038e585a966856e06254f3374e4",
+        "span_id": "29840e3b735b6a2b",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/customers/:id/orders",
           "path": "/customers/180/orders",
           "status": 200,
-          "duration_ms": 1.297,
+          "duration_ms": 3.557,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:22.949Z"
+          "app_ts": "2026-10-18T05:29:35.414Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:22.847238695Z",
+        "ts": "2026-10-18T05:29:35.302611976Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "c062486e8b881890fc0b8b1ac11a8e51",
-        "span_id": "33f6cba190d86202",
+        "trace_id": "28621a9848d072327cdbf29733562ce2",
+        "span_id": "eb414e5e01cdeffa",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/754",
           "status": 200,
-          "duration_ms": 0.82,
+          "duration_ms": 0.758,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:22.847Z"
+          "app_ts": "2026-10-18T05:29:35.302Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:22.749855876Z",
+        "ts": "2026-10-18T05:29:35.204097163Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "0185506fddcff7295f07fa386583f81b",
-        "span_id": "255e2fdb47755f56",
+        "trace_id": "68695344d3b6e656bd8c51d9ddda343a",
+        "span_id": "493c20ebbc23ab59",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/customers/:id/orders",
           "path": "/customers/54/orders",
           "status": 200,
-          "duration_ms": 1.92,
+          "duration_ms": 1.219,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:22.749Z"
+          "app_ts": "2026-10-18T05:29:35.203Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:22.647228733Z",
+        "ts": "2026-10-18T05:29:35.106197937Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "279bfb140c1ce6e1cee8cf06473221b2",
-        "span_id": "381f1cd1a62b2de2",
+        "trace_id": "7476549c5531e2863a2e26ec6750f18e",
+        "span_id": "6c8d0fb4463f8105",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1341",
           "status": 200,
-          "duration_ms": 0.906,
+          "duration_ms": 1.029,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:22.646Z"
+          "app_ts": "2026-10-18T05:29:35.102Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:22.548494960Z",
+        "ts": "2026-10-18T05:29:35.001986155Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "319274ca7b4f6fd31afe782bd76547d8",
-        "span_id": "7dbeb82ebccd8d4c",
+        "trace_id": "b6060b4f817f94b863702063570694b1",
+        "span_id": "cda1aee30e348c77",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/961",
           "status": 200,
-          "duration_ms": 0.903,
+          "duration_ms": 0.715,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:22.548Z"
+          "app_ts": "2026-10-18T05:29:35.000Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:22.452395116Z",
+        "ts": "2026-10-18T05:29:34.900971725Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "7bc6349ce07a799aacf856f13b9d7d1d",
-        "span_id": "eff2d3adcebb4005",
+        "trace_id": "d61115d6bd57320795428651cc4654fc",
+        "span_id": "0c0164fd34de3344",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/customers/:id/orders",
           "path": "/customers/160/orders",
           "status": 200,
-          "duration_ms": 0.818,
+          "duration_ms": 1.121,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:22.449Z"
+          "app_ts": "2026-10-18T05:29:34.900Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:22.347802563Z",
+        "ts": "2026-10-18T05:29:34.801759181Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "de190605cc0fb5db4331e063f71e9f8b",
-        "span_id": "9f0239873a0f7487",
+        "trace_id": "8dd2dcb8d14396b1b7a1b57d0b2fe108",
+        "span_id": "756371999d73c073",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1702",
           "status": 200,
-          "duration_ms": 1.172,
+          "duration_ms": 0.69,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:22.347Z"
+          "app_ts": "2026-10-18T05:29:34.801Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       },
       {
-        "ts": "2026-10-18T04:34:22.297323121Z",
+        "ts": "2026-10-18T05:29:34.768067819Z",
         "container": "demo-order",
         "stream": "stdout",
         "level": "info",
         "msg": "request completed",
         "kind": "access",
-        "trace_id": "31d5bf2ada1f35e4ff43b6b4a1d7331e",
-        "span_id": "b759dc337c3664eb",
+        "trace_id": "2663f336a3e294f8672336d318dbc0eb",
+        "span_id": "df5ac639a503f223",
         "fields": {
           "service": "demo-order",
           "method": "GET",
           "route": "/orders/:id",
           "path": "/orders/1060",
           "status": 200,
-          "duration_ms": 1.21,
+          "duration_ms": 0.938,
           "cache_mode": "normal",
           "parent_span_id": null,
-          "app_ts": "2026-10-18T04:34:22.297Z"
+          "app_ts": "2026-10-18T05:29:34.767Z"
         },
-        "raw": null
+        "raw": null,
+        "truncated": false
       }
     ],
     "stats": {
-      "lines_scanned": 630,
-      "matched": 200,
+      "lines_scanned": 792,
+      "matched": 250,
       "returned": 50,
       "unparsed_lines": 0,
-      "spans_skipped": 424,
+      "spans_skipped": 536,
       "unparsed_excluded_by_level": 0,
       "by_level": {
-        "info": 200
+        "info": 250
       }
     },
     "containers": [
       {
         "name": "demo-order",
-        "id": "62a6f6a7d42e",
+        "id": "4272d71ae71b",
         "log_driver": "json-file",
-        "created_at": "2026-10-18T04:14:10.66022203Z",
-        "started_at": "2026-10-18T04:22:40.106129891Z",
-        "lines_scanned": 630,
-        "matched": 200,
+        "created_at": "2026-10-18T05:10:05.907075164Z",
+        "started_at": "2026-10-18T05:17:39.44168773Z",
+        "lines_scanned": 792,
+        "matched": 250,
         "status": "ok",
         "note": null
       }
@@ -1144,7 +1194,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T04:35:07.883Z",
+        "observed_at": "2026-10-18T05:30:14.587Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/logs?stdout=1&stderr=1&timestamps=1&since&until",
         "relation": "explicit",
@@ -1154,8 +1204,8 @@
     "coverage": {
       "complete": false,
       "window": {
-        "start": "2026-10-17T22:35:07.862Z",
-        "end": "2026-10-18T04:35:07.862Z"
+        "start": "2026-10-17T23:30:14.559Z",
+        "end": "2026-10-18T05:30:14.559Z"
       },
       "truncated": true,
       "limit": 50,
@@ -1163,17 +1213,17 @@
       "notes": [
         "容器选择器: label workctl.service=demo-order（binding attribute container_label）（bindings: demo-order.attributes.container_label=workctl.service=demo-order）",
         "环境过滤: workctl.env=sandbox（无该标签的容器保留并标注）",
-        "demo-order 创建于 2026-10-18T04:14:10.66022203Z，窗口内更早时段的日志不在该容器中（若之前的容器已被重建删除，其日志不可见）",
+        "demo-order 创建于 2026-10-18T05:10:05.907075164Z，窗口内更早时段的日志不在该容器中（若之前的容器已被重建删除，其日志不可见）",
         "demo-order 日志驱动 json-file 配置了轮转（max-size=20m, max-file=5），较早日志可能已被轮转删除",
         "按时间倒序（最新在前）",
-        "匹配 200 条，只返回 50 条（--limit）",
-        "省略了 424 条 span 记录（--include-spans 返回，或用 trace get）"
+        "匹配 250 条，只返回 50 条（--limit）",
+        "省略了 536 条 span 记录（--include-spans 返回，或用 trace get）"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc0mua-8aa3e1",
+    "request_id": "req-mvddziar-02b193",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -1181,7 +1231,7 @@
     "adapter": "docker-engine-api|loki-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:35:07.810Z",
-    "duration_ms": 73
+    "started_at": "2026-10-18T05:30:14.499Z",
+    "duration_ms": 88
   }
 }

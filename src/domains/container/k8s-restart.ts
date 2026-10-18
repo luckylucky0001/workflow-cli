@@ -147,6 +147,9 @@ export async function k8sRestartExecutor(ctx: Ctx, plan: Plan, report: (note: st
   const service = String(plan.params.service ?? '');
   const client = kubeClient(ctx, String(plan.params.endpoint ?? '') || undefined);
   const outcomes: RolloutOutcome[] = [];
+  // re-check every target before patching any: a drifted second target must not be found
+  // only after the first one was already restarted
+  const checked: { t: Record<string, unknown>; kind: 'Deployment' | 'StatefulSet'; ns: string; name: string; path: string; before: KubeWorkload }[] = [];
   for (const t of plan.targets) {
     const kind = String(t.kind) as 'Deployment' | 'StatefulSet';
     const ns = String(t.namespace);
@@ -163,6 +166,16 @@ export async function k8sRestartExecutor(ctx: Ctx, plan: Plan, report: (note: st
     if (kind === 'Deployment' && before.spec.paused) {
       throw new WorkError('PRECONDITION_FAILED', `${kind} ${ns}/${name} 处于暂停状态（spec.paused=true），重启注解不会触发滚动更新，拒绝执行`, { hint: '先 kubectl rollout resume，再重新生成计划' });
     }
+    if (typeof t.generation === 'number' && (before.metadata.generation ?? 0) !== t.generation) {
+      // the spec changed since planning (another rollout / deploy): the plan preview no longer describes what would roll out
+      throw new WorkError('PRECONDITION_FAILED', `${kind} ${ns}/${name} 的 generation 自计划生成后已变化（${t.generation} → ${before.metadata.generation ?? 0}），可能有新的发布正在进行，拒绝执行`, {
+        hint: '确认当前 rollout（workctl deploy status get）后重新生成计划',
+        details: { planned_generation: t.generation, current_generation: before.metadata.generation ?? null },
+      });
+    }
+    checked.push({ t, kind, ns, name, path, before });
+  }
+  for (const { kind, ns, name, path, before } of checked) {
     const restartedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
     const t0 = Date.now();
     report(`rollout restart ${kind.toLowerCase()}/${name} (namespace ${ns})`);

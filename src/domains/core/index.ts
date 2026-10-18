@@ -243,6 +243,8 @@ const serviceDependencyList = defineCapability({
   notes: ['关系只来自绑定文件/服务配置等明确来源；不会根据名称相似性推断依赖'],
   examples: ['workctl --json service dependency list --service demo-order --env sandbox'],
   handler: async (ctx, i) => {
+    // depth < 1 would return an empty dependency list that reads as "no dependencies"
+    if (i.depth < 1) throw new WorkError('INVALID_ARGUMENT', `--depth 须 ≥ 1，收到 ${i.depth}`);
     const store = requireBindings(ctx);
     const svc = store.require(i.service);
     if (i.env && svc.env && svc.env !== i.env) throw new WorkError('NOT_FOUND', `${i.service} 不在环境 ${i.env}`);
@@ -345,6 +347,10 @@ const accessCheck = defineCapability({
       checks.push({ check: 'execute_permission', ok: !!p?.allow_execute, detail: p?.allow_execute ? 'profile 允许执行类操作' : 'profile 未开启 allow_execute' });
     }
     const kinds = DOMAIN_ENDPOINT_KINDS[c.domain] ?? [];
+    // a named target that matches none of the domain's endpoints must not be checked as the default one
+    if (p && i.target && kinds.length && !kinds.some((k) => ctx.hasEndpoint(k, i.target))) {
+      checks.push({ check: 'target', ok: false, detail: `profile ${ctx.profileName} 中没有 ${kinds.join('/')} 端点 ${i.target}` });
+    }
     for (const kind of kinds) {
       if (!p) break;
       if (!ctx.hasEndpoint(kind)) {
@@ -407,10 +413,17 @@ const operationPlan = defineCapability({
       throw new WorkError('NOT_FOUND', `没有操作类型 ${i.action} 的计划器`, { hint: `可用: ${[...ctx.registry.planners.keys()].join(', ') || '(无)'}` });
     }
     const params: Record<string, string> = {};
+    let lastKey: string | undefined;
     for (const kv of (i.param as string[] | undefined) ?? []) {
       const idx = kv.indexOf('=');
-      if (idx <= 0) throw new WorkError('INVALID_ARGUMENT', `参数格式应为 key=value: ${kv}`);
-      params[kv.slice(0, idx).trim()] = kv.slice(idx + 1).trim();
+      if (idx <= 0) {
+        // the list input splits on commas: `columns=a,b` arrives as `columns=a`, `b`
+        if (lastKey === undefined) throw new WorkError('INVALID_ARGUMENT', `参数格式应为 key=value: ${kv}`);
+        params[lastKey] = `${params[lastKey]},${kv.trim()}`;
+        continue;
+      }
+      lastKey = kv.slice(0, idx).trim();
+      params[lastKey] = kv.slice(idx + 1).trim();
     }
     const draft = await planner.plan(ctx, params);
     const plan = ctx.plans().create(draft, { profile: ctx.profileName, env: ctx.env, executable: ctx.registry.executors.has(draft.kind) });
@@ -606,7 +619,14 @@ const doctor = defineCapability({
           checks.push({ area: 'credentials', item: `${kind}/${name}.${k}`, ok: st.resolvable, detail: st.resolvable ? `${st.ref_type} 引用可解析` : st.reason ?? '' });
         }
         if (i.skip_network) continue;
-        const target = endpointTarget(cfg, ctx.loaded.baseDir);
+        let target: ReturnType<typeof endpointTarget>;
+        try {
+          target = endpointTarget(cfg, ctx.loaded.baseDir);
+        } catch (e) {
+          // a malformed url is a finding of the diagnosis, not a reason to abort it
+          checks.push({ area: 'endpoints', item: `${kind}/${name}`, ok: false, detail: `端点地址无法解析: ${e instanceof Error ? e.message : String(e)}` });
+          continue;
+        }
         if (!target) continue;
         if (target.kind === 'path') {
           checks.push({ area: 'endpoints', item: `${kind}/${name}`, ok: existsSync(target.path), detail: target.path });

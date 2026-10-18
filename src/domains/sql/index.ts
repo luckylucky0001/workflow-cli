@@ -18,8 +18,13 @@ const CAP_ADAPTER = 'spark-submit-local|trino-http';
 // Read-only SQL guard (pure, unit-tested)
 // ---------------------------------------------------------------------------
 
-/** Remove comments and string/identifier literals so keyword checks see only SQL structure. */
-export function stripSqlLiterals(sql: string): string {
+/**
+ * Remove comments and string/identifier literals so keyword checks see only SQL structure.
+ * Lexing follows the target engine, otherwise a construct the two read differently hides SQL
+ * from the guard: Spark nests bracketed comments and honours backslash escapes in '…' / "…"
+ * (not in `…` identifiers); Trino has neither (quotes are escaped only by doubling).
+ */
+export function stripSqlLiterals(sql: string, engine: 'spark' | 'trino' = 'spark'): string {
   let out = '';
   let i = 0;
   while (i < sql.length) {
@@ -30,15 +35,27 @@ export function stripSqlLiterals(sql: string): string {
       continue;
     }
     if (c === '/' && n === '*') {
-      const end = sql.indexOf('*/', i + 2);
-      i = end < 0 ? sql.length : end + 2;
+      let depth = 1;
+      i += 2;
+      while (i < sql.length && depth > 0) {
+        if (sql[i] === '*' && sql[i + 1] === '/') {
+          depth--;
+          i += 2;
+        } else if (engine === 'spark' && sql[i] === '/' && sql[i + 1] === '*') {
+          depth++;
+          i += 2;
+        } else i++;
+      }
       out += ' ';
       continue;
     }
     if (c === "'" || c === '"' || c === '`') {
+      // Spark raw string literals r'…' / R"…" (3.5+) take backslashes literally
+      const raw = /[rR]/.test(sql[i - 1] ?? '') && !/[A-Za-z0-9_$]/.test(sql[i - 2] ?? '');
+      const backslashEscapes = engine === 'spark' && c !== '`' && !raw;
       let j = i + 1;
       while (j < sql.length) {
-        if (sql[j] === '\\') j += 2;
+        if (backslashEscapes && sql[j] === '\\') j += 2;
         else if (sql[j] === c) {
           if (sql[j + 1] === c) j += 2;
           else break;
@@ -64,13 +81,21 @@ const TRINO_FORBIDDEN = ['EXECUTE', 'IMMEDIATE', 'PREPARE', 'DEALLOCATE', 'COMMI
 /** Trino table functions without side effects; others (e.g. `system.query`) pass SQL through to the connector's database. */
 const TRINO_TABLE_FUNCTIONS = ['sequence', 'exclude_columns'];
 
+/** Leading keywords of SQL statements that may be named in a rejection. */
+const STATEMENT_KEYWORDS = new Set([...FORBIDDEN, ...TRINO_FORBIDDEN, 'EXPLAIN', 'SHOW', 'DESCRIBE', 'DESC', 'START', 'BEGIN', 'VALUES', 'TABLE', 'FROM', 'LIST', 'CLEAR', 'COMMENT', 'DECLARE', 'DENY', 'VACUUM', 'OPTIMIZE', 'UNSET', 'LOCK', 'UNLOCK', 'REPAIR', 'KILL', 'SELECT', 'WITH']);
+
 export function checkReadOnlySql(sql: string, engine: 'spark' | 'trino' = 'spark'): { ok: true; statement: string } | { ok: false; reason: string } {
-  const bare = stripSqlLiterals(sql);
+  const bare = stripSqlLiterals(sql, engine);
   const stmts = bare.split(';').map((s) => s.trim()).filter(Boolean);
   if (stmts.length === 0) return { ok: false, reason: 'SQL 文件没有语句' };
   if (stmts.length > 1) return { ok: false, reason: `只允许单条查询语句，文件中有 ${stmts.length} 条` };
   const first = /^\(*\s*([A-Za-z]+)/.exec(stmts[0])?.[1]?.toUpperCase();
-  if (first !== 'SELECT' && first !== 'WITH') return { ok: false, reason: `只允许 SELECT / WITH 查询，首个关键字为 ${first ?? '(无)'}` };
+  if (first !== 'SELECT' && first !== 'WITH') {
+    // name only real statement keywords: the file may be anything readable (e.g. a password file)
+    // and its first word must not be echoed into the output / model context
+    const shown = first === undefined ? '(无)' : STATEMENT_KEYWORDS.has(first) ? first : '(不是 SQL 语句关键字，内容不回显)';
+    return { ok: false, reason: `只允许 SELECT / WITH 查询，首个关键字为 ${shown}` };
+  }
   if (engine === 'trino') return checkTrinoQuery(stmts[0]);
   const words = new Set((stmts[0].toUpperCase().match(/[A-Z_]+/g) ?? []));
   const bad = FORBIDDEN.filter((k) => words.has(k));
@@ -97,10 +122,13 @@ function checkTrinoQuery(stmt: string): { ok: true; statement: string } | { ok: 
   const bad = [...FORBIDDEN, ...TRINO_FORBIDDEN].filter((k) => words.has(k));
   if (bad.length) return { ok: false, reason: `查询中包含写入/DDL/会话/动态语句关键字: ${bad.join(', ')}` };
   if (/\bFUNCTION\b/.test(upper)) return { ok: false, reason: '不允许在查询中定义内联函数（WITH FUNCTION）' };
-  for (const m of stmt.matchAll(/\bTABLE\s*\(\s*([A-Za-z_][\w.]*)\s*\(/gi)) {
-    const fn = m[1].split('.').pop()!.toLowerCase();
-    if (!TRINO_TABLE_FUNCTIONS.includes(fn)) {
-      return { ok: false, reason: `不允许调用表函数 ${m[1]}()（连接器透传查询等表函数可能在目标数据库执行任意语句），允许: ${TRINO_TABLE_FUNCTIONS.join(', ')}` };
+  // every TABLE( must name an allowed function with plain identifiers: a quoted name ("query",
+  // stripped to _lit_) or anything else unrecognised is rejected rather than skipped
+  for (const t of stmt.matchAll(/\bTABLE\s*\(/gi)) {
+    const m = /^\s*((?:[A-Za-z_]\w*\s*\.\s*)*([A-Za-z_]\w*))\s*\(/.exec(stmt.slice(t.index! + t[0].length));
+    const fn = m?.[2].toLowerCase();
+    if (!m || fn === '_lit_' || !TRINO_TABLE_FUNCTIONS.includes(fn!)) {
+      return { ok: false, reason: `不允许调用表函数 ${m ? m[1].replace(/\s+/g, '') : '(无法识别)'}()（连接器透传查询等表函数可能在目标数据库执行任意语句），允许: ${TRINO_TABLE_FUNCTIONS.join(', ')}` };
     }
   }
   return { ok: true, statement: stmt };
@@ -371,6 +399,17 @@ const submit = defineCapability({
     if (inp.engine === 'trino') {
       const tg = checkReadOnlySql(sql, 'trino');
       if (!tg.ok) throw new WorkError('INVALID_ARGUMENT', `拒绝提交: ${tg.reason}`, { hint: 'sql query submit 只执行只读查询；写入/DDL 走对应的计划-执行流程' });
+      // same rule as Spark: a result directory inside a warehouse would look like table data
+      // (e.g. a dt= partition) to data/partition checks; Trino has no warehouse_root of its own
+      if (inp.output) {
+        const out = resolve(inp.output);
+        for (const kind of ['spark', 'catalog']) {
+          for (const name of ctx.endpointNames(kind)) {
+            const wh = ctx.endpoint(kind, name).path('warehouse_root');
+            if (wh && within(out, wh)) throw new WorkError('INVALID_ARGUMENT', `结果目录不能位于 warehouse_root 内（${kind}/${name}；避免把查询结果当成表数据）`);
+          }
+        }
+      }
       return trinoSubmit(ctx, inp, sql, sql.trim().replace(/;\s*$/, '').replace(/;(\s*(--[^\n]*)?\s*)*$/, ''));
     }
     if (inp.catalog !== undefined || inp.schema !== undefined) {

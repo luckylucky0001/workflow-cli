@@ -45,7 +45,7 @@ service ──(容器标签)──▶ container ──(Docker logs)──▶ 结
 
 - 延迟分位数来自 `histogram_quantile`：结果受桶边界限制，落在最大有限桶（demo-order 为 10s）之外时返回该边界值，应解读为“≥ 边界”。
 - `metric query` 的窗口终点对齐到 step，`coverage.window` 是实际查询的起止时间。窗口值来自时间序列（`rate()` 已处理计数器重置），不要用累计计数器的当前值代替窗口值。
-- `log query` 默认 `order=newest`：返回窗口内**最新**的 `limit` 条，按时间倒序；`order=oldest` 返回最早的 `limit` 条、按时间正序。`coverage.truncated=true` 表示匹配条数超过 limit；`data.stats` 给出扫描行数、匹配数、非 JSON 行数、被省略的 span 记录数。
+- `log query` 默认 `order=newest`：返回窗口内**最新**的 `limit` 条，按时间倒序；`order=oldest` 返回最早的 `limit` 条、按时间正序。`coverage.truncated=true` 表示匹配条数超过 limit；`data.stats` 给出扫描行数、匹配数、非 JSON 行数、被省略的 span 记录数。单条日志中超过 8192 字符的文本（`msg`、`raw`、字段值，含 `trace get` 的 span 属性）会被截断并以 `…[截断，原长 N 字符]` 结尾，该条 `truncated=true`，`coverage.notes` 给出条数（Docker / Loki 相同）。`--window` / `--step` 须大于 0。
 - 非 JSON 行保留原文（`raw`），级别未知；使用 `--level` 时它们会被排除并计入 `unparsed_excluded_by_level`。
 - span 记录（`kind=span`）默认不在 `log query` 中返回（`--include-spans` 返回），调用链用 `trace get` 看。
 

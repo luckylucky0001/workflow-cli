@@ -3,14 +3,14 @@
   "status": "success",
   "capability": "sql.query.get",
   "data": {
-    "query_id": "q-20261018-7c4317",
+    "query_id": "q-20261018-b6f79e",
     "engine": "trino",
     "state": "succeeded",
     "state_basis": "Trino 报告 FINISHED，且 workctl 已取完全部结果页（nextUri 链结束）",
-    "submitted_at": "2026-10-18T04:35:54.907Z",
-    "started_at": "2026-10-18T04:35:54.954Z",
-    "finished_at": "2026-10-18T04:35:55.597Z",
-    "duration_ms": 662,
+    "submitted_at": "2026-10-18T05:31:01.727Z",
+    "started_at": "2026-10-18T05:31:01.764Z",
+    "finished_at": "2026-10-18T05:31:02.298Z",
+    "duration_ms": 542,
     "app_id": null,
     "spark_version": null,
     "sql_file": "/home/user/workflow-cli/test/sql/fixtures/trino/top_customers.sql",
@@ -55,11 +55,11 @@
       }
     ],
     "preview_truncated": true,
-    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/state/sql/trino/demo-trino/q-20261018-7c4317/result",
+    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/state/sql/trino/demo-trino/q-20261018-b6f79e/result",
     "result_format": "json-lines",
     "error": null,
     "views": null,
-    "engine_query_id": "20261018_043554_00013_3ctsd",
+    "engine_query_id": "20261018_053101_00023_vw3b7",
     "engine_state": "FINISHED",
     "engine_version": "476",
     "column_types": [
@@ -71,14 +71,14 @@
     "catalog": "tpch",
     "schema": "tiny",
     "stats": {
-      "elapsed_ms": 662,
-      "queued_ms": 1,
-      "cpu_ms": 189,
-      "wall_ms": 735,
+      "elapsed_ms": 542,
+      "queued_ms": 3,
+      "cpu_ms": 72,
+      "wall_ms": 301,
       "processed_rows": 18050,
       "processed_bytes": 62498,
       "physical_input_bytes": 0,
-      "peak_memory_bytes": 1757648,
+      "peak_memory_bytes": 1762688,
       "spilled_bytes": 0,
       "completed_splits": 43,
       "total_splits": 43,
@@ -93,16 +93,16 @@
       {
         "system": "workctl-state",
         "adapter": "trino-http",
-        "observed_at": "2026-10-18T04:35:55.637Z",
+        "observed_at": "2026-10-18T05:31:02.353Z",
         "endpoint": "trino/demo-trino:query_state_dir",
-        "method": "q-20261018-7c4317.json",
+        "method": "q-20261018-b6f79e.json",
         "version": "476",
         "relation": "explicit"
       },
       {
         "system": "trino",
         "adapter": "trino-http",
-        "observed_at": "2026-10-18T04:35:55.644Z",
+        "observed_at": "2026-10-18T05:31:02.357Z",
         "endpoint": "trino/demo-trino",
         "method": "GET nextUri (/v1/statement/{queued|executing}/{queryId}/{slug}/{token}) → GET /v1/query/{queryId}",
         "version": "476",
@@ -111,14 +111,14 @@
     ],
     "coverage": {
       "complete": false,
-      "scope": "q-20261018-7c4317",
+      "scope": "q-20261018-b6f79e",
       "truncated": true,
       "limit": 5
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc1nng-373a63",
+    "request_id": "req-mvde0j5c-4d9f42",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -126,7 +126,7 @@
     "adapter": "spark-submit-local|trino-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:35:55.516Z",
-    "duration_ms": 128
+    "started_at": "2026-10-18T05:31:02.256Z",
+    "duration_ms": 101
   }
 }

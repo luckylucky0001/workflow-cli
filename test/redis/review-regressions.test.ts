@@ -91,3 +91,74 @@ describe('review: slowlog and stream values against a fake Redis', () => {
     expect(v.data[0].fields[1].length).toBeLessThan(1100);
   });
 });
+
+// ---------------------------------------------------------------- key sample: effective limit and post-cap duplicates
+
+import { scanSample } from '../../src/domains/redis/keys';
+
+describe('review: key sample reports the effective max_keys and post-cap duplicates', () => {
+  it('a key returned again by SCAN after the cap is a duplicate, not another dropped key', async () => {
+    // the batch that reaches the cap (here the last one) repeats 'c'
+    const r = await scanSample(async () => ['0', ['a', 'b', 'c', 'c', 'a']], { maxKeys: 2, maxScanCalls: 10 });
+    expect(r.keys).toEqual(['a', 'b']);
+    expect(r.dropped).toBe(1);
+    expect(r.duplicates_seen).toBe(2);
+  });
+
+  let srv: Awaited<ReturnType<typeof fakeRedis>>;
+  let configPath: string;
+  beforeAll(async () => {
+    srv = await fakeRedis((args): Reply => {
+      const c = args[0].toUpperCase();
+      if (c === 'SCAN') return ['0', ['k1', 'k2']];
+      if (c === 'TYPE') return { simple: 'string' };
+      if (c === 'MEMORY') return 50;
+      if (c === 'DBSIZE') return 2;
+      if (c === 'INFO') return '# Server\r\nredis_version:7.4.0\r\n';
+      return new Error(`ERR unknown command '${args[0]}'`);
+    });
+    const dir = mkdtempSync(join(tmpdir(), 'workctl-redis-review2-'));
+    configPath = join(dir, 'workctl.yaml');
+    writeFileSync(configPath, ['current_profile: t', 'profiles:', '  t:', '    env: test', '    endpoints:', '      redis:', '        fake:', '          host: 127.0.0.1', `          port: ${srv.port}`].join('\n'));
+  });
+  afterAll(async () => srv.close());
+
+  it('coverage.limit is the clamped max_keys, not the requested value', async () => {
+    const r = new Registry();
+    r.addDomain(redisDomain);
+    const env = await invoke(r, 'redis.key.sample', { max_keys: 50_000 }, { configPath, timeoutMs: 5000 });
+    expect(env.status).toBe('success');
+    expect(env.meta.coverage?.limit).toBe(10_000);
+    const env0 = await invoke(r, 'redis.key.sample', { max_keys: 0 }, { configPath, timeoutMs: 5000 });
+    expect(env0.meta.coverage?.limit).toBe(1);
+  });
+});
+
+describe('review: key inspect when OBJECT ENCODING is denied by ACL', () => {
+  let srv: Awaited<ReturnType<typeof fakeRedis>>;
+  let configPath: string;
+  beforeAll(async () => {
+    srv = await fakeRedis((args): Reply => {
+      const c = args[0].toUpperCase();
+      if (c === 'TYPE') return { simple: 'string' };
+      if (c === 'PTTL') return -1;
+      if (c === 'OBJECT') return new Error("NOPERM User default has no permissions to run the 'object|encoding' command");
+      if (c === 'MEMORY') return 56;
+      if (c === 'STRLEN') return 3;
+      if (c === 'INFO') return '# Server\r\nredis_version:7.4.0\r\n# Memory\r\nmaxmemory_policy:noeviction\r\n';
+      return new Error(`ERR unknown command '${args[0]}'`);
+    });
+    const dir = mkdtempSync(join(tmpdir(), 'workctl-redis-review3-'));
+    configPath = join(dir, 'workctl.yaml');
+    writeFileSync(configPath, ['current_profile: t', 'profiles:', '  t:', '    env: test', '    endpoints:', '      redis:', '        fake:', '          host: 127.0.0.1', `          port: ${srv.port}`].join('\n'));
+  });
+  afterAll(async () => srv.close());
+  it('encoding=null is explained by a warning instead of passing silently', async () => {
+    const r = new Registry();
+    r.addDomain(redisDomain);
+    const env = await invoke(r, 'redis.key.inspect', { key: 'k' }, { configPath, timeoutMs: 5000 });
+    expect(env.status).toBe('success');
+    expect((env.data as any).encoding).toBeNull();
+    expect(env.meta.warnings.join('\n')).toMatch(/OBJECT ENCODING.*NOPERM/);
+  });
+});

@@ -100,7 +100,7 @@
       "analyze_count": 0,
       "autoanalyze_count": 0
     },
-    "stats_reset": "2026-10-18T04:21:12.2458Z"
+    "stats_reset": "2026-10-18T05:13:29.438513Z"
   },
   "error": null,
   "meta": {
@@ -108,7 +108,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T04:36:24.002Z",
+        "observed_at": "2026-10-18T05:31:31.066Z",
         "endpoint": "postgres/demo-postgres",
         "method": "pg_class / pg_attribute / pg_index / pg_stat_all_tables / pg_stat_all_indexes / pg_*_size()",
         "version": "16.15",
@@ -120,13 +120,13 @@
       "notes": [
         "n_live_tup / n_dead_tup / rows_estimate 为估计值；seq_scan / idx_scan / n_tup_* 为自 stats_reset 以来的累计值",
         "角色 workctl_ro 对该表没有 SELECT 权限：结构来自系统目录（对所有角色可见），数据查询会返回 PERMISSION_DENIED",
-        "统计在 2026-10-18T04:21:12.2458Z 被重置，之后该表尚未 vacuum/analyze：n_live_tup / n_dead_tup 只反映重置后的变化，dead_ratio 不可用（null）；行数以 rows_estimate 为准"
+        "统计在 2026-10-18T05:13:29.438513Z 被重置，之后该表尚未 vacuum/analyze：n_live_tup / n_dead_tup 只反映重置后的变化，dead_ratio 不可用（null）；行数以 rows_estimate 为准"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc29kt-905b77",
+    "request_id": "req-mvde15bm-9464ea",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -134,7 +134,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:36:23.933Z",
-    "duration_ms": 75
+    "started_at": "2026-10-18T05:31:30.994Z",
+    "duration_ms": 78
   }
 }

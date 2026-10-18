@@ -124,6 +124,19 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 
 修复后：单元 + 契约测试 667 个通过；`WORKCTL_IT=1 WORKCTL_K8S=1` 757/757；逐能力套件 主 74、Trino 15、etcd 16、Nacos 13、Consul 12、PostgreSQL 35、搜索 26、Jenkins 15、Kubernetes 10、Kubernetes 发布 14（含真实回滚）全部通过。累计修复缺陷 132 个。
 
+### 4.4c 第二轮缺陷查找（2026-10-18）
+
+按领域再做一轮复现后修复（每项有回归测试），共 34 个：
+
+| 范围 | 数量 | 典型缺陷 |
+| --- | --- | --- |
+| SQL / MCP / 核心 / 网络 / 存储 | 13 | Spark 反引号转义、嵌套注释、raw string 与 Trino 反斜杠、带引号的 `TABLE("system"."query"(...))` 绕过只读防护（可写目录 / 在目标库执行任意 SQL）；拒绝信息回显文件首词；Trino 结果可写进数仓目录；MCP 对客户端响应误回错误、非标量 id 回显、批量请求；YAML 解析错误回显含密码的代码片段；内联密钥检查遗漏 `Bearer/Basic`；篡改计划文件绕过计划锁；`skills install` 静默覆盖本地修改；`doctor` 遇到坏 URL 整体失败；`access check` 忽略不存在的目标；多列索引计划无法生成；IPv6 后端被误报不可达 |
+| MySQL / Redis / Kafka 插件 | 12 | `UNION` 后续分支与派生表列名列表下的 `*` 绕过敏感列脱敏；`EXTRACTVALUE` / `GTID_SUBSET` 错误消息与执行计划条件中带出敏感值；`SHOW ... WHERE SLEEP()` 与 `EXPLAIN` 子查询绕过执行时限；驱动超时报 INTERNAL；摘要表已满却报完整；Redis 有效上限与重复键计数、ACL 拒绝被吞；Kafka 分区已不存在时 lag 报完整 |
+| 容器 / 部署 / 可观测 | 6 | 单条日志无长度上限（两种 provider 统一截断）；零或负时间窗口被接受；Loki 扫描预算耗尽仍报完整；k8s 重启在计划后规格变更时仍执行；Docker 多目标重启中途失败已重启一部分；metrics-server 503 导致整个容量汇总失败 |
+| 演示环境与配置（集成时） | 3 | xml/html 配置中按名称识别的秘密元素与属性；`echo | grep -q` 在 pipefail 下误判 Airflow 触发失败；宿主重启后 k3s 的 runc 规避未重新安装（新增 `restore.sh` 一键恢复） |
+
+修复后：单元 + 契约测试 727 个；`WORKCTL_IT=1 WORKCTL_K8S=1` 818/818；逐能力套件 230/230（含真实回滚）。累计修复 166 个。仍记录为“疑似 / 策略问题”的项：网络探测与 `storage file stat` 不限制目标（设计上是宿主视角探测，是否限制为绑定资源属于策略决定）、`mcp serve --domain` 不限制 `operation.*`、计划文件除 id 外的字段可被篡改、无 leader 的 Kafka 分区、应用日志正文不做凭据遮蔽。
+
 ### 4.5 Skill 测评与优化（2026-10-17）
 
 - **静态**：`scripts/skill-lint.mjs`（契约测试 `test/contract/skills.test.ts` 强制）检查 13 个 Skill 的 frontmatter（何时使用、不适用于什么）、正文中 116 处 `workctl` 命令与参数是否真实存在、待接入能力是否标注、引用路径是否存在、是否含疑似凭据。首轮 10 个问题全部在 description（9 个没写“不适用/该转给哪个 Skill”，1 个没写何时使用），命令与参数 0 错；已全部修复。

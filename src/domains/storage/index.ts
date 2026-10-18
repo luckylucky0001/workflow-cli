@@ -204,10 +204,12 @@ const fileStat = defineCapability({
         let n = 0;
         let truncated = false;
         for await (const _ of dir) {
-          if (++n >= MAX_ENTRIES) {
+          // truncated only when an entry beyond the budget actually exists
+          if (n >= MAX_ENTRIES) {
             truncated = true;
             break;
           }
+          n++;
         }
         if (truncated) await dir.close().catch(() => undefined);
         directory = { entries: n, truncated };

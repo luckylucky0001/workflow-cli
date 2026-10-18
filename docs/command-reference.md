@@ -737,7 +737,8 @@ workctl network dns get --name localhost
 口径说明：
 
 - 日志来自 Docker /containers/{id}/logs（stdout+stderr 多路复用流已解帧）；保留期取决于日志驱动与轮转配置，容器重建后旧日志不可见
-- 默认 order=newest：返回窗口内最新的 limit 条，按时间倒序；truncated=true 表示匹配条数超过 limit
+- 默认 order=newest：返回窗口内最新的 limit 条，按时间倒序；coverage.truncated=true 表示匹配条数超过 limit
+- 单条日志中超过 8192 字符的文本（msg、raw、字段值）会被截断，该条 entries[].truncated=true，并在 coverage.notes 说明（Docker / Loki 相同）
 - provider 由资源绑定 attributes.log_provider 或 profile defaults.logs 决定（docker 默认 | loki）；Loki 经 LogQL query_range 查询，输出契约相同，差异（入库延迟、保留期、limit 口径）见指南
 
 ```bash
@@ -1043,9 +1044,9 @@ workctl mysql query analyze --instance demo-mysql --database demo --sql-file ./q
 口径说明：
 
 - 实际权限边界是数据库账号（workctl_ro 只有 SELECT）；程序层静态检查、只读事务、MAX_EXECUTION_TIME、行数上限是额外防线
-- 静态检查：只允许单条 SELECT / WITH...SELECT / SHOW / DESCRIBE / EXPLAIN；拒绝 INTO OUTFILE/DUMPFILE、FOR UPDATE/SHARE、LOCK IN SHARE MODE、变量赋值、可执行注释、EXPLAIN ANALYZE
+- 静态检查：只允许单条 SELECT / WITH...SELECT / SHOW / DESCRIBE / EXPLAIN；拒绝 INTO OUTFILE/DUMPFILE、FOR UPDATE/SHARE、LOCK IN SHARE MODE、变量赋值、可执行注释、EXPLAIN ANALYZE；SHOW 中不允许 SLEEP/BENCHMARK/子查询（SHOW 不受 MAX_EXECUTION_TIME 约束）
 - MAX_EXECUTION_TIME 只约束 SELECT；SHOW 等语句只受客户端超时约束
-- 敏感列按列名/原始列名匹配端点 sensitive_columns 脱敏；选择列表中引用敏感列的表达式/别名、UNION 对应位置、引用敏感列的派生表/CTE 会保守地整列脱敏；仍不能替代数据库侧的列权限或脱敏视图
+- 敏感列按列名/原始列名匹配端点 sensitive_columns 脱敏；选择列表中引用敏感列的表达式/别名、UNION 对应位置、引用敏感列的派生表/CTE、非首个 UNION 分支或派生表/CTE 中的 * 会保守地整列脱敏；语句可能读取敏感列时，服务端错误信息与 EXPLAIN 条件中的字面量替换为 ?；仍不能替代数据库侧的列权限或脱敏视图
 - SQL 来源二选一：--sql（内联，≤256KB）或 --sql-file；两者走同一静态检查；拒绝 MAX_EXECUTION_TIME / SET_VAR / RESOURCE_GROUP 优化器提示
 
 ```bash

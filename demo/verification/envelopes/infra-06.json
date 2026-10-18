@@ -27,10 +27,10 @@
           "target": "http://127.0.0.1:18081/healthz",
           "ok": true,
           "status_code": 200,
-          "latency_ms": 3.2,
-          "body_excerpt": "{\"status\":\"ok\",\"service\":\"demo-order\",\"version\":\"1.0.0\",\"cache_mode\":\"normal\",\"redis\":\"ready\",\"uptime_s\":745}",
+          "latency_ms": 3.8,
+          "body_excerpt": "{\"status\":\"ok\",\"service\":\"demo-order\",\"version\":\"1.0.0\",\"cache_mode\":\"normal\",\"redis\":\"ready\",\"uptime_s\":752}",
           "error_code": null,
-          "at": "2026-10-18T04:35:05.230Z"
+          "at": "2026-10-18T05:30:11.909Z"
         }
       }
     ],
@@ -46,7 +46,7 @@
       {
         "system": "workctl",
         "adapter": "resource-bindings",
-        "observed_at": "2026-10-18T04:35:05.188Z",
+        "observed_at": "2026-10-18T05:30:11.864Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/bindings.yaml",
         "method": "resources[demo-order].attributes",
         "relation": "explicit"
@@ -54,7 +54,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T04:35:05.230Z",
+        "observed_at": "2026-10-18T05:30:11.909Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/json?filters={label:workctl.service=demo-order}",
         "relation": "explicit",
@@ -63,14 +63,14 @@
       {
         "system": "http-probe",
         "adapter": "workctl-probe",
-        "observed_at": "2026-10-18T04:35:05.233Z",
+        "observed_at": "2026-10-18T05:30:11.913Z",
         "method": "GET {backend}/healthz",
         "relation": "sampled"
       }
     ],
     "coverage": {
       "complete": true,
-      "scope": "探测（probe）于 2026-10-18T04:35:05.233Z 从 workctl 所在主机发起",
+      "scope": "探测（probe）于 2026-10-18T05:30:11.913Z 从 workctl 所在主机发起",
       "notes": [
         "容器选择器: label workctl.service=demo-order（binding attribute container_label）（bindings: demo-order.attributes.container_label=workctl.service=demo-order）",
         "环境过滤: workctl.env=sandbox（无该标签的容器保留并标注）"
@@ -79,7 +79,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc0ksn-fc2fd1",
+    "request_id": "req-mvddzg8q-eb98e1",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -87,7 +87,7 @@
     "adapter": "docker-engine-api + http-probe",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:35:05.159Z",
-    "duration_ms": 74
+    "started_at": "2026-10-18T05:30:11.834Z",
+    "duration_ms": 79
   }
 }

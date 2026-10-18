@@ -139,3 +139,13 @@ export function summarizeTotals(topics: TopicLag[]): LagTotals {
     max_partition_lag: max,
   };
 }
+
+/**
+ * Partitions whose end offset was not read (deleted topic, or committed offsets for partitions the
+ * topic no longer has after being re-created with fewer partitions): their lag was not collected,
+ * so the result is partial, unlike `no_committed_offset` / `committed_ahead_of_end`, which are
+ * observed states.
+ */
+export function partitionsWithoutEnd(topics: TopicLag[]): Array<{ topic: string; partition: number }> {
+  return topics.flatMap((t) => t.partitions.filter((p) => p.state === 'end_offset_unavailable').map((p) => ({ topic: t.topic, partition: p.partition })));
+}

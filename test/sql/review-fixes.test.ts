@@ -38,6 +38,49 @@ describe('read-only SQL guard: bypasses through SELECT', () => {
   });
 });
 
+describe('read-only SQL guard: lexing follows the engine (statements hidden from the guard)', () => {
+  it.each([
+    // Spark: no backslash escape inside `identifiers` — the backtick closes, INSERT is real
+    ["WITH a AS (SELECT 1 AS `x\\`) INSERT OVERWRITE DIRECTORY '/tmp/pwn' USING json SELECT * FROM a -- `", 'spark'],
+    // Spark: bracketed comments nest — the first */ does not end the comment
+    ["WITH a AS (SELECT 1) /* /* */ ' */ INSERT OVERWRITE DIRECTORY '/tmp/pwn' USING json SELECT * FROM a --'", 'spark'],
+    // Spark 3.5 raw string literals: r'x\' ends at the quote after the backslash
+    ["WITH a AS (SELECT r'x\\' AS c) INSERT OVERWRITE DIRECTORY '/tmp/pwn' USING json SELECT * FROM a --'", 'spark'],
+    ['WITH a AS (SELECT R"x\\" AS c) INSERT OVERWRITE DIRECTORY \'/tmp/pwn\' USING json SELECT * FROM a --"', 'spark'],
+    // Trino: no backslash escape in '…' — the string ends at \'
+    ["SELECT 'a\\', * FROM TABLE(system.query(query => 'select 1')) -- '", 'trino'],
+    // Trino: quoted table-function names
+    ['SELECT * FROM TABLE("system"."query"(query => \'select 1\'))', 'trino'],
+    ['SELECT * FROM TABLE(pg.system."query"(query => \'select 1\'))', 'trino'],
+  ] as const)('rejects %s (%s)', (q, engine) => {
+    expect(checkReadOnlySql(q, engine).ok).toBe(false);
+  });
+
+  it.each([
+    ["SELECT 'it\\'s' AS s, `a``b` FROM v /* c /* nested */ still comment */", 'spark'],
+    ["SELECT r'C:\\' AS p, attr'x' AS q FROM v", 'spark'],
+    ["SELECT 'C:\\' AS p, 'it''s' AS q FROM tpch.tiny.nation", 'trino'],
+    ['SELECT * FROM TABLE(sequence(start => 1, stop => 3)) /* a /* b */', 'trino'],
+  ] as const)('still accepts %s (%s)', (q, engine) => {
+    expect(checkReadOnlySql(q, engine).ok).toBe(true);
+  });
+});
+
+describe('read-only SQL guard: rejection does not echo file content', () => {
+  it('a non-SQL file (e.g. a password file) is rejected without quoting its first word', () => {
+    const g = checkReadOnlySql('Kq9secretPW\n');
+    expect(g.ok).toBe(false);
+    if (!g.ok) expect(g.reason.toUpperCase()).not.toContain('KQ');
+    const t = checkReadOnlySql('hunterTwo', 'trino');
+    if (!t.ok) expect(t.reason.toUpperCase()).not.toContain('HUNTER');
+  });
+  it('still names real statement keywords', () => {
+    const g = checkReadOnlySql('DROP TABLE t');
+    expect(g.ok).toBe(false);
+    if (!g.ok) expect(g.reason).toContain('DROP');
+  });
+});
+
 describe('sql query submit process handling', () => {
   it('does not pass profile secrets referenced via env: to the Spark child process', () => {
     const cfg = tempConfig({});

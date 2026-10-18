@@ -12,9 +12,9 @@
     "key": "cache.mode",
     "revision_space": "etcd-cluster-revision",
     "mode": "previous_version",
-    "from_revision": 150,
-    "to_revision": 154,
-    "current_revision": 154,
+    "from_revision": 37,
+    "to_revision": 41,
+    "current_revision": 41,
     "changes": [],
     "summary": {
       "added": 0,
@@ -30,9 +30,9 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-18T04:36:07.833Z",
+        "observed_at": "2026-10-18T05:31:14.536Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
-        "method": "POST /v3/kv/range key=/config/sandbox/demo-order/cache.mode revision=150 / revision=154",
+        "method": "POST /v3/kv/range key=/config/sandbox/demo-order/cache.mode revision=37 / revision=41",
         "relation": "explicit",
         "version": "3.5.21"
       }
@@ -40,7 +40,7 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "etcd etcd/demo-etcd 键 /config/sandbox/demo-order/cache.mode，修订 150 → 154",
+      "scope": "etcd etcd/demo-etcd 键 /config/sandbox/demo-order/cache.mode，修订 37 → 41",
       "notes": [
         "只比较两个修订的快照；区间内的中间值不可见。历史只保留到最近一次压缩"
       ]
@@ -48,7 +48,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc1x3x-e00645",
+    "request_id": "req-mvde0sl3-9fd5b1",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -56,7 +56,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:36:07.773Z",
-    "duration_ms": 61
+    "started_at": "2026-10-18T05:31:14.487Z",
+    "duration_ms": 50
   }
 }

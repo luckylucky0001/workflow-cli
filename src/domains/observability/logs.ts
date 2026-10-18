@@ -65,6 +65,39 @@ export interface LogEntry {
   span_id: string | null;
   fields: Record<string, unknown> | null;
   raw: string | null;
+  /** msg/raw or a string field was longer than MAX_LOG_TEXT and was cut. */
+  truncated: boolean;
+}
+
+/** Per-value cap for log text (msg, raw, string fields): one huge line must not blow up the result. */
+export const MAX_LOG_TEXT = 8192;
+
+function capText(v: string, hit: { n: number }): string {
+  if (v.length <= MAX_LOG_TEXT) return v;
+  hit.n++;
+  return `${v.slice(0, MAX_LOG_TEXT)}…[截断，原长 ${v.length} 字符]`;
+}
+
+function capValue(v: unknown, hit: { n: number }, depth = 0): unknown {
+  if (typeof v === 'string') return capText(v, hit);
+  if (depth > 8 || v === null || typeof v !== 'object') return v;
+  if (Array.isArray(v)) return v.map((x) => capValue(x, hit, depth + 1));
+  const out: Record<string, unknown> = {};
+  for (const [k, x] of Object.entries(v as Record<string, unknown>)) out[k] = capValue(x, hit, depth + 1);
+  return out;
+}
+
+export function longTextNote(n: number): string {
+  return `${n} 条日志含超过 ${MAX_LOG_TEXT} 字符的文本，已截断（entries[].truncated=true）`;
+}
+
+/** Apply MAX_LOG_TEXT to every text value of an entry; sets `truncated`. */
+export function capEntry(e: LogEntry): LogEntry {
+  const hit = { n: 0 };
+  const msg = e.msg === null ? null : capText(e.msg, hit);
+  const raw = e.raw === null ? null : capText(e.raw, hit);
+  const fields = e.fields === null ? null : (capValue(e.fields, hit) as Record<string, unknown>);
+  return hit.n ? { ...e, msg, raw, fields, truncated: true } : e;
 }
 
 const LEVELS: Record<string, number> = { trace: 5, debug: 10, info: 20, notice: 25, warn: 30, warning: 30, error: 40, err: 40, fatal: 50, critical: 50, panic: 50 };
@@ -92,7 +125,7 @@ export function parseLogLine(line: string, container: string, stream: 'stdout' |
         const { kind: _k, trace_id: _t, span_id: _s, ...others } = rest;
         const fields: Record<string, unknown> = { ...others };
         if (_appTs !== undefined) fields.app_ts = _appTs;
-        return {
+        return capEntry({
           ts,
           container,
           stream,
@@ -103,13 +136,14 @@ export function parseLogLine(line: string, container: string, stream: 'stdout' |
           span_id: typeof obj.span_id === 'string' ? obj.span_id : null,
           fields,
           raw: null,
-        };
+          truncated: false,
+        });
       }
     } catch {
       // fall through to raw
     }
   }
-  return { ts, container, stream, level: null, msg: null, kind: null, trace_id: null, span_id: null, fields: null, raw: content };
+  return capEntry({ ts, container, stream, level: null, msg: null, kind: null, trace_id: null, span_id: null, fields: null, raw: content, truncated: false });
 }
 
 export interface LogFilter {
@@ -140,7 +174,8 @@ export function matches(e: LogEntry, line: string, f: LogFilter, stats: FilterSt
     }
     if (r < min) return false;
   }
-  if (f.traceId && e.trace_id !== f.traceId && !(e.raw ?? '').includes(f.traceId)) return false;
+  // raw entries: check the full line, not e.raw (which may be capped at MAX_LOG_TEXT)
+  if (f.traceId && e.trace_id !== f.traceId && !(e.raw !== null && line.includes(f.traceId))) return false;
   if (f.contains && !line.includes(f.contains)) return false;
   return true;
 }

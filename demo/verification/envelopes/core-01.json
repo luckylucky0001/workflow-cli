@@ -39,7 +39,7 @@
         "area": "endpoints",
         "item": "mysql/demo-mysql",
         "ok": true,
-        "detail": "127.0.0.1:13306 可达 (5ms)"
+        "detail": "127.0.0.1:13306 可达 (3ms)"
       },
       {
         "area": "credentials",
@@ -57,13 +57,13 @@
         "area": "endpoints",
         "item": "redis/demo-redis",
         "ok": true,
-        "detail": "127.0.0.1:16379 可达 (2ms)"
+        "detail": "127.0.0.1:16379 可达 (1ms)"
       },
       {
         "area": "endpoints",
         "item": "prometheus/demo-prometheus",
         "ok": true,
-        "detail": "127.0.0.1:19090 可达 (1ms)"
+        "detail": "127.0.0.1:19090 可达 (0ms)"
       },
       {
         "area": "endpoints",
@@ -87,7 +87,7 @@
         "area": "endpoints",
         "item": "spark/demo-spark",
         "ok": true,
-        "detail": "127.0.0.1:18088 可达 (1ms)"
+        "detail": "127.0.0.1:18088 可达 (5ms)"
       },
       {
         "area": "endpoints",
@@ -105,7 +105,7 @@
         "area": "endpoints",
         "item": "kafka/demo-mq",
         "ok": true,
-        "detail": "127.0.0.1:19092 可达 (1ms)"
+        "detail": "127.0.0.1:19092 可达 (5ms)"
       },
       {
         "area": "endpoints",
@@ -117,7 +117,7 @@
         "area": "endpoints",
         "item": "etcd/demo-etcd",
         "ok": true,
-        "detail": "127.0.0.1:12379 可达 (1ms)"
+        "detail": "127.0.0.1:12379 可达 (6ms)"
       },
       {
         "area": "endpoints",
@@ -129,7 +129,7 @@
         "area": "endpoints",
         "item": "consul/demo-consul",
         "ok": true,
-        "detail": "127.0.0.1:18500 可达 (1ms)"
+        "detail": "127.0.0.1:18500 可达 (0ms)"
       },
       {
         "area": "credentials",
@@ -141,17 +141,17 @@
         "area": "endpoints",
         "item": "jenkins/demo-jenkins",
         "ok": true,
-        "detail": "127.0.0.1:18091 可达 (0ms)"
+        "detail": "127.0.0.1:18091 可达 (2ms)"
       },
       {
         "area": "plugins",
-        "item": "demo-mq",
+        "item": "demo-search",
         "ok": true,
         "detail": "v0.1.0 backend_mode=live，4 个能力"
       },
       {
         "area": "plugins",
-        "item": "demo-search",
+        "item": "demo-mq",
         "ok": true,
         "detail": "v0.1.0 backend_mode=live，4 个能力"
       },
@@ -169,7 +169,7 @@
       {
         "system": "workctl",
         "adapter": "local",
-        "observed_at": "2026-10-18T04:34:57.249Z",
+        "observed_at": "2026-10-18T05:30:03.426Z",
         "relation": "derived"
       }
     ],
@@ -181,7 +181,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc0enf-2afde9",
+    "request_id": "req-mvddz9pd-e1b45f",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -189,7 +189,7 @@
     "adapter": "local",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:34:57.195Z",
-    "duration_ms": 54
+    "started_at": "2026-10-18T05:30:03.361Z",
+    "duration_ms": 66
   }
 }

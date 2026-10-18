@@ -11,7 +11,7 @@ import { Ctx } from '../../src/core/runtime';
 import { pagedQuery } from '../../src/domains/observability/loki';
 import container from '../../src/domains/container';
 import observability from '../../src/domains/observability';
-import { parseLogLine } from '../../src/domains/observability/logs';
+import { MAX_LOG_TEXT, parseLogLine } from '../../src/domains/observability/logs';
 import {
   buildLogQuery,
   buildStatQueries,
@@ -339,6 +339,54 @@ describe('log query / trace get against a fake Loki', () => {
     expect(d.scanned).toEqual([{ service: 'demo-order', containers: ['demo-order'], lines_scanned: 8 }]);
     expect(env.meta.sources[0]).toMatchObject({ system: 'loki', relation: 'derived' });
     expect(lastQueryRange().params.get('query')).toBe(`{service="demo-order", env="sandbox"} |= "${TRACE}"`);
+  });
+
+  it('rejects a 0s window like the Docker provider', async () => {
+    for (const [cap, args] of [
+      ['observability.log.query', { service: 'demo-order', window: '0s' }],
+      ['observability.trace.get', { id: TRACE, service: 'demo-order', window: '0s' }],
+    ] as const) expect((await invoke(r, cap, args, { configPath: cfg })).error?.code, cap).toBe('INVALID_ARGUMENT');
+  });
+
+  it('caps long lines exactly like the Docker provider (truncated flag + note)', async () => {
+    const big = 'y'.repeat(MAX_LOG_TEXT * 3);
+    const lfake = await startFakeLoki([
+      { ns: ns(3_000), labels: { ...order, service: 'demo-long', stream: 'stdout' }, line: JSON.stringify({ level: 'error', msg: big, trace_id: TRACE, span_id: 's9' }) },
+      { ns: ns(2_000), labels: { ...order, service: 'demo-long', stream: 'stderr' }, line: big },
+      { ns: ns(1_000), labels: { ...order, service: 'demo-long', stream: 'stdout' }, line: JSON.stringify({ level: 'debug', msg: 'span', kind: 'span', name: 'h', trace_id: TRACE, span_id: 's9', parent_span_id: null, start: iso(1000), duration_ms: 5, status: 'ok', attributes: { sql: big } }) },
+    ]);
+    try {
+      const c = writeConfig(dir, lfake.url, { defaultsLogs: 'loki' });
+      const env = await invoke(r, 'observability.log.query', { service: 'demo-long', window: '15m' }, { configPath: c });
+      expect(env.status).toBe('success');
+      const d = env.data as any;
+      expect(d.entries.map((e: any) => e.truncated)).toEqual([true, true]);
+      expect(d.entries[0]).toEqual(parseLogLine(`${nsToIso(ns(2_000))} ${big}`, 'demo-order', 'stderr'));
+      expect(env.meta.coverage?.notes?.join('\n')).toMatch(/2 条日志含超过 8192 字符的文本/);
+      const t = await invoke(r, 'observability.trace.get', { id: TRACE, service: 'demo-long', window: '15m' }, { configPath: c });
+      expect(t.status).toBe('success');
+      expect(((t.data as any).spans[0].attributes.sql as string).length).toBeLessThan(MAX_LOG_TEXT + 64);
+      expect(t.meta.coverage?.notes?.join('\n')).toMatch(/2 条 span\/日志记录含超过 8192 字符的文本/);
+    } finally {
+      await lfake.close();
+    }
+  });
+
+  it('trace get is not complete when the Loki scan budget ran out', async () => {
+    const lab = { ...order, service: 'demo-busy', stream: 'stdout' };
+    const many: FakeLine[] = [
+      { ns: ns(3_000), labels: lab, line: JSON.stringify({ level: 'debug', msg: 'span', kind: 'span', name: 'h', trace_id: TRACE, span_id: 's1', parent_span_id: null, start: iso(3000), duration_ms: 5, status: 'ok', attributes: {} }) },
+      ...Array.from({ length: 5001 }, (_, k) => ({ ns: ns(2_000), labels: lab, line: JSON.stringify({ level: 'info', msg: `l${k}`, trace_id: TRACE, span_id: 's1' }) })),
+    ];
+    const lfake = await startFakeLoki(many);
+    try {
+      const t = await invoke(r, 'observability.trace.get', { id: TRACE, service: 'demo-busy', window: '15m' }, { configPath: writeConfig(dir, lfake.url, { defaultsLogs: 'loki' }) });
+      expect(t.status).toBe('success');
+      expect(t.meta.coverage?.notes?.join('\n')).toMatch(/扫描预算/);
+      expect(t.meta.coverage?.complete).toBe(false);
+    } finally {
+      await lfake.close();
+    }
   });
 
   it('distinguishes an unknown stream (NOT_FOUND) from an empty window (success, empty)', async () => {

@@ -15,7 +15,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc2zlv-47a17a",
+    "request_id": "req-mvde1vl4-14f699",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -23,7 +23,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:36:57.667Z",
-    "duration_ms": 138
+    "started_at": "2026-10-18T05:32:05.032Z",
+    "duration_ms": 214
   }
 }

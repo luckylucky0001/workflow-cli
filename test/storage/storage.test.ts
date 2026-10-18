@@ -66,6 +66,18 @@ describe('storage capabilities', () => {
     expect(f.meta.sources[0].system).toBe('local-filesystem');
   });
 
+  it('a directory with exactly 10000 entries is complete; 10001 is truncated at 10000', async () => {
+    const big = mkdtempSync(join(tmpdir(), 'workctl-fs-big-'));
+    for (let n = 0; n < 10_000; n++) writeFileSync(join(big, `f${n}`), '');
+    const full = await invoke(r, 'storage.file.stat', { path: big }, { configPath });
+    expect((full.data as any).directory).toEqual({ entries: 10_000, truncated: false });
+    expect(full.meta.coverage?.complete).toBe(true);
+    writeFileSync(join(big, 'one-more'), '');
+    const over = await invoke(r, 'storage.file.stat', { path: big }, { configPath });
+    expect((over.data as any).directory).toEqual({ entries: 10_000, truncated: true });
+    expect(over.meta.coverage?.complete).toBe(false);
+  });
+
   it('missing path is NOT_FOUND', async () => {
     const env = await invoke(r, 'storage.file.stat', { path: join(dir, 'nope') }, { configPath });
     expect(env.error?.code).toBe('NOT_FOUND');

@@ -34,7 +34,8 @@ interface DriverError extends Error {
 function isDriverError(e: unknown): e is DriverError {
   if (!e || typeof e !== 'object') return false;
   const d = e as DriverError;
-  return typeof d.sqlState === 'string' || typeof d.sqlMessage === 'string' || (typeof d.fatal === 'boolean' && typeof d.code === 'string');
+  // mysql2's client-side query timeout ("Query inactivity timeout") carries only code, no fatal flag
+  return typeof d.sqlState === 'string' || typeof d.sqlMessage === 'string' || (typeof d.fatal === 'boolean' && typeof d.code === 'string') || d.code === 'PROTOCOL_SEQUENCE_TIMEOUT';
 }
 
 const PERMISSION_CODES = new Set([

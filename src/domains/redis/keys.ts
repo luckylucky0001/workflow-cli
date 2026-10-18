@@ -32,7 +32,8 @@ export async function scanSample(
   let cursor = '0';
   let calls = 0;
   let dup = 0;
-  let dropped = 0;
+  // keys seen after the cap: a repeat of one of these is a duplicate, not another dropped key
+  const droppedKeys = new Set<string>();
   let stopped: ScanResult['stopped_by'] = 'cursor_complete';
   do {
     if (calls >= opts.maxScanCalls) {
@@ -46,9 +47,9 @@ export async function scanSample(
     const [next, batch] = await scan(cursor);
     calls++;
     for (const k of batch) {
-      if (seen.has(k)) dup++;
+      if (seen.has(k) || droppedKeys.has(k)) dup++;
       else if (seen.size < opts.maxKeys) seen.add(k);
-      else dropped++;
+      else droppedKeys.add(k);
     }
     cursor = String(next);
     if (seen.size >= opts.maxKeys && cursor !== '0') {
@@ -56,6 +57,7 @@ export async function scanSample(
       break;
     }
   } while (cursor !== '0');
+  const dropped = droppedKeys.size;
   const complete = cursor === '0' && stopped === 'cursor_complete' && dropped === 0;
   if (cursor === '0' && dropped > 0) stopped = 'max_keys';
   return { keys: [...seen], scan_calls: calls, duplicates_seen: dup, dropped, cursor_complete: complete, stopped_by: stopped };
@@ -79,7 +81,7 @@ const SCAN_INPUTS = {
   scan_count: { type: 'int' as const, default: 100, description: 'SCAN COUNT 提示值（只是提示，不保证每次返回数量）' },
 };
 
-async function runScan(ctx: Ctx, s: RedisSession, i: Record<string, any>): Promise<{ scan: ScanResult; meta: z.infer<typeof ScanSchema> }> {
+async function runScan(ctx: Ctx, s: RedisSession, i: Record<string, any>): Promise<{ scan: ScanResult; meta: z.infer<typeof ScanSchema>; maxKeys: number }> {
   const maxKeys = Math.max(1, Math.min(Number(i.max_keys), 10_000));
   const maxCalls = Math.max(1, Math.min(Number(i.max_scan_calls), 10_000));
   const count = Math.max(1, Math.min(Number(i.scan_count), 10_000));
@@ -91,6 +93,7 @@ async function runScan(ctx: Ctx, s: RedisSession, i: Record<string, any>): Promi
   });
   return {
     scan,
+    maxKeys,
     meta: {
       pattern,
       scan_count_hint: count,
@@ -163,7 +166,7 @@ export const keySample = defineCapability({
   examples: ['workctl redis key sample --instance demo-redis --pattern "demo:*" --max-keys 200'],
   handler: async (ctx, i) =>
     withRedis(ctx, i.instance, async (s) => {
-      const { scan, meta } = await runScan(ctx, s, i);
+      const { scan, meta, maxKeys } = await runScan(ctx, s, i);
       const rows = await perKey(s, scan.keys, (k) => [['TYPE', k], ['MEMORY', 'USAGE', k, 'SAMPLES', 5]]);
       const denied = firstNoPerm(rows);
       if (denied) throw s.fail(denied);
@@ -214,7 +217,7 @@ export const keySample = defineCapability({
           top_keys: [...sized].sort((a, b) => (b.memory_bytes ?? -1) - (a.memory_bytes ?? -1)).slice(0, 10),
         },
         sources: [await s.src(`SCAN MATCH ${meta.pattern} COUNT ${meta.scan_count_hint} + TYPE + MEMORY USAGE SAMPLES 5`, 'sampled')],
-        coverage: { complete: meta.cursor_complete, sampled: true, scope: `pattern ${meta.pattern}`, limit: Number(i.max_keys), truncated: !meta.cursor_complete, notes },
+        coverage: { complete: meta.cursor_complete, sampled: true, scope: `pattern ${meta.pattern}`, limit: maxKeys, truncated: !meta.cursor_complete, notes },
       };
     }),
 });
@@ -352,7 +355,7 @@ export const keyInspect = defineCapability({
   handler: async (ctx, i) =>
     withRedis(ctx, i.instance, async (s) => {
       const key = String(i.key);
-      const [[e1, type], [e2, pttl], [, enc], [e4, mem]] = ((await (async () => {
+      const [[e1, type], [e2, pttl], [e3, enc], [e4, mem]] = ((await (async () => {
         const p = s.client.pipeline();
         p.call('TYPE', [key]);
         p.call('PTTL', [key]);
@@ -365,6 +368,11 @@ export const keyInspect = defineCapability({
         }
       })()) ?? []) as Array<[Error | null, unknown]>;
       for (const e of [e1, e2]) if (e) throw s.fail(e);
+      if (e3) {
+        // an ACL-denied OBJECT ENCODING must not read as "no encoding"
+        if (!/^NOPERM/.test(e3.message)) throw s.fail(e3);
+        ctx.warn(`OBJECT ENCODING 被 ACL 拒绝，encoding 为 null: ${e3.message}`);
+      }
       if (e4) {
         if (!/^NOPERM/.test(e4.message)) throw s.fail(e4);
         ctx.warn(`MEMORY USAGE 被 ACL 拒绝，memory_bytes 为 null: ${e4.message}`);

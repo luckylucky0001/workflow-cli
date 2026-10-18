@@ -233,6 +233,7 @@ profiles:
       spark:
         s:
           query_state_dir: ./spark-queries
+          warehouse_root: ./warehouse
       trino:
         t1:
           url: ${fake.url}
@@ -246,6 +247,14 @@ profiles:
     );
   });
   afterAll(() => fake.server.close());
+
+  it('refuses a result directory inside a configured warehouse_root (would look like a partition)', async () => {
+    const posts = fake.requests.filter((q) => q.method === 'POST').length;
+    const sub = await call('sql.query.submit', { engine: 'trino', file: file('wh.sql', 'SELECT 1'), output: join(dir, 'warehouse', 'analytics', 'daily_orders', 'dt=2026-10-18') });
+    expect(sub.error?.code).toBe('INVALID_ARGUMENT');
+    expect(sub.error?.message).toContain('warehouse_root');
+    expect(fake.requests.filter((q) => q.method === 'POST').length).toBe(posts);
+  });
 
   it('submits, pages through nextUri and reports succeeded with preview, stats and a JSON-lines result', async () => {
     const sub = await call('sql.query.submit', { engine: 'trino', file: file('ok.sql', 'SELECT n, name, n FROM t;\n'), catalog: 'memory' });

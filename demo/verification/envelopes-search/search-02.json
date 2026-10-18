@@ -5,7 +5,7 @@
   "data": {
     "cluster": "demo-search",
     "cluster_name": "docker-cluster",
-    "cluster_uuid": "DghyoemeSMSfI15J8QEMeA",
+    "cluster_uuid": "om75NgXrTn2A3mbzJSqRoQ",
     "distribution": "opensearch",
     "version": "2.19.3",
     "lucene_version": "9.12.2",
@@ -34,7 +34,7 @@
       "closed": 0,
       "dot_prefixed": 3
     },
-    "observed_at": "2026-10-18T04:36:43.525Z"
+    "observed_at": "2026-10-18T05:31:50.899Z"
   },
   "error": null,
   "meta": {
@@ -44,7 +44,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "GET /",
-        "observed_at": "2026-10-18T04:36:43.509Z",
+        "observed_at": "2026-10-18T05:31:50.884Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       },
@@ -53,7 +53,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "GET /_cluster/health",
-        "observed_at": "2026-10-18T04:36:43.515Z",
+        "observed_at": "2026-10-18T05:31:50.889Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       },
@@ -62,7 +62,7 @@
         "adapter": "opensearch-http",
         "endpoint": "opensearch/demo-search",
         "method": "GET /_cat/indices?expand_wildcards=all",
-        "observed_at": "2026-10-18T04:36:43.525Z",
+        "observed_at": "2026-10-18T05:31:50.899Z",
         "version": "opensearch 2.19.3",
         "relation": "explicit"
       }
@@ -79,7 +79,7 @@
     ]
   },
   "context": {
-    "request_id": "req-mvdc2okt-7a6ccd",
+    "request_id": "req-mvde1kk9-3bae4c",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -87,7 +87,7 @@
     "adapter": "opensearch-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:36:43.372Z",
+    "started_at": "2026-10-18T05:31:50.745Z",
     "duration_ms": 163
   }
 }

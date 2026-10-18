@@ -5,9 +5,9 @@
   "data": {
     "instance": "demo-redis",
     "window": {
-      "start": "2026-10-18T04:35:23.481Z",
-      "end": "2026-10-18T04:35:28.484Z",
-      "duration_ms": 5003
+      "start": "2026-10-18T05:30:30.181Z",
+      "end": "2026-10-18T05:30:35.183Z",
+      "duration_ms": 5002
     },
     "restart_detected": false,
     "reset_counters": [],
@@ -20,7 +20,7 @@
       "rejected_connections": 0,
       "total_connections_received": 1,
       "total_net_input_bytes": 76,
-      "total_net_output_bytes": 4170,
+      "total_net_output_bytes": 4175,
       "total_error_replies": 0
     },
     "rates_per_sec": {
@@ -32,13 +32,13 @@
       "rejected_connections": 0,
       "total_connections_received": 0.2,
       "total_net_input_bytes": 15.19,
-      "total_net_output_bytes": 833.5,
+      "total_net_output_bytes": 834.67,
       "total_error_replies": 0
     },
     "hit_ratio": null,
     "hit_ratio_note": "窗口内没有键查找（hits+misses=0），命中率无定义（null），不是 0",
     "gauges_at_end": {
-      "used_memory": 6179456,
+      "used_memory": 6246112,
       "maxmemory": 67108864,
       "connected_clients": 2,
       "mem_fragmentation_ratio": 2.56,
@@ -52,7 +52,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T04:35:28.487Z",
+        "observed_at": "2026-10-18T05:30:35.187Z",
         "endpoint": "redis/demo-redis",
         "method": "INFO stats ×2 (Δ keyspace_hits, keyspace_misses, total_commands_processed, evicted_keys, expired_keys, rejected_connections, total_connections_received, total_net_input_bytes, total_net_output_bytes, total_error_replies)",
         "version": "7.4.11",
@@ -62,8 +62,8 @@
     "coverage": {
       "complete": true,
       "window": {
-        "start": "2026-10-18T04:35:23.481Z",
-        "end": "2026-10-18T04:35:28.484Z"
+        "start": "2026-10-18T05:30:30.181Z",
+        "end": "2026-10-18T05:30:35.183Z"
       },
       "notes": [
         "窗口内没有键查找（hits+misses=0），命中率无定义（null），不是 0",
@@ -73,7 +73,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc0ywx-0283c5",
+    "request_id": "req-mvddzudm-ba4dad",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -81,7 +81,7 @@
     "adapter": "redis-client",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:35:23.457Z",
-    "duration_ms": 5032
+    "started_at": "2026-10-18T05:30:30.154Z",
+    "duration_ms": 5035
   }
 }

@@ -20,7 +20,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T04:35:10.188Z",
+        "observed_at": "2026-10-18T05:30:16.864Z",
         "endpoint": "mysql/demo-mysql",
         "method": "performance_schema.processlist LEFT JOIN information_schema.INNODB_TRX",
         "version": "8.4.11",
@@ -37,7 +37,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc0on5-e3694f",
+    "request_id": "req-mvddzk3e-706064",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -45,7 +45,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:35:10.145Z",
-    "duration_ms": 44
+    "started_at": "2026-10-18T05:30:16.826Z",
+    "duration_ms": 39
   }
 }

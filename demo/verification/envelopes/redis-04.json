@@ -9,12 +9,25 @@
       "max_len": 256,
       "config_readable": true
     },
-    "retained_entries": 1,
+    "retained_entries": 5,
     "entries": [
       {
-        "id": 0,
-        "timestamp": "2026-10-18T04:19:44.000Z",
-        "duration_us": 4082,
+        "id": 4,
+        "timestamp": "2026-10-18T05:16:33.000Z",
+        "duration_us": 1322,
+        "command": "CONFIG GET",
+        "key": null,
+        "args": [
+          "?"
+        ],
+        "arg_count": 2,
+        "client_addr": "172.18.0.1:41060",
+        "client_name": null
+      },
+      {
+        "id": 3,
+        "timestamp": "2026-10-18T05:12:07.000Z",
+        "duration_us": 3965,
         "command": "ZRANGE",
         "key": "demo:leaderboard:amount:2026-10-16",
         "args": [
@@ -24,7 +37,109 @@
           "?"
         ],
         "arg_count": 4,
-        "client_addr": "172.18.0.1:43554",
+        "client_addr": "172.18.0.1:47572",
+        "client_name": null
+      },
+      {
+        "id": 2,
+        "timestamp": "2026-10-18T05:12:06.000Z",
+        "duration_us": 1057,
+        "command": "ZADD",
+        "key": "demo:leaderboard:amount:2026-10-16",
+        "args": [
+          "demo:leaderboard:amount:2026-10-16",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?"
+        ],
+        "arg_count": 31,
+        "client_addr": "172.18.0.1:47572",
+        "client_name": null
+      },
+      {
+        "id": 1,
+        "timestamp": "2026-10-18T05:12:06.000Z",
+        "duration_us": 2349,
+        "command": "ZADD",
+        "key": "demo:leaderboard:amount:2026-10-16",
+        "args": [
+          "demo:leaderboard:amount:2026-10-16",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?",
+          "?"
+        ],
+        "arg_count": 31,
+        "client_addr": "172.18.0.1:47572",
+        "client_name": null
+      },
+      {
+        "id": 0,
+        "timestamp": "2026-10-18T05:12:06.000Z",
+        "duration_us": 4008,
+        "command": "SET",
+        "key": "demo:order:2051",
+        "args": [
+          "demo:order:2051",
+          "?",
+          "?",
+          "?"
+        ],
+        "arg_count": 4,
+        "client_addr": "172.18.0.1:47572",
         "client_name": null
       }
     ]
@@ -35,7 +150,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T04:35:28.900Z",
+        "observed_at": "2026-10-18T05:30:35.564Z",
         "endpoint": "redis/demo-redis",
         "method": "SLOWLOG GET / SLOWLOG LEN / CONFIG GET slowlog-*",
         "version": "7.4.11",
@@ -54,7 +169,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc1339-622351",
+    "request_id": "req-mvddzyiw-7875f8",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -62,7 +177,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:35:28.869Z",
-    "duration_ms": 33
+    "started_at": "2026-10-18T05:30:35.528Z",
+    "duration_ms": 41
   }
 }

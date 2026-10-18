@@ -258,6 +258,25 @@ describe('container domain against a fake Kubernetes API (v1.31 shapes)', () => 
     expect(env.meta.coverage?.notes?.join()).toContain('demo-order-prod-6b7c8d9e0-aaaaa');
   });
 
+  it('metrics-server registered but unavailable (503): stats is UPSTREAM_UNAVAILABLE, capacity summary is partial (not lost)', async () => {
+    state.metricsUnavailable = true;
+    try {
+      const st = await invoke(r, 'container.stats.get', { service: 'demo-order' }, { configPath });
+      expect(st.error?.code).toBe('UPSTREAM_UNAVAILABLE');
+      expect(st.error?.message).toContain('503');
+      const env = await invoke(r, 'container.capacity.summary', { env: 'sandbox', provider: 'kubernetes' }, { configPath });
+      expect(env.status).toBe('partial');
+      noSchemaWarnings(env);
+      const d = env.data as any;
+      expect(d.totals.cpu_request_sum).toBe(0.3);
+      expect(d.containers.every((c: any) => c.usage === null)).toBe(true);
+      expect(env.meta.coverage?.notes?.join()).toContain('HTTP 503');
+      expect(env.meta.coverage?.complete).toBe(false);
+    } finally {
+      state.metricsUnavailable = false;
+    }
+  });
+
   it('capacity summary without metrics-server or node access is partial and says why', async () => {
     state.podMetrics = null;
     state.forbidden = new Set(['list nodes']);
@@ -396,6 +415,16 @@ contexts:
     const err = await run().catch((e) => e);
     expect(err.code).toBe('PRECONDITION_FAILED');
     expect(err.message).toContain('uid');
+    expect(fake.calls.filter((c) => c.startsWith('PATCH')).length).toBe(patches);
+  });
+
+  it('restart execute refuses when the Deployment spec changed (new generation) since planning', async () => {
+    const { run } = await planAndRun();
+    state.deployments[0].metadata.generation = 7; // e.g. a deploy started between plan and execute
+    const patches = fake.calls.filter((c) => c.startsWith('PATCH')).length;
+    const err = await run().catch((e) => e);
+    expect(err.code).toBe('PRECONDITION_FAILED');
+    expect(err.message).toContain('generation');
     expect(fake.calls.filter((c) => c.startsWith('PATCH')).length).toBe(patches);
   });
 

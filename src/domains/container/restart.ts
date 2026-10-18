@@ -123,15 +123,21 @@ export const restartExecutor: Executor = async (ctx: Ctx, plan: Plan, report) =>
   const docker = dockerClient(ctx);
   const service = String(plan.params.service ?? '');
   const outcomes: RestartOutcome[] = [];
+  // re-check every target before restarting any: a drifted later target must not be found only
+  // after earlier containers were already restarted
+  for (const t of plan.targets) {
+    const id = String(t.container_id);
+    const cur = await docker.getJson<ContainerInspect>(`/containers/${id}/json`);
+    const label = cur.Config?.Labels?.['workctl.service'];
+    const selector = String(t.selector ?? '');
+    const kind = t.selector_kind === 'name' ? 'name' : 'label';
+    if (selector.includes('=') && !selectorMatches({ kind, label: selector }, { labels: cur.Config?.Labels, name: containerName(cur) })) {
+      throw new WorkError('PRECONDITION_FAILED', `容器 ${containerName(cur)} 已不再匹配选择器 ${selector}，拒绝执行（未重启任何容器）`, { details: { label } });
+    }
+  }
   for (const t of plan.targets) {
     const id = String(t.container_id);
     const before = await docker.getJson<ContainerInspect>(`/containers/${id}/json`);
-    const label = before.Config?.Labels?.['workctl.service'];
-    const selector = String(t.selector ?? '');
-    const kind = t.selector_kind === 'name' ? 'name' : 'label';
-    if (selector.includes('=') && !selectorMatches({ kind, label: selector }, { labels: before.Config?.Labels, name: containerName(before) })) {
-      throw new WorkError('PRECONDITION_FAILED', `容器 ${containerName(before)} 已不再匹配选择器 ${selector}，拒绝执行`, { details: { label } });
-    }
     const t0 = Date.now();
     report(`restart ${containerName(before)} (${shortId(id)})`);
     await docker.post(`/containers/${id}/restart?t=${STOP_TIMEOUT_S}`, { timeoutMs: (STOP_TIMEOUT_S + 30) * 1000 });

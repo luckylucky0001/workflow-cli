@@ -1,12 +1,13 @@
 // Regression tests for the core cross-review fixes (engine, plan store, MCP, plugins, config).
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { invoke } from '../../src/core/engine';
 import { loadConfig } from '../../src/core/config';
 import { PlanStore } from '../../src/core/operations';
+import { ResourceStore } from '../../src/core/resources';
 import { installPlugin, loadPlugins, pluginEnv } from '../../src/core/plugins';
 import { defineCapability, defineDomain, Registry } from '../../src/core/registry';
 import coreDomain from '../../src/domains/core';
@@ -187,6 +188,29 @@ describe('operation execute: plan locking and expiry', () => {
     expect(list.status).toBe('success');
     expect((list.data as any).operations.length).toBeGreaterThan(0);
   });
+
+  it('operation plan keeps comma-separated values of one --param (e.g. columns=a,b)', async () => {
+    const viaCli = await call('operation.plan', { action: 'rv.slow', param: ['columns=user_id,created_at', 'name=idx'] });
+    expect(viaCli.error).toBeNull();
+    expect((viaCli.data as any).params).toEqual({ columns: 'user_id,created_at', name: 'idx' });
+    // the documented comma form of the list input: columns=a,b,name=x
+    const single = await call('operation.plan', { action: 'rv.slow', param: 'columns=a,b,name=x' });
+    expect((single.data as any).params).toEqual({ columns: 'a,b', name: 'x' });
+    expect((await call('operation.plan', { action: 'rv.slow', param: ['oops'] })).error?.code).toBe('INVALID_ARGUMENT');
+  });
+
+  it('a plan file copied to another id is refused (lock and writes would target different plans)', async () => {
+    executorRuns = 0;
+    const plan = (await call('operation.plan', { action: 'rv.slow' })).data as any;
+    const store = new PlanStore(join(dir, 'state', 'operations'));
+    const copyId = 'op-20260101-aaaaaa';
+    writeFileSync(join(store.dir, `${copyId}.json`), readFileSync(join(store.dir, `${plan.id}.json`)));
+    const env = await call('operation.execute', { id: copyId, confirm: copyId });
+    expect(env.error?.code).toBe('PRECONDITION_FAILED');
+    expect(executorRuns).toBe(0);
+    expect(((await call('operation.get', { id: plan.id })).data as any).status).toBe('planned');
+    expect((await call('operation.get', { id: 'op-20260101-zzzzzz' })).error?.code).toBe('PRECONDITION_FAILED');
+  });
 });
 
 describe('engine guards and input parsing', () => {
@@ -286,6 +310,9 @@ describe('config: inline credentials', () => {
     ['client secret', { api: { a: { url: 'http://h', client_secret: 's' } } }],
     ['url userinfo', { prometheus: { p: { url: 'http://admin:hunter2@127.0.0.1:9090' } } }],
     ['nested object', { kafka: { k: { sasl: { mechanism: 'plain', password: 'p' } } } }],
+    ['key passphrase (plugin endpoint)', { kafka: { k: { brokers: ['x:1'], ssl_key_passphrase: 'hunter2' } } }],
+    ['authorization header (plugin endpoint)', { opensearch: { s: { url: 'http://h', headers: { Authorization: 'Bearer hunter2-abcdef' } } } }],
+    ['bearer value under any key', { opensearch: { s: { url: 'http://h', headers: { 'X-Api': 'Bearer hunter2-abcdef' } } } }],
   ];
   for (const [label, endpoints] of cases) {
     it(`rejects ${label}`, async () => {
@@ -298,6 +325,28 @@ describe('config: inline credentials', () => {
   it('accepts references, plain URLs and non-secret keys', () => {
     const p = writeConfig(tempDir(), { endpoints: { prometheus: { p: { url: 'http://user@127.0.0.1:9090', token_ref: 'env:X', max_tokens: 3, password_ref: 'file:secret.txt' } } } });
     expect(() => loadConfig(p)).not.toThrow();
+  });
+  it('a YAML syntax error does not quote file content (inline secrets) in the error', async () => {
+    const d = tempDir();
+    const p = join(d, 'bad.yaml');
+    writeFileSync(p, 'profiles:\n  p:\n    endpoints:\n      mysql:\n        m:\n          password: Sup3rSecretValue\n         host: [a\n');
+    const env = await invoke(reg, 'fake.echo', { text: 'a' }, { configPath: p });
+    expect(env.error?.code).toBe('INVALID_ARGUMENT');
+    expect(JSON.stringify(env)).toMatch(/line 7/);
+    expect(JSON.stringify(env)).not.toContain('Sup3rSecretValue');
+  });
+  it('a YAML syntax error in the bindings file is INVALID_ARGUMENT without quoting the file', () => {
+    const d = tempDir();
+    const b = join(d, 'bindings.yaml');
+    writeFileSync(b, 'resources:\n  - id: svc\n    attributes: {note: Sup3rSecretValue\n   x: [\n');
+    let err: any;
+    try {
+      ResourceStore.load(b);
+    } catch (e) {
+      err = e;
+    }
+    expect(err?.code).toBe('INVALID_ARGUMENT');
+    expect(JSON.stringify({ m: err?.message, d: err?.details })).not.toContain('Sup3rSecretValue');
   });
 });
 
@@ -451,5 +500,42 @@ describe('registry: fulfilling planned built-ins is all-or-nothing', () => {
     // the same plugin without the clash still fulfils the planned entry
     reg.addDomain({ ...plugin, capabilities: [cap('search.query', 'search query')] }, { fulfillPlanned: true });
     expect(reg.get('search.query')).toMatchObject({ status: 'available', origin: 'plugin:p@1' });
+  });
+});
+
+describe('doctor: malformed endpoint address', () => {
+  it('reports a url that cannot be parsed as a failed check instead of aborting with INTERNAL', async () => {
+    const reg = testRegistry();
+    const p = writeConfig(tempDir(), { endpoints: { prometheus: { x: { url: '127.0.0.1:9090' } } } });
+    const env = await invoke(reg, 'doctor.run', {}, { configPath: p });
+    expect(env.status).toBe('success');
+    const c = (env.data as any).checks.find((x: any) => x.item === 'prometheus/x');
+    expect(c).toMatchObject({ area: 'endpoints', ok: false });
+    expect((env.data as any).healthy).toBe(false);
+  });
+});
+
+describe('access check: unknown --target', () => {
+  it('does not silently check the default endpoint when the named target does not exist', async () => {
+    const reg = new Registry();
+    reg.addDomain(coreDomain);
+    reg.addDomain(
+      defineDomain({
+        name: 'mysql',
+        title: 'm',
+        summary: 'm',
+        pillar: 'middleware',
+        guide: 'docs/x.md',
+        capabilities: [
+          defineCapability({ name: 'mysql.t.get', command: 'mysql t get', summary: 's', domain: 'mysql', output: z.object({}), adapter: 'a', operation: 'read', auth_provider: 'none', guide: 'docs/x.md', handler: async () => ({ data: {} }) }),
+        ],
+      }),
+    );
+    const configPath = writeConfig(tempDir());
+    const bad = await invoke(reg, 'access.check', { capability: 'mysql.t.get', target: 'prod-mysql', probe: false }, { configPath });
+    expect((bad.data as any).verdict).toBe('denied');
+    expect((bad.data as any).checks.find((c: any) => c.check === 'target')).toMatchObject({ ok: false });
+    const good = await invoke(reg, 'access.check', { capability: 'mysql.t.get', target: 'db-a', probe: false }, { configPath });
+    expect((good.data as any).verdict).toBe('allowed');
   });
 });

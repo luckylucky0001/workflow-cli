@@ -38,13 +38,15 @@ export interface LoadedConfig {
 }
 
 // exact names and suffixed forms such as client_secret, auth_token, secret_access_key, private_key
-const INLINE_SECRET_KEY = /(^|_)(password|passwd|pwd|secret|token|api_key|apikey|access_key|secret_key|private_key|dsn|credentials?)$/i;
+const INLINE_SECRET_KEY = /(^|_)(password|passwd|pwd|passphrase|secret|token|api_key|apikey|access_key|secret_key|private_key|dsn|credentials?|authorization|cookie)$/i;
+/** An HTTP Authorization value (e.g. under a plugin endpoint's `headers`), whatever its key. */
+const AUTH_HEADER_VALUE = /^(bearer|basic|token|digest)\s+\S{6,}/i;
 /** scheme://user:password@host — credentials embedded in a URL value. */
 const URL_WITH_PASSWORD = /^[a-z][a-z0-9+.-]*:\/\/[^/@\s:]*:[^/@\s]+@/i;
 
 /** Paths of inline credentials in an endpoint config (nested objects and URL values included). */
 export function findInlineSecrets(value: unknown, path: string): string[] {
-  if (typeof value === 'string') return URL_WITH_PASSWORD.test(value) ? [path] : [];
+  if (typeof value === 'string') return URL_WITH_PASSWORD.test(value) || AUTH_HEADER_VALUE.test(value) ? [path] : [];
   if (Array.isArray(value)) return value.flatMap((v, i) => findInlineSecrets(v, `${path}[${i}]`));
   if (value && typeof value === 'object') {
     return Object.entries(value as Record<string, unknown>).flatMap(([k, v]) => [
@@ -53,6 +55,16 @@ export function findInlineSecrets(value: unknown, path: string): string[] {
     ]);
   }
   return [];
+}
+
+/**
+ * A YAML parse error without the parser's code frame: the frame quotes the lines around the
+ * error, which may hold credentials (or other file content) that must not reach the output.
+ */
+export function yamlErrorSummary(e: unknown): string {
+  const err = e as { name?: string; code?: string; linePos?: { line: number; col: number }[]; message?: string };
+  const first = String(err?.message ?? e).split('\n')[0].replace(/:\s*$/, '');
+  return `${err?.name ?? 'Error'}${err?.code ? ` (${err.code})` : ''}: ${first}`;
 }
 
 export function defaultConfigCandidates(cwd = process.cwd()): string[] {
@@ -76,7 +88,7 @@ export function loadConfig(explicitPath?: string): LoadedConfig {
   try {
     raw = YAML.parse(readFileSync(path, 'utf8')) ?? {};
   } catch (e) {
-    throw new WorkError('INVALID_ARGUMENT', `配置文件无法解析: ${path}`, { details: { reason: String(e) } });
+    throw new WorkError('INVALID_ARGUMENT', `配置文件无法解析: ${path}`, { details: { reason: yamlErrorSummary(e) } });
   }
   const parsed = ConfigSchema.safeParse(raw);
   if (!parsed.success) {

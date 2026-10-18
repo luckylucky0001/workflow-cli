@@ -6,7 +6,7 @@ import { defineCapability } from '../../../core/registry';
 import { cell, flattenExplain, maskValue, parseAnalyzeTree } from '../analysis';
 import { ADAPTER, AUTH_PROVIDER, GUIDE, mapMysqlError, sensitiveColumns, withMysql, type MysqlSession } from '../client';
 import { COMMON_PREREQS, DATABASE, INSTANCE, SQL_FILE, SQL_INLINE, SQL_MAX_BYTES } from '../inputs';
-import { guardSql, sensitiveOutputPlan } from '../sql-guard';
+import { guardSql, maskLiterals, sensitiveOutputPlan, type Token } from '../sql-guard';
 
 const DEFAULT_MAX_EXEC_MS = 5000;
 
@@ -29,6 +29,75 @@ export function sqlText(i: Record<string, unknown>): { text: string; origin: 'in
   }
   return { text: readInputFile(file!, SQL_MAX_BYTES), origin: 'file' };
 }
+
+/** The statement names a configured sensitive column, or expands `*` (which may include one). */
+export function mayReadSensitive(tokens: Token[], sensitive: Set<string>): boolean {
+  if (!sensitive.size) return false;
+  return tokens.some(
+    (t, idx) =>
+      ((t.kind === 'word' || t.kind === 'ident') && sensitive.has((t.kind === 'ident' ? t.text.slice(1, -1).split('``').join('`') : t.text).toLowerCase())) ||
+      (t.kind === 'punct' && t.text === '*' && idx > 0 && tokens[idx - 1].text !== '('),
+  );
+}
+
+/**
+ * The optimizer reads const tables (e.g. `WHERE c.id = 1`) while planning and substitutes their
+ * column values into other tables' conditions, so EXPLAIN / EXPLAIN ANALYZE text can show a row
+ * value (`o.status = '13800001111'`). Mask literals in the operation text; keep cost/actual stats.
+ */
+export function maskPlanTree(tree: string): string {
+  return tree
+    .split('\n')
+    .map((line) => {
+      const m = /^(\s*-> )(.*?)((?:\s*\((?:cost|rows|actual time)=[^)]*\)|\s*\(never executed\))*)$/.exec(line);
+      return m ? `${m[1]}${maskLiterals(m[2])}${m[3]}` : maskLiterals(line);
+    })
+    .join('\n');
+}
+
+/** Same for EXPLAIN FORMAT=JSON: literals in *condition* strings (attached_condition, index_condition, ...). */
+export function maskPlanConditions(plan: unknown, key = ''): unknown {
+  if (typeof plan === 'string') return /condition/i.test(key) ? maskLiterals(plan) : plan;
+  if (Array.isArray(plan)) return plan.map((x) => maskPlanConditions(x, key));
+  if (plan && typeof plan === 'object') return Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, maskPlanConditions(v, k)]));
+  return plan;
+}
+
+function maskPlanText(v: string): string {
+  if (/^\s*[{[]/.test(v)) {
+    try {
+      return JSON.stringify(maskPlanConditions(JSON.parse(v)), null, 2);
+    } catch {
+      /* not JSON */
+    }
+  }
+  return v.includes('-> ') ? maskPlanTree(v) : v;
+}
+
+/** Server errors whose text names only identifiers / the submitted SQL, never row values. */
+const IDENTIFIER_ONLY_ERRORS = new Set([
+  'ER_NO_SUCH_TABLE', 'ER_BAD_DB_ERROR', 'ER_BAD_TABLE_ERROR', 'ER_BAD_FIELD_ERROR', 'ER_PARSE_ERROR', 'ER_WRONG_NUMBER_OF_COLUMNS_IN_SELECT',
+  'ER_TABLEACCESS_DENIED_ERROR', 'ER_COLUMNACCESS_DENIED_ERROR', 'ER_DBACCESS_DENIED_ERROR', 'ER_SPECIFIC_ACCESS_DENIED_ERROR', 'ER_QUERY_TIMEOUT',
+]);
+
+/**
+ * Server error messages can echo row values (XPATH syntax error: '~<phone>', Malformed GTID set
+ * specification '<email>', Truncated incorrect ... value: '<v>'), which would bypass result masking.
+ * When the statement may read sensitive columns (a configured name or a `*` expansion), quoted
+ * values / numbers in such messages are replaced with `?`.
+ */
+export function redactErrorValues(e: unknown, tokens: Token[], sensitive: Set<string>): unknown {
+  if (!(e instanceof WorkError) || !sensitive.size) return e;
+  const driverCode = String(e.details?.driver_code ?? '');
+  if (!e.details || IDENTIFIER_ONLY_ERRORS.has(driverCode) || !('reason' in e.details)) return e;
+  if (!mayReadSensitive(tokens, sensitive)) return e;
+  return new WorkError(e.code, maskLiterals(e.message), {
+    hint: e.hint,
+    details: { ...e.details, reason: maskLiterals(String(e.details.reason)), values_redacted: '语句引用了敏感列（或 *），服务端错误信息中的值已替换为 ?' },
+  });
+}
+
+const CONDITION_MASK_NOTE = '语句引用了敏感列（或 *）：计划中条件里的字面量已替换为 ?（优化器会把常量表的行值代入条件）';
 
 function maxExecMs(s: MysqlSession): number {
   return Math.max(100, Math.floor(s.ep.num('max_execution_time_ms', DEFAULT_MAX_EXEC_MS) ?? DEFAULT_MAX_EXEC_MS));
@@ -141,9 +210,9 @@ export const queryExecute = defineCapability({
   prerequisites: [...COMMON_PREREQS, '端点 max_execution_time_ms（默认 5000）与 sensitive_columns 配置'],
   notes: [
     '实际权限边界是数据库账号（workctl_ro 只有 SELECT）；程序层静态检查、只读事务、MAX_EXECUTION_TIME、行数上限是额外防线',
-    '静态检查：只允许单条 SELECT / WITH...SELECT / SHOW / DESCRIBE / EXPLAIN；拒绝 INTO OUTFILE/DUMPFILE、FOR UPDATE/SHARE、LOCK IN SHARE MODE、变量赋值、可执行注释、EXPLAIN ANALYZE',
+    '静态检查：只允许单条 SELECT / WITH...SELECT / SHOW / DESCRIBE / EXPLAIN；拒绝 INTO OUTFILE/DUMPFILE、FOR UPDATE/SHARE、LOCK IN SHARE MODE、变量赋值、可执行注释、EXPLAIN ANALYZE；SHOW 中不允许 SLEEP/BENCHMARK/子查询（SHOW 不受 MAX_EXECUTION_TIME 约束）',
     'MAX_EXECUTION_TIME 只约束 SELECT；SHOW 等语句只受客户端超时约束',
-    '敏感列按列名/原始列名匹配端点 sensitive_columns 脱敏；选择列表中引用敏感列的表达式/别名、UNION 对应位置、引用敏感列的派生表/CTE 会保守地整列脱敏；仍不能替代数据库侧的列权限或脱敏视图',
+    '敏感列按列名/原始列名匹配端点 sensitive_columns 脱敏；选择列表中引用敏感列的表达式/别名、UNION 对应位置、引用敏感列的派生表/CTE、非首个 UNION 分支或派生表/CTE 中的 * 会保守地整列脱敏；语句可能读取敏感列时，服务端错误信息与 EXPLAIN 条件中的字面量替换为 ?；仍不能替代数据库侧的列权限或脱敏视图',
     'SQL 来源二选一：--sql（内联，≤256KB）或 --sql-file；两者走同一静态检查；拒绝 MAX_EXECUTION_TIME / SET_VAR / RESOURCE_GROUP 优化器提示',
   ],
   examples: [
@@ -162,7 +231,12 @@ export const queryExecute = defineCapability({
         await s.query(`SET SESSION sql_select_limit = ${maxRows + 1}`);
         await enterReadOnly(s, limitMs);
         const started = Date.now();
-        const r = await streamRows(s, g.sql, maxRows, Math.min(limitMs + 3000, ctx.remainingMs()));
+        let r: Awaited<ReturnType<typeof streamRows>>;
+        try {
+          r = await streamRows(s, g.sql, maxRows, Math.min(limitMs + 3000, ctx.remainingMs()));
+        } catch (e) {
+          throw redactErrorValues(e, g.tokens, sensitiveColumns(s.ep));
+        }
         const elapsed = Date.now() - started;
         if (!r.truncated) await rollbackQuietly(s);
         const hitLimit = elapsed >= limitMs * 0.98 && g.statement_type === 'SELECT';
@@ -177,9 +251,12 @@ export const queryExecute = defineCapability({
           return { name: String(f.name), type: typeName(f), table: f.orgTable || f.table || null, source_column: f.orgName || null, masked };
         });
         let cellTruncated = 0;
+        // EXPLAIN [FORMAT=TREE|JSON] text can carry const-table row values in its conditions
+        const planText = ['EXPLAIN', 'DESCRIBE', 'DESC'].includes(g.leading) && mayReadSensitive(g.tokens, sens);
         const rows = r.rows.map((row) =>
           row.map((v, idx) => {
             if (columns[idx]?.masked) return maskValue(v);
+            if (planText && typeof v === 'string') v = maskPlanText(v);
             const c = cell(v);
             if (c.truncated) cellTruncated++;
             return c.value;
@@ -210,6 +287,7 @@ export const queryExecute = defineCapability({
               ...(r.truncated ? [`结果超过 ${maxRows} 行，只返回前 ${maxRows} 行（已停止读取剩余行）`] : []),
               ...(cellTruncated ? [`${cellTruncated} 个单元格超过 2048 字符被截断`] : []),
               ...(hitLimit ? ['达到执行时间上限，结果可能不完整'] : []),
+              ...(planText ? [CONDITION_MASK_NOTE] : []),
               ...(maskedCols.length ? [`已脱敏列: ${maskedCols.join(', ')}（按端点 sensitive_columns${flow.reasons.length ? `；${flow.reasons.join('；')}` : ''}）`] : []),
             ],
           },
@@ -280,15 +358,21 @@ export const queryExplain = defineCapability({
       ctx,
       i.instance,
       async (s) => {
-        const rows = await s.query(`EXPLAIN FORMAT=JSON ${g.sql}`);
+        // EXPLAIN evaluates const subqueries / derived tables while optimizing (verified live:
+        // EXPLAIN ... WHERE id = (SELECT 1 FROM (SELECT SLEEP(3)) x) took 3.4s), so bound it too
+        const limitMs = maxExecMs(s);
+        await s.query(`SET SESSION MAX_EXECUTION_TIME = ${Math.floor(limitMs)}`);
+        const rows = await s.query(`EXPLAIN FORMAT=JSON ${g.sql}`, undefined, { timeoutMs: limitMs + 3000 });
         const raw = rows[0]?.EXPLAIN;
         if (raw === undefined) throw new WorkError('UPSTREAM_UNAVAILABLE', 'EXPLAIN 没有返回计划');
+        const redact = mayReadSensitive(g.tokens, sensitiveColumns(s.ep));
         let plan: unknown;
         try {
           plan = typeof raw === 'string' ? JSON.parse(raw) : raw;
         } catch {
-          throw new WorkError('UNSUPPORTED', '无法解析 EXPLAIN FORMAT=JSON 输出', { details: { sample: String(raw).slice(0, 200) } });
+          throw new WorkError('UNSUPPORTED', '无法解析 EXPLAIN FORMAT=JSON 输出', { details: { sample: redact ? '(已隐藏)' : String(raw).slice(0, 200) } });
         }
+        if (redact) plan = maskPlanConditions(plan);
         return {
           data: {
             instance: s.ep.name,
@@ -299,7 +383,7 @@ export const queryExplain = defineCapability({
             plan,
           },
           sources: [s.src('EXPLAIN FORMAT=JSON', 'derived')],
-          coverage: { complete: true, notes: ['优化器估计，非实际执行'] },
+          coverage: { complete: true, notes: ['优化器估计，非实际执行', ...(redact ? [CONDITION_MASK_NOTE] : [])] },
         };
       },
       { database: String(i.database) },
@@ -363,11 +447,15 @@ export const queryAnalyze = defineCapability({
         let rows;
         try {
           rows = await s.query(`EXPLAIN ANALYZE ${g.sql}`, undefined, { timeoutMs: limitMs + 3000 });
+        } catch (e) {
+          throw redactErrorValues(e, g.tokens, sensitiveColumns(s.ep));
         } finally {
           await rollbackQuietly(s);
         }
         const elapsed = Date.now() - started;
-        const tree = String(rows[0]?.EXPLAIN ?? '');
+        const rawTree = String(rows[0]?.EXPLAIN ?? '');
+        const redact = mayReadSensitive(g.tokens, sensitiveColumns(s.ep));
+        const tree = redact ? maskPlanTree(rawTree) : rawTree;
         if (/maximum statement execution time exceeded|interrupted/i.test(tree)) {
           throw new WorkError('TIMEOUT', `语句超过执行时间上限 ${limitMs}ms`, { hint: '缩小查询范围，或先用 mysql query explain 查看估计计划' });
         }
@@ -384,7 +472,7 @@ export const queryAnalyze = defineCapability({
             guards: { read_only_transaction: true, max_execution_time_ms: limitMs },
           },
           sources: [s.src('EXPLAIN ANALYZE (read-only transaction)')],
-          coverage: { complete: true, notes: ['语句已实际执行一次；实际耗时受缓存命中（buffer pool）影响，重复执行可能更快'] },
+          coverage: { complete: true, notes: ['语句已实际执行一次；实际耗时受缓存命中（buffer pool）影响，重复执行可能更快', ...(redact ? [CONDITION_MASK_NOTE] : [])] },
         };
       },
       { database: String(i.database) },

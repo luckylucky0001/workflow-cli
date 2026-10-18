@@ -195,7 +195,14 @@ async function podMetrics(client: KubeClient, ns: string, labelSelector?: string
   const q = labelSelector ? `?labelSelector=${enc(labelSelector)}` : '';
   const path = `${METRICS_API}/namespaces/${enc(ns)}/pods${q}`;
   const method = `GET ${METRICS_API}/namespaces/${ns}/pods${labelSelector ? `?labelSelector=${labelSelector}` : ''}`;
-  const r = await client.request<KubeList<PodMetrics>>('GET', path, { allowStatus: [404] });
+  const r = await client.request<KubeList<PodMetrics>>('GET', path, { allowStatus: [404, 503] });
+  if (r.status === 503) {
+    // APIService registered but its backend (metrics-server) is not available: transient, not "not collected"
+    throw new WorkError('UPSTREAM_UNAVAILABLE', 'metrics.k8s.io 已注册但当前不可用（HTTP 503，metrics-server 未就绪或故障），无法取得 Pod 资源使用', {
+      hint: 'kubectl get apiservice v1beta1.metrics.k8s.io 查看 Available 条件；metrics-server 刚启动时需等待一个抓取周期',
+      details: { api: 'metrics.k8s.io/v1beta1', endpoint: client.endpointId, status: 503, metrics_api_unavailable: true },
+    });
+  }
   if (r.status === 404) {
     throw new WorkError('COLLECTION_DISABLED', `集群没有 metrics.k8s.io API（未安装或未注册 metrics-server），无法取得 Pod 资源使用`, {
       hint: '安装 metrics-server（k3s 默认自带）；确认 kubectl get apiservice v1beta1.metrics.k8s.io 为 Available。窗口趋势请用 metric query（Prometheus）',
@@ -331,6 +338,11 @@ export async function k8sCapacitySummary(ctx: Ctx, env: string): Promise<Result>
       if (e instanceof WorkError && e.code === 'COLLECTION_DISABLED') {
         metrics = null;
         notes.push('集群没有 metrics.k8s.io（metrics-server）：只汇总 requests/limits，usage 为 null（COLLECTION_DISABLED），不是 0');
+        break;
+      }
+      if (e instanceof WorkError && e.code === 'UPSTREAM_UNAVAILABLE' && (e.details as Record<string, unknown> | undefined)?.metrics_api_unavailable) {
+        metrics = null;
+        notes.push('metrics.k8s.io 当前不可用（HTTP 503，metrics-server 未就绪或故障）：只汇总 requests/limits，usage 为 null，不是 0；稍后重试');
         break;
       }
       throw e;

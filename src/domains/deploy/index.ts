@@ -4,6 +4,7 @@ import { source, WorkError, type Result } from '../../core/output';
 import { defineCapability, defineDomain, type Executor, type Planner } from '../../core/registry';
 import type { Ctx } from '../../core/runtime';
 import { K8S_ADAPTER, kubeClient } from '../container/kubernetes';
+import { checkWindow } from '../container/workload';
 import { CONSOLE_TAIL_DEFAULT, JENKINS_ADAPTER, jenkinsClient, jenkinsProbe, jobPath, jenkinsReleaseGet, jenkinsReleaseList, jenkinsRollbackExecutor, jenkinsStatusGet, planJenkinsRollback } from './jenkins';
 import { k8sReleaseGet, k8sReleaseList, k8sRollbackExecutor, k8sStatusGet, planK8sRollback } from './k8s';
 import { deployBindingFor, ReleaseSchema, resolveEnv, TargetSchema } from './model';
@@ -54,6 +55,7 @@ const releaseList = defineCapability({
   handler: async (ctx, i): Promise<Result> => {
     const b = binding(ctx, i);
     if (i.limit < 1) throw new WorkError('INVALID_ARGUMENT', '--limit 须 ≥ 1');
+    checkWindow(i.window);
     return b.provider === 'kubernetes' ? k8sReleaseList(ctx, b, i.window, i.limit) : jenkinsReleaseList(ctx, b, i.window, i.limit);
   },
 });

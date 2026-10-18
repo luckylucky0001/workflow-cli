@@ -122,6 +122,14 @@ describe('metric query / list against a fake Prometheus', () => {
     expect(notes.length).toBeLessThan(30);
   });
 
+  it('rejects a non-positive --window / --step (no single "0d" point)', async () => {
+    mode = 'data';
+    for (const args of [{ window: '0s' }, { window: '0' }, { window: 0 }, { step: '0s' }, { window: '100000000d' }]) {
+      const env = await invoke(r, 'observability.metric.query', { resource: 'demo-order', metric: 'request_latency', ...args }, { configPath });
+      expect(env.error?.code, JSON.stringify(args)).toBe('INVALID_ARGUMENT');
+    }
+  });
+
   it('Prometheus down is UPSTREAM_UNAVAILABLE (distinct from empty)', async () => {
     const p = writeTestConfig(mkdtempSync(join(tmpdir(), 'workctl-prom-down-')), { promUrl: 'http://127.0.0.1:1' });
     const env = await invoke(r, 'observability.metric.query', { resource: 'demo-order', metric: 'request_latency' }, { configPath: p });

@@ -7,7 +7,7 @@ import { ContainerInfoSchema, describeContainer } from './describe';
 import { containerName, cpuLimit, DOCKER_ADAPTER, dockerClient, filtersParam, shortId, type ContainerInspect, type ContainerSummary } from './docker';
 import { planRestart, restartExecutor, restartPlanner, RESTART_KIND } from './restart';
 import { parseStats, round, type DockerStats } from './stats';
-import { ENV_LABEL, listServiceContainers, resolveEnv, selectionNotes, selectorMatches } from './workload';
+import { checkWindow, ENV_LABEL, listServiceContainers, resolveEnv, selectionNotes, selectorMatches } from './workload';
 import { capacityFlags } from './flags';
 import { k8sCapacitySummary, k8sEventList, k8sProbe, k8sStatsGet, k8sWorkloadGet } from './k8s-capabilities';
 import { kubeBindingFor, kubeBindingsInEnv } from './k8s-workload';
@@ -220,6 +220,7 @@ const eventList = defineCapability({
   ],
   examples: ['workctl container event list --service demo-order --window 1h'],
   handler: async (ctx, i): Promise<Result> => {
+    checkWindow(i.window);
     const env = resolveEnv(ctx, i.env);
     const kb = kubeBindingFor(ctx, i.service, env);
     if (kb) return k8sEventList(ctx, kb, i.service, env, i.window as number);

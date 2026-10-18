@@ -22,8 +22,8 @@
         "offline_replicas": [],
         "under_replicated": false,
         "log_start_offset": 0,
-        "end_offset": 82,
-        "offset_span": 82
+        "end_offset": 86,
+        "offset_span": 86
       },
       {
         "partition": 1,
@@ -37,8 +37,8 @@
         "offline_replicas": [],
         "under_replicated": false,
         "log_start_offset": 0,
-        "end_offset": 92,
-        "offset_span": 92
+        "end_offset": 104,
+        "offset_span": 104
       },
       {
         "partition": 2,
@@ -52,8 +52,8 @@
         "offline_replicas": [],
         "under_replicated": false,
         "log_start_offset": 0,
-        "end_offset": 126,
-        "offset_span": 126
+        "end_offset": 110,
+        "offset_span": 110
       }
     ],
     "configs": {
@@ -99,7 +99,7 @@
       "offline_partitions": 0,
       "offset_span": 300
     },
-    "observed_at": "2026-10-18T04:35:31.413Z"
+    "observed_at": "2026-10-18T05:30:37.982Z"
   },
   "error": null,
   "meta": {
@@ -109,7 +109,7 @@
         "adapter": "kafka-admin",
         "endpoint": "kafka/demo-mq",
         "method": "Metadata(topic=demo.order.events)",
-        "observed_at": "2026-10-18T04:35:31.406Z",
+        "observed_at": "2026-10-18T05:30:37.974Z",
         "version": "inter.broker.protocol.version=3.9-IV0",
         "relation": "explicit"
       },
@@ -118,7 +118,7 @@
         "adapter": "kafka-admin",
         "endpoint": "kafka/demo-mq",
         "method": "ListOffsets(latest+earliest, read_committed)",
-        "observed_at": "2026-10-18T04:35:31.413Z",
+        "observed_at": "2026-10-18T05:30:37.982Z",
         "version": "inter.broker.protocol.version=3.9-IV0",
         "relation": "explicit"
       },
@@ -127,7 +127,7 @@
         "adapter": "kafka-admin",
         "endpoint": "kafka/demo-mq",
         "method": "DescribeConfigs(topic=demo.order.events; retention.ms,retention.bytes,cleanup.policy,min.insync.replicas,max.message.bytes,segment.bytes)",
-        "observed_at": "2026-10-18T04:35:31.417Z",
+        "observed_at": "2026-10-18T05:30:37.986Z",
         "version": "inter.broker.protocol.version=3.9-IV0",
         "relation": "explicit"
       }
@@ -143,7 +143,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc14xg-661af5",
+    "request_id": "req-mvde00aq-6af077",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -151,7 +151,7 @@
     "adapter": "kafka-admin",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:35:31.252Z",
-    "duration_ms": 173
+    "started_at": "2026-10-18T05:30:37.826Z",
+    "duration_ms": 170
   }
 }

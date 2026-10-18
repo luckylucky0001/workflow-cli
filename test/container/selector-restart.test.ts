@@ -21,6 +21,8 @@ const state: FakeDockerState = {
     { Id: 'k1'.padEnd(64, '0'), Name: 'cache-x', Labels: { 'workctl.env': 'sandbox' }, State: 'running' },
     { Id: 'u1'.padEnd(64, '0'), Name: 'svc-unhealthy', Labels: { 'workctl.service': 'svc-unhealthy', 'workctl.env': 'sandbox' }, State: 'running', Health: 'unhealthy' },
     { Id: 'h1'.padEnd(64, '0'), Name: 'svc-healthy', Labels: { 'workctl.service': 'svc-healthy', 'workctl.env': 'sandbox' }, State: 'running', Health: 'healthy' },
+    { Id: 'p1'.padEnd(64, '0'), Name: 'svc-pair-1', Labels: { 'workctl.service': 'svc-pair', 'workctl.env': 'sandbox' }, State: 'running' },
+    { Id: 'p2'.padEnd(64, '0'), Name: 'svc-pair-2', Labels: { 'workctl.service': 'svc-pair', 'workctl.env': 'sandbox' }, State: 'running' },
     { Id: 'x1'.padEnd(64, '0'), Name: 'svc-crash', Labels: { 'workctl.service': 'svc-crash', 'workctl.env': 'sandbox' }, State: 'running' },
   ],
   events: [
@@ -112,6 +114,20 @@ relations: []
       }, 100);
     };
     await expect(planAndRun('svc-crash')).rejects.toMatchObject({ code: 'UPSTREAM_UNAVAILABLE' });
+  });
+
+  it('restart: a drifted later target is refused before any container is restarted', async () => {
+    const env = await invoke(r, 'container.workload.restart_plan', { service: 'svc-pair' }, { configPath });
+    const plan = env.data as Plan;
+    expect(plan.targets).toHaveLength(2);
+    const second = state.containers.find((c) => c.Name === 'svc-pair-2')!;
+    second.Labels = { 'workctl.service': 'other', 'workctl.env': 'sandbox' };
+    const restarted: string[] = [];
+    state.onRestart = (c) => void restarted.push(c.Name);
+    const ctx = new Ctx({ registry: r, loaded: loadConfig(configPath), profileName: 't', requestId: 'req-test', timeoutMs: 20_000 });
+    const err = await (r.executors.get('container.restart')!(ctx, plan, () => undefined) as Promise<any>).catch((e) => e);
+    expect(err.code).toBe('PRECONDITION_FAILED');
+    expect(restarted).toEqual([]);
   });
 
   it('restart: healthy containers and name-selected resources verify after staying up', async () => {

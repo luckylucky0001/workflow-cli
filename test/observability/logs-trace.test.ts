@@ -3,7 +3,7 @@ import { invoke } from '../../src/core/engine';
 import { Registry } from '../../src/core/registry';
 import container from '../../src/domains/container';
 import observability from '../../src/domains/observability';
-import { BoundedCollector, FrameDemuxer, LineSplitter, matches, parseLogLine, tsKey, type LogEntry } from '../../src/domains/observability/logs';
+import { BoundedCollector, FrameDemuxer, LineSplitter, matches, MAX_LOG_TEXT, parseLogLine, tsKey, type LogEntry } from '../../src/domains/observability/logs';
 import { buildTrace, spanFromFields, type SpanRecord } from '../../src/domains/observability/trace';
 import { frame, startFakeDocker, writeTestConfig } from '../container/fake-docker';
 
@@ -190,10 +190,88 @@ describe('log query and trace get against a fake Docker Engine', () => {
     expect(env.meta.sources[0].relation).toBe('derived');
   });
 
+  it('log query / trace get / container event list reject a 0s window', async () => {
+    for (const [cap, args] of [
+      ['observability.log.query', { service: 'demo-order', window: '0s' }],
+      ['observability.trace.get', { id: TRACE, service: 'demo-order', window: '0s' }],
+      ['container.event.list', { service: 'demo-order', window: '0s' }],
+    ] as const) {
+      const env = await invoke(r, cap, args, { configPath });
+      expect(env.error?.code, cap).toBe('INVALID_ARGUMENT');
+    }
+  });
+
   it('trace get for an unknown id is NOT_FOUND with a window hint', async () => {
     const env = await invoke(r, 'observability.trace.get', { id: 'cd'.repeat(16), service: 'demo-order' }, { configPath });
     expect(env.error?.code).toBe('NOT_FOUND');
     expect(env.error?.hint).toContain('--window');
+  });
+});
+
+describe('long log lines are capped (Docker provider)', () => {
+  const TRACE = 'ef'.repeat(16);
+  const now = Date.now();
+  const iso = (dt: number) => new Date(now - dt).toISOString();
+  const big = 'x'.repeat(MAX_LOG_TEXT * 3);
+  let fake: Awaited<ReturnType<typeof startFakeDocker>>;
+  let configPath: string;
+  const r = new Registry();
+  r.addDomain(container);
+  r.addDomain(observability);
+  beforeAll(async () => {
+    fake = await startFakeDocker({
+      containers: [
+        {
+          Id: 'd3'.padEnd(64, '0'),
+          Name: 'demo-long',
+          Labels: { 'workctl.service': 'demo-long', 'workctl.env': 'sandbox' },
+          State: 'running',
+          logs: [
+            { stream: 'stdout', line: JSON.stringify({ level: 'error', msg: big, stack: big, trace_id: TRACE, span_id: 's1' }) },
+            { stream: 'stderr', line: big },
+            { stream: 'stdout', line: JSON.stringify({ level: 'debug', msg: 'span', kind: 'span', name: 'h', trace_id: TRACE, span_id: 's1', parent_span_id: null, start: iso(1000), duration_ms: 5, status: 'ok', attributes: { sql: big } }) },
+            { stream: 'stdout', line: JSON.stringify({ level: 'info', msg: 'short' }) },
+          ],
+        },
+      ],
+    });
+    configPath = writeTestConfig(fake.dir, { socketPath: fake.socketPath });
+  });
+  afterAll(async () => fake.close());
+
+  it('parseLogLine caps msg, raw and nested string fields and flags the entry', () => {
+    const j = parseLogLine(`2026-10-17T12:00:00Z ${JSON.stringify({ msg: big, a: { b: [big] } })}`, 'c', 'stdout');
+    expect(j.truncated).toBe(true);
+    expect(j.msg!.length).toBeLessThan(MAX_LOG_TEXT + 64);
+    expect(((j.fields as any).a.b[0] as string).length).toBeLessThan(MAX_LOG_TEXT + 64);
+    const raw = parseLogLine(`2026-10-17T12:00:00Z ${big}`, 'c', 'stdout');
+    expect(raw.truncated).toBe(true);
+    expect(raw.raw).toMatch(/截断，原长 24576 字符/);
+    expect(parseLogLine('2026-10-17T12:00:00Z short', 'c', 'stdout').truncated).toBe(false);
+  });
+
+  it('--trace-id still matches a raw line whose trace id lies beyond the cap', () => {
+    const line = `2026-10-17T12:00:00Z ${big} trace=${TRACE}`;
+    const st = { lines: 0, unparsed: 0, spans_skipped: 0, unparsed_excluded_by_level: 0 };
+    expect(matches(parseLogLine(line, 'c', 'stdout'), line, { traceId: TRACE }, st)).toBe(true);
+  });
+
+  it('log query returns capped entries with truncated flags and a coverage note', async () => {
+    const env = await invoke(r, 'observability.log.query', { service: 'demo-long', window: '15m' }, { configPath });
+    expect(env.status).toBe('success');
+    const d = env.data as any;
+    expect(d.entries).toHaveLength(3);
+    expect(d.entries.map((e: any) => e.truncated)).toEqual([false, true, true]);
+    expect(JSON.stringify(d).length).toBeLessThan(MAX_LOG_TEXT * 6);
+    expect(env.meta.coverage?.notes?.join('\n')).toMatch(/2 条日志含超过 8192 字符的文本/);
+  });
+
+  it('trace get caps span attributes / log text and says so', async () => {
+    const env = await invoke(r, 'observability.trace.get', { id: TRACE, service: 'demo-long' }, { configPath });
+    expect(env.status).toBe('success');
+    const d = env.data as any;
+    expect((d.spans[0].attributes.sql as string).length).toBeLessThan(MAX_LOG_TEXT + 64);
+    expect(env.meta.coverage?.notes?.join('\n')).toMatch(/2 条 span\/日志记录含超过 8192 字符的文本/);
   });
 });
 

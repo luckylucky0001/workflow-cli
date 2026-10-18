@@ -71,7 +71,7 @@ workctl --json mysql query execute --instance <i> --database <db> --sql "SELECT 
 ```
 - 只允许单条 SELECT/WITH/SHOW/DESCRIBE/EXPLAIN；被拒绝时按提示改写，不要尝试绕过。
 - `truncated=true` 表示还有更多行；`masked_columns` 中的值已脱敏，不要尝试还原。
-- 引用敏感列的表达式、UNION、派生表会被保守地整列脱敏；不要为了拿到敏感值改写语句或构造表达式。
+- 引用敏感列的表达式、UNION、派生表（含 `*` 被重命名的情况）会被保守地整列脱敏；可能读到敏感列的语句，其错误信息和执行计划条件里的字面量会显示为 `?`。不要为了拿到敏感值改写语句或构造表达式。
 - 优化器提示 `MAX_EXECUTION_TIME` / `SET_VAR` / `RESOURCE_GROUP` 会被拒绝（会绕过执行时间上限）。
 
 ## 常见错误

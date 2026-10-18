@@ -138,4 +138,22 @@ describe.skipIf(process.env.WORKCTL_IT !== '1')('mysql live (demo-mysql)', () =>
     expect(env.error?.code).toBe('UNAUTHENTICATED');
     expect(JSON.stringify(env)).not.toContain('definitely-wrong');
   });
+  it('review: masking holds for * expansions, server error text and EXPLAIN conditions; EXPLAIN is time-bounded', async () => {
+    const q = (cap: string, text: string) => call(cap, { instance: 'demo-mysql', database: 'demo', sql: text }, 20_000);
+    const union = ok(await q('mysql.query.execute', 'SELECT 1,2,3,4,5,6 UNION ALL SELECT * FROM customers LIMIT 2'));
+    expect(JSON.stringify(union.rows)).not.toMatch(/1380\d{7}|user\d+@example/);
+    const cte = ok(await q('mysql.query.execute', 'WITH d(c1,c2,c3,c4,c5,c6) AS (SELECT * FROM customers) SELECT * FROM d LIMIT 1'));
+    expect(JSON.stringify(cte.rows)).not.toMatch(/1380\d{7}|user\d+@example/);
+    const err = await q('mysql.query.execute', 'SELECT EXTRACTVALUE(1, CONCAT(0x7e, (SELECT phone FROM customers LIMIT 1)))');
+    expect(err.status).toBe('error');
+    expect(JSON.stringify(err.error)).not.toMatch(/1380\d{7}/);
+    const plan = 'SELECT o.id FROM customers c JOIN orders o ON o.status = c.phone WHERE c.id = 1';
+    expect(JSON.stringify((await q('mysql.query.explain', plan)).data)).not.toMatch(/1380\d{7}/);
+    expect(JSON.stringify((await q('mysql.query.analyze', plan)).data)).not.toMatch(/1380\d{7}/);
+    expect(JSON.stringify((await q('mysql.query.execute', `EXPLAIN FORMAT=TREE ${plan}`)).data)).not.toMatch(/1380\d{7}/);
+    const started = Date.now();
+    const slow = await q('mysql.query.explain', 'SELECT * FROM customers WHERE id = (SELECT 1 FROM (SELECT SLEEP(8)) x)');
+    expect(slow.error?.code).toBe('TIMEOUT');
+    expect(Date.now() - started).toBeLessThan(7500);
+  }, 30_000);
 });

@@ -45,17 +45,17 @@
         },
         "queued_at": null,
         "start_date": {
-          "utc": "2026-10-18T04:18:12.311Z",
-          "local": "2026-10-18T12:18:12+08:00"
+          "utc": "2026-10-18T05:10:52.859Z",
+          "local": "2026-10-18T13:10:52+08:00"
         },
         "end_date": {
-          "utc": "2026-10-18T04:19:41.107Z",
-          "local": "2026-10-18T12:19:41+08:00"
+          "utc": "2026-10-18T05:12:05.173Z",
+          "local": "2026-10-18T13:12:05+08:00"
         },
-        "duration_seconds": 89,
+        "duration_seconds": 72,
         "last_scheduling_decision": {
-          "utc": "2026-10-18T04:19:41.106Z",
-          "local": "2026-10-18T12:19:41+08:00"
+          "utc": "2026-10-18T05:12:05.172Z",
+          "local": "2026-10-18T13:12:05+08:00"
         },
         "conf": {
           "fault": "wrong_partition"
@@ -72,7 +72,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-18T04:35:34.027Z",
+        "observed_at": "2026-10-18T05:30:40.381Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns",
         "version": "2.10.5",
@@ -94,7 +94,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdc16rr-6ab965",
+    "request_id": "req-mvde0216-379f31",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -102,7 +102,7 @@
     "adapter": "airflow-rest-v1|v2",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T04:35:33.639Z",
-    "duration_ms": 388
+    "started_at": "2026-10-18T05:30:40.074Z",
+    "duration_ms": 307
   }
 }

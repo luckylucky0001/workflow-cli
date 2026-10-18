@@ -3,8 +3,8 @@ import { source, WorkError, type Result, type Source } from '../../core/output';
 import { defineCapability, defineDomain } from '../../core/registry';
 import { formatDuration, windowFromNow, type Ctx } from '../../core/runtime';
 import { dockerClient, type ContainerInspect } from '../container/docker';
-import { listServiceContainers, resolveEnv, selectionNotes, type ServiceContainers } from '../container/workload';
-import { BoundedCollector, matches, parseLogLine, scanContainerLogs, type ContainerScan, type FilterStats, type LogEntry } from './logs';
+import { checkWindow, listServiceContainers, resolveEnv, selectionNotes, type ServiceContainers } from '../container/workload';
+import { BoundedCollector, longTextNote, matches, MAX_LOG_TEXT, parseLogLine, scanContainerLogs, type ContainerScan, type FilterStats, type LogEntry } from './logs';
 import { lokiClient, resolveLogProvider } from './loki';
 import { lokiLogQuery, lokiTraceScan } from './loki-query';
 import { catalog, promClient, renderQuery, summarize, type MatrixSeries } from './prometheus';
@@ -105,8 +105,8 @@ const metricQuery = defineCapability({
         /* bindings optional */
       }
     }
-    const windowMs = i.window as number;
-    const stepMs = i.step as number;
+    const windowMs = checkWindow(i.window);
+    const stepMs = checkWindow(i.step, '--step');
     if (stepMs < 1000) throw new WorkError('INVALID_ARGUMENT', '--step 不能小于 1s');
     if (windowMs / stepMs > MAX_POINTS) {
       throw new WorkError('INVALID_ARGUMENT', `窗口/步长产生的点数超过 ${MAX_POINTS}`, { hint: '增大 --step 或缩小 --window' });
@@ -218,6 +218,7 @@ const LogEntrySchema = z.object({
   span_id: z.string().nullable(),
   fields: z.record(z.string(), z.unknown()).nullable().describe('JSON 日志的其余字段；非 JSON 行为 null'),
   raw: z.string().nullable().describe('非 JSON 行的原文'),
+  truncated: z.boolean().describe('msg/raw/字段中有超过 8192 字符的文本被截断（末尾带“…[截断，原长 N 字符]”）'),
 });
 
 const ContainerScanSchema = z.object({
@@ -292,7 +293,8 @@ const logQuery = defineCapability({
   prerequisites: ['容器日志驱动支持读取（json-file / local / journald）', 'endpoints.docker 可访问'],
   notes: [
     '日志来自 Docker /containers/{id}/logs（stdout+stderr 多路复用流已解帧）；保留期取决于日志驱动与轮转配置，容器重建后旧日志不可见',
-    '默认 order=newest：返回窗口内最新的 limit 条，按时间倒序；truncated=true 表示匹配条数超过 limit',
+    '默认 order=newest：返回窗口内最新的 limit 条，按时间倒序；coverage.truncated=true 表示匹配条数超过 limit',
+    `单条日志中超过 ${MAX_LOG_TEXT} 字符的文本（msg、raw、字段值）会被截断，该条 entries[].truncated=true，并在 coverage.notes 说明（Docker / Loki 相同）`,
     'provider 由资源绑定 attributes.log_provider 或 profile defaults.logs 决定（docker 默认 | loki）；Loki 经 LogQL query_range 查询，输出契约相同，差异（入库延迟、保留期、limit 口径）见指南',
   ],
   examples: [
@@ -302,6 +304,7 @@ const logQuery = defineCapability({
   handler: async (ctx, i): Promise<Result> => {
     const limit = Number(i.limit);
     if (limit < 1 || limit > 2000) throw new WorkError('INVALID_ARGUMENT', '--limit 取值 1-2000');
+    checkWindow(i.window);
     const provider = resolveLogProvider(ctx, i.service);
     if (provider.kind === 'loki') return lokiLogQuery(ctx, i, provider);
     const docker = dockerClient(ctx);
@@ -349,6 +352,8 @@ const logQuery = defineCapability({
       order === 'newest' ? '按时间倒序（最新在前）' : '按时间正序（最早在前）',
     ];
     if (truncated) notes.push(`匹配 ${collector.matched} 条，只返回 ${entries.length} 条（--limit）`);
+    const cut = entries.filter((e) => e.truncated).length;
+    if (cut) notes.push(longTextNote(cut));
     if (stats.spans_skipped && !i.include_spans) notes.push(`省略了 ${stats.spans_skipped} 条 span 记录（--include-spans 返回，或用 trace get）`);
     return {
       status: failed.length ? 'partial' : 'success',
@@ -447,6 +452,7 @@ const traceGet = defineCapability({
   handler: async (ctx, i): Promise<Result> => {
     const id = String(i.id).toLowerCase();
     if (!/^[0-9a-f]{16,32}$/.test(id)) throw new WorkError('INVALID_ARGUMENT', `trace_id 格式不正确: ${i.id}`, { hint: '16-32 位十六进制' });
+    checkWindow(i.window);
     let services: string[];
     if (i.service) services = [i.service];
     else {
@@ -461,6 +467,8 @@ const traceGet = defineCapability({
     const notes: string[] = [];
     const lokiSources: Source[] = [];
     let dockerUsed = false;
+    let longLines = 0;
+    let lokiIncomplete = false;
     const dockerScans: { name: string; status: string }[] = [];
     for (const svc of services) {
       const provider = resolveLogProvider(ctx, svc);
@@ -469,6 +477,8 @@ const traceGet = defineCapability({
         spans.push(...ls.spans);
         logs.push(...ls.logs);
         notes.push(...ls.notes);
+        longLines += ls.truncated_lines;
+        if (ls.incomplete) lokiIncomplete = true;
         scanned.push({ service: svc, containers: ls.containers, lines_scanned: ls.lines_scanned });
         if (!lokiSources.some((x) => x.endpoint === ls.source.endpoint)) lokiSources.push(ls.source);
         continue;
@@ -488,6 +498,7 @@ const traceGet = defineCapability({
           (line, stream, container) => {
             const e = parseLogLine(line, container, stream);
             if (!e.fields || e.trace_id !== id) return;
+            if (e.truncated) longLines++;
             if (e.kind === 'span') {
               const s = spanFromFields({ ...e.fields, trace_id: e.trace_id, span_id: e.span_id }, container);
               if (s) spans.push(s);
@@ -520,13 +531,14 @@ const traceGet = defineCapability({
     if (view.roots.length > 1) notes.push(`有 ${view.roots.length} 个根 span（部分父 span 不在已扫描日志中）`);
     if (view.external_parent) notes.push(`根 span 的父 span ${view.external_parent} 来自未记录日志的调用方`);
     if (view.cyclic_parents.length) notes.push(`span 父子关系成环（${view.cyclic_parents.join(', ')}），日志中的 parent_span_id 不可信，相关层级仅供参考`);
+    if (longLines) notes.push(`${longLines} 条 span/日志记录含超过 ${MAX_LOG_TEXT} 字符的文本，已截断`);
     if (failedScans.length) notes.push(`${failedScans.length} 个容器的日志未能读取（${failedScans.map((x) => x.name).join(', ')}），调用链可能缺少 span`);
     return {
       ...(failedScans.length ? { status: 'partial' as const } : {}),
       data: { ...view, scanned },
       sources: [...(dockerUsed ? [await dockerClient(ctx).source('GET /containers/{id}/logs（kind=span 记录重建）', 'derived')] : []), ...lokiSources],
       coverage: {
-        complete: view.roots.length === 1 && view.cyclic_parents.length === 0 && !failedScans.length,
+        complete: view.roots.length === 1 && view.cyclic_parents.length === 0 && !failedScans.length && !lokiIncomplete,
         window: win,
         scope: `服务: ${services.join(', ')} 的${dockerUsed && lokiSources.length ? '容器日志 / Loki 日志' : lokiSources.length ? ' Loki 日志' : '容器日志'}`,
         notes: [...notes, '日志派生的调用链：只包含已记录且仍保留的 span'],

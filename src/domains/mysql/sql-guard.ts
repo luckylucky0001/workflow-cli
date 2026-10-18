@@ -250,6 +250,17 @@ function guardOnce(input: string, mode: GuardMode, backslashEscapes: boolean): G
       reject(`受限查询只允许 SELECT / WITH / SHOW / DESCRIBE / EXPLAIN，收到 ${leading || '(无法识别)'}`, '写操作与 DDL 走变更流程（mysql index plan / operation plan）');
     }
     if (leading === 'WITH' && statementType !== 'SELECT') reject(`WITH 后的主语句必须是 SELECT，收到 ${statementType}`);
+    // MAX_EXECUTION_TIME only bounds SELECT statements: SHOW ... WHERE <expr> would run SLEEP(),
+    // BENCHMARK() or a subquery for every row with no server-side limit (verified live:
+    // SHOW DATABASES WHERE SLEEP(2) = 0 ran past the 5s limit until the client timed out)
+    if (leading === 'SHOW') {
+      const t = lexed.tokens;
+      for (let k = 0; k < t.length; k++) {
+        const fname = unquoteName(t[k]);
+        if (fname && ['SLEEP', 'BENCHMARK'].includes(fname) && t[k + 1]?.text === '(') reject(`SHOW 语句中不允许调用 ${fname}()（SHOW 不受 MAX_EXECUTION_TIME 约束）`);
+        if (t[k].kind === 'word' && t[k].upper === 'SELECT') reject('SHOW 语句中不允许子查询（SHOW 不受 MAX_EXECUTION_TIME 约束）', '改用 SELECT ... FROM information_schema / performance_schema');
+      }
+    }
   } else if (mode === 'explain') {
     if (!(EXPLAIN_TARGETS.has(leading) || (leadingParen && statementType === 'SELECT'))) {
       reject(`EXPLAIN 只支持 SELECT / UPDATE / DELETE / INSERT / REPLACE / TABLE / WITH，收到 ${leading || '(无法识别)'}`);
@@ -261,6 +272,15 @@ function guardOnce(input: string, mode: GuardMode, backslashEscapes: boolean): G
     if (leading === 'WITH' && statementType !== 'SELECT') reject(`WITH 后的主语句必须是 SELECT，收到 ${statementType}`);
   }
 
+  // EXPLAIN evaluates const subqueries / derived tables while optimizing (verified live), so
+  // side-effecting functions (locks, file reads) are refused in explain mode too.
+  if (mode === 'explain') {
+    const t = lexed.tokens;
+    for (let k = 0; k < t.length; k++) {
+      const fname = unquoteName(t[k]);
+      if (fname && DENY_FUNCTIONS.has(fname) && t[k + 1]?.text === '(') reject(`不允许调用 ${fname}()（EXPLAIN 优化阶段可能执行常量子查询）`);
+    }
+  }
   // Constructs that write files, take locks or assign variables are refused in every mode that runs SQL.
   if (mode !== 'explain') {
     const t = lexed.tokens;
@@ -321,7 +341,16 @@ export function sensitiveOutputPlan(tokens: Token[], sensitive: Set<string>): Se
     const nm = tokenName(t);
     return nm !== null && sensitive.has(nm);
   };
-  if (!tokens.some(isSens)) return plan;
+  // `*` / `t.*` in a select list (not COUNT(*) or multiplication): its expansion is invisible to
+  // the token analysis, and column metadata cannot name the source when the expansion is renamed
+  // (derived-table / CTE column lists) or lands under another UNION branch's column names.
+  const isStar = (idx: number) => {
+    const t = tokens[idx];
+    if (t.kind !== 'punct' || t.text !== '*') return false;
+    const p = tokens[idx - 1];
+    return !!p && ((p.kind === 'punct' && (p.text === '.' || p.text === ',')) || p.kind === 'hint' || (p.kind === 'word' && (p.upper === 'SELECT' || SELECT_MODIFIERS.has(p.upper))));
+  };
+  if (!tokens.some(isSens) && !tokens.some((_, idx) => isStar(idx))) return plan;
   const selects = tokens.map((t, idx) => ({ t, idx })).filter((x) => x.t.kind === 'word' && x.t.upper === 'SELECT');
   if (!selects.length) return plan;
   // main statement starts after the CTE list for WITH
@@ -331,9 +360,9 @@ export function sensitiveOutputPlan(tokens: Token[], sensitive: Set<string>): Se
     const base = firstWord.depth;
     const main = tokens.findIndex((t, idx) => idx > tokens.indexOf(firstWord) && t.kind === 'word' && t.depth === base && t.upper === 'SELECT');
     mainFrom = main < 0 ? tokens.length : main;
-    if (tokens.slice(0, mainFrom).some(isSens)) {
+    if (tokens.slice(0, mainFrom).some((t, idx) => isSens(t) || isStar(idx))) {
       plan.all = true;
-      plan.reasons.push('CTE 中引用了敏感列，结果列可能携带其值');
+      plan.reasons.push('CTE 中引用了敏感列或使用了 *（列可被重命名），结果列可能携带其值');
       return plan;
     }
   }
@@ -341,9 +370,11 @@ export function sensitiveOutputPlan(tokens: Token[], sensitive: Set<string>): Se
   if (!mainSelects.length) return plan;
   const branchDepth = Math.min(...mainSelects.map((x) => x.t.depth));
   const branches = mainSelects.filter((x) => x.t.depth === branchDepth).map((x) => x.idx);
-  for (const start of branches) {
+  for (const [branchNo, start] of branches.entries()) {
     // select list
     const items: Token[][] = [[]];
+    const starItems = new Set<number>();
+    let branchStar = false;
     let k = start + 1;
     for (; k < tokens.length; k++) {
       const t = tokens[k];
@@ -356,11 +387,18 @@ export function sensitiveOutputPlan(tokens: Token[], sensitive: Set<string>): Se
       }
       if (t.kind === 'hint') continue;
       if (items[items.length - 1].length === 0 && t.kind === 'word' && SELECT_MODIFIERS.has(t.upper)) continue;
+      if (isStar(k)) {
+        if (t.depth > branchDepth) starItems.add(items.length - 1);
+        else branchStar = true;
+      }
       items[items.length - 1].push(t);
     }
     const star = items.some((it) => it.length > 0 && it[it.length - 1].kind === 'punct' && it[it.length - 1].text === '*' && (it.length === 1 || it[it.length - 2]?.text === '.'));
-    const tainted = items.map((it, pos) => (it.some(isSens) ? pos : -1)).filter((p) => p >= 0);
-    if (tainted.length && star) {
+    const tainted = items.map((it, pos) => (it.some(isSens) || starItems.has(pos) ? pos : -1)).filter((p) => p >= 0);
+    if (branchNo > 0 && branchStar) {
+      plan.all = true;
+      plan.reasons.push('UNION 非首个分支使用了 *，结果列名取自首个分支，无法按列名识别敏感列，全部列脱敏');
+    } else if (tainted.length && star) {
       plan.all = true;
       plan.reasons.push('选择列表同时含 * 与引用敏感列的表达式，无法按位置对应，全部列脱敏');
     } else for (const p of tainted) plan.positions.add(p);
@@ -369,9 +407,9 @@ export function sensitiveOutputPlan(tokens: Token[], sensitive: Set<string>): Se
       for (let j = k + 1; j < tokens.length; j++) {
         const t = tokens[j];
         if (t.depth < branchDepth || (t.depth === branchDepth && ((t.kind === 'word' && FROM_END.has(t.upper)) || (t.kind === 'punct' && t.text === ')')))) break;
-        if (t.depth > branchDepth && isSens(t)) {
+        if (t.depth > branchDepth && (isSens(t) || isStar(j))) {
           plan.all = true;
-          plan.reasons.push('派生表/子查询（FROM 中）引用了敏感列，结果列可能携带其值');
+          plan.reasons.push('派生表/子查询（FROM 中）引用了敏感列或使用了 *（列可被重命名），结果列可能携带其值');
           break;
         }
       }

@@ -34,6 +34,13 @@ describe('core capabilities', () => {
     expect((res.data as any).upstream.map((r: any) => r.from).sort()).toEqual(['job-a', 'svc-a']);
   });
 
+  it('rejects --depth < 1 instead of returning an empty dependency list that reads as "none"', async () => {
+    for (const depth of [0, -1]) {
+      const env = await call('service.dependency.list', { service: 'svc-a', depth });
+      expect(env.error?.code).toBe('INVALID_ARGUMENT');
+    }
+  });
+
   it('reports credential refs without values', async () => {
     const env = await call('auth.status', {});
     const text = JSON.stringify(env);
