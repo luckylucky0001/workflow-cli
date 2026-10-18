@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>workctl 客户演示</title>
+<style>
+/*FONTS*/
+@page { size: A4 landscape; margin: 0; }
+:root {
+  --ink: #0f1b2d;
+  --ink-2: #44506a;
+  --muted: #7d879a;
+  --line: #e2e6ee;
+  --panel: #f4f6fa;
+  --surface: #ffffff;
+  --navy: #0b2545;
+  --navy-2: #13315c;
+  --accent: #2a78d6;
+  --accent-soft: #e8f1fc;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --good: #1a7f4b;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--surface); }
+body {
+  font-family: "Noto Sans SC", "WenQuanYi Zen Hei", sans-serif;
+  color: var(--ink);
+  font-size: 10.5pt;
+  line-height: 1.5;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.mono { font-family: "JetBrains Mono", "WenQuanYi Zen Hei Mono", monospace; }
+.page {
+  width: 297mm; height: 210mm;
+  padding: 13mm 15mm 11mm;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+  break-after: page;
+  display: flex; flex-direction: column;
+}
+.page:last-child { page-break-after: auto; break-after: auto; }
+
+/* ---------- running header / footer ---------- */
+.kicker { font-size: 8.5pt; font-weight: 700; letter-spacing: .14em; color: var(--accent); text-transform: uppercase; }
+h1.headline { font-size: 21pt; line-height: 1.25; font-weight: 700; margin: 2.5mm 0 1.5mm; letter-spacing: -.01em; }
+.lede { color: var(--ink-2); font-size: 11pt; margin: 0 0 5mm; max-width: 230mm; }
+.footer {
+  position: absolute; left: 15mm; right: 15mm; bottom: 6.5mm;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 7.5pt; color: var(--muted);
+  border-top: 0.6pt solid var(--line); padding-top: 2mm;
+}
+.footer b { color: var(--ink-2); font-weight: 500; }
+
+/* ---------- cover ---------- */
+.cover { padding: 0; flex-direction: row; }
+.cover-left {
+  width: 56%; height: 100%;
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 100%);
+  color: #fff; padding: 20mm 16mm 14mm 18mm;
+  display: flex; flex-direction: column; position: relative;
+}
+.cover-left .brand { font-size: 10pt; letter-spacing: .2em; font-weight: 700; color: #9cc3f5; }
+.cover-left h1 { font-size: 26pt; line-height: 1.22; margin: 14mm 0 6mm; font-weight: 700; letter-spacing: -.01em; }
+.cover-left h1 em { font-style: normal; color: #8fc0ff; }
+.cover-left .sub { font-size: 12pt; line-height: 1.65; color: #d6e3f5; max-width: 140mm; }
+.cover-left .pillars { display: flex; gap: 3mm; margin-top: 10mm; flex-wrap: wrap; }
+.cover-left .pill { border: 0.8pt solid rgba(156,195,245,.55); color: #e3eefc; border-radius: 99px; padding: 1.2mm 4mm; font-size: 9.5pt; }
+.cover-left .meta { margin-top: auto; font-size: 8.5pt; color: #9fb3cf; line-height: 1.6; }
+.cover-left .grid-art { position: absolute; right: -10mm; bottom: -10mm; opacity: .16; }
+.cover-right { width: 44%; padding: 20mm 15mm 14mm 13mm; display: flex; flex-direction: column; }
+.cover-right .kicker { margin-bottom: 4mm; }
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.kpi { background: var(--panel); border-radius: 3mm; padding: 5mm 5mm 4.5mm; border-left: 1.2mm solid var(--accent); }
+.kpi .num { font-size: 27pt; font-weight: 700; line-height: 1.05; letter-spacing: -.02em; }
+.kpi .num small { font-size: 13pt; font-weight: 500; color: var(--ink-2); margin-left: .5mm; }
+.kpi .lbl { font-size: 8.8pt; color: var(--ink-2); margin-top: 1.5mm; line-height: 1.4; }
+.promise { margin-top: 6mm; display: flex; flex-direction: column; gap: 2.6mm; }
+.promise div { display: flex; gap: 3mm; align-items: flex-start; font-size: 10pt; color: var(--ink-2); line-height: 1.45; }
+.promise .dot { flex: none; width: 5.2mm; height: 5.2mm; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 8pt; display: flex; align-items: center; justify-content: center; margin-top: .3mm; }
+.promise b { color: var(--ink); font-weight: 700; }
+.honest { margin-top: auto; font-size: 8pt; color: var(--muted); line-height: 1.55; border-top: .6pt solid var(--line); padding-top: 2.5mm; }
+
+/* ---------- generic blocks ---------- */
+.row { display: flex; gap: 5mm; }
+.card { background: var(--panel); border-radius: 3mm; padding: 4mm 4.5mm; }
+.card h3 { margin: 0 0 1.5mm; font-size: 11pt; }
+.card p { margin: 0; color: var(--ink-2); font-size: 9.3pt; line-height: 1.5; }
+.tag { display: inline-block; font-size: 7.8pt; font-weight: 700; color: var(--accent); background: var(--accent-soft); border-radius: 99px; padding: .4mm 2.4mm; margin-bottom: 1.5mm; }
+
+/* ---------- page 3 systems table ---------- */
+table.sys { width: 100%; border-collapse: collapse; font-size: 9pt; }
+table.sys th { text-align: left; font-size: 8pt; color: var(--muted); font-weight: 500; padding: 1.4mm 2mm; border-bottom: .8pt solid var(--ink); }
+table.sys td { padding: 1.55mm 2mm; border-bottom: .5pt solid var(--line); vertical-align: top; }
+table.sys td.pillar { font-weight: 700; color: var(--accent); white-space: nowrap; }
+table.sys td.ver { font-family: "JetBrains Mono", monospace; font-size: 8pt; color: var(--ink-2); white-space: nowrap; }
+table.sys tr.sep td { border-top: .8pt solid var(--ink); }
+.chip { display: inline-block; font-size: 7.5pt; border: .6pt solid var(--line); background: #fff; border-radius: 99px; padding: .2mm 1.8mm; margin-left: 1mm; color: var(--ink-2); vertical-align: 1px; }
+.chip.plugin { border-color: #f3c3ad; color: #b2481c; background: #fff6f2; }
+.swap { display: flex; flex-direction: column; gap: 2.2mm; }
+.swap .pair { display: flex; align-items: center; gap: 2mm; font-size: 9pt; }
+.swap .pair .a, .swap .pair .b { background: #fff; border: .6pt solid var(--line); border-radius: 1.6mm; padding: .8mm 2.2mm; }
+.swap .pair .arrow { color: var(--accent); font-weight: 700; }
+
+/* ---------- page 4 scenarios ---------- */
+.scen { flex: 1; display: flex; flex-direction: column; background: var(--panel); border-radius: 3mm; overflow: hidden; }
+.scen .shot { height: 54mm; overflow: hidden; background: #1e1e2e; border-bottom: .6pt solid var(--line); }
+.scen .shot img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+.scen .body { padding: 3.2mm 4mm 3.5mm; display: flex; flex-direction: column; gap: 1.4mm; }
+.scen h3 { margin: 0; font-size: 11pt; }
+.scen .q { font-size: 8.8pt; color: var(--ink-2); }
+.scen ul { margin: .5mm 0 0; padding-left: 4mm; font-size: 8.8pt; color: var(--ink); line-height: 1.45; }
+.scen ul li { margin-bottom: .6mm; }
+.scen .verdict { margin-top: 1mm; font-size: 8.3pt; color: var(--good); font-weight: 700; }
+.safety { margin-top: 3.5mm; margin-bottom: 7mm; display: flex; gap: 4mm; align-items: stretch; }
+.safety .flow { flex: 1; display: flex; align-items: center; gap: 2mm; background: var(--navy); color: #fff; border-radius: 3mm; padding: 3.2mm 5mm; font-size: 9.2pt; }
+.safety .step { background: rgba(255,255,255,.1); border-radius: 1.6mm; padding: 1mm 2.6mm; white-space: nowrap; }
+.safety .step b { color: #9cc3f5; }
+.safety .arr { color: #9cc3f5; font-weight: 700; }
+.safety .note { width: 74mm; font-size: 8.5pt; color: var(--ink-2); line-height: 1.45; display: flex; align-items: center; }
+
+/* ---------- page 5 charts ---------- */
+.chart-title { font-size: 10.5pt; font-weight: 700; margin: 0 0 .5mm; }
+.chart-sub { font-size: 8.3pt; color: var(--muted); margin: 0 0 2.5mm; }
+.legend { display: flex; gap: 4mm; font-size: 8.3pt; color: var(--ink-2); margin-bottom: 2mm; }
+.legend span { display: inline-flex; align-items: center; gap: 1.5mm; }
+.legend i { width: 3mm; height: 3mm; border-radius: .8mm; display: inline-block; }
+svg text { font-family: "Noto Sans SC", sans-serif; }
+.steps { display: flex; flex-direction: column; gap: 2.4mm; }
+.steps .s { display: flex; gap: 3mm; }
+.steps .n { flex: none; width: 6mm; height: 6mm; border-radius: 50%; background: var(--accent); color: #fff; font-size: 8.5pt; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.steps .t b { display: block; font-size: 9.6pt; }
+.steps .t span { font-size: 8.6pt; color: var(--ink-2); line-height: 1.45; }
+</style>
+</head>
+<body>
+
+<!-- ======================= PAGE 1 · COVER ======================= -->
+<section class="page cover">
+  <div class="cover-left">
+    <div class="brand">WORKCTL · AGENT 能力底座</div>
+    <h1>让 AI Agent 用<em>真实证据</em><br>排查与运维企业基础设施、<br>中间件与离线链路</h1>
+    <div class="sub">一个统一 CLI、一组 Skill 与一套文档：把容器、数据库、缓存、消息队列、配置中心、发布系统、调度与数据链路接成可发现、可组合、可控的能力。人、脚本与 Agent 走同一实现，得到同一份结果契约。</div>
+    <div class="pillars">
+      <span class="pill">基础设施</span><span class="pill">中间件</span><span class="pill">离线链路</span><span class="pill">Agent 接入（Skill + MCP）</span>
+    </div>
+    <div class="meta">客户演示材料 · 2026 年 10 月<br>所有结果来自隔离演示环境与合成数据</div>
+    <svg class="grid-art" width="260" height="260" viewBox="0 0 260 260" aria-hidden="true">
+      <g fill="none" stroke="#9cc3f5" stroke-width="1.2">
+        <circle cx="130" cy="130" r="40"/><circle cx="130" cy="130" r="80"/><circle cx="130" cy="130" r="120"/>
+        <path d="M130 10v240M10 130h240M45 45l170 170M215 45L45 215"/>
+      </g>
+    </svg>
+  </div>
+  <div class="cover-right">
+    <div class="kicker">一页看懂</div>
+    <div class="kpis">
+      <div class="kpi"><div class="num">89</div><div class="lbl">个可调用能力 · 16 个领域<br>另有 25 个列为待接入</div></div>
+      <div class="kpi"><div class="num">16</div><div class="lbl">类系统在真实实例上实测<br>如 K8s、PG、Nacos、Jenkins</div></div>
+      <div class="kpi"><div class="num">908<small>/908</small></div><div class="lbl">真实环境集成测试通过<br>完整复位后一键复现</div></div>
+      <div class="kpi"><div class="num">224</div><div class="lbl">个缺陷已修复<br>每个都有回归测试</div></div>
+    </div>
+    <div class="promise">
+      <div><span class="dot">1</span><span><b>不编造：</b>每个结果带来源、实际版本、覆盖范围与“明确 / 推断 / 派生 / 采样”标注。</span></div>
+      <div><span class="dot">2</span><span><b>可控：</b>变更只出计划；执行需权限开关 + 人工确认，执行前复核目标是否已变化。</span></div>
+      <div><span class="dot">3</span><span><b>可替换：</b>同一能力可接不同平台（Docker↔Kubernetes、Airflow 2↔3、etcd↔Nacos↔Consul）。</span></div>
+    </div>
+    <div class="honest">说明：本材料中的数字均来自隔离演示环境（合成业务数据）中的实测与自动化测试；尚无客户环境验证，不预设提效百分比。详细证据见代码仓库 <span class="mono">demo/evaluation.md</span>。</div>
+  </div>
+</section>
+
+<!-- ======================= PAGE 2 · ARCHITECTURE ======================= -->
+<section class="page">
+  <div class="kicker">01 · 架构</div>
+  <h1 class="headline">一套能力底座，三种使用方式，同一份结果契约</h1>
+  <p class="lede">每个能力只定义一次（参数、输出 Schema、口径说明），命令行、脚本 API、MCP 工具与文档都由它生成；Skill 把领域经验与排查流程交给 Agent。</p>
+
+  <svg viewBox="0 0 1000 330" width="100%" style="height:84mm" role="img" aria-label="workctl 架构：使用方 → 执行引擎 → 适配器 → 目标系统">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#7d879a"/></marker>
+    </defs>
+    <!-- consumers -->
+    <g font-size="13">
+      <text x="10" y="18" fill="#7d879a" font-size="12" font-weight="700" letter-spacing="1.5">使用方</text>
+      <g transform="translate(10,32)">
+        <rect width="190" height="74" rx="10" fill="#f4f6fa" stroke="#e2e6ee"/>
+        <text x="16" y="30" font-weight="700" fill="#0f1b2d">工程师</text>
+        <text x="16" y="52" fill="#44506a" font-size="12">终端：text / yaml / json</text>
+      </g>
+      <g transform="translate(10,120)">
+        <rect width="190" height="74" rx="10" fill="#f4f6fa" stroke="#e2e6ee"/>
+        <text x="16" y="30" font-weight="700" fill="#0f1b2d">自动化脚本</text>
+        <text x="16" y="52" fill="#44506a" font-size="12">--json · createClient() 库 API</text>
+      </g>
+      <g transform="translate(10,208)">
+        <rect width="190" height="96" rx="10" fill="#e8f1fc" stroke="#2a78d6"/>
+        <text x="16" y="30" font-weight="700" fill="#0f1b2d">AI Agent</text>
+        <text x="16" y="52" fill="#44506a" font-size="12">13 个 Skill（入口 / 领域 / 流程）</text>
+        <text x="16" y="72" fill="#44506a" font-size="12">MCP 工具（默认不含执行类）</text>
+      </g>
+    </g>
+    <path d="M205 69H262M205 157H262M205 256H262" stroke="#7d879a" stroke-width="1.6" marker-end="url(#ah)"/>
+    <!-- engine -->
+    <g transform="translate(268,32)">
+      <rect width="300" height="272" rx="14" fill="#0b2545"/>
+      <text x="22" y="34" fill="#9cc3f5" font-size="12" font-weight="700" letter-spacing="1.5">WORKCTL 执行引擎</text>
+      <g font-size="13" fill="#ffffff">
+        <g transform="translate(22,54)"><rect width="256" height="30" rx="7" fill="#13315c"/><text x="12" y="20">能力目录 · 参数校验 · 超时预算</text></g>
+        <g transform="translate(22,90)"><rect width="256" height="30" rx="7" fill="#13315c"/><text x="12" y="20">统一结果信封 · 稳定错误码</text></g>
+        <g transform="translate(22,126)"><rect width="256" height="30" rx="7" fill="#13315c"/><text x="12" y="20">来源 / 覆盖范围 / 关系标注</text></g>
+        <g transform="translate(22,162)"><rect width="256" height="30" rx="7" fill="#13315c"/><text x="12" y="20">凭据只用引用，从不打印</text></g>
+        <g transform="translate(22,198)"><rect width="256" height="30" rx="7" fill="#13315c"/><text x="12" y="20">计划 → 确认 → 执行 → 复核</text></g>
+        <g transform="translate(22,234)"><rect width="256" height="26" rx="7" fill="#2a78d6"/><text x="12" y="18" font-size="12" font-weight="700">资源绑定：服务 → 实例 / 作业 / 数据集</text></g>
+      </g>
+    </g>
+    <path d="M574 168H630" stroke="#7d879a" stroke-width="1.6" marker-end="url(#ah)"/>
+    <!-- adapters -->
+    <g transform="translate(636,10)" font-size="12.5">
+      <text x="0" y="8" fill="#7d879a" font-size="12" font-weight="700" letter-spacing="1.5">适配器 / 插件 → 目标系统</text>
+      <g transform="translate(0,22)">
+        <rect width="356" height="92" rx="10" fill="#f4f6fa" stroke="#e2e6ee"/>
+        <text x="14" y="24" font-weight="700" fill="#2a78d6">基础设施</text>
+        <text x="14" y="46" fill="#0f1b2d">Docker · Kubernetes · Prometheus · Loki</text>
+        <text x="14" y="66" fill="#0f1b2d">etcd · Nacos · Consul · Jenkins</text>
+        <text x="14" y="84" fill="#7d879a" font-size="11">容器 / 指标 / 日志 / 配置中心 / 发布记录</text>
+      </g>
+      <g transform="translate(0,124)">
+        <rect width="356" height="84" rx="10" fill="#f4f6fa" stroke="#e2e6ee"/>
+        <text x="14" y="24" font-weight="700" fill="#2a78d6">中间件</text>
+        <text x="14" y="46" fill="#0f1b2d">MySQL · PostgreSQL · Redis</text>
+        <text x="14" y="68" fill="#0f1b2d">Kafka <tspan fill="#b2481c" font-size="11">插件</tspan> · OpenSearch <tspan fill="#b2481c" font-size="11">插件</tspan></text>
+      </g>
+      <g transform="translate(0,218)">
+        <rect width="356" height="84" rx="10" fill="#f4f6fa" stroke="#e2e6ee"/>
+        <text x="14" y="24" font-weight="700" fill="#2a78d6">离线链路</text>
+        <text x="14" y="46" fill="#0f1b2d">Airflow 2 / 3 · Spark · Trino</text>
+        <text x="14" y="68" fill="#0f1b2d">数据目录 · 分区 · 血缘 · 质量规则</text>
+      </g>
+    </g>
+  </svg>
+
+  <div class="row" style="margin-top:4mm">
+    <div class="card" style="flex:1"><span class="tag">可发现</span><h3>能力目录 = 文档 = 工具列表</h3><p>Agent 通过目录与 Skill 找到能力；“待接入”的能力只出现在目录里，不能被调用，避免把规划说成已有。</p></div>
+    <div class="card" style="flex:1"><span class="tag">可组合</span><h3>跨系统证据按同一窗口对齐</h3><p>服务 → 容器 → 指标 → 日志 / 调用链 → 缓存 → 数据库；调度 → 计算 → 分区 → 质量，每一层单独给出来源。</p></div>
+    <div class="card" style="flex:1"><span class="tag">可扩展</span><h3>新系统用插件接入</h3><p>插件协议 <span class="mono">workctl-plugin/1</span>：安装后命令、帮助、目录与 MCP 工具自动出现；也可实现目录中“待接入”的能力。</p></div>
+  </div>
+  <div class="footer"><span><b>workctl</b> · 企业基础设施、中间件与离线链路的 Agent 能力底座</span><span>2 / 5</span></div>
+</section>
+
+<!-- ======================= PAGE 3 · COVERAGE ======================= -->
+<section class="page">
+  <div class="kicker">02 · 覆盖范围</div>
+  <h1 class="headline">16 类系统已接入，每一个都在真实实例上验证过</h1>
+  <p class="lede">验证方式：在隔离环境中运行真实服务，用逐能力用例（含预期错误）与集成测试调用；版本号为实测版本。</p>
+
+  <div class="row" style="flex:1; gap:7mm">
+    <div style="flex:1.65">
+      <table class="sys">
+        <thead><tr><th style="width:12%">板块</th><th style="width:30%">系统</th><th>代表能力</th><th style="width:17%">实测版本</th></tr></thead>
+        <tbody>
+          <tr><td class="pillar">基础设施</td><td>Docker · Kubernetes</td><td>工作负载状态、事件、资源快照、受控重启</td><td class="ver">29.8 · k3s 1.31</td></tr>
+          <tr><td></td><td>Prometheus · Loki</td><td>指标查询、日志查询、日志重建调用链</td><td class="ver">3.5.0 · 3.5.5</td></tr>
+          <tr><td></td><td>etcd · Nacos · Consul</td><td>配置读取与修订差异（敏感值遮蔽）、服务发现</td><td class="ver">3.5 · 2.4 · 1.20</td></tr>
+          <tr><td></td><td>Kubernetes · Jenkins</td><td>发布记录、失败原因、回滚计划与受控执行</td><td class="ver">1.31 · 2.541</td></tr>
+          <tr class="sep"><td class="pillar">中间件</td><td>MySQL</td><td>语句采样差分、慢日志、执行计划、受限只读查询、索引计划</td><td class="ver">8.4.11</td></tr>
+          <tr><td></td><td>PostgreSQL</td><td>pg_stat_statements 窗口差分、阻塞链、表膨胀、执行计划</td><td class="ver">16.15</td></tr>
+          <tr><td></td><td>Redis</td><td>命中率窗口采样、慢命令、SCAN 抽样、热度（LFU）</td><td class="ver">7.4.11</td></tr>
+          <tr><td></td><td>Kafka · OpenSearch <span class="chip plugin">插件</span></td><td>消费组积压；索引健康、受限查询、部分分片失败</td><td class="ver">3.9.1 · 2.19.3</td></tr>
+          <tr class="sep"><td class="pillar">离线链路</td><td>Airflow 2 / 3</td><td>按业务日期找运行、四层状态、日志、补数计划与执行</td><td class="ver">2.10.5 · 3.3.2</td></tr>
+          <tr><td></td><td>Spark · Trino</td><td>作业 / Stage / driver 日志、只读 SQL 提交与取消</td><td class="ver">3.5.5 · 476</td></tr>
+          <tr><td></td><td>数据目录与仓库</td><td>分区检查、显式 / 推断血缘、质量规则、产出时效</td><td class="ver">本地文件系统</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:4mm">
+      <div class="card">
+        <span class="tag">同一能力，可替换平台</span>
+        <h3 style="margin-bottom:2.5mm">换平台不换用法，输出通过同一 Schema</h3>
+        <div class="swap">
+          <div class="pair"><span class="a">Docker</span><span class="arrow">⇄</span><span class="b">Kubernetes</span></div>
+          <div class="pair"><span class="a">Docker 日志</span><span class="arrow">⇄</span><span class="b">Loki</span></div>
+          <div class="pair"><span class="a">Airflow 2（REST v1）</span><span class="arrow">⇄</span><span class="b">Airflow 3（REST v2）</span></div>
+          <div class="pair"><span class="a">Spark SQL</span><span class="arrow">⇄</span><span class="b">Trino</span></div>
+          <div class="pair"><span class="a">etcd</span><span class="arrow">⇄</span><span class="b">Nacos</span><span class="arrow">⇄</span><span class="b">Consul</span></div>
+          <div class="pair"><span class="a">Kubernetes 发布</span><span class="arrow">⇄</span><span class="b">Jenkins 部署 job</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="tag">诚实的边界</span>
+        <p>平台不支持的能力会明确说明，不会编造：例如 Consul KV 不保存历史，查配置差异时返回“数据不可用”；Kubernetes 不记录发布触发人，就标为空。</p>
+      </div>
+      <div class="card">
+        <span class="tag">待接入（目录可见、不可调用）</span>
+        <p>Apollo / ZooKeeper、Argo CD / Spinnaker、文档库 / KV、分析数据库、对象存储 / HDFS、YARN、RabbitMQ 等。</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>来源：<b>docs/compatibility.md</b>、<b>demo/verification/report*.md</b>（隔离演示环境，2026-10-17 / 18）</span><span>3 / 5</span></div>
+</section>
+
+<!-- ======================= PAGE 4 · DEMO ======================= -->
+<section class="page">
+  <div class="kicker">03 · 演示</div>
+  <h1 class="headline">Agent 用真实证据定位问题；涉及变更时只生成计划</h1>
+  <p class="lede">以下为 Claude Code 无头模式经 Skill + MCP、在只读权限下的实际运行（截图为同一环境中的真实命令输出）。</p>
+
+  <div class="row" style="flex:1; gap:4.5mm">
+    <div class="scen">
+      <div class="shot"><img src="../tutorial/images/19-offline-run-get.png" alt="offline run get 的分层状态输出"></div>
+      <div class="body">
+        <span class="tag">离线链路</span>
+        <h3>“调度成功了，为什么没有数据？”</h3>
+        <div class="q">demo-daily-orders，业务日期 2026-10-16</div>
+        <ul>
+          <li>调度 <b>success</b>、计算 <b>succeeded</b>，但目标分区 <b>missing</b>、质量 <b>fail</b>，四层分别取证</li>
+          <li>日志证明数据写进了 <span class="mono">dt=2026-10-17</span>：写错分区</li>
+          <li>补数计划含区间、写入方式、下游影响与前置条件，未执行</li>
+        </ul>
+        <div class="verdict">✓ 达到验收标准</div>
+      </div>
+    </div>
+    <div class="scen">
+      <div class="shot"><img src="../tutorial/images/41-pg-statement-summary.png" alt="pg statement summary 输出"></div>
+      <div class="body">
+        <span class="tag">数据库</span>
+        <h3>“PostgreSQL 上哪条语句最耗时？”</h3>
+        <div class="q">demo-postgres，20 秒窗口两次快照差分</div>
+        <ul>
+          <li>一条按 <span class="mono">customer_id</span> 查询的语句约占窗口总耗时 98%</li>
+          <li>执行计划为顺序扫描，表统计佐证缺少索引</li>
+          <li>建议索引交 DBA 评审；Agent 不执行任何 DDL</li>
+        </ul>
+        <div class="verdict">✓ 达到验收标准</div>
+      </div>
+    </div>
+    <div class="scen">
+      <div class="shot"><img src="../tutorial/images/45-deploy-jenkins-release-get.png" alt="deploy release get 的失败构建输出"></div>
+      <div class="body">
+        <span class="tag">发布系统</span>
+        <h3>“最近的发布成功了吗？要不要回滚？”</h3>
+        <div class="q">demo-order，Jenkins 部署 job</div>
+        <ul>
+          <li>定位失败版本 <span class="mono">v1.4.2-bad</span>：发布后健康检查失败</li>
+          <li>控制台日志中的令牌已自动遮蔽</li>
+          <li>生成回滚计划，并指出只读权限下不可执行</li>
+        </ul>
+        <div class="verdict">✓ 达到验收标准</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="safety">
+    <div class="flow">
+      <span class="step"><b>计划</b> 目标 · 影响 · 前置条件</span><span class="arr">→</span>
+      <span class="step"><b>确认</b> 人工确认计划 ID</span><span class="arr">→</span>
+      <span class="step"><b>执行</b> 需开启执行权限</span><span class="arr">→</span>
+      <span class="step"><b>复核</b> 状态迁移与结果</span>
+    </div>
+    <div class="note">执行前复核目标是否已变化；计划文件带完整性校验，并绑定创建时的配置。</div>
+  </div>
+  <div class="footer"><span>来源：<b>demo/agent-host/runs/*.summary.md</b>、<b>docs/tutorial/</b>（50 步实测截图教程）</span><span>4 / 5</span></div>
+</section>
+
+<!-- ======================= PAGE 5 · EVIDENCE & NEXT STEPS ======================= -->
+<section class="page">
+  <div class="kicker">04 · 质量与落地</div>
+  <h1 class="headline">质量可量化、可复现；建议用 4 周试点验证在贵司环境中的效果</h1>
+  <p class="lede">同一任务对照：加载 workctl Skill 的 Agent 与只用命令行的 Agent 答对同样多的关键事实，但调用更少、成本更低。</p>
+
+  <div class="row" style="flex:1; gap:7mm">
+    <!-- chart 1: small multiples -->
+    <div style="flex:1.15">
+      <div class="chart-title">回答质量对照（7 个真实任务，按事实清单机械判定）</div>
+      <div class="chart-sub">三项指标量纲不同，分开作图；数值越低越好的已注明</div>
+      <div class="legend"><span><i style="background:var(--series-1)"></i>使用 workctl Skill</span><span><i style="background:var(--series-2)"></i>仅命令行（对照组）</span></div>
+      <svg viewBox="0 0 380 236" width="100%" style="height:62mm" role="img" aria-label="回答质量对照：答对关键事实 18/18 对 18/18；平均工具调用 5.4 对 7.9；平均成本 0.08 对 0.12 美元">
+        <g font-size="12.5" fill="#44506a">
+          <text x="0" y="15" font-weight="700" fill="#0f1b2d">答对的关键事实</text>
+          <rect x="0" y="24" width="270" height="18" rx="4" fill="#2a78d6"/>
+          <rect x="0" y="44" width="270" height="18" rx="4" fill="#eb6834"/>
+          <text x="277" y="38" fill="#0f1b2d">18 / 18</text>
+          <text x="277" y="58" fill="#0f1b2d">18 / 18</text>
+          <text x="0" y="96" font-weight="700" fill="#0f1b2d">平均工具调用次数 <tspan font-weight="400" fill="#7d879a">越低越好</tspan></text>
+          <rect x="0" y="105" width="184.6" height="18" rx="4" fill="#2a78d6"/>
+          <rect x="0" y="125" width="270" height="18" rx="4" fill="#eb6834"/>
+          <text x="192" y="119" fill="#0f1b2d">5.4</text>
+          <text x="277" y="139" fill="#0f1b2d">7.9</text>
+          <text x="0" y="177" font-weight="700" fill="#0f1b2d">平均单任务成本（美元） <tspan font-weight="400" fill="#7d879a">越低越好</tspan></text>
+          <rect x="0" y="186" width="180" height="18" rx="4" fill="#2a78d6"/>
+          <rect x="0" y="206" width="270" height="18" rx="4" fill="#eb6834"/>
+          <text x="187" y="200" fill="#0f1b2d">$0.08</text>
+          <text x="277" y="220" fill="#0f1b2d">$0.12</text>
+        </g>
+      </svg>
+      <div class="row" style="gap:3mm; margin-top:2mm">
+        <div class="kpi" style="flex:1; padding:3mm 4mm"><div class="num" style="font-size:18pt">19<small>/19</small></div><div class="lbl" style="font-size:8.3pt">任务提示命中正确 Skill<br>（优化前 17/19）</div></div>
+        <div class="kpi" style="flex:1; padding:3mm 4mm"><div class="num" style="font-size:18pt">0</div><div class="lbl" style="font-size:8.3pt">“已执行变更”等不实陈述<br>（两组均为 0）</div></div>
+      </div>
+    </div>
+
+    <!-- chart 2: defects per round -->
+    <div style="flex:1">
+      <div class="chart-title">缺陷修复：累计 224 个，每个都有回归测试</div>
+      <div class="chart-sub">非作者交叉审查 + 黑盒契约模糊测试，按轮次</div>
+      <svg viewBox="0 0 400 236" width="100%" style="height:62mm" role="img" aria-label="各轮修复缺陷数：领域审查 58，10-17 晚间 57，遗留项 17，第二轮 34，第三轮 58">
+        <g font-size="11.5" fill="#44506a">
+          <line x1="20" y1="196" x2="390" y2="196" stroke="#c9cfda" stroke-width="1"/>
+          <g fill="#2a78d6">
+            <path d="M34 196V50a4 4 0 0 1 4-4h40a4 4 0 0 1 4 4V196z"/>
+            <path d="M108 196V52.6a4 4 0 0 1 4-4h40a4 4 0 0 1 4 4V196z"/>
+            <path d="M182 196V156a4 4 0 0 1 4-4h40a4 4 0 0 1 4 4V196z"/>
+            <path d="M256 196V112.1a4 4 0 0 1 4-4h40a4 4 0 0 1 4 4V196z"/>
+            <path d="M330 196V50a4 4 0 0 1 4-4h40a4 4 0 0 1 4 4V196z"/>
+          </g>
+          <g fill="#0f1b2d" font-weight="700" text-anchor="middle" font-size="12.5">
+            <text x="58" y="40">58</text><text x="132" y="42.6">57</text><text x="206" y="146">17</text><text x="280" y="102">34</text><text x="354" y="40">58</text>
+          </g>
+          <g text-anchor="middle">
+            <text x="58" y="213">领域审查</text><text x="132" y="213">晚间一轮</text><text x="206" y="213">遗留疑似</text><text x="280" y="213">第二轮</text><text x="354" y="213">第三轮</text>
+            <text x="95" y="230" fill="#7d879a" font-size="10.5">2026-10-17</text><text x="280" y="230" fill="#7d879a" font-size="10.5">2026-10-18</text>
+          </g>
+        </g>
+      </svg>
+      <div class="card" style="margin-top:2mm; padding:3mm 4mm">
+        <p style="font-size:8.6pt">典型问题：只读防护被特殊 SQL 写法绕过、凭据从 URL / 日志 / 报错中泄露、截断结果被报为“完整”、回滚与并发发布竞态。完整复位后 10 个验证套件 231/231、集成测试 908/908。</p>
+      </div>
+    </div>
+
+    <!-- next steps -->
+    <div style="flex:.95; display:flex; flex-direction:column">
+      <div class="chart-title">建议的试点（约 4 周）</div>
+      <div class="chart-sub">先只读、后受控；用对照实验衡量效果</div>
+      <div class="steps">
+        <div class="s"><div class="n">1</div><div class="t"><b>接入与绑定（第 1 周）</b><span>选 1–2 个业务服务，配置只读账号与凭据引用，建立服务 → 实例 / 作业 / 数据集绑定。</span></div></div>
+        <div class="s"><div class="n">2</div><div class="t"><b>选定主线（第 2 周）</b><span>从延迟排查、离线延迟、容量盘点、发布关联中选 2 条，补齐贵司平台的适配器或插件。</span></div></div>
+        <div class="s"><div class="n">3</div><div class="t"><b>对照测量（第 3 周）</b><span>同一任务卡：人工 / 仅 CLI / Skill + Agent 三组，记录耗时、调用次数、正确率与成本。</span></div></div>
+        <div class="s"><div class="n">4</div><div class="t"><b>评审与扩展（第 4 周）</b><span>依据结果决定是否开放受控执行（计划 → 确认 → 执行），并扩展到更多服务。</span></div></div>
+      </div>
+      <div class="card" style="margin-top:auto; padding:3mm 4mm; background:var(--accent-soft)">
+        <p style="font-size:8.5pt; color:var(--ink)"><b>需要贵司提供：</b>演示用只读账号、可接入的平台清单（如配置中心、发布系统、调度）、1–2 个真实排查案例作为任务卡。</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>来源：<b>demo/evaluation.md</b> §4.1–4.5（隔离演示环境、合成数据；单次 Agent 运行有非确定性，数字只说明趋势）</span><span>5 / 5</span></div>
+</section>
+
+</body>
+</html>
