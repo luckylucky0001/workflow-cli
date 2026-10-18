@@ -119,4 +119,10 @@ WITH_K8S=1 WITH_AF3=1 K3S_EXTRA_CA=... ./demo/verify-all.sh   # 复位 → 重�
 cd demo/environment && ./reset.sh      # 删除容器、卷、Airflow/Spark 运行时状态与密钥
 ```
 
+宿主重启后（例如临时云容器被回收，Docker 与 Airflow 进程都没了）一键恢复：
+
+```bash
+WITH_K8S=1 demo/environment/restore.sh   # 必要时启动 dockerd → reset → up → 重放全部场景与种子（含 Nacos/Consul/Jenkins/PostgreSQL/OpenSearch）→ 可选重建 k3s 凭据；完成后写 .runtime/READY
+```
+
 注意：演示 DAG 默认被暂停以冻结场景状态（否则调度器会在下一个业务日自动运行并覆盖证据）。

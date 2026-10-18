@@ -363,3 +363,17 @@ describe('etcd auth and connectivity errors', () => {
     expect((await invoke(r, 'config.get', { service: 'demo-order' }, { configPath: p })).error!.code).toBe('NOT_CONFIGURED');
   });
 });
+
+describe('maskCredentialText: xml/html documents', () => {
+  it('masks secret-named elements and quoted attributes by the key-name rule, leaves other text alone', async () => {
+    const { maskCredentialText } = await import('../../src/domains/config/values');
+    const doc = maskCredentialText('<c><db.url>jdbc:mysql://h/db</db.url><db.password>S3cr3t!</db.password><api-key a="1">abc</api-key><name>tokenizer</name><x token=\'tk\' user="app"/></c>');
+    expect(doc.masked).toBe(true);
+    expect(doc.text).not.toMatch(/S3cr3t|>abc<|'tk'/);
+    expect(doc.text).toContain('<db.password>***</db.password>');
+    expect(doc.text).toContain('<db.url>jdbc:mysql://h/db</db.url>');
+    expect(doc.text).toContain('<name>tokenizer</name>');
+    expect(doc.text).toContain('user="app"');
+    expect(maskCredentialText('<name>tokenizer</name>').masked).toBe(false);
+  });
+});

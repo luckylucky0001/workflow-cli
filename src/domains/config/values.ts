@@ -24,18 +24,23 @@ export function isSecretName(name: string): boolean {
 /**
  * Credentials embedded in free text (a connection URL in a value, a health-check output): URL userinfo
  * passwords (`scheme://user:pass@host` → `scheme://user:***@host`), secret-named query/form parameters
- * (`?token=…`, `&password=…`) and `Authorization: Basic|Bearer …`. The rest of the text is kept.
+ * (`?token=…`, `&password=…`), `Authorization: Basic|Bearer …`, and in xml/html secret-named elements and
+ * quoted attributes (`<password>…</password>`, `token="…"`). The rest of the text is kept.
  */
-const CRED_PATTERNS: [RegExp, string][] = [
+const CRED_PATTERNS: [RegExp, string | ((m: string, ...g: string[]) => string)][] = [
   [/([a-z][a-z0-9+.-]*:\/\/[^\s/@:?#]*):[^\s/@?#]+@/gi, `$1:${'***'}@`],
   [/(\b(?:authorization|proxy-authorization)\s*[:=]\s*["']?(?:basic|bearer|token|digest)\s+)[^\s"',;]+/gi, '$1***'],
   [/(\b(?:basic|bearer)\s+)[A-Za-z0-9+/_.~-]{16,}={0,2}/g, '$1***'],
   [/([?&;\s"']|^)((?:access_?|api_?|auth_?|private_?|secret_?|client_?|refresh_?|session_?|x-consul-|x-api-)?(?:token|password|passwd|pwd|secret|apikey|api_key|credential|credentials|signature)\s*=\s*)[^&\s"'#;]+/gi, '$1$2***'],
+  // xml/html documents: secret-named elements (<db.password>x</db.password>) and quoted attributes (password="x"),
+  // judged by the same name rule as keys (isSecretName)
+  [/(<([A-Za-z_][\w.:-]*)\b[^>]*>)([^<]+)(<\/\2\s*>)/g, (m: string, open: string, name: string, _v: string, close: string) => (isSecretName(name) ? `${open}***${close}` : m)],
+  [/(\b([A-Za-z_][\w.:-]*)\s*=\s*)(["'])((?:(?!\3)[^\n])+)\3/g, (m: string, lhs: string, name: string, q: string) => (isSecretName(name) ? `${lhs}${q}***${q}` : m)],
 ];
 
 export function maskCredentialText(text: string): { text: string; masked: boolean } {
   let out = text;
-  for (const [re, rep] of CRED_PATTERNS) out = out.replace(re, rep);
+  for (const [re, rep] of CRED_PATTERNS) out = out.replace(re, rep as never);
   return { text: out, masked: out !== text };
 }
 
