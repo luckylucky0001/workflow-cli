@@ -91,6 +91,59 @@
         }
       ]
     },
+    "arrival": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "at": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "utc": {
+                      "type": "string"
+                    },
+                    "local": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "utc",
+                    "local"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "basis": {
+              "type": "string",
+              "enum": [
+                "first_successful_producer_run_end",
+                "last_write"
+              ]
+            },
+            "relation": {
+              "type": "string",
+              "const": "derived"
+            }
+          },
+          "required": [
+            "at",
+            "basis",
+            "relation"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "判断准时/迟到所用的首次到达时间：优先取最早成功的产出 run 结束时间，否则为分区最后写入时间"
+    },
     "lateness_minutes": {
       "type": [
         "number",
@@ -202,6 +255,7 @@
     "checked_at",
     "partition_state",
     "partition_updated_at",
+    "arrival",
     "lateness_minutes",
     "producer"
   ],

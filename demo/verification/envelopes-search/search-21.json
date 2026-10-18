@@ -19,7 +19,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdgax2s-1767a4",
+    "request_id": "req-mvdh06rt-0a8f13",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -27,7 +27,7 @@
     "adapter": "opensearch-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:35:06.100Z",
-    "duration_ms": 135
+    "started_at": "2026-10-18T06:54:45.065Z",
+    "duration_ms": 107
   }
 }

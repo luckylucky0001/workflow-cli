@@ -102,10 +102,10 @@
           "id"
         ],
         "size_bytes": 1138688,
-        "idx_scan": 0,
-        "idx_tup_read": 0,
-        "idx_tup_fetch": 0,
-        "last_idx_scan": null
+        "idx_scan": 5,
+        "idx_tup_read": 8,
+        "idx_tup_fetch": 8,
+        "last_idx_scan": "2026-10-18T06:52:37.227404Z"
       },
       {
         "name": "orders_created_at_idx",
@@ -124,16 +124,16 @@
       }
     ],
     "stats": {
-      "seq_scan": 1,
-      "seq_tup_read": 50000,
-      "idx_scan": 0,
-      "idx_tup_fetch": 0,
+      "seq_scan": 1544,
+      "seq_tup_read": 77200000,
+      "idx_scan": 5,
+      "idx_tup_fetch": 8,
       "n_tup_ins": 0,
-      "n_tup_upd": 5000,
+      "n_tup_upd": 5004,
       "n_tup_del": 0,
-      "n_tup_hot_upd": 0,
+      "n_tup_hot_upd": 4,
       "n_live_tup": 0,
-      "n_dead_tup": 5000,
+      "n_dead_tup": 5002,
       "dead_ratio": null,
       "n_mod_since_analyze": 5000,
       "last_vacuum": null,
@@ -153,7 +153,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T06:34:03.348Z",
+        "observed_at": "2026-10-18T06:54:15.455Z",
         "endpoint": "postgres/demo-postgres",
         "method": "pg_class / pg_attribute / pg_index / pg_stat_all_tables / pg_stat_all_indexes / pg_*_size()",
         "version": "16.15",
@@ -170,7 +170,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg9klz-af6b56",
+    "request_id": "req-mvdgzjv7-3b9d27",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -178,7 +178,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:34:03.287Z",
-    "duration_ms": 65
+    "started_at": "2026-10-18T06:54:15.379Z",
+    "duration_ms": 81
   }
 }

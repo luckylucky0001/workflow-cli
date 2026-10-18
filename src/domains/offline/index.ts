@@ -10,7 +10,6 @@ import {
   findSparkApps,
   LayerSchema,
   normRun,
-  partitionLayer,
   qualityLayer,
   RunSchema,
   businessTimeZone,
@@ -22,6 +21,7 @@ import {
   type LayerState,
 } from './runs';
 import { maskCredentialText } from '../config/values';
+import { tablePartitionLayer } from './partition-layer';
 import { businessInterval, durationSeconds, formatInZone, MAPPING_RULE, requireDate, requireTimeZone, timePair, zonedToInstant, addDays } from './time';
 
 const common = {
@@ -375,7 +375,8 @@ export async function buildRunDetail(ctx: Ctx, af: AirflowClient, runId: string,
   const schedulerLayer: LayerState = { state: String(run.state ?? 'unknown'), source: sources[0], ...(run.state === 'success' ? { detail: 'Airflow DAG run 状态；只代表调度层任务全部成功' } : {}) };
 
   // compute
-  const apps = await findSparkApps(af, found.dagId, runId, tis);
+  const appNotes: string[] = [];
+  const apps = await findSparkApps(af, found.dagId, runId, tis, appNotes);
   if (apps.length) sources.push(await af.source(`GET .../taskInstances/{task}/xcomEntries/return_value | logs`, 'derived'));
   const compute = await computeLayer(ctx, apps, tis);
   if (compute.source) sources.push(compute.source);
@@ -391,7 +392,7 @@ export async function buildRunDetail(ctx: Ctx, af: AirflowClient, runId: string,
     const tp = targetPartition(targets.tables[0], run, tz);
     target = { table: tp.table, partition: tp.partition, write_mode: tp.write_mode };
     if (tp.partition) {
-      output = await partitionLayer(ctx, targets.catalog.name, tp.table, tp.partition);
+      output = await tablePartitionLayer(ctx, targets.catalog.name, targets.tables[0], tp.partition);
       quality = await qualityLayer(ctx, tp.table, tp.partition, {
         partitionUpdatedAt: typeof output.updated_at === 'string' ? output.updated_at : null,
         partitionState: output.state,
@@ -420,7 +421,7 @@ export async function buildRunDetail(ctx: Ctx, af: AirflowClient, runId: string,
       tiViews,
     ),
   };
-  return { dagId: found.dagId, tz, run: normRun(run, tz), tasks: tiViews, summary, sources, warnings, scanned: found.scanned, spark_apps: apps };
+  return { dagId: found.dagId, tz, run: normRun(run, tz), tasks: tiViews, summary, sources, warnings, scanned: found.scanned, spark_apps: apps, app_notes: appNotes };
 }
 
 const runGet = defineCapability({
@@ -450,9 +451,9 @@ const runGet = defineCapability({
       sources: d.sources,
       warnings: d.warnings,
       coverage: {
-        complete: unknownLayers.length === 0,
+        complete: unknownLayers.length === 0 && d.app_notes.length === 0,
         scope: `run ${d.run.run_id} of ${d.dagId}`,
-        ...(unknownLayers.length ? { notes: unknownLayers.map((u) => `未能确定的检查项 ${u}`) } : {}),
+        ...(unknownLayers.length || d.app_notes.length ? { notes: [...unknownLayers.map((u) => `未能确定的检查项 ${u}`), ...d.app_notes] } : {}),
       },
     };
   },
@@ -530,18 +531,18 @@ const dependencyList = defineCapability({
               continue;
             }
             const spec = tbd ? partitionSpec(meta, tbd) : null;
-            const layer = spec ? await partitionLayer(ctx, targets.catalog.name, up, spec) : { state: 'unknown', detail: '上游表无分区键', source: null };
+            const layer = spec ? await tablePartitionLayer(ctx, targets.catalog.name, meta, spec) : { state: 'unknown', detail: '上游表无分区键', source: null };
             if (layer.source) sources.push(layer.source);
             data.push({ table: up, partition: spec, role: 'input', state: layer.state, ...(layer.detail ? { detail: layer.detail } : {}), edge_source: 'catalog-metadata' });
           }
         } else {
           const spec = tbd ? partitionSpec(t, tbd) : null;
-          const layer = spec ? await partitionLayer(ctx, targets.catalog.name, t.name, spec) : { state: 'unknown', detail: '无分区键', source: null };
+          const layer = spec ? await tablePartitionLayer(ctx, targets.catalog.name, t, spec) : { state: 'unknown', detail: '无分区键', source: null };
           if (layer.source) sources.push(layer.source);
           data.push({ table: t.name, partition: spec, role: 'output', state: layer.state, ...(layer.detail ? { detail: layer.detail } : {}), edge_source: 'catalog-metadata' });
           for (const down of downstreamTables(targets.catalog, t.name)) {
             const dspec = tbd ? partitionSpec(down, tbd) : null;
-            const dl = dspec ? await partitionLayer(ctx, targets.catalog.name, down.name, dspec) : { state: 'unknown', detail: '无分区键', source: null };
+            const dl = dspec ? await tablePartitionLayer(ctx, targets.catalog.name, down, dspec) : { state: 'unknown', detail: '无分区键', source: null };
             data.push({
               table: down.name,
               partition: dspec,
@@ -670,7 +671,7 @@ const logGet = defineCapability({
     lines: z.array(z.string()),
   }),
   prerequisites: PREREQ,
-  notes: ['日志由 Airflow webserver 从任务日志存储读取；reschedule 模式的传感器每次 poke 都追加到同一 try 的日志', '日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述', `凭据按与应用日志相同的规则打码（URL 中的密码、Authorization 头、password=/token= 等参数），数量见 credentials_masked`, `Airflow REST 不支持只取日志尾部：v1 流式读取并只保留末尾 ${LOG_MAX_BYTES} 字节（truncated=true、total_lines=null）；v2 的 JSON 日志超过 16 MiB 时报 DATA_UNAVAILABLE`, 'Airflow 3（REST v2）的日志接口只返回结构化 JSON：每条消息转为一行“[时间] 级别 logger - 内容”'],
+  notes: ['日志由 Airflow webserver 从任务日志存储读取；reschedule 模式的传感器每次 poke 都追加到同一 try 的日志', '日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述', `凭据按与应用日志相同的规则打码（URL 中的密码、Authorization 头、password=/token= 等参数），数量见 credentials_masked`, `Airflow REST 不支持只取日志尾部：流式读取并只保留末尾 ${LOG_MAX_BYTES} 字节（truncated=true、total_lines=null；v2 以 NDJSON 读取，按消息切分）；此时 spark_app_ids 只来自保留的末尾部分`, 'Airflow 3（REST v2）的日志接口只返回结构化 JSON：每条消息转为一行“[时间] 级别 logger - 内容”'],
   examples: ['workctl offline log get --workflow demo-daily-orders --run-id demo__2026-10-16__wrong_partition --task aggregate_orders --limit-lines 50'],
   handler: async (ctx, inp) => {
     const af = new AirflowClient(ctx);
@@ -700,8 +701,8 @@ const logGet = defineCapability({
     const r = await af.request('GET', `${base}/logs/${tryNo}`, { query: { full_content: true, ...(mapped ? { map_index: mapIndex } : {}) }, accept: 'text/plain', allowStatus: [404], maxBytes: LOG_MAX_BYTES, tail: true });
     if (r.status === 404) throw new WorkError('NOT_FOUND', `任务 ${taskId} 没有第 ${tryNo} 次尝试的日志`);
     const cut = r.truncated === true;
-    // a byte-cut tail starts mid-line: drop that partial first line
-    const text = cut ? r.text.slice(r.text.indexOf('\n') + 1) : r.text;
+    // a byte-cut tail starts mid-line: drop that partial first line (v2: already dropped from the NDJSON)
+    const text = cut && af.apiVersion !== 'v2' ? r.text.slice(r.text.indexOf('\n') + 1) : r.text;
     const all = text.replace(/\r\n/g, '\n').split('\n');
     if (all.length && all[all.length - 1] === '') all.pop();
     const limit = Math.min(Math.max(1, inp.limit_lines), 2000);
@@ -713,7 +714,10 @@ const logGet = defineCapability({
     });
     const truncated = cut || all.length > lines.length;
     const covNotes: string[] = [];
-    if (cut) covNotes.push(`日志共 ${r.bytes ?? '?'} 字节，超过读取上限 ${LOG_MAX_BYTES} 字节，只读取了末尾部分（total_lines=null）`);
+    if (cut) {
+      covNotes.push(`日志共 ${r.bytes ?? '?'} 字节，超过读取上限 ${LOG_MAX_BYTES} 字节，只读取了末尾部分（total_lines=null）`);
+      covNotes.push('spark_app_ids 只从保留的末尾部分提取：只出现在被丢弃的日志开头的 Spark 应用 ID 可能缺失');
+    }
     if (maskedLines) covNotes.push(`${maskedLines} 行含凭据（URL 中的密码、Authorization 头、password=/token= 等参数），已打码为 ***`);
     return {
       data: {
@@ -763,12 +767,17 @@ const freshnessCheck = defineCapability({
     checked_at: z.object({ local: z.string(), utc: z.string() }),
     partition_state: z.string(),
     partition_updated_at: TimePairSchema,
+    arrival: z
+      .object({ at: TimePairSchema, basis: z.enum(['first_successful_producer_run_end', 'last_write']), relation: z.literal('derived') })
+      .nullable()
+      .describe('判断准时/迟到所用的首次到达时间：优先取最早成功的产出 run 结束时间，否则为分区最后写入时间'),
     lateness_minutes: z.number().nullable(),
     producer: z.object({ workflow: z.string(), runs: z.array(z.object({ run_id: z.string(), state: z.string().nullable(), start_date: TimePairSchema, end_date: TimePairSchema })), lookup: z.string() }).nullable(),
   }),
   prerequisites: ['catalog 端点，表元数据含 freshness.expected_by', 'data 域的 data.partition.get', '（可选）airflow 端点，用于附带产出工作流的 run 状态'],
   notes: [
     'expected_by 为业务日期 + day_offset 天在业务时区的 HH:MM；分区更新时间取 data.partition.get 返回的写入证据（成功标记或最新数据文件）',
+    '准时/迟到按首次到达判断：最早成功的产出 run 结束时间早于最后写入时取前者（之后的写入视为重写）；否则按最后写入时间，并在 coverage.notes 中说明',
     'present 以外的分区状态（empty/incomplete/unreadable）不算准时产出',
   ],
   examples: ['workctl offline freshness check --dataset analytics.daily_orders --data-date 2026-10-16'],
@@ -785,32 +794,8 @@ const freshnessCheck = defineCapability({
     const now = Date.now();
     const sources: Source[] = [catalogSource(catalog, `${t.name}.freshness`)];
     const spec = partitionSpec(t, date);
-    const layer: LayerState = spec ? await partitionLayer(ctx, catalog.name, t.name, spec) : { state: 'unknown', detail: '表没有分区键', source: null };
+    const layer: LayerState = spec ? await tablePartitionLayer(ctx, catalog.name, t, spec) : { state: 'unknown', detail: '表没有分区键', source: null };
     if (layer.source) sources.push(layer.source);
-    const updatedMs = typeof layer.updated_at === 'string' ? Date.parse(layer.updated_at) : NaN;
-    let verdict: 'on_time' | 'late' | 'missing' | 'not_due' | 'unknown';
-    let why: string;
-    if (layer.state === 'unknown') {
-      verdict = 'unknown';
-      why = `无法确定分区状态: ${layer.detail ?? ''}`;
-    } else if (layer.state === 'present') {
-      if (!Number.isFinite(updatedMs)) {
-        verdict = 'unknown';
-        why = '分区存在但没有可用的更新时间证据';
-      } else if (updatedMs <= dueMs) {
-        verdict = 'on_time';
-        why = `分区在时限前产出（${formatInZone(updatedMs, tz)} ≤ ${formatInZone(dueMs, tz)}）`;
-      } else {
-        verdict = 'late';
-        why = `分区已产出但晚于时限 ${Math.round((updatedMs - dueMs) / 60000)} 分钟`;
-      }
-    } else if (now < dueMs) {
-      verdict = 'not_due';
-      why = `分区状态 ${layer.state}，但尚未到产出时限 ${formatInZone(dueMs, tz)}`;
-    } else {
-      verdict = 'missing';
-      why = `已超过产出时限 ${formatInZone(dueMs, tz)}，分区状态 ${layer.state}`;
-    }
     let producer: any = null;
     let producerFailure: string | null = null;
     const wfId = t.produced_by?.workflow;
@@ -834,6 +819,50 @@ const freshnessCheck = defineCapability({
         producer = { workflow: wfId, runs: [], lookup: `查询产出工作流失败: ${code}` };
       }
     }
+    const updatedMs = typeof layer.updated_at === 'string' ? Date.parse(layer.updated_at) : NaN;
+    // lateness is about first arrival: a later rewrite of an on-time partition must not read as late.
+    // Earliest evidence: the end of the first successful producer run for this business date (the
+    // partition then existed no later than that), else the last write itself.
+    const firstSuccessEnd = Math.min(
+      ...((producer?.runs ?? []) as { state: string | null; end_date: { utc?: string } | null }[])
+        .filter((r) => r.state === 'success' && r.end_date?.utc)
+        .map((r) => Date.parse(r.end_date!.utc!))
+        .filter(Number.isFinite),
+    );
+    const useRunEnd = layer.state === 'present' && Number.isFinite(updatedMs) && Number.isFinite(firstSuccessEnd) && firstSuccessEnd < updatedMs;
+    const arrivalMs = useRunEnd ? firstSuccessEnd : updatedMs;
+    const arrivalBasis = !Number.isFinite(updatedMs) ? null : useRunEnd ? 'first_successful_producer_run_end' : 'last_write';
+    const arrivalNote =
+      arrivalBasis === 'last_write'
+        ? Number.isFinite(firstSuccessEnd)
+          ? '迟到按分区最后写入时间判断（derived）：最早成功的产出 run 结束不早于最后写入，没有更早的首次到达证据'
+          : '迟到按分区最后写入时间判断（derived）：没有首次到达证据（未找到成功的产出 run），之后对准时分区的重写也会判为迟到'
+        : arrivalBasis
+          ? `首次到达按最早成功的产出 run 结束时间判断（derived，${formatInZone(firstSuccessEnd, tz)}）；分区最后写入 ${formatInZone(updatedMs, tz)} 晚于此，视为重写`
+          : null;
+    let verdict: 'on_time' | 'late' | 'missing' | 'not_due' | 'unknown';
+    let why: string;
+    if (layer.state === 'unknown') {
+      verdict = 'unknown';
+      why = `无法确定分区状态: ${layer.detail ?? ''}`;
+    } else if (layer.state === 'present') {
+      if (!Number.isFinite(updatedMs)) {
+        verdict = 'unknown';
+        why = '分区存在但没有可用的更新时间证据';
+      } else if (arrivalMs <= dueMs) {
+        verdict = 'on_time';
+        why = `分区在时限前产出（${formatInZone(arrivalMs, tz)} ≤ ${formatInZone(dueMs, tz)}）${useRunEnd ? '；首次到达取最早成功产出 run 的结束时间，之后有重写' : ''}`;
+      } else {
+        verdict = 'late';
+        why = `分区已产出但晚于时限 ${Math.round((arrivalMs - dueMs) / 60000)} 分钟（按${useRunEnd ? '最早成功产出 run 结束' : '最后写入'}时间）`;
+      }
+    } else if (now < dueMs) {
+      verdict = 'not_due';
+      why = `分区状态 ${layer.state}，但尚未到产出时限 ${formatInZone(dueMs, tz)}`;
+    } else {
+      verdict = 'missing';
+      why = `已超过产出时限 ${formatInZone(dueMs, tz)}，分区状态 ${layer.state}`;
+    }
     return {
       data: {
         dataset: t.name,
@@ -845,12 +874,17 @@ const freshnessCheck = defineCapability({
         checked_at: { local: formatInZone(now, tz), utc: new Date(now).toISOString() },
         partition_state: layer.state,
         partition_updated_at: Number.isFinite(updatedMs) ? timePair(new Date(updatedMs).toISOString(), tz) : null,
-        lateness_minutes: Number.isFinite(updatedMs) && updatedMs > dueMs ? Math.round((updatedMs - dueMs) / 60000) : verdict === 'missing' ? Math.round((now - dueMs) / 60000) : null,
+        arrival: arrivalBasis ? { at: timePair(new Date(arrivalMs).toISOString(), tz), basis: arrivalBasis, relation: 'derived' as const } : null,
+        lateness_minutes: Number.isFinite(arrivalMs) && arrivalMs > dueMs ? Math.round((arrivalMs - dueMs) / 60000) : verdict === 'missing' ? Math.round((now - dueMs) / 60000) : null,
         producer,
       },
       sources,
       ...(producerFailure ? { status: 'partial' as const, warnings: [producerFailure] } : {}),
-      coverage: { complete: verdict !== 'unknown' && !producerFailure, scope: `${t.name}/${spec ?? '(no partition)'}`, ...(producerFailure ? { notes: [producerFailure] } : {}) },
+      coverage: {
+        complete: verdict !== 'unknown' && !producerFailure,
+        scope: `${t.name}/${spec ?? '(no partition)'}`,
+        ...(producerFailure || arrivalNote ? { notes: [...(producerFailure ? [producerFailure] : []), ...(arrivalNote ? [arrivalNote] : [])] } : {}),
+      },
     };
   },
 });

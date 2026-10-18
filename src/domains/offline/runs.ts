@@ -223,8 +223,18 @@ export async function qualityLayer(ctx: Ctx, table: string, partition: string, f
   };
 }
 
+/** Cap on a task log scanned for Spark app ids (only its tail is kept past it). Tests may lower it. */
+export const sparkIdLogLimits = { maxBytes: 16 * 1024 * 1024 };
+
 /** Find Spark application ids recorded by the run's tasks: XCom return_value first, then task logs. */
-export async function findSparkApps(af: AirflowClient, dagId: string, runId: string, tis: any[]): Promise<{ task_id: string; app_id: string; via: string; try_number: number | null }[]> {
+export async function findSparkApps(
+  af: AirflowClient,
+  dagId: string,
+  runId: string,
+  tis: any[],
+  /** Receives coverage notes, e.g. a task log too large to read whole (app ids in its dropped head are missed). */
+  notes: string[] = [],
+): Promise<{ task_id: string; app_id: string; via: string; try_number: number | null }[]> {
   const found: { task_id: string; app_id: string; via: string; try_number: number | null }[] = [];
   for (const ti of tis) {
     if (!ti.try_number || !['success', 'failed', 'running', 'up_for_retry'].includes(ti.state)) continue;
@@ -238,9 +248,13 @@ export async function findSparkApps(af: AirflowClient, dagId: string, runId: str
     let via = 'xcom:return_value';
     if (!ids.length && /Bash|Spark/i.test(String(ti.operator ?? ''))) {
       const tryNo = ti.try_number;
-      const lr = await af.request('GET', `${base}/logs/${tryNo}`, { query: { full_content: true, ...mapQ }, accept: 'text/plain', allowStatus: [404, 400], tail: true });
+      const lr = await af.request('GET', `${base}/logs/${tryNo}`, { query: { full_content: true, ...mapQ }, accept: 'text/plain', allowStatus: [404, 400], tail: true, maxBytes: sparkIdLogLimits.maxBytes });
       if (lr.status === 200) {
-        ids = sparkAppIds(lr.text);
+        // a byte-cut v1 tail starts mid-line (v2 NDJSON tails are already cut at a message boundary)
+        ids = sparkAppIds(lr.truncated && af.apiVersion !== 'v2' ? lr.text.slice(lr.text.indexOf('\n') + 1) : lr.text);
+        if (lr.truncated) {
+          notes.push(`任务 ${ti.task_id} 第 ${tryNo} 次尝试的日志共 ${lr.bytes ?? '?'} 字节，超过读取上限，只扫描了末尾部分：只出现在被丢弃的日志开头的 Spark 应用 ID 可能缺失`);
+        }
         via = `task log try ${tryNo}`;
       }
     }

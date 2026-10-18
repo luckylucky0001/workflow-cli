@@ -37,6 +37,11 @@ export interface LoadedConfig {
   config: Config;
   /** Problems that do not stop loading (e.g. unknown keys the schema drops); surfaced as envelope warnings. */
   warnings?: string[];
+  /**
+   * Set only by loadConfigForDiagnosis: the file exists but could not be loaded (parse error,
+   * invalid structure, inline credentials). `config` is then the empty default.
+   */
+  load_error?: { message: string; reason?: string; issues?: string[]; paths?: string[] };
 }
 
 /** Keys the schema would silently drop: a typo such as `resource_file` must not just disappear (`x-*` keys hold YAML anchors). */
@@ -136,6 +141,28 @@ export function loadConfig(explicitPath?: string): LoadedConfig {
   const unknown = unknownConfigKeys(raw);
   const warnings = unknown.length ? [`配置文件中有未识别的键（已忽略，检查拼写）: ${unknown.join(', ')}`] : [];
   return { path, baseDir: dirname(path), config: parsed.data, warnings };
+}
+
+/**
+ * For `doctor` only: like loadConfig, but a config file that exists and fails to load is
+ * returned as `load_error` (with the empty default config) instead of thrown, so the problem
+ * can be reported as a failed check. Missing files etc. still throw as in loadConfig.
+ */
+export function loadConfigForDiagnosis(explicitPath?: string): LoadedConfig {
+  try {
+    return loadConfig(explicitPath);
+  } catch (e) {
+    if (!(e instanceof WorkError) || e.code !== 'INVALID_ARGUMENT') throw e;
+    const candidates = explicitPath ? [resolve(explicitPath)] : defaultConfigCandidates();
+    const path = candidates.find((p) => existsSync(p)) ?? null;
+    const d = (e.details ?? {}) as { reason?: string; issues?: string[]; paths?: string[] };
+    return {
+      path,
+      baseDir: path ? dirname(path) : process.cwd(),
+      config: ConfigSchema.parse({}),
+      load_error: { message: e.message, ...(d.reason ? { reason: d.reason } : {}), ...(d.issues ? { issues: d.issues } : {}), ...(d.paths ? { paths: d.paths } : {}) },
+    };
+  }
 }
 
 export function resolveProfileName(loaded: LoadedConfig, requested?: string): string | null {

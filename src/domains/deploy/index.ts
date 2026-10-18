@@ -86,7 +86,7 @@ const JenkinsDetail = z.object({
   built_on: z.string().nullable(),
   parameters: z.record(z.string(), z.string()).describe('构建参数；名称像凭据的值已遮蔽'),
   causes: z.array(z.object({ description: z.string().nullable(), user_id: z.string().nullable() })),
-  console: z.object({ lines: z.array(z.string()), total_lines: z.number(), truncated: z.boolean(), masked: z.boolean() }),
+  console: z.object({ lines: z.array(z.string()), total_lines: z.number().nullable(), truncated: z.boolean(), masked: z.boolean(), bytes_total: z.number().optional(), bytes_kept: z.number().optional() }),
 });
 
 const releaseGet = defineCapability({

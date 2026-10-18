@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.get",
   "data": {
-    "id": "op-20261018-2283ec",
+    "id": "op-20261018-cd730d",
     "kind": "container.restart",
     "title": "重启服务 demo-order（sandbox）的 1 个容器",
     "status": "planned",
-    "created_at": "2026-10-18T06:33:33.719Z",
-    "expires_at": "2026-10-18T07:03:33.719Z",
+    "created_at": "2026-10-18T06:53:39.041Z",
+    "expires_at": "2026-10-18T07:23:39.041Z",
     "profile": "demo",
     "env": "sandbox",
     "params": {
@@ -22,7 +22,7 @@
         "image": "workctl-demo/demo-order:local",
         "state": "running",
         "health": "none",
-        "started_at": "2026-10-18T06:28:58.615639343Z",
+        "started_at": "2026-10-18T06:47:26.490495086Z",
         "restart_policy": "no",
         "selector": "workctl.service=demo-order",
         "selector_kind": "label",
@@ -100,13 +100,13 @@
     "executable": true,
     "history": [
       {
-        "at": "2026-10-18T06:33:33.719Z",
+        "at": "2026-10-18T06:53:39.041Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
     ],
     "config_identity": "sha256:6e827e7c8071f7f6f727057bfcf84f617b9b45596d246475de39290a05d43109",
-    "digest": "sha256:d04f753e2349c410f03b05cff34fbc02b6311cc4477b1604c3749ba586cf4e1a"
+    "digest": "sha256:1148bcbe2b93d475bce24e93536a5307f1cbd5bce65fe65207e4433401de5610"
   },
   "error": null,
   "meta": {
@@ -114,7 +114,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-18T06:33:34.128Z",
+        "observed_at": "2026-10-18T06:53:39.397Z",
         "relation": "explicit"
       }
     ],
@@ -125,7 +125,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg8y38-5ae224",
+    "request_id": "req-mvdgys30-859fc8",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -133,7 +133,7 @@
     "adapter": "plan-store",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:33:34.100Z",
-    "duration_ms": 29
+    "started_at": "2026-10-18T06:53:39.372Z",
+    "duration_ms": 26
   }
 }

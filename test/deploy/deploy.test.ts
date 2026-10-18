@@ -7,7 +7,7 @@ import { invoke } from '../../src/core/engine';
 import { builtinRegistry } from '../../src/domains';
 import { maskSecrets } from '../../src/domains/deploy/model';
 import { deployRolloutTiming } from '../../src/domains/deploy/k8s';
-import { jenkinsRollbackTiming } from '../../src/domains/deploy/jenkins';
+import { jenkinsConsoleLimits, jenkinsRollbackTiming } from '../../src/domains/deploy/jenkins';
 import { jbuild, k8sDeployFixture, replicaset, startFakeJenkins, startFakeK8sDeploy, writeDeployConfig, type FakeJenkinsState, type FakeK8sDeployState } from './fakes';
 
 process.env.WORKCTL_VALIDATE_OUTPUT = '1';
@@ -106,6 +106,28 @@ describe('deploy domain (jenkins provider, fake server)', () => {
   it('release get --tail 0 returns no console lines (not the whole log)', async () => {
     const env = await invoke(r, 'deploy.release.get', { service: 'demo-order', id: '3', tail: 0 }, { configPath });
     expect((env.data as any).jenkins.console).toMatchObject({ lines: [], total_lines: 5, truncated: true });
+  });
+
+  it('release get: console larger than the read cap keeps the tail (no error), total_lines unknown', async () => {
+    const prev = jenkinsConsoleLimits.maxBytes;
+    const saved = state.console[3];
+    jenkinsConsoleLimits.maxBytes = 4096;
+    state.console[3] = Array.from({ length: 2000 }, (_, i) => `line ${i} ${'x'.repeat(40)}`).join('\n') + '\nregistry token: abc123\nFinished: FAILURE\n';
+    try {
+      const env = await invoke(r, 'deploy.release.get', { service: 'demo-order', id: '3', tail: 3 }, { configPath });
+      expect(env.status).toBe('success');
+      const c = (env.data as any).jenkins.console;
+      expect(c.lines).toEqual([`line 1999 ${'x'.repeat(40)}`, 'registry token: ******', 'Finished: FAILURE']);
+      expect(c).toMatchObject({ total_lines: null, truncated: true });
+      expect(c.bytes_total).toBeGreaterThan(4096);
+      expect(env.meta.coverage?.notes?.join(' ')).toContain('总行数未知');
+      const big = await invoke(r, 'deploy.release.get', { service: 'demo-order', id: '3', tail: 1000 }, { configPath });
+      expect((big.data as any).jenkins.console.lines.length).toBeLessThan(1000);
+      expect(big.meta.coverage?.notes?.join(' ')).toContain('少于请求的 1000 行');
+    } finally {
+      jenkinsConsoleLimits.maxBytes = prev;
+      state.console[3] = saved;
+    }
   });
 
   it('release get: missing build → NOT_FOUND, other service build → NOT_FOUND, bad id → INVALID_ARGUMENT', async () => {

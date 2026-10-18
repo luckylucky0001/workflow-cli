@@ -33,6 +33,9 @@ export class FrameDemuxer {
   }
 }
 
+/** Longest line handed on by LineSplitter; entries keep far less (MAX_LOG_TEXT) anyway. */
+export const MAX_LINE_CHARS = 1024 * 1024;
+
 /**
  * Splits a stream into complete lines, keeping a partial tail between pushes.
  * Bytes are decoded with a StringDecoder so a multi-byte UTF-8 character split
@@ -40,18 +43,43 @@ export class FrameDemuxer {
  */
 export class LineSplitter {
   private tail = '';
+  /** The current line passed MAX_LINE_CHARS: its rest is discarded up to the next newline. */
+  private skipping = false;
+  /** Lines cut at MAX_LINE_CHARS (memory stays bounded on a newline-free stream). */
+  oversized = 0;
   private readonly decoder = new StringDecoder('utf8');
   constructor(private readonly onLine: (line: string) => void) {}
   push(data: string | Buffer): void {
-    const text = typeof data === 'string' ? data : this.decoder.write(data);
+    let text = typeof data === 'string' ? data : this.decoder.write(data);
+    if (this.skipping) {
+      const nl = text.indexOf('\n');
+      if (nl < 0) return;
+      this.skipping = false;
+      this.emit(this.tail);
+      this.tail = '';
+      text = text.slice(nl + 1);
+    }
     const parts = (this.tail + text).split('\n');
     this.tail = parts.pop() ?? '';
-    for (const p of parts) if (p) this.onLine(p.replace(/\r$/, ''));
+    for (const p of parts) this.emit(p);
+    if (this.tail.length > MAX_LINE_CHARS) {
+      this.tail = this.tail.slice(0, MAX_LINE_CHARS);
+      this.skipping = true;
+      this.oversized++;
+    }
   }
   flush(): void {
-    this.tail += this.decoder.end();
-    if (this.tail) this.onLine(this.tail);
+    if (!this.skipping) this.tail += this.decoder.end();
+    this.emit(this.tail);
     this.tail = '';
+    this.skipping = false;
+  }
+  private emit(p: string): void {
+    if (p.length > MAX_LINE_CHARS) {
+      p = p.slice(0, MAX_LINE_CHARS);
+      this.oversized++;
+    }
+    if (p) this.onLine(p.replace(/\r$/, ''));
   }
 }
 
@@ -293,7 +321,12 @@ export async function scanContainerLogs(
   }
   splitters.stdout.flush();
   splitters.stderr.flush();
-  if (demux.pending) scan.note = `流末尾有 ${demux.pending} 字节不完整帧被忽略`;
+  const oversized = splitters.stdout.oversized + splitters.stderr.oversized;
+  const notes = [
+    ...(demux.pending ? [`流末尾有 ${demux.pending} 字节不完整帧被忽略`] : []),
+    ...(oversized ? [`${oversized} 行超过 ${MAX_LINE_CHARS} 字符，超出部分在读取时丢弃`] : []),
+  ];
+  if (notes.length) scan.note = notes.join('；');
   return scan;
 }
 

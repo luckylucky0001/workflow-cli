@@ -147,7 +147,7 @@ CLI-only 对照组见 §4.2。人工组：**未测量**（需要参与者按同�
 | 核心配置 / profile / 绑定 / CLI | 15 | YAML 合并键被忽略；`WORKCTL_CONFIG` 指向不存在文件时静默回退到其他配置；未知配置键静默忽略；空 env 引用视为可解析；资源与依赖查询不按 profile 环境过滤；`auth status --probe` / `doctor` 一个端点挂起导致整体超时；`access check` 在 MCP 与插件能力上误判；未知 `--domain` 报空成功；组合调用预算不留余量；相对 Docker socket 路径；旧版计划可查看但不可执行；`--json -o yaml` 冲突；`mcp serve` 默认超时；计划绑定配置身份，防止在另一套端点上执行 |
 | 文档与示例 | 11 | `scripts/examples-check.mjs` 实跑全部 115 个能力示例与 184 条文档 / Skill 命令：10 个示例（不存在的文件、过期的 trace / Spark 应用 id、随发布变化的 ReplicaSet 名、会过期的 Redis 键）与 1 处指南写法错误 |
 
-本轮共修复代码缺陷 51 个（另修文档与示例 11 处），累计 217 个；最终代码从完整复位验证（`WITH_AF3=1 WITH_K8S=1 K3S_OOM_WORKAROUND=1 demo/verify-all.sh`，06:28–06:39 UTC）：10 个逐能力套件 231/231、三种消费者同一契约、日志来源与 Airflow 版本替换、Kubernetes 真实回滚、集成测试 896/896，ALL CHECKS PASSED；契约模糊测试回归（87 个能力、2372 个 CLI 用例 + 1184 次 MCP 调用）0 违例。
+本轮共修复代码缺陷 58 个（含收尾 7 个：Jenkins 控制台与 Airflow 3 日志超限时保留尾部、Docker 超长无换行行截断、日志被截断时 Spark 应用 id 可能缺失的说明、`doctor` 可诊断无法解析的配置、多分区键表的产出层、时效按首次到达判定迟到；另修文档与示例 11 处），累计 224 个；收尾后复跑：单元 810、集成 908/908、逐能力套件全部通过；最终代码从完整复位验证（`WITH_AF3=1 WITH_K8S=1 K3S_OOM_WORKAROUND=1 demo/verify-all.sh`，06:28–06:39 UTC）：10 个逐能力套件 231/231、三种消费者同一契约、日志来源与 Airflow 版本替换、Kubernetes 真实回滚、集成测试 896/896，ALL CHECKS PASSED；契约模糊测试回归（87 个能力、2372 个 CLI 用例 + 1184 次 MCP 调用）0 违例。
 
 ### 4.5 Skill 测评与优化（2026-10-17）
 

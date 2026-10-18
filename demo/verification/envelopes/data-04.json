@@ -115,7 +115,7 @@
       {
         "system": "file-catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T06:33:31.024Z",
+        "observed_at": "2026-10-18T06:53:36.419Z",
         "endpoint": "catalog/demo",
         "method": "read 3 metadata files",
         "relation": "explicit"
@@ -123,7 +123,7 @@
       {
         "system": "sql-file",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T06:33:31.025Z",
+        "observed_at": "2026-10-18T06:53:36.419Z",
         "method": "regex-parse demo/offline-workflows/sql/daily_orders.sql",
         "relation": "inferred"
       }
@@ -141,7 +141,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg8vol-ae3912",
+    "request_id": "req-mvdgypru-40e008",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -149,7 +149,7 @@
     "adapter": "file-catalog",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:33:30.981Z",
-    "duration_ms": 44
+    "started_at": "2026-10-18T06:53:36.378Z",
+    "duration_ms": 42
   }
 }

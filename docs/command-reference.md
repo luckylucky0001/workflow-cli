@@ -2039,6 +2039,7 @@ workctl offline dependency list --workflow demo-daily-orders --run-id demo__2026
 口径说明：
 
 - expected_by 为业务日期 + day_offset 天在业务时区的 HH:MM；分区更新时间取 data.partition.get 返回的写入证据（成功标记或最新数据文件）
+- 准时/迟到按首次到达判断：最早成功的产出 run 结束时间早于最后写入时取前者（之后的写入视为重写）；否则按最后写入时间，并在 coverage.notes 中说明
 - present 以外的分区状态（empty/incomplete/unreadable）不算准时产出
 
 ```bash
@@ -2071,7 +2072,7 @@ workctl offline freshness check --dataset analytics.daily_orders --data-date 202
 - 日志由 Airflow webserver 从任务日志存储读取；reschedule 模式的传感器每次 poke 都追加到同一 try 的日志
 - 日志为目标系统原文，可能包含业务路径等信息，按需裁剪后再转述
 - 凭据按与应用日志相同的规则打码（URL 中的密码、Authorization 头、password=/token= 等参数），数量见 credentials_masked
-- Airflow REST 不支持只取日志尾部：v1 流式读取并只保留末尾 4194304 字节（truncated=true、total_lines=null）；v2 的 JSON 日志超过 16 MiB 时报 DATA_UNAVAILABLE
+- Airflow REST 不支持只取日志尾部：流式读取并只保留末尾 4194304 字节（truncated=true、total_lines=null；v2 以 NDJSON 读取，按消息切分）；此时 spark_app_ids 只来自保留的末尾部分
 - Airflow 3（REST v2）的日志接口只返回结构化 JSON：每条消息转为一行“[时间] 级别 logger - 内容”
 
 ```bash

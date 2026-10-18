@@ -695,8 +695,19 @@ const doctor = defineCapability({
     const checks: { area: string; item: string; ok: boolean; detail: string }[] = [];
     const tcpPending: Promise<void>[] = [];
     checks.push({ area: 'config', item: 'file', ok: !!ctx.loaded.path, detail: ctx.loaded.path ?? '未找到配置文件（--config / $WORKCTL_CONFIG / ./workctl.yaml / ~/.config/workctl/config.yaml）' });
+    const loadError = ctx.loaded.load_error;
+    if (loadError) {
+      // message names the file; reason is yamlErrorSummary (line/column, no file content)
+      const extra = loadError.reason ?? [...(loadError.issues ?? []), ...(loadError.paths ?? [])].slice(0, 5).join('；');
+      checks.push({ area: 'config', item: 'parse', ok: false, detail: extra ? `${loadError.message}: ${extra}` : loadError.message });
+    }
     const p = ctx.profile;
-    checks.push({ area: 'config', item: 'profile', ok: !!p, detail: p ? `${ctx.profileName} env=${p.env} data_mode=${p.data_mode} allow_execute=${p.allow_execute}` : '没有可用 profile' });
+    checks.push({
+      area: 'config',
+      item: 'profile',
+      ok: !!p,
+      detail: p ? `${ctx.profileName} env=${p.env} data_mode=${p.data_mode} allow_execute=${p.allow_execute}` : loadError ? '配置文件未能加载，无法检查 profile、资源绑定、凭据与端点' : '没有可用 profile',
+    });
     if (p?.resources_file) {
       try {
         const store = ctx.resources();
@@ -752,7 +763,14 @@ const doctor = defineCapability({
     return {
       data: { healthy: checks.every((c) => c.ok), checks },
       sources: [source('workctl', 'local', { relation: 'derived' })],
-      coverage: { complete: true, scope: '本机 workctl 安装、配置与端点', notes: i.skip_network ? ['已跳过端点连通性检查（--skip-network）'] : [] },
+      coverage: {
+        complete: !loadError,
+        scope: '本机 workctl 安装、配置与端点',
+        notes: [
+          ...(i.skip_network ? ['已跳过端点连通性检查（--skip-network）'] : []),
+          ...(loadError ? ['配置文件未能加载：profile、资源绑定、凭据引用与端点检查未进行，只检查了插件与能力目录'] : []),
+        ],
+      },
     };
   },
 });

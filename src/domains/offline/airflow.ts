@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { basicAuth, httpJson, type HttpResponse } from '../../core/http';
 import { source, WorkError, type Source } from '../../core/output';
 import type { Ctx, Endpoint } from '../../core/runtime';
-import { airflowToken, isLogPath, normalizeV2, structuredLogToText, toV2Method, toV2Route } from './airflow-v2';
+import { airflowToken, isLogPath, ndjsonToContent, normalizeV2, structuredLogToText, toV2Method, toV2Route } from './airflow-v2';
 
 export type AirflowApiVersion = 'v1' | 'v2';
 /** Adapter per REST API version; the one actually used is recorded in every source (meta.sources[].adapter). */
@@ -115,7 +115,10 @@ export class AirflowClient {
     const url = `${this.base}${route.path}${qs.size ? `?${qs}` : ''}`;
     // Airflow 3 serves task logs as JSON / NDJSON only (406 for text/plain); converted to text below
     const log = v2 && isLogPath(path);
-    const accept = log ? 'application/json' : opts.accept;
+    // tail reads ask for NDJSON (one JSON message per line): a byte-cut tail still parses after
+    // dropping its first partial line, so huge logs keep their newest part instead of failing
+    const ndjson = log && !!opts.tail;
+    const accept = log ? (ndjson ? 'application/x-ndjson' : 'application/json') : opts.accept;
     this.ctx.debug(`airflow ${method} ${this.prefix}${route.path}${qs.size ? `?${qs}` : ''}`);
     const send = async (force: boolean) =>
       httpJson<T>(this.ctx, url, {
@@ -123,10 +126,9 @@ export class AirflowClient {
         headers: { authorization: await this.authorization(force), ...(accept ? { accept } : {}) },
         body: opts.body,
         allowStatus: opts.allowStatus,
-        // a v2 log is JSON: it keeps the default cap and errors past it instead of being cut
-        maxBytes: opts.tail && log ? undefined : opts.maxBytes,
-        // keeping only the tail is safe for plain-text logs (v1); a v2 JSON log cut at the front would not parse
-        overflow: opts.tail && !log ? 'tail' : 'error',
+        maxBytes: opts.maxBytes,
+        // keeping only the tail is safe for plain text (v1) and NDJSON (v2); a single JSON document is not
+        overflow: opts.tail ? 'tail' : 'error',
       });
     try {
       let r: HttpResponse<T>;
@@ -140,7 +142,7 @@ export class AirflowClient {
       if (!v2 && r.status === 404 && (await this.serverSpeaksV2())) throw this.versionMismatch(route.path);
       if (!v2 || r.status >= 400) return r;
       if (log) {
-        const text = structuredLogToText(r.body);
+        const text = structuredLogToText(typeof r.body === 'string' && ndjson ? ndjsonToContent(r.body, r.truncated === true) : r.body);
         return { ...r, body: text as T, text };
       }
       return { ...r, body: normalizeV2(path, r.body) as T };

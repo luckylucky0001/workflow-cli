@@ -440,13 +440,22 @@
               }
             },
             "total_lines": {
-              "type": "number"
+              "type": [
+                "number",
+                "null"
+              ]
             },
             "truncated": {
               "type": "boolean"
             },
             "masked": {
               "type": "boolean"
+            },
+            "bytes_total": {
+              "type": "number"
+            },
+            "bytes_kept": {
+              "type": "number"
             }
           },
           "required": [

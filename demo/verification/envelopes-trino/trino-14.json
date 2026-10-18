@@ -3,14 +3,14 @@
   "status": "success",
   "capability": "sql.query.get",
   "data": {
-    "query_id": "q-20261018-e5b323",
+    "query_id": "q-20261018-4e368d",
     "engine": "trino",
     "state": "cancelled",
     "state_basis": "Trino 报告 USER_CANCELED（由 workctl sql query cancel 发起）",
-    "submitted_at": "2026-10-18T06:33:47.812Z",
-    "started_at": "2026-10-18T06:33:47.851Z",
-    "finished_at": "2026-10-18T06:33:54.177Z",
-    "duration_ms": 6330,
+    "submitted_at": "2026-10-18T06:53:49.657Z",
+    "started_at": "2026-10-18T06:53:49.698Z",
+    "finished_at": "2026-10-18T06:53:55.716Z",
+    "duration_ms": 6030,
     "app_id": null,
     "spark_version": null,
     "sql_file": "/home/user/workflow-cli/test/sql/fixtures/trino/long_cross_join.sql",
@@ -30,7 +30,7 @@
       "error_code": 3
     },
     "views": null,
-    "engine_query_id": "20261018_063347_00005_fp9k8",
+    "engine_query_id": "20261018_065349_00023_fp9k8",
     "engine_state": "FAILED",
     "engine_version": "476",
     "column_types": [
@@ -39,9 +39,9 @@
     "catalog": "tpch",
     "schema": "tiny",
     "stats": {
-      "elapsed_ms": 6330,
-      "queued_ms": 0.373,
-      "cpu_ms": 17500,
+      "elapsed_ms": 6030,
+      "queued_ms": 0.626,
+      "cpu_ms": 8240,
       "wall_ms": null,
       "processed_rows": 7000000,
       "processed_bytes": 0,
@@ -61,21 +61,21 @@
       {
         "system": "workctl-state",
         "adapter": "trino-http",
-        "observed_at": "2026-10-18T06:33:54.277Z",
+        "observed_at": "2026-10-18T06:53:55.753Z",
         "endpoint": "trino/demo-trino:query_state_dir",
-        "method": "q-20261018-e5b323.json",
+        "method": "q-20261018-4e368d.json",
         "version": "476",
         "relation": "explicit"
       }
     ],
     "coverage": {
       "complete": true,
-      "scope": "q-20261018-e5b323"
+      "scope": "q-20261018-4e368d"
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg9dwe-1ee53f",
+    "request_id": "req-mvdgz51d-87d61e",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -83,7 +83,7 @@
     "adapter": "spark-submit-local|trino-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:33:54.590Z",
-    "duration_ms": 17
+    "started_at": "2026-10-18T06:53:56.161Z",
+    "duration_ms": 26
   }
 }

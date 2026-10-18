@@ -108,7 +108,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T06:34:03.724Z",
+        "observed_at": "2026-10-18T06:54:15.864Z",
         "endpoint": "postgres/demo-postgres",
         "method": "pg_class / pg_attribute / pg_index / pg_stat_all_tables / pg_stat_all_indexes / pg_*_size()",
         "version": "16.15",
@@ -126,7 +126,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg9kw5-e3e1c9",
+    "request_id": "req-mvdgzk6k-c53bfb",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -134,7 +134,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:34:03.653Z",
-    "duration_ms": 76
+    "started_at": "2026-10-18T06:54:15.788Z",
+    "duration_ms": 80
   }
 }

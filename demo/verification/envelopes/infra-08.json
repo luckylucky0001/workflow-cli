@@ -17,7 +17,7 @@
     "options": {},
     "usage": {
       "status": "available",
-      "size_bytes": 281501351,
+      "size_bytes": 281504962,
       "ref_count": 1,
       "note": null
     },
@@ -37,7 +37,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T06:32:51.416Z",
+        "observed_at": "2026-10-18T06:52:57.723Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /volumes/workctl-demo_mysql-data",
         "relation": "explicit",
@@ -46,7 +46,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T06:32:51.556Z",
+        "observed_at": "2026-10-18T06:52:57.852Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /system/df?type=volume",
         "relation": "explicit",
@@ -55,7 +55,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T06:32:51.577Z",
+        "observed_at": "2026-10-18T06:52:57.868Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/json?filters={volume}",
         "relation": "explicit",
@@ -72,7 +72,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg8146-3b274f",
+    "request_id": "req-mvdgxvwl-c87ed6",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -80,7 +80,7 @@
     "adapter": "docker-engine-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:32:51.366Z",
-    "duration_ms": 211
+    "started_at": "2026-10-18T06:52:57.669Z",
+    "duration_ms": 199
   }
 }

@@ -15,7 +15,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdgdp0j-6563f3",
+    "request_id": "req-mvdh0sg8-6512d5",
     "profile": "k8s-demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -23,7 +23,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:37:15.619Z",
-    "duration_ms": 17
+    "started_at": "2026-10-18T06:55:13.160Z",
+    "duration_ms": 18
   }
 }

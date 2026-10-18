@@ -9,7 +9,7 @@
     "service": "demo-order",
     "env": "sandbox",
     "prefix": "/services/demo-order/",
-    "observed_revision": 19,
+    "observed_revision": 63,
     "instances": [
       {
         "instance_id": "order-1",
@@ -20,7 +20,7 @@
           "version": "1.4.2",
           "healthy": true,
           "env": "sandbox",
-          "registered_at": "2026-10-18T06:30:54.981Z"
+          "registered_at": "2026-10-18T06:52:11.905Z"
         },
         "payload_error": null,
         "address": "10.88.0.11",
@@ -29,13 +29,13 @@
         "env": "sandbox",
         "healthy": true,
         "health_basis": "self_reported",
-        "registered_at": "2026-10-18T06:30:54.981Z",
-        "create_revision": 17,
-        "mod_revision": 17,
+        "registered_at": "2026-10-18T06:52:11.905Z",
+        "create_revision": 61,
+        "mod_revision": 61,
         "lease": {
-          "id": "7587898302271915595",
+          "id": "7587898302271916191",
           "granted_ttl_s": 86400,
-          "remaining_ttl_s": 86214,
+          "remaining_ttl_s": 86289,
           "error": null
         }
       },
@@ -58,8 +58,8 @@
         "healthy": true,
         "health_basis": "self_reported",
         "registered_at": "2026-01-05T08:00:00Z",
-        "create_revision": 19,
-        "mod_revision": 19,
+        "create_revision": 63,
+        "mod_revision": 63,
         "lease": null
       }
     ],
@@ -83,7 +83,7 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-18T06:34:00.352Z",
+        "observed_at": "2026-10-18T06:54:02.188Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
         "method": "POST /v3/kv/range prefix=/services/demo-order/",
         "relation": "explicit",
@@ -92,7 +92,7 @@
       {
         "system": "etcd",
         "adapter": "etcd-v3-gateway",
-        "observed_at": "2026-10-18T06:34:00.359Z",
+        "observed_at": "2026-10-18T06:54:02.199Z",
         "endpoint": "etcd/demo-etcd (http://127.0.0.1:12379)",
         "method": "POST /v3/lease/timetolive",
         "relation": "sampled",
@@ -102,7 +102,7 @@
     "coverage": {
       "complete": true,
       "truncated": false,
-      "scope": "etcd etcd/demo-etcd 键前缀 /services/demo-order/，修订 19",
+      "scope": "etcd etcd/demo-etcd 键前缀 /services/demo-order/，修订 63",
       "notes": [
         "1 个实例的注册没有租约，不会因实例下线而自动过期"
       ]
@@ -110,7 +110,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg9iba-93bab8",
+    "request_id": "req-mvdgz9nh-e4d66d",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -118,7 +118,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:34:00.310Z",
-    "duration_ms": 49
+    "started_at": "2026-10-18T06:54:02.141Z",
+    "duration_ms": 59
   }
 }

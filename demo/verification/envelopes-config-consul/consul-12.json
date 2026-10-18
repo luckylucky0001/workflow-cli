@@ -12,9 +12,9 @@
     "key": "warehouse.default",
     "revision_space": "consul-raft-index",
     "mode": "revisions",
-    "from_revision": 31,
-    "to_revision": 31,
-    "current_revision": 30,
+    "from_revision": 146,
+    "to_revision": 146,
+    "current_revision": 145,
     "changes": [],
     "summary": {
       "added": 0,
@@ -30,7 +30,7 @@
       {
         "system": "consul",
         "adapter": "consul-http-api",
-        "observed_at": "2026-10-18T06:34:34.553Z",
+        "observed_at": "2026-10-18T06:54:13.231Z",
         "endpoint": "consul/demo-consul (http://127.0.0.1:18500)",
         "method": "GET /v1/kv/config/sandbox/demo-inventory/warehouse.default",
         "relation": "explicit",
@@ -39,16 +39,16 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "Consul consul/demo-consul KV 键 config/sandbox/demo-inventory/warehouse.default，索引 31 → 31",
+      "scope": "Consul consul/demo-consul KV 键 config/sandbox/demo-inventory/warehouse.default，索引 146 → 146",
       "notes": [
-        "该键最近一次写入的索引（X-Consul-Index）为 30，不晚于 --from-rev 31：区间内没有写入，差异为空",
+        "该键最近一次写入的索引（X-Consul-Index）为 145，不晚于 --from-rev 146：区间内没有写入，差异为空",
         "删除的键：Consul 回收删除墓碑后，删除不再反映在 X-Consul-Index 中，区间内的删除可能无法发现"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdga8oh-1da165",
+    "request_id": "req-mvdgzi67-603d90",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -56,7 +56,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:34:34.481Z",
-    "duration_ms": 73
+    "started_at": "2026-10-18T06:54:13.183Z",
+    "duration_ms": 48
   }
 }

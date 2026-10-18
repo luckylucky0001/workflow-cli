@@ -59,7 +59,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T06:34:10.328Z",
+        "observed_at": "2026-10-18T06:54:22.541Z",
         "endpoint": "postgres/demo-postgres",
         "method": "EXPLAIN (GENERIC_PLAN, FORMAT JSON)",
         "version": "16.15",
@@ -75,7 +75,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg9pzy-df3815",
+    "request_id": "req-mvdgzpbz-aea27d",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -83,7 +83,7 @@
     "adapter": "pg-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:34:10.270Z",
-    "duration_ms": 67
+    "started_at": "2026-10-18T06:54:22.463Z",
+    "duration_ms": 83
   }
 }

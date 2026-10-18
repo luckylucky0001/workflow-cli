@@ -16,6 +16,7 @@ import compute from '../../src/domains/compute';
 import offline from '../../src/domains/offline';
 import { clearAirflowTokenCache, isoDurationToTimedelta, normalizeV2, structuredLogToText, toV2Method, toV2Route } from '../../src/domains/offline/airflow-v2';
 import { backfillExecutor } from '../../src/domains/offline/backfill';
+import { sparkIdLogLimits } from '../../src/domains/offline/runs';
 import { fakeServer, tempConfig } from './fake';
 
 process.env.WORKCTL_VALIDATE_OUTPUT = '1';
@@ -153,19 +154,20 @@ async function v2Server() {
     }
     if (p === `/dags/${DAG_ID}/dagRuns/r16/taskInstances`) return { json: { task_instances: FACT_TIS.map(tiV2), total_entries: 2 } };
     if (p === `/dags/${DAG_ID}/dagRuns/r16/taskInstances/agg`) return { json: tiV2(FACT_TIS[1]) };
-    if (p === `/dags/${DAG_ID}/dagRuns/r16/taskInstances/agg/xcomEntries/return_value`) return { json: { key: 'return_value', value: 'WORKCTL_SPARK_APP_ID=local-1', run_id: 'r16' } };
+    if (p === `/dags/${DAG_ID}/dagRuns/r16/taskInstances/agg/xcomEntries/return_value`) {
+      return v2Big.noXcom ? { status: 404, json: { detail: 'not found' } } : { json: { key: 'return_value', value: 'WORKCTL_SPARK_APP_ID=local-1', run_id: 'r16' } };
+    }
     if (p === `/dags/${DAG_ID}/dagRuns/r16/taskInstances/agg/logs/1`) {
       // Airflow 3 serves logs as JSON / NDJSON only
-      if (String(req.headers.accept ?? '').includes('text/plain')) return { status: 406, json: { detail: 'Only application/json or application/x-ndjson is supported' } };
-      return {
-        json: {
-          content: [
-            { event: '::group::Log message source details' },
-            ...LOG_LINES.map((l, i) => ({ timestamp: `2026-10-17T12:37:${String(i % 60).padStart(2, '0')}Z`, level: 'info', logger: 'airflow.task.hooks.subprocess', event: l })),
-          ],
-          continuation_token: null,
-        },
-      };
+      const accept = String(req.headers.accept ?? '');
+      if (accept.includes('text/plain')) return { status: 406, json: { detail: 'Only application/json or application/x-ndjson is supported' } };
+      const content = [
+        { event: '::group::Log message source details' },
+        ...(v2Big.headLines ?? []).map((l) => ({ timestamp: '2026-10-17T12:36:00Z', level: 'info', logger: 'airflow.task.hooks.subprocess', event: l })),
+        ...LOG_LINES.map((l, i) => ({ timestamp: `2026-10-17T12:37:${String(i % 60).padStart(2, '0')}Z`, level: 'info', logger: 'airflow.task.hooks.subprocess', event: l })),
+      ];
+      if (accept.includes('application/x-ndjson')) return { text: content.map((m) => JSON.stringify(m)).join('\n') + '\n' };
+      return { json: { content, continuation_token: null } };
     }
     if (p === '/pools/demo-batch-pool') return { json: { ...POOL, team_name: null } };
     return undefined;
@@ -177,6 +179,9 @@ function v2Config(url: string, allowExecute = false): { path: string; dir: strin
   writeFileSync(c.path, readFileSync(c.path, 'utf8').replace('api_version: v1', 'api_version: v2'));
   return c;
 }
+
+/** Knobs for the oversized-log tests: extra head messages, and no XCom so run get scans the log. */
+let v2Big: { headLines?: string[]; noXcom?: boolean } = {};
 
 let s1: Awaited<ReturnType<typeof fakeServer>>;
 let s2: Awaited<ReturnType<typeof fakeServer>>;
@@ -199,6 +204,7 @@ afterAll(async () => {
 beforeEach(() => {
   clearAirflowTokenCache();
   v2State = { tokenCalls: 0, valid: '', strictViolations: [], posts: [] };
+  v2Big = {};
 });
 
 const call = (cfg: { path: string }, cap: string, inputs: Record<string, unknown>) => invoke(r, cap, inputs, { configPath: cfg.path, timeoutMs: 10_000 });
@@ -293,6 +299,33 @@ describe('airflow-rest-v2: same capability contract as v1', () => {
     expect(b.total_lines).toBe(a.total_lines + 1); // + "::group::" header line Airflow 3 adds
     expect(b.lines[b.lines.length - 1]).toMatch(/INFO airflow\.task\.hooks\.subprocess - WORKCTL_SPARK_APP_ID=local-1$/);
     expect(v2.meta.sources[0].method).toBe(`GET /api/v2/dags/${DAG_ID}/dagRuns/r16/taskInstances/agg/logs/1`);
+  });
+
+  it('log get: a v2 log over the read cap keeps its newest messages (NDJSON tail) instead of DATA_UNAVAILABLE', async () => {
+    // ~6 MiB of head messages: past LOG_MAX_BYTES (4 MiB) and, as one JSON document, not cuttable
+    v2Big = { headLines: ['WORKCTL_SPARK_APP_ID=local-head', ...Array.from({ length: 30_000 }, (_, i) => `head ${i} ${'z'.repeat(150)}`)] };
+    const env = await call(c2, 'offline.log.get', { workflow: DAG_ID, run_id: 'r16', task: 'agg', limit_lines: 5 });
+    expect(env.status).toBe('success');
+    const d = env.data as any;
+    expect(d.lines).toHaveLength(5);
+    expect(d.lines[d.lines.length - 1]).toMatch(/INFO airflow\.task\.hooks\.subprocess - WORKCTL_SPARK_APP_ID=local-1$/);
+    expect(d.lines[0]).toMatch(/ - line 296$/); // whole messages, the partial first NDJSON row is dropped
+    expect(d).toMatchObject({ truncated: true, total_lines: null, spark_app_ids: ['local-1'] });
+    expect(env.meta.coverage?.notes?.join(' ')).toContain('Spark 应用 ID 可能缺失');
+  });
+
+  it('run get: a task log cut at the read cap is noted (Spark app ids in the dropped head may be missing)', async () => {
+    const prev = sparkIdLogLimits.maxBytes;
+    sparkIdLogLimits.maxBytes = 64 * 1024;
+    v2Big = { noXcom: true, headLines: ['WORKCTL_SPARK_APP_ID=local-head', ...Array.from({ length: 2000 }, (_, i) => `head ${i} ${'z'.repeat(80)}`)] };
+    try {
+      const env = await call(c2, 'offline.run.get', { workflow: DAG_ID, id: 'r16' });
+      expect(env.status).toBe('success');
+      expect(env.meta.coverage?.complete).toBe(false);
+      expect(env.meta.coverage?.notes?.join(' ')).toMatch(/任务 agg .*Spark 应用 ID 可能缺失/);
+    } finally {
+      sparkIdLogLimits.maxBytes = prev;
+    }
   });
 
   it('compute queue get: same pool view; source records v2', async () => {

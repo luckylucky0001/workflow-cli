@@ -25,7 +25,7 @@
       {
         "check": "identity:etcd/demo-etcd",
         "ok": true,
-        "detail": "身份 anonymous；版本 3.5.21；leader 10276657743932975437（即本成员）；db 20480 字节（使用中 20480）；集群版本 3.5.0；认证未开启"
+        "detail": "身份 anonymous；版本 3.5.21；leader 10276657743932975437（即本成员）；db 40960 字节（使用中 40960）；集群版本 3.5.0；认证未开启"
       },
       {
         "check": "endpoint:nacos",
@@ -55,7 +55,7 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-18T06:34:01.194Z",
+        "observed_at": "2026-10-18T06:54:02.972Z",
         "relation": "derived"
       }
     ],
@@ -67,7 +67,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg9iy2-55a9a0",
+    "request_id": "req-mvdgza8u-c2d848",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -75,7 +75,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:34:01.130Z",
-    "duration_ms": 65
+    "started_at": "2026-10-18T06:54:02.910Z",
+    "duration_ms": 63
   }
 }

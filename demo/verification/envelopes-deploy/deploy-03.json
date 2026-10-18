@@ -38,7 +38,7 @@
       "number": 3,
       "result": "FAILURE",
       "building": false,
-      "estimated_duration_ms": 2025,
+      "estimated_duration_ms": 2013,
       "built_on": null,
       "parameters": {
         "SERVICE": "demo-order",
@@ -76,7 +76,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-18T06:34:36.475Z",
+        "observed_at": "2026-10-18T06:54:49.271Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/3/api/json",
         "relation": "explicit",
@@ -85,7 +85,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-18T06:34:36.475Z",
+        "observed_at": "2026-10-18T06:54:49.271Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/3/consoleText",
         "relation": "explicit",
@@ -94,7 +94,7 @@
       {
         "system": "jenkins",
         "adapter": "jenkins-rest",
-        "observed_at": "2026-10-18T06:34:36.475Z",
+        "observed_at": "2026-10-18T06:54:49.271Z",
         "endpoint": "jenkins/demo-jenkins (http://127.0.0.1:18091/)",
         "method": "GET /job/deploy-demo-order/api/json?tree=builds[...]{0,100}",
         "relation": "derived",
@@ -111,7 +111,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdga9x5-a59d0c",
+    "request_id": "req-mvdh09pe-de83f2",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -119,7 +119,7 @@
     "adapter": "kubernetes-api | jenkins-rest",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:34:36.089Z",
-    "duration_ms": 386
+    "started_at": "2026-10-18T06:54:48.866Z",
+    "duration_ms": 405
   }
 }

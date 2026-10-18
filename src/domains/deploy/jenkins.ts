@@ -40,13 +40,16 @@ export class JenkinsClient {
     private readonly ctx: Ctx | null,
   ) {}
 
-  async request(path: string, opts: { method?: string; allowStatus?: number[]; headers?: Record<string, string> } = {}): Promise<{ status: number; text: string; headers: Record<string, string | string[] | undefined> }> {
+  async request(
+    path: string,
+    opts: { method?: string; allowStatus?: number[]; headers?: Record<string, string>; maxBytes?: number; overflow?: 'error' | 'tail' } = {},
+  ): Promise<{ status: number; text: string; headers: Record<string, string | string[] | undefined>; truncated: boolean; bytes: number }> {
     const url = `${this.baseUrl}${path}`;
     const headers: Record<string, string> = { accept: 'application/json', 'user-agent': 'workctl', ...(opts.headers ?? {}) };
     if (this.authHeader) headers.authorization = this.authHeader;
     let res;
     try {
-      res = await rawRequest(url, { method: opts.method ?? 'GET', headers, ...(opts.method === 'POST' ? { body: '' } : {}), timeoutMs: this.ctx?.remainingMs() ?? 30_000 });
+      res = await rawRequest(url, { method: opts.method ?? 'GET', headers, ...(opts.method === 'POST' ? { body: '' } : {}), timeoutMs: this.ctx?.remainingMs() ?? 30_000, maxBytes: opts.maxBytes, overflow: opts.overflow });
     } catch (e) {
       if (e instanceof WorkError) throw e; // e.g. response size cap
       const err = e as NodeJS.ErrnoException;
@@ -64,7 +67,7 @@ export class JenkinsClient {
         : '查看 Jenkins 日志';
       throw new WorkError(we.code, we.message.replace('目标系统', 'Jenkins'), { hint, details: { status: res.status, endpoint: this.endpointId } });
     }
-    return { status: res.status, text: res.text, headers: res.headers };
+    return { status: res.status, text: res.text, headers: res.headers, truncated: res.truncated, bytes: res.bytes };
   }
 
   async json<T>(path: string): Promise<T> {
@@ -238,6 +241,9 @@ export async function jenkinsReleaseList(ctx: Ctx, b: DeployBinding, windowMs: n
   };
 }
 
+/** Console read cap for `release get --tail N` (≤1000 lines): only the tail of a larger log is kept. Tests may lower it. */
+export const jenkinsConsoleLimits = { maxBytes: 4 * 1024 * 1024 };
+
 export async function jenkinsReleaseGet(ctx: Ctx, b: DeployBinding, id: string, tail: number): Promise<Result> {
   const client = jenkinsClient(ctx, b.endpointName);
   const cfg = jobCfg(b);
@@ -255,8 +261,11 @@ export async function jenkinsReleaseGet(ctx: Ctx, b: DeployBinding, id: string, 
   // current = newest successful matching build (needs the job's build list; same depth as release list)
   const v = await loadJob(ctx, b);
   const release = releaseFromBuild(build, cfg, v.currentNumber);
-  const cr = await client.request(`${jobPath(cfg.job)}/${n}/consoleText`, { allowStatus: [404] });
+  // Only the last `tail` lines are shown: keep the tail of the body instead of failing on huge logs.
+  const cr = await client.request(`${jobPath(cfg.job)}/${n}/consoleText`, { allowStatus: [404], maxBytes: jenkinsConsoleLimits.maxBytes, overflow: 'tail' });
+  const cut = cr.status === 200 && cr.truncated;
   const lines = cr.status === 200 ? cr.text.replace(/\r/g, '').split('\n') : [];
+  if (cut) lines.shift(); // the first kept line starts mid-line (possibly mid-character)
   if (lines.length && lines[lines.length - 1] === '') lines.pop();
   const shown = (tail > 0 ? lines.slice(-tail) : []).map(maskSecrets); // slice(-0) would be every line
   return {
@@ -274,14 +283,28 @@ export async function jenkinsReleaseGet(ctx: Ctx, b: DeployBinding, id: string, 
         built_on: build.builtOn || null,
         parameters: maskParams(params(build)),
         causes: causes(build).map((c) => ({ description: c.shortDescription ?? null, user_id: c.userId ?? null })),
-        console: { lines: shown, total_lines: lines.length, truncated: lines.length > shown.length, masked: true },
+        console: {
+          lines: shown,
+          total_lines: cut ? null : lines.length,
+          truncated: cut || lines.length > shown.length,
+          masked: true,
+          ...(cut ? { bytes_total: cr.bytes, bytes_kept: Buffer.byteLength(cr.text) } : {}),
+        },
       },
     },
     sources: [client.source(`GET ${jobPath(cfg.job)}/${n}/api/json`), client.source(`GET ${jobPath(cfg.job)}/${n}/consoleText`), client.source(v.method, 'derived')],
     coverage: {
       complete: !build.building,
       scope: `Jenkins 构建 ${cfg.job}#${n}`,
-      notes: [`控制台日志只返回最后 ${tail} 行，凭据样式的值（password/token/secret=…、Bearer、URL 中的用户名密码）已遮蔽`, ...(build.building ? ['构建仍在进行，日志与结果未定'] : [])],
+      notes: [
+        `控制台日志只返回最后 ${tail} 行，凭据样式的值（password/token/secret=…、Bearer、URL 中的用户名密码）已遮蔽`,
+        ...(cut
+          ? [
+              `控制台日志共 ${cr.bytes} 字节，超过 ${jenkinsConsoleLimits.maxBytes} 字节读取上限：只保留了末尾部分，总行数未知（total_lines=null）${shown.length < tail ? `；保留部分只有 ${shown.length} 行，少于请求的 ${tail} 行` : ''}`,
+            ]
+          : []),
+        ...(build.building ? ['构建仍在进行，日志与结果未定'] : []),
+      ],
     },
   };
 }

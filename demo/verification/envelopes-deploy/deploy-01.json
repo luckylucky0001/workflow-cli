@@ -45,7 +45,7 @@
       {
         "system": "workctl",
         "adapter": "profile",
-        "observed_at": "2026-10-18T06:34:35.151Z",
+        "observed_at": "2026-10-18T06:54:47.984Z",
         "relation": "derived"
       }
     ],
@@ -57,7 +57,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdga91f-c2e84f",
+    "request_id": "req-mvdh08vj-8acd59",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -65,7 +65,7 @@
     "adapter": "profile",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:34:34.947Z",
-    "duration_ms": 204
+    "started_at": "2026-10-18T06:54:47.791Z",
+    "duration_ms": 193
   }
 }

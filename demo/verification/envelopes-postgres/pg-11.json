@@ -6,9 +6,9 @@
     "instance": "demo-postgres",
     "aggregation": "window_delta",
     "window": {
-      "start": "2026-10-18T06:34:06.092Z",
-      "end": "2026-10-18T06:34:09.098Z",
-      "duration_ms": 3006
+      "start": "2026-10-18T06:54:18.301Z",
+      "end": "2026-10-18T06:54:21.308Z",
+      "duration_ms": 3007
     },
     "cumulative_since": null,
     "database": "demo_orders",
@@ -35,7 +35,7 @@
       {
         "system": "postgresql",
         "adapter": "pg-driver",
-        "observed_at": "2026-10-18T06:34:09.103Z",
+        "observed_at": "2026-10-18T06:54:21.313Z",
         "endpoint": "postgres/demo-postgres",
         "method": "public.pg_stat_statements (t1 − t0)",
         "version": "16.15",
@@ -47,19 +47,19 @@
       "limit": 5,
       "truncated": false,
       "window": {
-        "start": "2026-10-18T06:34:06.092Z",
-        "end": "2026-10-18T06:34:09.098Z"
+        "start": "2026-10-18T06:54:18.301Z",
+        "end": "2026-10-18T06:54:21.308Z"
       },
       "notes": [
         "窗口内没有语句执行完成（采集正常开启；不是 COLLECTION_DISABLED）",
-        "窗口值（t1 − t0），窗口 3006ms；t0 中不存在的语句按其全部计数计入（窗口内首次出现）",
+        "窗口值（t1 − t0），窗口 3007ms；t0 中不存在的语句按其全部计数计入（窗口内首次出现）",
         "PostgreSQL 17 以下没有 stats_since：单条语句被 pg_stat_statements_reset(userid, dbid, queryid) 重置后，只能通过计数/耗时回退或 min/max 变化识别，极少数情况下可能识别不到"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg9mq6-81953d",
+    "request_id": "req-mvdgzm2k-c21eab",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -67,7 +67,7 @@
     "adapter": "pg-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:34:06.030Z",
-    "duration_ms": 3079
+    "started_at": "2026-10-18T06:54:18.236Z",
+    "duration_ms": 3081
   }
 }

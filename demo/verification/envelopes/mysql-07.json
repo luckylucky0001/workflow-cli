@@ -12,6 +12,186 @@
     },
     "entries": [
       {
+        "start_time": "2026-10-18T06:52:27.497678Z",
+        "query_time_ms": 5000.833,
+        "lock_time_ms": 0.003,
+        "rows_sent": 0,
+        "rows_examined": 1,
+        "db": "demo",
+        "user_host": "workctl_ro[workctl_ro] @  [172.18.0.1]",
+        "thread_id": 385,
+        "sql_text": "EXPLAIN FORMAT=JSON SELECT * FROM customers WHERE id = (SELECT ? FROM (SELECT SLEEP(?)) x)",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:52:26.757402Z",
+        "query_time_ms": 319.32,
+        "lock_time_ms": 0.004,
+        "rows_sent": 15,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
+        "thread_id": 387,
+        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:52:26.252051Z",
+        "query_time_ms": 326.406,
+        "lock_time_ms": 0.003,
+        "rows_sent": 15,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
+        "thread_id": 387,
+        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:52:20.098063Z",
+        "query_time_ms": 355.678,
+        "lock_time_ms": 0.003,
+        "rows_sent": 1,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "workctl_ro[workctl_ro] @  [172.18.0.1]",
+        "thread_id": 366,
+        "sql_text": "EXPLAIN ANALYZE SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:45:40.505533Z",
+        "query_time_ms": 311.196,
+        "lock_time_ms": 0.004,
+        "rows_sent": 15,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
+        "thread_id": 107,
+        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:45:40.077810Z",
+        "query_time_ms": 383.054,
+        "lock_time_ms": 0.004,
+        "rows_sent": 15,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
+        "thread_id": 107,
+        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:39:03.795861Z",
+        "query_time_ms": 5001.475,
+        "lock_time_ms": 0.003,
+        "rows_sent": 0,
+        "rows_examined": 1,
+        "db": "demo",
+        "user_host": "workctl_ro[workctl_ro] @  [172.18.0.1]",
+        "thread_id": 181,
+        "sql_text": "EXPLAIN FORMAT=JSON SELECT * FROM customers WHERE id = (SELECT ? FROM (SELECT SLEEP(?)) x)",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:39:02.866788Z",
+        "query_time_ms": 310.037,
+        "lock_time_ms": 0.004,
+        "rows_sent": 15,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
+        "thread_id": 107,
+        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:39:02.337215Z",
+        "query_time_ms": 283.902,
+        "lock_time_ms": 0.003,
+        "rows_sent": 15,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
+        "thread_id": 107,
+        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:38:56.362810Z",
+        "query_time_ms": 433.488,
+        "lock_time_ms": 0.002,
+        "rows_sent": 1,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "workctl_ro[workctl_ro] @  [172.18.0.1]",
+        "thread_id": 162,
+        "sql_text": "EXPLAIN ANALYZE SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:35:28.103856Z",
+        "query_time_ms": 350.643,
+        "lock_time_ms": 0.004,
+        "rows_sent": 0,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
+        "thread_id": 107,
+        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:35:25.568207Z",
+        "query_time_ms": 315.764,
+        "lock_time_ms": 0.004,
+        "rows_sent": 15,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
+        "thread_id": 107,
+        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:35:22.876849Z",
+        "query_time_ms": 323.043,
+        "lock_time_ms": 0.004,
+        "rows_sent": 15,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
+        "thread_id": 107,
+        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:35:21.961784Z",
+        "query_time_ms": 309.347,
+        "lock_time_ms": 0.004,
+        "rows_sent": 15,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
+        "thread_id": 107,
+        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
+        "start_time": "2026-10-18T06:35:13.432062Z",
+        "query_time_ms": 312.411,
+        "lock_time_ms": 0.004,
+        "rows_sent": 15,
+        "rows_examined": 300000,
+        "db": "demo",
+        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
+        "thread_id": 107,
+        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
+        "sql_truncated": false
+      },
+      {
         "start_time": "2026-10-18T06:32:41.981812Z",
         "query_time_ms": 380.786,
         "lock_time_ms": 0.005,
@@ -70,30 +250,6 @@
         "thread_id": 49,
         "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
         "sql_truncated": false
-      },
-      {
-        "start_time": "2026-10-18T06:32:22.751905Z",
-        "query_time_ms": 276.769,
-        "lock_time_ms": 0.004,
-        "rows_sent": 0,
-        "rows_examined": 300000,
-        "db": "demo",
-        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
-        "thread_id": 49,
-        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
-        "sql_truncated": false
-      },
-      {
-        "start_time": "2026-10-18T06:32:14.059535Z",
-        "query_time_ms": 321.766,
-        "lock_time_ms": 0.003,
-        "rows_sent": 15,
-        "rows_examined": 300000,
-        "db": "demo",
-        "user_host": "demo_app[demo_app] @  [172.18.0.15]",
-        "thread_id": 49,
-        "sql_text": "SELECT id, status, amount, created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT ?",
-        "sql_truncated": false
       }
     ]
   },
@@ -103,7 +259,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T06:33:06.854Z",
+        "observed_at": "2026-10-18T06:53:12.759Z",
         "endpoint": "mysql/demo-mysql",
         "method": "mysql.slow_log",
         "version": "8.4.11",
@@ -111,21 +267,22 @@
       }
     ],
     "coverage": {
-      "complete": true,
-      "truncated": false,
+      "complete": false,
+      "truncated": true,
       "limit": 20,
       "window": {
-        "start": "2026-10-17T06:33:06.854Z",
-        "end": "2026-10-18T06:33:06.854Z"
+        "start": "2026-10-17T06:53:12.758Z",
+        "end": "2026-10-18T06:53:12.758Z"
       },
       "notes": [
+        "窗口内超过 20 条，只返回最近 20 条",
         "时间为 UTC；SQL 字面量已替换为 ?"
       ]
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg8d0j-b69414",
+    "request_id": "req-mvdgy7if-66c7c0",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -133,7 +290,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:33:06.787Z",
-    "duration_ms": 68
+    "started_at": "2026-10-18T06:53:12.711Z",
+    "duration_ms": 49
   }
 }

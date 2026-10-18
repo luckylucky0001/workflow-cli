@@ -14,12 +14,13 @@
       "rule": "业务日期 + 1 天 06:00（Asia/Shanghai）"
     },
     "checked_at": {
-      "local": "2026-10-18T14:33:24+08:00",
-      "utc": "2026-10-18T06:33:24.670Z"
+      "local": "2026-10-18T14:53:29+08:00",
+      "utc": "2026-10-18T06:53:29.774Z"
     },
     "partition_state": "missing",
     "partition_updated_at": null,
-    "lateness_minutes": 1953,
+    "arrival": null,
+    "lateness_minutes": 1973,
     "producer": {
       "workflow": "demo-daily-orders",
       "runs": [
@@ -45,7 +46,7 @@
       {
         "system": "catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T06:33:24.670Z",
+        "observed_at": "2026-10-18T06:53:29.774Z",
         "endpoint": "catalog/demo",
         "method": "analytics.daily_orders.freshness",
         "relation": "explicit"
@@ -53,7 +54,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T06:33:24.686Z",
+        "observed_at": "2026-10-18T06:53:29.792Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "stat+readdir analytics/daily_orders/dt=2026-10-16",
         "relation": "derived"
@@ -61,7 +62,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-18T06:33:24.784Z",
+        "observed_at": "2026-10-18T06:53:29.897Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns",
         "version": "2.10.5",
@@ -75,7 +76,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg8qsf-f01336",
+    "request_id": "req-mvdgyknf-24f8e2",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -83,7 +84,7 @@
     "adapter": "file-catalog+airflow-rest-v1|v2",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:33:24.639Z",
-    "duration_ms": 145
+    "started_at": "2026-10-18T06:53:29.739Z",
+    "duration_ms": 158
   }
 }

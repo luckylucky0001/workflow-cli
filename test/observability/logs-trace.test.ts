@@ -3,7 +3,7 @@ import { invoke } from '../../src/core/engine';
 import { Registry } from '../../src/core/registry';
 import container from '../../src/domains/container';
 import observability from '../../src/domains/observability';
-import { BoundedCollector, FrameDemuxer, LineSplitter, matches, MAX_LOG_TEXT, parseLogLine, tsKey, type LogEntry } from '../../src/domains/observability/logs';
+import { BoundedCollector, FrameDemuxer, LineSplitter, matches, MAX_LINE_CHARS, MAX_LOG_TEXT, parseLogLine, tsKey, type LogEntry } from '../../src/domains/observability/logs';
 import { buildTrace, spanFromFields, type SpanRecord } from '../../src/domains/observability/trace';
 import { frame, startFakeDocker, writeTestConfig } from '../container/fake-docker';
 
@@ -28,6 +28,21 @@ describe('docker log stream demultiplexing (pure)', () => {
     const d = new FrameDemuxer((_s, p) => sp.push(p.toString('utf8')));
     d.push(frame('stdout', big));
     expect(got[0]).toHaveLength(200);
+  });
+});
+
+describe('line splitter memory bound', () => {
+  it('a newline-free stream does not grow without bound: the line is cut, following lines still arrive', () => {
+    const got: string[] = [];
+    const sp = new LineSplitter((l) => got.push(l));
+    const chunk = Buffer.from('y'.repeat(256 * 1024));
+    for (let i = 0; i < 16; i++) sp.push(chunk); // 4 MiB without a newline
+    sp.push('yyy\nnext line\n');
+    sp.flush();
+    expect(got).toHaveLength(2);
+    expect(got[0].length).toBe(MAX_LINE_CHARS);
+    expect(got[1]).toBe('next line');
+    expect(sp.oversized).toBe(1);
   });
 });
 

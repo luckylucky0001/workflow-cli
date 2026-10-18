@@ -67,7 +67,7 @@ Airflow 2（v1）需要启用 `[api] auth_backends = airflow.api.auth.backend.ba
 |---|---|---|---|
 | scheduler | Airflow `GET /dags/{id}/dagRuns/{run}` | queued/running/success/failed | 只代表调度层任务全部成功 |
 | compute | Spark history server（经 `compute.job.get`） | running/succeeded/failed/incomplete/not_started/unknown | application id 取自任务 XCom `return_value` 或任务日志中的 `WORKCTL_SPARK_APP_ID=` |
-| output | `data.partition.get`（目录 + 文件系统） | present/missing/empty/incomplete/unreadable/unknown | 目标表 = 目录中 `produced_by.workflow` 为该 DAG 的表；分区值 = data_interval_start 在分区时区的日期 |
+| output | `data.partition.get`（目录 + 文件系统） | present/missing/empty/incomplete/unreadable/unknown | 目标表 = 目录中 `produced_by.workflow` 为该 DAG 的表；分区值 = data_interval_start 在分区时区的日期 多级分区（如 `dt` + `region`）时分区为业务日期前缀 `dt=...`，经 `data.partition.list` 列出其下子分区并逐个 `data.partition.get`，全部同一状态即为该状态、混合为 incomplete（`sub_partitions`）；目录未声明子分区期望取值，不能证明子分区齐全 |
 | quality | `data quality check` 最近一次落盘结果 | pass/fail/error/not_run/unknown | 结果带 `checked_at`，不会随分区重写自动失效 |
 
 `summary.findings` 只列可由上述事实直接得出的不一致（如“调度 success 但分区 missing”）；原因（例如写错分区）属于假设，需要日志和输出路径证据。
@@ -113,11 +113,13 @@ workctl offline backfill get --id op-20261017-xxxxxx                            
 
 | verdict | 条件 |
 |---|---|
-| `on_time` | 分区 present 且更新时间 ≤ 时限 |
-| `late` | 分区 present 但更新时间 > 时限（`lateness_minutes`） |
+| `on_time` | 分区 present 且首次到达 ≤ 时限 |
+| `late` | 分区 present 但首次到达 > 时限（`lateness_minutes`） |
 | `missing` | 已过时限，分区不是 present（missing/empty/incomplete/unreadable 都算） |
 | `not_due` | 未到时限且分区尚未 present |
 | `unknown` | 分区状态或更新时间无法确定 |
+
+首次到达（`arrival`，relation derived）：最早成功的产出 run 结束时间早于分区最后写入时，取该 run 结束时间（之后的写入视为重写，准时分区被重写不会判为迟到）；否则取最后写入时间（`basis: last_write`），并在 `coverage.notes` 说明迟到按最后写入判断。
 
 同时附带产出工作流同一业务日期的 run（`producer`），便于区分“没跑”“跑了失败”“跑成功但没产出”。
 

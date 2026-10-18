@@ -22,7 +22,7 @@
       {
         "system": "consul",
         "adapter": "consul-http-api",
-        "observed_at": "2026-10-18T06:34:32.556Z",
+        "observed_at": "2026-10-18T06:54:11.289Z",
         "endpoint": "consul/demo-consul (http://127.0.0.1:18500)",
         "method": "GET /v1/kv/config/sandbox/ghost-svc/?recurse",
         "relation": "explicit",
@@ -42,7 +42,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdga75v-f73965",
+    "request_id": "req-mvdgzgok-e2c3bd",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -50,7 +50,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:34:32.515Z",
-    "duration_ms": 41
+    "started_at": "2026-10-18T06:54:11.252Z",
+    "duration_ms": 38
   }
 }

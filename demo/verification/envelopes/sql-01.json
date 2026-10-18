@@ -3,16 +3,16 @@
   "status": "success",
   "capability": "sql.query.submit",
   "data": {
-    "query_id": "q-20261018-111b2e",
+    "query_id": "q-20261018-b2011e",
     "engine": "spark",
     "state": "submitted",
-    "submitted_at": "2026-10-18T06:33:28.582Z",
-    "pid": 24376,
+    "submitted_at": "2026-10-18T06:53:33.783Z",
+    "pid": 13908,
     "sql_sha256": "896905aaaf3124413d1931ed32f229b686e4f80fa1b14d44430b7ba5114ca293",
-    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261018-111b2e/result",
-    "state_file": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261018-111b2e.json",
+    "result_location": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261018-b2011e/result",
+    "state_file": "/home/user/workflow-cli/demo/environment/.runtime/spark/queries/q-20261018-b2011e.json",
     "tables": "数仓目录注册为 <db>_<table> 临时视图",
-    "next": "workctl sql query get --id q-20261018-111b2e"
+    "next": "workctl sql query get --id q-20261018-b2011e"
   },
   "error": null,
   "meta": {
@@ -20,7 +20,7 @@
       {
         "system": "spark",
         "adapter": "spark-submit-local",
-        "observed_at": "2026-10-18T06:33:28.589Z",
+        "observed_at": "2026-10-18T06:53:33.790Z",
         "endpoint": "spark/demo-spark",
         "method": "spawn /home/user/workflow-cli/demo/offline-workflows/spark/spark-submit.sh --mode query",
         "relation": "explicit"
@@ -28,12 +28,12 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "q-20261018-111b2e"
+      "scope": "q-20261018-b2011e"
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg8tta-a77135",
+    "request_id": "req-mvdgynr3-a13ae7",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -41,7 +41,7 @@
     "adapter": "spark-submit-local|trino-http",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:33:28.558Z",
+    "started_at": "2026-10-18T06:53:33.759Z",
     "duration_ms": 31
   }
 }

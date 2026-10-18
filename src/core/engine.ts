@@ -3,7 +3,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import { z } from 'zod';
-import { loadConfig, resolveProfileName, type LoadedConfig } from './config';
+import { loadConfig, loadConfigForDiagnosis, resolveProfileName, type LoadedConfig } from './config';
 import { ERROR_CODES, SCHEMA_VERSION, WorkError, type Envelope, type Result } from './output';
 import type { CapabilityDef, InputSpec, Registry } from './registry';
 import { checkTimeoutBudget, Ctx, parseDuration } from './runtime';
@@ -166,8 +166,10 @@ export async function invoke(registry: Registry, capName: string, rawInputs: Rec
       });
     }
     const timeoutMs = checkTimeoutBudget(opts.timeoutMs ?? 30_000);
-    const loaded = opts.loaded ?? loadConfig(opts.configPath);
-    const profileName = resolveProfileName(loaded, opts.profile);
+    // doctor diagnoses a config that fails to load instead of being blocked by it
+    const diagnosing = cap.name === 'doctor.run';
+    const loaded = opts.loaded ?? (diagnosing ? loadConfigForDiagnosis(opts.configPath) : loadConfig(opts.configPath));
+    const profileName = loaded.load_error ? null : resolveProfileName(loaded, opts.profile);
     ctx = new Ctx({
       registry,
       loaded,

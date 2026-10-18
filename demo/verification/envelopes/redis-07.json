@@ -20,50 +20,50 @@
     },
     "hot_keys": [
       {
-        "key": "demo:order:278",
-        "lfu_counter": 4
-      },
-      {
         "key": "demo:customer:97:recent",
-        "lfu_counter": 3
+        "lfu_counter": 1
       },
       {
         "key": "demo:customer:108:profile",
-        "lfu_counter": 2
+        "lfu_counter": 0
       },
       {
         "key": "demo:order:563",
-        "lfu_counter": 2
+        "lfu_counter": 0
       },
       {
         "key": "demo:order:254",
-        "lfu_counter": 2
+        "lfu_counter": 0
       },
       {
         "key": "demo:order:561",
-        "lfu_counter": 2
+        "lfu_counter": 0
       },
       {
         "key": "demo:order:1333",
-        "lfu_counter": 2
+        "lfu_counter": 0
       },
       {
         "key": "demo:customer:286:profile",
-        "lfu_counter": 2
+        "lfu_counter": 0
       },
       {
         "key": "demo:order:551",
-        "lfu_counter": 2
+        "lfu_counter": 0
       },
       {
         "key": "demo:order:1681",
-        "lfu_counter": 2
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:order:989",
+        "lfu_counter": 0
       }
     ],
     "counter_distribution": {
-      "p50": 2,
-      "p90": 2,
-      "max": 4
+      "p50": 0,
+      "p90": 0,
+      "max": 1
     }
   },
   "error": null,
@@ -72,7 +72,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T06:33:15.542Z",
+        "observed_at": "2026-10-18T06:53:21.595Z",
         "endpoint": "redis/demo-redis",
         "method": "SCAN MATCH demo:* + OBJECT FREQ",
         "version": "7.4.11",
@@ -91,7 +91,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg8jqg-26d496",
+    "request_id": "req-mvdgyebt-1117cc",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -99,7 +99,7 @@
     "adapter": "redis-client",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:33:15.496Z",
-    "duration_ms": 47
+    "started_at": "2026-10-18T06:53:21.545Z",
+    "duration_ms": 51
   }
 }

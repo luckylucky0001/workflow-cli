@@ -9,7 +9,7 @@
     "service": "demo-inventory",
     "env": null,
     "prefix": "/v1/health/service/demo-inventory",
-    "observed_revision": 37,
+    "observed_revision": 152,
     "instances": [
       {
         "instance_id": "inventory-1",
@@ -32,8 +32,8 @@
         "healthy": true,
         "health_basis": "registry_checks",
         "registered_at": null,
-        "create_revision": 35,
-        "mod_revision": 35,
+        "create_revision": 150,
+        "mod_revision": 150,
         "lease": null,
         "consul": {
           "node": "18f5d423fc9a",
@@ -81,8 +81,8 @@
         "healthy": false,
         "health_basis": "registry_checks",
         "registered_at": null,
-        "create_revision": 36,
-        "mod_revision": 36,
+        "create_revision": 151,
+        "mod_revision": 151,
         "lease": null,
         "consul": {
           "node": "18f5d423fc9a",
@@ -130,8 +130,8 @@
         "healthy": true,
         "health_basis": "registry_checks",
         "registered_at": null,
-        "create_revision": 37,
-        "mod_revision": 37,
+        "create_revision": 152,
+        "mod_revision": 152,
         "lease": null,
         "consul": {
           "node": "18f5d423fc9a",
@@ -180,7 +180,7 @@
       {
         "system": "consul",
         "adapter": "consul-http-api",
-        "observed_at": "2026-10-18T06:34:32.972Z",
+        "observed_at": "2026-10-18T06:54:11.703Z",
         "endpoint": "consul/demo-consul (http://127.0.0.1:18500)",
         "method": "GET /v1/health/service/demo-inventory",
         "relation": "explicit",
@@ -189,7 +189,7 @@
     ],
     "coverage": {
       "complete": true,
-      "scope": "Consul consul/demo-consul 服务 demo-inventory，索引 37",
+      "scope": "Consul consul/demo-consul 服务 demo-inventory，索引 152",
       "notes": [
         "1 个实例存在 warning 检查，计为 healthy（与 Consul DNS 默认一致）；?passing 过滤会排除它们",
         "healthy 由 Consul 健康检查聚合（含节点级检查，任一 critical → false），不是 workctl 的探测"
@@ -198,7 +198,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdga7gv-e3bb56",
+    "request_id": "req-mvdgzgzn-b8ff84",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -206,7 +206,7 @@
     "adapter": "etcd-v3-gateway|nacos-open-api|consul-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:34:32.910Z",
-    "duration_ms": 65
+    "started_at": "2026-10-18T06:54:11.651Z",
+    "duration_ms": 54
   }
 }

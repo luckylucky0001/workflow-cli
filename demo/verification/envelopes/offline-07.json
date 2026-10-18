@@ -75,7 +75,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-18T06:33:24.322Z",
+        "observed_at": "2026-10-18T06:53:29.413Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition/taskInstances/aggregate_orders/logs/1",
         "version": "2.10.5",
@@ -91,7 +91,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdg8qat-8c25a1",
+    "request_id": "req-mvdgyk3t-f47640",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -99,7 +99,7 @@
     "adapter": "airflow-rest-v1|v2",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:33:24.005Z",
-    "duration_ms": 318
+    "started_at": "2026-10-18T06:53:29.033Z",
+    "duration_ms": 381
   }
 }

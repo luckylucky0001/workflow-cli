@@ -201,6 +201,26 @@ export function normTiV2(ti: any): any {
   return { ...ti, execution_date: ti.execution_date ?? ti.logical_date ?? null };
 }
 
+/**
+ * NDJSON log body (Accept: application/x-ndjson, one StructuredLogMessage per line) → `{content}`.
+ * `cut`: the body is a byte tail, so its first line is partial and dropped. Unparsable lines are kept as text.
+ */
+export function ndjsonToContent(text: string, cut: boolean): { content: unknown[] } {
+  const rows = text.split('\n');
+  if (cut) rows.shift();
+  const content: unknown[] = [];
+  for (const row of rows) {
+    const t = row.trim();
+    if (!t) continue;
+    try {
+      content.push(JSON.parse(t));
+    } catch {
+      content.push(t);
+    }
+  }
+  return { content };
+}
+
 /** v2 log response `{content: StructuredLogMessage[] | string[]}` → plain text, one line per message. */
 export function structuredLogToText(body: any): string {
   const content = body && typeof body === 'object' ? body.content : body;

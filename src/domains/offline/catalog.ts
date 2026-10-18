@@ -14,7 +14,10 @@ import type { Ctx, Endpoint } from '../../core/runtime';
 export interface OfflineTableMeta {
   name: string;
   file: string;
+  /** The business-date key (the first partition key); timezone source for business dates. */
   partition_key?: { name: string; type?: string; timezone?: string };
+  /** All partition keys in directory order (e.g. dt, region); more than one means sub-partitions per business date. */
+  partition_keys?: { name: string; type?: string; timezone?: string }[];
   write_mode?: string;
   success_marker?: string | null;
   produced_by?: { scheduler?: string; workflow?: string; task?: string; sql_file?: string; status?: string };
@@ -54,11 +57,14 @@ export function loadOfflineCatalog(ctx: Ctx): { catalog: OfflineCatalog | null; 
         skipped.push(`${f}: 缺少 name`);
         continue;
       }
-      const pk = Array.isArray(raw.partition_keys) && raw.partition_keys[0] ? raw.partition_keys[0] : undefined;
+      const keys = (Array.isArray(raw.partition_keys) ? raw.partition_keys : [])
+        .filter((k: any) => k && typeof k.name === 'string' && k.name)
+        .map((k: any) => ({ name: String(k.name), type: k.type, timezone: k.timezone }));
+      const pk = keys[0];
       tables.push({
         name: raw.name,
         file: join(tablesDir, f),
-        ...(pk?.name ? { partition_key: { name: String(pk.name), type: pk.type, timezone: pk.timezone } } : {}),
+        ...(pk ? { partition_key: pk, partition_keys: keys } : {}),
         ...(raw.write_mode ? { write_mode: String(raw.write_mode) } : {}),
         ...(raw.success_marker !== undefined ? { success_marker: raw.success_marker } : {}),
         ...(raw.produced_by && typeof raw.produced_by === 'object' ? { produced_by: raw.produced_by } : {}),
@@ -93,8 +99,17 @@ export function downstreamTables(cat: OfflineCatalog, name: string): OfflineTabl
   return cat.tables.filter((t) => t.upstream.includes(name));
 }
 
+/**
+ * The output partition of a business date. With more than one partition key (dt + region) this is
+ * the business-date prefix (`dt=2026-10-16`), covering every sub-partition below it; use
+ * isPartitionPrefix to tell, and resolve it through data.partition.list.
+ */
 export function partitionSpec(t: OfflineTableMeta, businessDate: string): string | null {
   return t.partition_key ? `${t.partition_key.name}=${businessDate}` : null;
+}
+
+export function isPartitionPrefix(t: OfflineTableMeta): boolean {
+  return (t.partition_keys?.length ?? 0) > 1;
 }
 
 export function catalogSource(cat: OfflineCatalog, method: string): Source {
