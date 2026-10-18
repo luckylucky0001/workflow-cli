@@ -20,7 +20,8 @@
 - `executable`：是否存在执行器。没有执行器的计划（如 `mysql.index.create`）只作为变更方案参考，交由既有变更流程执行。
 - `expires_at`：计划默认 1 小时过期，过期后需重新生成（目标状态可能已变化）。
 - `history`：状态迁移记录 `planned → running → succeeded | failed`，或 `cancelled` / `expired`。
-- `digest`：`sha256:` + 计划内容（除 `digest` 外所有字段，规范化 JSON）的摘要。计划存储每次写入（生成、状态迁移、执行进度）时重新封存，`operation get/execute/cancel` 读取时校验；手工改动计划文件（前置条件、参数、目标、状态等）会得到 `PRECONDITION_FAILED`（plan file was modified），需重新生成计划。摘要用于发现误改/篡改，不是签名：能写 state_dir 的一方仍能重算摘要，state_dir 的写权限应只给 workctl 的使用者。
+- `digest`：`sha256:` + 计划内容（除 `digest` 外所有字段，规范化 JSON）的摘要。计划存储每次写入（生成、状态迁移、执行进度）时重新封存，`operation get/execute/cancel` 读取时校验；手工改动计划文件（前置条件、参数、目标、状态等）会得到 `PRECONDITION_FAILED`（plan file was modified），需重新生成计划。摘要用于发现误改/篡改，不是签名：能写 state_dir 的一方仍能重算摘要，state_dir 的写权限应只给 workctl 的使用者。没有 `digest` 的旧版本计划：`operation get/list` 仍可查看（附 warning），`execute/cancel` 拒绝。
+- `config_identity`：生成计划时配置身份的摘要（profile 的端点、默认端点、资源绑定文件与配置目录）。多份配置共享 state_dir 和 profile 名时（如演示的 `workctl.yaml` / `workctl.loki.yaml`），计划只能在端点一致的配置下执行。
 
 **计划预览不能作为执行成功的证据**；执行结果以 `operation get --id` 的状态和 `result` 为准。
 
@@ -37,7 +38,7 @@ workctl --json operation get --id op-20261017-abc123
 1. profile `allow_execute: true`（只应在隔离或已授权环境开启）；
 2. `--confirm` 与计划 ID 一致；
 3. 计划状态为 `planned` 且未过期；
-4. 当前 profile/env 与生成计划时一致；
+4. 当前 profile/env 与生成计划时一致，且配置身份（`config_identity`，端点/资源绑定）一致，否则 `PRECONDITION_FAILED`；
 5. 计划前置条件全部满足；
 6. 存在对应执行器。
 

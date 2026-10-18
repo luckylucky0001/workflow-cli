@@ -27,6 +27,7 @@ export const PlanSchema = z.object({
   history: z.array(z.object({ at: z.string(), status: PlanStatus, note: z.string() })),
   result: z.unknown().optional(),
   error: z.object({ code: z.string(), message: z.string() }).optional(),
+  config_identity: z.string().optional().describe('生成计划时配置身份的摘要（sha256：profile 的端点、默认端点、资源绑定文件与配置目录）；执行时须与当前配置一致，防止共享 state_dir 与 profile 名的另一份配置执行该计划'),
   digest: z.string().optional().describe('sha256（规范化 JSON，不含 digest 本身）；由计划存储写入时封存、读取时校验，用于发现计划文件被手工改动'),
 });
 export type Plan = z.infer<typeof PlanSchema>;
@@ -36,7 +37,7 @@ export type PlanDraft = Pick<Plan, 'kind' | 'title' | 'params' | 'targets' | 'im
   ttlMs?: number;
 };
 
-function canonical(v: unknown): unknown {
+export function canonical(v: unknown): unknown {
   if (Array.isArray(v)) return v.map(canonical);
   if (v && typeof v === 'object') return Object.fromEntries(Object.keys(v).sort().map((k) => [k, canonical((v as Record<string, unknown>)[k])]));
   return v;
@@ -56,7 +57,8 @@ export function isLegacyPlan(plan: Plan): boolean {
 }
 
 export class PlanStore {
-  constructor(readonly dir: string) {}
+  /** `configIdentity`: stamped on created plans (see `Ctx.configIdentity`). */
+  constructor(readonly dir: string, readonly configIdentity?: string) {}
 
   private file(id: string): string {
     if (!/^op-[0-9]{8}-[a-z0-9]{6}$/.test(id)) throw new WorkError('INVALID_ARGUMENT', `计划 ID 格式不正确: ${id}`);
@@ -77,6 +79,7 @@ export class PlanStore {
       profile: meta.profile,
       env: meta.env,
       executable: meta.executable,
+      ...(this.configIdentity ? { config_identity: this.configIdentity } : {}),
       history: [{ at: now.toISOString(), status: 'planned', note: '计划已生成，未执行' }],
     };
     this.save(plan);
@@ -170,13 +173,14 @@ export class PlanStore {
     };
   }
 
-  list(filter: { kind?: string; status?: string } = {}): Plan[] {
+  /** `allowLegacy`: include plans without digest (read-only listing); they are never re-sealed. */
+  list(filter: { kind?: string; status?: string; allowLegacy?: boolean } = {}): Plan[] {
     if (!existsSync(this.dir)) return [];
     return readdirSync(this.dir)
       .filter((f) => /^op-[0-9]{8}-[a-z0-9]{6}\.json$/.test(f))
       .flatMap((f) => {
         try {
-          return [this.get(f.slice(0, -5))];
+          return [this.get(f.slice(0, -5), { allowLegacy: filter.allowLegacy })];
         } catch {
           return [];
         }

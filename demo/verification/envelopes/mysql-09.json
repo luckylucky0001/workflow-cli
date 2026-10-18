@@ -78,7 +78,7 @@
       "max_execution_time_ms": 5000,
       "sql_select_limit": 6
     },
-    "elapsed_ms": 21
+    "elapsed_ms": 29
   },
   "error": null,
   "meta": {
@@ -86,7 +86,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T06:09:39.126Z",
+        "observed_at": "2026-10-18T06:23:33.653Z",
         "endpoint": "mysql/demo-mysql",
         "method": "START TRANSACTION READ ONLY; SELECT (guarded)",
         "version": "8.4.11",
@@ -104,7 +104,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfe6sx-12dfe0",
+    "request_id": "req-mvdfw2pc-ef6046",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -112,7 +112,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:09:39.057Z",
-    "duration_ms": 69
+    "started_at": "2026-10-18T06:23:33.552Z",
+    "duration_ms": 102
   }
 }

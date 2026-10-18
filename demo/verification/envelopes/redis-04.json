@@ -147,7 +147,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T06:09:46.578Z",
+        "observed_at": "2026-10-18T06:23:40.549Z",
         "endpoint": "redis/demo-redis",
         "method": "SLOWLOG GET / SLOWLOG LEN / CONFIG GET slowlog-*",
         "version": "7.4.11",
@@ -166,7 +166,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfeckt-b5e47d",
+    "request_id": "req-mvdfw82w-0fa75d",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -174,7 +174,7 @@
     "adapter": "redis-client",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:09:46.541Z",
-    "duration_ms": 43
+    "started_at": "2026-10-18T06:23:40.520Z",
+    "duration_ms": 31
   }
 }

@@ -51,7 +51,7 @@
       {
         "system": "filesystem",
         "adapter": "spark-driver-log-dir",
-        "observed_at": "2026-10-18T06:10:01.542Z",
+        "observed_at": "2026-10-18T06:23:52.652Z",
         "endpoint": "spark/demo-spark:driver_log_dir",
         "method": "tail local-1792300311012.log",
         "relation": "explicit"
@@ -66,7 +66,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfeo4g-e91222",
+    "request_id": "req-mvdfwhfd-4238fe",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -74,7 +74,7 @@
     "adapter": "spark-driver-log-dir",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:10:01.504Z",
-    "duration_ms": 38
+    "started_at": "2026-10-18T06:23:52.633Z",
+    "duration_ms": 20
   }
 }

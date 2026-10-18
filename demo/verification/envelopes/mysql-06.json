@@ -6,9 +6,9 @@
     "instance": "demo-mysql",
     "aggregation": "window_delta",
     "window": {
-      "start": "2026-10-18T06:09:27.205Z",
-      "end": "2026-10-18T06:09:37.210Z",
-      "duration_ms": 10005
+      "start": "2026-10-18T06:23:22.353Z",
+      "end": "2026-10-18T06:23:32.357Z",
+      "duration_ms": 10004
     },
     "cumulative_since": null,
     "database": null,
@@ -27,7 +27,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T06:09:37.220Z",
+        "observed_at": "2026-10-18T06:23:32.362Z",
         "endpoint": "mysql/demo-mysql",
         "method": "performance_schema.events_statements_summary_by_digest (t1 − t0)",
         "version": "8.4.11",
@@ -39,8 +39,8 @@
       "limit": 10,
       "truncated": false,
       "window": {
-        "start": "2026-10-18T06:09:27.205Z",
-        "end": "2026-10-18T06:09:37.210Z"
+        "start": "2026-10-18T06:23:22.353Z",
+        "end": "2026-10-18T06:23:32.357Z"
       },
       "notes": [
         "digest_text 最长 1024 字节（max_digest_length），超出部分被截断",
@@ -51,7 +51,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfdxmc-f87738",
+    "request_id": "req-mvdfvu0m-9fdf29",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -59,7 +59,7 @@
     "adapter": "mysql-driver",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:09:27.156Z",
-    "duration_ms": 10065
+    "started_at": "2026-10-18T06:23:22.294Z",
+    "duration_ms": 10069
   }
 }

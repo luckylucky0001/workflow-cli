@@ -6,10 +6,10 @@
 
 | 选项 | 说明 |
 | --- | --- |
-| `--json` / `-o json\|yaml\|text` | 输出格式；`--json` 输出统一结果信封 |
+| `--json` / `-o json\|yaml\|text` | 输出格式；`--json` 输出统一结果信封（等价于 `-o json`，与 `-o yaml\|text` 同时指定时返回 INVALID_ARGUMENT，退出码 2） |
 | `--profile <name>` | 选择 profile（环境、端点、凭据引用、执行授权） |
 | `--config <path>` | 配置文件路径 |
-| `--timeout <duration>` | 调用时间预算（默认 30s）；采样类命令需大于采样窗口 |
+| `--timeout <duration>` | 调用时间预算（默认 30s；`mcp serve` 为每次工具调用的预算，默认 60s）；采样类命令需大于采样窗口 |
 | `--request-id <id>` | 指定请求 ID |
 | `--fail-on-partial` | 部分结果以退出码 10 结束 |
 
@@ -159,7 +159,7 @@ workctl capability list --status planned
 口径说明：
 
 - 只执行状态为 planned 且未过期的计划
-- 执行前重新校验 profile 与环境与计划一致
+- 执行前重新校验 profile、环境与配置身份（端点/资源绑定）与计划一致
 - 执行结果以执行器返回与 operation get 状态为准
 
 ### `workctl operation get`

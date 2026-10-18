@@ -13,77 +13,13 @@
       "matched_by": "label workctl.service=demo-order（binding attribute container_label）"
     },
     "window": {
-      "start": "2026-10-18T00:09:15.849Z",
-      "end": "2026-10-18T06:09:15.849Z"
+      "start": "2026-10-18T00:23:12.470Z",
+      "end": "2026-10-18T06:23:12.470Z"
     },
-    "visible_since": "2026-10-18T00:09:15.849Z",
+    "visible_since": "2026-10-18T00:23:12.470Z",
     "daemon_buffer_full": false,
-    "events": [
-      {
-        "time": "2026-10-18T06:08:01.263Z",
-        "type": "container",
-        "action": "kill",
-        "container_id": "4272d71ae71b",
-        "container_name": "demo-order",
-        "image": "workctl-demo/demo-order:local",
-        "exit_code": null,
-        "signal": "15",
-        "attributes": {}
-      },
-      {
-        "time": "2026-10-18T06:08:01.509Z",
-        "type": "container",
-        "action": "stop",
-        "container_id": "4272d71ae71b",
-        "container_name": "demo-order",
-        "image": "workctl-demo/demo-order:local",
-        "exit_code": null,
-        "signal": null,
-        "attributes": {}
-      },
-      {
-        "time": "2026-10-18T06:08:01.517Z",
-        "type": "container",
-        "action": "die",
-        "container_id": "4272d71ae71b",
-        "container_name": "demo-order",
-        "image": "workctl-demo/demo-order:local",
-        "exit_code": 0,
-        "signal": null,
-        "attributes": {
-          "execDuration": "740"
-        }
-      },
-      {
-        "time": "2026-10-18T06:08:01.855Z",
-        "type": "container",
-        "action": "start",
-        "container_id": "4272d71ae71b",
-        "container_name": "demo-order",
-        "image": "workctl-demo/demo-order:local",
-        "exit_code": null,
-        "signal": null,
-        "attributes": {}
-      },
-      {
-        "time": "2026-10-18T06:08:01.855Z",
-        "type": "container",
-        "action": "restart",
-        "container_id": "4272d71ae71b",
-        "container_name": "demo-order",
-        "image": "workctl-demo/demo-order:local",
-        "exit_code": null,
-        "signal": null,
-        "attributes": {}
-      }
-    ],
-    "counts_by_action": {
-      "kill": 1,
-      "stop": 1,
-      "die": 1,
-      "start": 1,
-      "restart": 1
-    }
+    "events": [],
+    "counts_by_action": {}
   },
   "error": null,
   "meta": {
@@ -91,9 +27,9 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T06:09:15.888Z",
+        "observed_at": "2026-10-18T06:23:12.486Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
-        "method": "GET /events?since=1792282155&until=1792303755（本地按标签 workctl.service=demo-order 过滤）",
+        "method": "GET /events?since=1792282992&until=1792304592（本地按标签 workctl.service=demo-order 过滤）",
         "relation": "explicit",
         "version": "29.8.2 (API 1.56)"
       }
@@ -101,8 +37,8 @@
     "coverage": {
       "complete": true,
       "window": {
-        "start": "2026-10-18T00:09:15.849Z",
-        "end": "2026-10-18T06:09:15.849Z"
+        "start": "2026-10-18T00:23:12.470Z",
+        "end": "2026-10-18T06:23:12.470Z"
       },
       "scope": "守护进程内存中保留的事件（窗口 6h）",
       "notes": [
@@ -114,7 +50,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfdotv-0fcb94",
+    "request_id": "req-mvdfvme6-8dbab7",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -122,7 +58,7 @@
     "adapter": "docker-engine-api | kubernetes-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:09:15.763Z",
-    "duration_ms": 125
+    "started_at": "2026-10-18T06:23:12.414Z",
+    "duration_ms": 72
   }
 }

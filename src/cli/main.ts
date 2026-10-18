@@ -202,10 +202,18 @@ export function buildProgram(registry: Registry, pluginErrors: string[] = [], qu
     .addOption(new Option('-o, --output <format>', '输出格式').choices(['json', 'yaml', 'text']))
     .option('--profile <name>', '使用的 profile（默认取配置中的 current_profile）')
     .option('--config <path>', '配置文件路径（默认 $WORKCTL_CONFIG、./workctl.yaml、~/.config/workctl/config.yaml）')
-    .option('--timeout <duration>', '调用时间预算，如 30s、2m', '30s')
+    // no commander default: capability calls default to 30s, `mcp serve` to 60s (per-call budget)
+    .option('--timeout <duration>', '调用时间预算，如 30s、2m（默认 30s；mcp serve 默认 60s）')
     .option('--request-id <id>', '指定请求 ID，便于跨系统追踪')
     .option('--fail-on-partial', '结果不完整（status=partial）时以退出码 10 结束')
     .option('--debug', '向 stderr 输出调试信息');
+  program.hook('preAction', (_this, actionCommand) => {
+    const g = actionCommand.optsWithGlobals() as GlobalOpts;
+    // `--json -o yaml` is ambiguous: reject instead of silently picking one
+    if (g.json && g.output && g.output !== 'json') {
+      program.error(`--json 与 -o ${g.output} 冲突：只指定一种输出格式（--json 等价于 -o json）`, { code: 'workctl.conflictingOutput', exitCode: 2 });
+    }
+  });
   program.helpCommand(false);
   program.addHelpText(
     'after',

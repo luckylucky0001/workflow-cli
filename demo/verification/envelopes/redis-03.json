@@ -5,44 +5,44 @@
   "data": {
     "instance": "demo-redis",
     "window": {
-      "start": "2026-10-18T06:09:41.132Z",
-      "end": "2026-10-18T06:09:46.136Z",
-      "duration_ms": 5004
+      "start": "2026-10-18T06:23:35.175Z",
+      "end": "2026-10-18T06:23:40.178Z",
+      "duration_ms": 5003
     },
     "restart_detected": false,
     "reset_counters": [],
     "deltas": {
       "keyspace_hits": 0,
       "keyspace_misses": 0,
-      "total_commands_processed": 20,
+      "total_commands_processed": 2,
       "evicted_keys": 0,
       "expired_keys": 0,
       "rejected_connections": 0,
-      "total_connections_received": 4,
-      "total_net_input_bytes": 721,
-      "total_net_output_bytes": 11520,
+      "total_connections_received": 1,
+      "total_net_input_bytes": 76,
+      "total_net_output_bytes": 4182,
       "total_error_replies": 0
     },
     "rates_per_sec": {
       "keyspace_hits": 0,
       "keyspace_misses": 0,
-      "total_commands_processed": 4,
+      "total_commands_processed": 0.4,
       "evicted_keys": 0,
       "expired_keys": 0,
       "rejected_connections": 0,
-      "total_connections_received": 0.8,
-      "total_net_input_bytes": 144.08,
-      "total_net_output_bytes": 2302.16,
+      "total_connections_received": 0.2,
+      "total_net_input_bytes": 15.19,
+      "total_net_output_bytes": 835.9,
       "total_error_replies": 0
     },
     "hit_ratio": null,
     "hit_ratio_note": "窗口内没有键查找（hits+misses=0），命中率无定义（null），不是 0",
     "gauges_at_end": {
-      "used_memory": 5001128,
+      "used_memory": 4957712,
       "maxmemory": 67108864,
       "connected_clients": 2,
       "mem_fragmentation_ratio": 3.11,
-      "instantaneous_ops_per_sec": 6
+      "instantaneous_ops_per_sec": 0
     },
     "self_commands_in_window": 1
   },
@@ -52,7 +52,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T06:09:46.140Z",
+        "observed_at": "2026-10-18T06:23:40.182Z",
         "endpoint": "redis/demo-redis",
         "method": "INFO stats ×2 (Δ keyspace_hits, keyspace_misses, total_commands_processed, evicted_keys, expired_keys, rejected_connections, total_connections_received, total_net_input_bytes, total_net_output_bytes, total_error_replies)",
         "version": "7.4.11",
@@ -62,8 +62,8 @@
     "coverage": {
       "complete": true,
       "window": {
-        "start": "2026-10-18T06:09:41.132Z",
-        "end": "2026-10-18T06:09:46.136Z"
+        "start": "2026-10-18T06:23:35.175Z",
+        "end": "2026-10-18T06:23:40.178Z"
       },
       "notes": [
         "窗口内没有键查找（hits+misses=0），命中率无定义（null），不是 0",
@@ -73,7 +73,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfe8dj-5c1f6f",
+    "request_id": "req-mvdfw3xj-220889",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -81,7 +81,7 @@
     "adapter": "redis-client",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:09:41.095Z",
-    "duration_ms": 5047
+    "started_at": "2026-10-18T06:23:35.143Z",
+    "duration_ms": 5041
   }
 }

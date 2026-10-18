@@ -2,10 +2,14 @@
 // was swallowed by the global -o/--output <format> option and rejected by its choices.
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { buildProgram, rewriteShadowedFlags } from '../../src/cli/main';
+import { CommanderError } from 'commander';
+import { buildProgram, commanderErrorExit, rewriteShadowedFlags } from '../../src/cli/main';
 import { defineCapability, defineDomain, Registry } from '../../src/core/registry';
 import coreDomain from '../../src/domains/core';
 import { tempDir, writeConfig } from './helpers';
+
+const serveMcp = vi.hoisted(() => vi.fn(async () => {}));
+vi.mock('../../src/mcp/server', () => ({ serveMcp }));
 
 function registry(): Registry {
   const r = new Registry();
@@ -75,5 +79,36 @@ describe('CLI flags', () => {
   it('splits comma-separated list flags given once (e.g. --columns a,b)', async () => {
     const env = await run(['--json', 'cf', 'run', '--cols', 'a,b', '--cols', 'c']);
     expect(env.data.cols).toEqual(['a', 'b', 'c']);
+  });
+
+  it('rejects conflicting output flags (--json -o yaml) as a usage error, exit 2', async () => {
+    const reg = registry();
+    for (const args of [['--json', '-o', 'yaml'], ['-o', 'text', '--json']]) {
+      let out = '';
+      const spy = vi.spyOn(process.stdout, 'write').mockImplementation((chunk: any) => ((out += String(chunk)), true));
+      let code = -1;
+      try {
+        await buildProgram(reg, [], true).parseAsync(['node', 'workctl', ...args, 'cf', 'run']);
+      } catch (e) {
+        expect(e).toBeInstanceOf(CommanderError);
+        code = commanderErrorExit(e as CommanderError, true);
+      } finally {
+        spy.mockRestore();
+      }
+      expect(code).toBe(2);
+      const env = JSON.parse(out);
+      expect(env.error.code).toBe('INVALID_ARGUMENT');
+      expect(env.error.message).toMatch(/--json.*冲突/);
+    }
+    // the same format twice is not a conflict
+    expect((await run(['--json', '-o', 'json', 'cf', 'run'])).status).toBe('success');
+  });
+
+  it('mcp serve uses its documented 60s default budget unless --timeout is given', async () => {
+    const reg = registry();
+    await buildProgram(reg, [], true).parseAsync(['node', 'workctl', 'mcp', 'serve']);
+    expect(serveMcp).toHaveBeenLastCalledWith(reg, expect.objectContaining({ timeoutMs: 60_000 }));
+    await buildProgram(reg, [], true).parseAsync(['node', 'workctl', '--timeout', '45s', 'mcp', 'serve']);
+    expect(serveMcp).toHaveBeenLastCalledWith(reg, expect.objectContaining({ timeoutMs: 45_000 }));
   });
 });

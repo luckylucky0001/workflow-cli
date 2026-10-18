@@ -3,12 +3,12 @@
   "status": "success",
   "capability": "operation.get",
   "data": {
-    "id": "op-20261018-012047",
+    "id": "op-20261018-f30a4c",
     "kind": "container.restart",
     "title": "重启服务 demo-order（sandbox）的 1 个容器",
     "status": "succeeded",
-    "created_at": "2026-10-18T06:10:09.864Z",
-    "expires_at": "2026-10-18T06:40:09.864Z",
+    "created_at": "2026-10-18T06:23:58.539Z",
+    "expires_at": "2026-10-18T06:53:58.539Z",
     "profile": "demo",
     "env": "sandbox",
     "params": {
@@ -22,7 +22,7 @@
         "image": "workctl-demo/demo-order:local",
         "state": "running",
         "health": "none",
-        "started_at": "2026-10-18T06:09:44.920872652Z",
+        "started_at": "2026-10-18T06:10:12.119304964Z",
         "restart_policy": "no",
         "selector": "workctl.service=demo-order",
         "selector_kind": "label",
@@ -100,27 +100,27 @@
     "executable": true,
     "history": [
       {
-        "at": "2026-10-18T06:10:09.864Z",
+        "at": "2026-10-18T06:23:58.539Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       },
       {
-        "at": "2026-10-18T06:10:11.855Z",
+        "at": "2026-10-18T06:24:00.336Z",
         "status": "running",
-        "note": "由 req-mvdfew2y-102a1e 开始执行"
+        "note": "由 req-mvdfwncp-853331 开始执行"
       },
       {
-        "at": "2026-10-18T06:10:11.877Z",
+        "at": "2026-10-18T06:24:00.352Z",
         "status": "running",
         "note": "restart demo-order (4272d71ae71b)"
       },
       {
-        "at": "2026-10-18T06:10:15.395Z",
+        "at": "2026-10-18T06:24:03.801Z",
         "status": "running",
         "note": "demo-order: 已重新运行并稳定 3s（未配置健康检查，仅校验进程持续运行）"
       },
       {
-        "at": "2026-10-18T06:10:15.409Z",
+        "at": "2026-10-18T06:24:03.815Z",
         "status": "succeeded",
         "note": "执行器返回成功"
       }
@@ -133,15 +133,15 @@
           "name": "demo-order",
           "before": {
             "state": "running",
-            "started_at": "2026-10-18T06:09:44.920872652Z"
+            "started_at": "2026-10-18T06:10:12.119304964Z"
           },
           "after": {
             "state": "running",
-            "started_at": "2026-10-18T06:10:12.119304964Z",
+            "started_at": "2026-10-18T06:24:00.595090867Z",
             "health": "none"
           },
           "verified": true,
-          "duration_ms": 3515,
+          "duration_ms": 3449,
           "detail": "已重新运行并稳定 3s（未配置健康检查，仅校验进程持续运行）"
         }
       ],
@@ -149,7 +149,8 @@
       "docker_version": "29.8.2",
       "note": "校验依据为 Docker inspect（进程运行、启动时间更新、健康检查状态）；业务可用性请再用 network backend list 探测"
     },
-    "digest": "sha256:72f38683f24f5d115e866a549dc94b2641d55a6e92536754f5e1529024ab96a5"
+    "config_identity": "sha256:6e827e7c8071f7f6f727057bfcf84f617b9b45596d246475de39290a05d43109",
+    "digest": "sha256:c51d1e28f0fd00064b402e0722f0c6436f454371b745e241a320a3f74b36d744"
   },
   "error": null,
   "meta": {
@@ -157,7 +158,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-18T06:10:15.855Z",
+        "observed_at": "2026-10-18T06:24:04.191Z",
         "relation": "explicit"
       }
     ],
@@ -168,7 +169,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfez65-bcf7dc",
+    "request_id": "req-mvdfwqbn-56f0a9",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -176,7 +177,7 @@
     "adapter": "plan-store",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:10:15.821Z",
-    "duration_ms": 35
+    "started_at": "2026-10-18T06:24:04.163Z",
+    "duration_ms": 29
   }
 }

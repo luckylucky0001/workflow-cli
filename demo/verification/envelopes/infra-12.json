@@ -7,8 +7,8 @@
     "env": "sandbox",
     "matched_by": "label workctl.service=demo-order（binding attribute container_label）",
     "window": {
-      "start": "2026-10-18T00:09:23.681Z",
-      "end": "2026-10-18T06:09:23.681Z"
+      "start": "2026-10-18T00:23:19.337Z",
+      "end": "2026-10-18T06:23:19.337Z"
     },
     "order": "newest",
     "entries": [
@@ -1214,7 +1214,7 @@
       }
     ],
     "stats": {
-      "lines_scanned": 1323,
+      "lines_scanned": 1331,
       "matched": 350,
       "returned": 50,
       "unparsed_lines": 0,
@@ -1230,8 +1230,8 @@
         "id": "4272d71ae71b",
         "log_driver": "json-file",
         "created_at": "2026-10-18T05:10:05.907075164Z",
-        "started_at": "2026-10-18T06:08:01.539818858Z",
-        "lines_scanned": 1323,
+        "started_at": "2026-10-18T06:10:12.119304964Z",
+        "lines_scanned": 1331,
         "matched": 350,
         "status": "ok",
         "note": null
@@ -1244,7 +1244,7 @@
       {
         "system": "docker",
         "adapter": "docker-engine-api",
-        "observed_at": "2026-10-18T06:09:23.779Z",
+        "observed_at": "2026-10-18T06:23:19.400Z",
         "endpoint": "docker/local (unix:/var/run/docker.sock)",
         "method": "GET /containers/{id}/logs?stdout=1&stderr=1&timestamps=1&since&until",
         "relation": "explicit",
@@ -1254,8 +1254,8 @@
     "coverage": {
       "complete": false,
       "window": {
-        "start": "2026-10-18T00:09:23.681Z",
-        "end": "2026-10-18T06:09:23.681Z"
+        "start": "2026-10-18T00:23:19.337Z",
+        "end": "2026-10-18T06:23:19.337Z"
       },
       "truncated": true,
       "limit": 50,
@@ -1273,7 +1273,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfduvi-be1e72",
+    "request_id": "req-mvdfvros-82f43a",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -1281,7 +1281,7 @@
     "adapter": "docker-engine-api|loki-http-api",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:09:23.598Z",
-    "duration_ms": 181
+    "started_at": "2026-10-18T06:23:19.276Z",
+    "duration_ms": 124
   }
 }

@@ -20,20 +20,8 @@
     },
     "hot_keys": [
       {
-        "key": "demo:order:1341",
-        "lfu_counter": 5
-      },
-      {
-        "key": "demo:order:594",
-        "lfu_counter": 5
-      },
-      {
-        "key": "demo:order:961",
-        "lfu_counter": 5
-      },
-      {
         "key": "demo:customer:13:history",
-        "lfu_counter": 2
+        "lfu_counter": 1
       },
       {
         "key": "demo:order:2780",
@@ -58,12 +46,24 @@
       {
         "key": "demo:customer:257:profile",
         "lfu_counter": 0
+      },
+      {
+        "key": "demo:customer:496:profile",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:order:1150",
+        "lfu_counter": 0
+      },
+      {
+        "key": "demo:customer:208:profile",
+        "lfu_counter": 0
       }
     ],
     "counter_distribution": {
       "p50": 0,
       "p90": 0,
-      "max": 5
+      "max": 1
     }
   },
   "error": null,
@@ -72,7 +72,7 @@
       {
         "system": "redis",
         "adapter": "redis-client",
-        "observed_at": "2026-10-18T06:09:47.885Z",
+        "observed_at": "2026-10-18T06:23:41.696Z",
         "endpoint": "redis/demo-redis",
         "method": "SCAN MATCH demo:* + OBJECT FREQ",
         "version": "7.4.11",
@@ -91,7 +91,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfedl1-6585c7",
+    "request_id": "req-mvdfw8xv-65d644",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -99,7 +99,7 @@
     "adapter": "redis-client",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:09:47.845Z",
-    "duration_ms": 42
+    "started_at": "2026-10-18T06:23:41.635Z",
+    "duration_ms": 62
   }
 }

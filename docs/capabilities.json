@@ -2743,7 +2743,7 @@
       "side_effects": "按计划对目标系统做变更",
       "notes": [
         "只执行状态为 planned 且未过期的计划",
-        "执行前重新校验 profile 与环境与计划一致",
+        "执行前重新校验 profile、环境与配置身份（端点/资源绑定）与计划一致",
         "执行结果以执行器返回与 operation get 状态为准"
       ],
       "origin": "builtin"

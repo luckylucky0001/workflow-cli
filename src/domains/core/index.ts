@@ -5,7 +5,7 @@ import { isAbsolute, resolve } from 'node:path';
 import { secretRefStatus } from '../../core/config';
 import { listInstalled, readManifest } from '../../core/plugins';
 import { source, WorkError } from '../../core/output';
-import { PlanSchema } from '../../core/operations';
+import { isLegacyPlan, LEGACY_PLAN_MESSAGE, PlanSchema } from '../../core/operations';
 import { defineCapability, defineDomain, describeCapability, type CapabilityDef } from '../../core/registry';
 import type { Ctx } from '../../core/runtime';
 import { RelationSchema, ResourceSchema } from '../../core/resources';
@@ -491,7 +491,16 @@ const operationGet = defineCapability({
   operation: 'read',
   auth_provider: 'none',
   guide: 'docs/guides/operations.md',
-  handler: async (ctx, i) => ({ data: ctx.plans().get(i.id), sources: [source('workctl', 'plan-store', { relation: 'explicit' })], coverage: { complete: true, scope: `profile ${ctx.profileName} 的本地计划存储` } }),
+  handler: async (ctx, i) => {
+    // read-only: a legacy plan (no digest) is shown with a warning; execute/cancel still refuse it
+    const plan = ctx.plans().get(i.id, { allowLegacy: true });
+    return {
+      data: plan,
+      sources: [source('workctl', 'plan-store', { relation: 'explicit' })],
+      coverage: { complete: true, scope: `profile ${ctx.profileName} 的本地计划存储` },
+      ...(isLegacyPlan(plan) ? { warnings: [`${LEGACY_PLAN_MESSAGE}: ${plan.id}（仅供查看，不能执行或取消）`] } : {}),
+    };
+  },
 });
 
 const operationList = defineCapability({
@@ -508,11 +517,16 @@ const operationList = defineCapability({
   operation: 'read',
   auth_provider: 'none',
   guide: 'docs/guides/operations.md',
-  handler: async (ctx, i) => ({
-    data: { operations: ctx.plans().list({ kind: i.kind, status: i.status }).map(({ id, kind, title, status, created_at, expires_at, executable }) => ({ id, kind, title, status, created_at, expires_at, executable })) },
-    sources: [source('workctl', 'plan-store', { relation: 'explicit' })],
-    coverage: { complete: true, scope: `profile ${ctx.profileName} 的本地计划存储` },
-  }),
+  handler: async (ctx, i) => {
+    const plans = ctx.plans().list({ kind: i.kind, status: i.status, allowLegacy: true });
+    const legacy = plans.filter(isLegacyPlan).map((p) => p.id);
+    return {
+      data: { operations: plans.map(({ id, kind, title, status, created_at, expires_at, executable }) => ({ id, kind, title, status, created_at, expires_at, executable })) },
+      sources: [source('workctl', 'plan-store', { relation: 'explicit' })],
+      coverage: { complete: true, scope: `profile ${ctx.profileName} 的本地计划存储` },
+      ...(legacy.length ? { warnings: [`${LEGACY_PLAN_MESSAGE}: ${legacy.join(', ')}（仅供查看，不能执行或取消）`] } : {}),
+    };
+  },
 });
 
 const operationExecute = defineCapability({
@@ -531,7 +545,7 @@ const operationExecute = defineCapability({
   guide: 'docs/guides/operations.md',
   idempotent: false,
   side_effects: '按计划对目标系统做变更',
-  notes: ['只执行状态为 planned 且未过期的计划', '执行前重新校验 profile 与环境与计划一致', '执行结果以执行器返回与 operation get 状态为准'],
+  notes: ['只执行状态为 planned 且未过期的计划', '执行前重新校验 profile、环境与配置身份（端点/资源绑定）与计划一致', '执行结果以执行器返回与 operation get 状态为准'],
   handler: async (ctx, i) => {
     if (i.confirm !== i.id) throw new WorkError('PRECONDITION_FAILED', '--confirm 必须与计划 ID 一致');
     const store = ctx.plans();
@@ -577,6 +591,12 @@ async function executePlan(ctx: Ctx, store: ReturnType<Ctx['plans']>, id: string
     if (plan.status !== 'planned') throw new WorkError('CONFLICT', `计划状态为 ${plan.status}，只能执行 planned 状态的计划`);
     if (plan.profile !== ctx.profileName || plan.env !== ctx.env) {
       throw new WorkError('PRECONDITION_FAILED', `计划生成于 profile ${plan.profile}/env ${plan.env}，与当前 ${ctx.profileName}/${ctx.env} 不一致`);
+    }
+    if (plan.config_identity !== ctx.configIdentity) {
+      throw new WorkError('PRECONDITION_FAILED', `计划 ${plan.id} 生成时使用的配置（端点/资源绑定）与当前配置${ctx.loaded.path ? `（${ctx.loaded.path}）` : ''}不一致`, {
+        hint: '计划只能在生成它的同一份配置下执行；用当前配置重新生成计划（operation plan）',
+        details: { plan_config_identity: plan.config_identity ?? null, current_config_identity: ctx.configIdentity },
+      });
     }
     const failedPre = plan.preconditions.filter((p) => !p.ok);
     if (failedPre.length) throw new WorkError('PRECONDITION_FAILED', `计划存在未满足的前置条件: ${failedPre.map((p) => p.check).join(', ')}`);

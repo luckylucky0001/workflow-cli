@@ -259,7 +259,7 @@
       {
         "system": "mysql",
         "adapter": "mysql-driver",
-        "observed_at": "2026-10-18T06:09:37.940Z",
+        "observed_at": "2026-10-18T06:23:32.746Z",
         "endpoint": "mysql/demo-mysql",
         "method": "mysql.slow_log",
         "version": "8.4.11",
@@ -271,8 +271,8 @@
       "truncated": true,
       "limit": 20,
       "window": {
-        "start": "2026-10-17T06:09:37.939Z",
-        "end": "2026-10-18T06:09:37.939Z"
+        "start": "2026-10-17T06:23:32.745Z",
+        "end": "2026-10-18T06:23:32.745Z"
       },
       "notes": [
         "窗口内超过 20 条，只返回最近 20 条",
@@ -282,7 +282,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfe5wb-8a1abe",
+    "request_id": "req-mvdfw21j-a0c30a",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -290,7 +290,7 @@
     "adapter": "mysql-driver",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:09:37.883Z",
-    "duration_ms": 58
+    "started_at": "2026-10-18T06:23:32.695Z",
+    "duration_ms": 52
   }
 }

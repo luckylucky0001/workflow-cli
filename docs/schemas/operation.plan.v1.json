@@ -171,6 +171,10 @@
       ],
       "additionalProperties": false
     },
+    "config_identity": {
+      "description": "生成计划时配置身份的摘要（sha256：profile 的端点、默认端点、资源绑定文件与配置目录）；执行时须与当前配置一致，防止共享 state_dir 与 profile 名的另一份配置执行该计划",
+      "type": "string"
+    },
     "digest": {
       "description": "sha256（规范化 JSON，不含 digest 本身）；由计划存储写入时封存、读取时校验，用于发现计划文件被手工改动",
       "type": "string"

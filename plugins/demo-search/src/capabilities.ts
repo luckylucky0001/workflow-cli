@@ -303,6 +303,30 @@ export function readDslFile(path: unknown): DslInput | null {
   return parseDsl(readFileSync(path, 'utf8'));
 }
 
+/**
+ * terms-like aggregations that returned only their top buckets (`sum_other_doc_count > 0`), as
+ * "a" or "a > b" for sub-aggregations, with the summed count of documents outside the returned buckets.
+ */
+export function topBucketAggregations(aggs: unknown): { name: string; other_docs: number }[] {
+  const found = new Map<string, number>();
+  const walk = (node: unknown, path: string[]): void => {
+    if (!node || typeof node !== 'object' || Array.isArray(node)) return;
+    for (const [name, agg] of Object.entries(node as Record<string, unknown>)) {
+      if (!agg || typeof agg !== 'object' || Array.isArray(agg)) continue;
+      const a = agg as Record<string, unknown>;
+      const here = [...path, name];
+      const other = a.sum_other_doc_count;
+      if (typeof other === 'number' && other > 0) found.set(here.join(' > '), (found.get(here.join(' > ')) ?? 0) + other);
+      const buckets = Array.isArray(a.buckets) ? a.buckets : a.buckets && typeof a.buckets === 'object' ? Object.values(a.buckets) : [];
+      for (const b of buckets) walk(b, here);
+      // single-bucket aggregations (filter, nested, ...) carry sub-aggregations directly
+      if (!a.buckets && typeof a.doc_count === 'number') walk(a, here);
+    }
+  };
+  walk(aggs, []);
+  return [...found].map(([name, other_docs]) => ({ name, other_docs }));
+}
+
 export function shapeSearchResponse(input: {
   cluster: string;
   index: string;
@@ -381,6 +405,10 @@ export function shapeSearchResponse(input: {
       ? `只返回前 ${guarded.size} 条命中（--max-hits 上限 ${MAX_HITS_CAP}）；${total.value > hits.length || total.relation === 'gte' ? `匹配文档多于返回条数，命中列表是截断的` : '已返回全部匹配文档'}`
       : `DSL size=0：只取命中数${guarded.body.aggs !== undefined ? '与聚合' : ''}，不返回命中文档（不是截断）；聚合在全部匹配文档上计算，不受 size 与 track_total_hits 影响`,
     '近实时：最近一次 refresh（默认 1s）之后写入的文档不可见',
+    // top-N buckets is how terms works, not missing data: a coverage note, not partial
+    ...topBucketAggregations(aggregations).map(
+      (t) => `terms 聚合 ${t.name} 只返回了前若干个桶（sum_other_doc_count=${t.other_docs}：另有 ${t.other_docs} 篇文档落在未返回的桶中）；桶列表不是全部取值，需要更多桶时加大该聚合的 size`,
+    ),
     ...(shards.skipped > 0 ? [`${shards.skipped} 个分片被 can_match 预筛选跳过（判定其中不可能有匹配），不影响结果完整性`] : []),
   ];
   return {

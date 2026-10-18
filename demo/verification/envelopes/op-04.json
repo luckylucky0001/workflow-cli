@@ -5,10 +5,46 @@
   "data": {
     "operations": [
       {
-        "id": "op-20261018-012047",
+        "id": "op-20261018-f30a4c",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
         "status": "planned",
+        "created_at": "2026-10-18T06:23:58.539Z",
+        "expires_at": "2026-10-18T06:53:58.539Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-0e33fa",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-18T06:23:51.301Z",
+        "expires_at": "2026-10-18T08:23:51.301Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-3e9a9b",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id_created_at(customer_id, created_at)",
+        "status": "planned",
+        "created_at": "2026-10-18T06:23:34.025Z",
+        "expires_at": "2026-10-18T07:23:34.025Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261018-aea976",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-18T06:23:20.195Z",
+        "expires_at": "2026-10-18T06:53:20.195Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-012047",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "succeeded",
         "created_at": "2026-10-18T06:10:09.864Z",
         "expires_at": "2026-10-18T06:40:09.864Z",
         "executable": true
@@ -503,7 +539,7 @@
         "id": "op-20261018-9760b9",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:52:12.455Z",
         "expires_at": "2026-10-18T06:22:12.455Z",
         "executable": true
@@ -512,7 +548,7 @@
         "id": "op-20261018-717158",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #6（v1.4.1）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:52:08.145Z",
         "expires_at": "2026-10-18T06:22:08.145Z",
         "executable": true
@@ -521,7 +557,7 @@
         "id": "op-20261018-fbbb8b",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #6（v1.4.1）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:52:07.781Z",
         "expires_at": "2026-10-18T06:22:07.781Z",
         "executable": true
@@ -530,7 +566,7 @@
         "id": "op-20261018-11fbec",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:52:06.355Z",
         "expires_at": "2026-10-18T06:22:06.355Z",
         "executable": true
@@ -566,7 +602,7 @@
         "id": "op-20261018-cfc505",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:51:42.655Z",
         "expires_at": "2026-10-18T06:21:42.655Z",
         "executable": true
@@ -584,7 +620,7 @@
         "id": "op-20261018-1edbfa",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #3（v1.4.2-bad）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:51:34.091Z",
         "expires_at": "2026-10-18T06:21:34.091Z",
         "executable": true
@@ -593,7 +629,7 @@
         "id": "op-20261018-b02e68",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #6（v1.4.1）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:51:33.720Z",
         "expires_at": "2026-10-18T06:21:33.720Z",
         "executable": true
@@ -629,7 +665,7 @@
         "id": "op-20261018-568c4e",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:51:04.584Z",
         "expires_at": "2026-10-18T06:21:04.584Z",
         "executable": true
@@ -638,7 +674,7 @@
         "id": "op-20261018-1bbfd6",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:51:03.800Z",
         "expires_at": "2026-10-18T06:21:03.800Z",
         "executable": true
@@ -647,7 +683,7 @@
         "id": "op-20261018-863adb",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:51:00.816Z",
         "expires_at": "2026-10-18T06:21:00.816Z",
         "executable": true
@@ -683,7 +719,7 @@
         "id": "op-20261018-331aa5",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:50:04.721Z",
         "expires_at": "2026-10-18T06:20:04.721Z",
         "executable": true
@@ -692,7 +728,7 @@
         "id": "op-20261018-405068",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #6（v1.4.1）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:50:01.788Z",
         "expires_at": "2026-10-18T06:20:01.788Z",
         "executable": true
@@ -701,7 +737,7 @@
         "id": "op-20261018-9ca8ce",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #6（v1.4.1）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:50:01.305Z",
         "expires_at": "2026-10-18T06:20:01.305Z",
         "executable": true
@@ -710,7 +746,7 @@
         "id": "op-20261018-0f94d4",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:49:58.537Z",
         "expires_at": "2026-10-18T06:19:58.537Z",
         "executable": true
@@ -737,7 +773,7 @@
         "id": "op-20261018-348f3a",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:49:43.278Z",
         "expires_at": "2026-10-18T06:19:43.278Z",
         "executable": true
@@ -746,7 +782,7 @@
         "id": "op-20261018-792d72",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #3（v1.4.2-bad）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:49:32.495Z",
         "expires_at": "2026-10-18T06:19:32.495Z",
         "executable": true
@@ -755,7 +791,7 @@
         "id": "op-20261018-860a05",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #6（v1.4.1）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:49:32.060Z",
         "expires_at": "2026-10-18T06:19:32.060Z",
         "executable": true
@@ -782,7 +818,7 @@
         "id": "op-20261018-783ba1",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:48:53.540Z",
         "expires_at": "2026-10-18T06:18:53.540Z",
         "executable": true
@@ -791,7 +827,7 @@
         "id": "op-20261018-3b71a4",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:48:51.401Z",
         "expires_at": "2026-10-18T06:18:51.401Z",
         "executable": true
@@ -854,7 +890,7 @@
         "id": "op-20261018-281f57",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:46:04.891Z",
         "expires_at": "2026-10-18T06:16:04.891Z",
         "executable": true
@@ -863,7 +899,7 @@
         "id": "op-20261018-e3cc66",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #6（v1.4.1）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:46:00.071Z",
         "expires_at": "2026-10-18T06:16:00.071Z",
         "executable": true
@@ -872,7 +908,7 @@
         "id": "op-20261018-47804b",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #6（v1.4.1）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:45:58.907Z",
         "expires_at": "2026-10-18T06:15:58.907Z",
         "executable": true
@@ -881,7 +917,7 @@
         "id": "op-20261018-cc0b53",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:45:58.674Z",
         "expires_at": "2026-10-18T06:15:58.674Z",
         "executable": true
@@ -890,7 +926,7 @@
         "id": "op-20261018-b62e1f",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:45:54.647Z",
         "expires_at": "2026-10-18T06:15:54.647Z",
         "executable": true
@@ -917,7 +953,7 @@
         "id": "op-20261018-5bfaa3",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:45:31.740Z",
         "expires_at": "2026-10-18T06:15:31.740Z",
         "executable": true
@@ -926,7 +962,7 @@
         "id": "op-20261018-70f55a",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #3（v1.4.2-bad）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:45:15.589Z",
         "expires_at": "2026-10-18T06:15:15.589Z",
         "executable": true
@@ -935,7 +971,7 @@
         "id": "op-20261018-dbc2cd",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #6（v1.4.1）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:45:14.341Z",
         "expires_at": "2026-10-18T06:15:14.341Z",
         "executable": true
@@ -962,7 +998,7 @@
         "id": "op-20261018-cc0334",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:44:12.406Z",
         "expires_at": "2026-10-18T06:14:12.406Z",
         "executable": true
@@ -971,7 +1007,7 @@
         "id": "op-20261018-bdb5af",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:44:07.103Z",
         "expires_at": "2026-10-18T06:14:07.103Z",
         "executable": true
@@ -1016,7 +1052,7 @@
         "id": "op-20261018-ad0611",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:42:27.555Z",
         "expires_at": "2026-10-18T06:12:27.555Z",
         "executable": true
@@ -1034,7 +1070,7 @@
         "id": "op-20261018-c65c95",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:41:26.064Z",
         "expires_at": "2026-10-18T06:11:26.064Z",
         "executable": true
@@ -1043,7 +1079,7 @@
         "id": "op-20261018-8a78be",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #6（v1.4.1）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:41:23.784Z",
         "expires_at": "2026-10-18T06:11:23.784Z",
         "executable": true
@@ -1052,7 +1088,7 @@
         "id": "op-20261018-8ad298",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #6（v1.4.1）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:41:23.333Z",
         "expires_at": "2026-10-18T06:11:23.333Z",
         "executable": true
@@ -1061,7 +1097,7 @@
         "id": "op-20261018-3609f6",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:41:21.222Z",
         "expires_at": "2026-10-18T06:11:21.222Z",
         "executable": true
@@ -1088,7 +1124,7 @@
         "id": "op-20261018-7ce238",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:41:08.451Z",
         "expires_at": "2026-10-18T06:11:08.451Z",
         "executable": true
@@ -1097,7 +1133,7 @@
         "id": "op-20261018-0d1eb9",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #6（v1.4.1）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:40:53.656Z",
         "expires_at": "2026-10-18T06:10:53.656Z",
         "executable": true
@@ -1106,7 +1142,7 @@
         "id": "op-20261018-c7e916",
         "kind": "deploy.rollback",
         "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #3（v1.4.2-bad）",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:40:52.924Z",
         "expires_at": "2026-10-18T06:10:52.924Z",
         "executable": true
@@ -1133,7 +1169,7 @@
         "id": "op-20261018-c9e655",
         "kind": "container.restart",
         "title": "重启服务 demo-order（sandbox）的 1 个容器",
-        "status": "planned",
+        "status": "expired",
         "created_at": "2026-10-18T05:40:12.285Z",
         "expires_at": "2026-10-18T06:10:12.285Z",
         "executable": true
@@ -1227,6 +1263,294 @@
         "created_at": "2026-10-18T05:37:31.292Z",
         "expires_at": "2026-10-18T06:07:31.292Z",
         "executable": true
+      },
+      {
+        "id": "op-20261018-b55336",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-18T05:37:22.510Z",
+        "expires_at": "2026-10-18T07:37:22.510Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-63d331",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-18T05:37:14.050Z",
+        "expires_at": "2026-10-18T06:37:14.050Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261018-d232d5",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-18T05:37:09.676Z",
+        "expires_at": "2026-10-18T06:07:09.676Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-1d905d",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-18T05:37:08.596Z",
+        "expires_at": "2026-10-18T06:07:08.596Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-57a063",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-18T05:37:07.336Z",
+        "expires_at": "2026-10-18T07:37:07.336Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-b22f42",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #5（v1.4.0）",
+        "status": "succeeded",
+        "created_at": "2026-10-18T05:32:08.562Z",
+        "expires_at": "2026-10-18T06:02:08.562Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-b5734b",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #3（v1.4.2-bad）",
+        "status": "planned",
+        "created_at": "2026-10-18T05:32:07.711Z",
+        "expires_at": "2026-10-18T06:02:07.711Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-a84635",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "succeeded",
+        "created_at": "2026-10-18T05:30:53.541Z",
+        "expires_at": "2026-10-18T06:00:53.541Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-460c75",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-18T05:30:46.244Z",
+        "expires_at": "2026-10-18T07:30:46.244Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-9c80e3",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id_created_at(customer_id, created_at)",
+        "status": "planned",
+        "created_at": "2026-10-18T05:30:29.135Z",
+        "expires_at": "2026-10-18T06:30:29.135Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261018-db164d",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-18T05:30:15.444Z",
+        "expires_at": "2026-10-18T06:00:15.444Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-697e0e",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_created_at(created_at)",
+        "status": "planned",
+        "created_at": "2026-10-18T05:29:35.936Z",
+        "expires_at": "2026-10-18T06:29:35.936Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261018-52ec9f",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-18T05:29:35.919Z",
+        "expires_at": "2026-10-18T06:29:35.919Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261018-5f0998",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #5（v1.4.0）",
+        "status": "cancelled",
+        "created_at": "2026-10-18T05:29:33.907Z",
+        "expires_at": "2026-10-18T05:59:33.907Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-d3adec",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-18T05:29:32.272Z",
+        "expires_at": "2026-10-18T05:59:32.272Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-6e263f",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #4（v1.4.1）",
+        "status": "succeeded",
+        "created_at": "2026-10-18T05:21:20.232Z",
+        "expires_at": "2026-10-18T05:51:20.232Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-43a2f7",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #3（v1.4.2-bad）",
+        "status": "planned",
+        "created_at": "2026-10-18T05:21:19.340Z",
+        "expires_at": "2026-10-18T05:51:19.340Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-3fc17c",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-18T05:21:00.541Z",
+        "expires_at": "2026-10-18T05:51:00.541Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-74a581",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #4（v1.4.1）",
+        "status": "cancelled",
+        "created_at": "2026-10-18T05:20:59.200Z",
+        "expires_at": "2026-10-18T05:50:59.200Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-69d3f6",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #1（v1.4.0）",
+        "status": "succeeded",
+        "created_at": "2026-10-18T05:17:52.159Z",
+        "expires_at": "2026-10-18T05:47:52.159Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-db7cc9",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #3（v1.4.2-bad）",
+        "status": "planned",
+        "created_at": "2026-10-18T05:17:50.876Z",
+        "expires_at": "2026-10-18T05:47:50.876Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-eed4d6",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "succeeded",
+        "created_at": "2026-10-18T05:17:37.028Z",
+        "expires_at": "2026-10-18T05:47:37.028Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-a1bf85",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #1（v1.4.0）",
+        "status": "cancelled",
+        "created_at": "2026-10-18T05:17:28.201Z",
+        "expires_at": "2026-10-18T05:47:28.201Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-70c472",
+        "kind": "offline.backfill",
+        "title": "补数 demo-daily-orders 2026-10-14..2026-10-16（Asia/Shanghai）",
+        "status": "planned",
+        "created_at": "2026-10-18T05:17:27.384Z",
+        "expires_at": "2026-10-18T07:17:27.384Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-d9b610",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-18T05:17:19.199Z",
+        "expires_at": "2026-10-18T05:47:19.199Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-9e012f",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id_created_at(customer_id, created_at)",
+        "status": "planned",
+        "created_at": "2026-10-18T05:17:07.216Z",
+        "expires_at": "2026-10-18T06:17:07.216Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261018-b09df7",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-18T05:16:52.693Z",
+        "expires_at": "2026-10-18T05:46:52.693Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-c50f0c",
+        "kind": "deploy.rollback",
+        "title": "回滚服务 demo-order（sandbox）到 Jenkins 构建 #1（v1.4.0）",
+        "status": "cancelled",
+        "created_at": "2026-10-18T05:16:36.434Z",
+        "expires_at": "2026-10-18T05:46:36.434Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-429e3f",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-18T05:16:17.056Z",
+        "expires_at": "2026-10-18T05:46:17.056Z",
+        "executable": true
+      },
+      {
+        "id": "op-20261018-b4e3eb",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_created_at(created_at)",
+        "status": "planned",
+        "created_at": "2026-10-18T05:16:13.992Z",
+        "expires_at": "2026-10-18T06:16:13.992Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261018-6f4302",
+        "kind": "mysql.index.create",
+        "title": "为 demo.orders 新增索引 idx_customer_id(customer_id)",
+        "status": "planned",
+        "created_at": "2026-10-18T05:16:13.950Z",
+        "expires_at": "2026-10-18T06:16:13.950Z",
+        "executable": false
+      },
+      {
+        "id": "op-20261018-83de59",
+        "kind": "container.restart",
+        "title": "重启服务 demo-order（sandbox）的 1 个容器",
+        "status": "planned",
+        "created_at": "2026-10-18T05:12:55.703Z",
+        "expires_at": "2026-10-18T05:42:55.703Z",
+        "executable": true
       }
     ]
   },
@@ -1236,7 +1560,7 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-18T06:10:11.353Z",
+        "observed_at": "2026-10-18T06:23:59.933Z",
         "relation": "explicit"
       }
     ],
@@ -1244,10 +1568,12 @@
       "complete": true,
       "scope": "profile demo 的本地计划存储"
     },
-    "warnings": []
+    "warnings": [
+      "plan created by an older workctl version (no integrity digest); create a new plan: op-20261018-b55336, op-20261018-63d331, op-20261018-d232d5, op-20261018-1d905d, op-20261018-57a063, op-20261018-b22f42, op-20261018-b5734b, op-20261018-a84635, op-20261018-460c75, op-20261018-9c80e3, op-20261018-db164d, op-20261018-697e0e, op-20261018-52ec9f, op-20261018-5f0998, op-20261018-d3adec, op-20261018-6e263f, op-20261018-43a2f7, op-20261018-3fc17c, op-20261018-74a581, op-20261018-69d3f6, op-20261018-db7cc9, op-20261018-eed4d6, op-20261018-a1bf85, op-20261018-70c472, op-20261018-d9b610, op-20261018-9e012f, op-20261018-b09df7, op-20261018-c50f0c, op-20261018-429e3f, op-20261018-b4e3eb, op-20261018-6f4302, op-20261018-83de59（仅供查看，不能执行或取消）"
+    ]
   },
   "context": {
-    "request_id": "req-mvdfevnl-b6859f",
+    "request_id": "req-mvdfwmz0-6a50e5",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -1255,7 +1581,7 @@
     "adapter": "plan-store",
     "operation": "read",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:10:11.265Z",
-    "duration_ms": 88
+    "started_at": "2026-10-18T06:23:59.820Z",
+    "duration_ms": 113
   }
 }

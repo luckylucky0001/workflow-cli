@@ -142,7 +142,7 @@
           "source": {
             "system": "airflow",
             "adapter": "airflow-rest-v1",
-            "observed_at": "2026-10-18T06:09:53.325Z",
+            "observed_at": "2026-10-18T06:23:46.308Z",
             "endpoint": "airflow/demo-airflow",
             "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition",
             "version": "2.10.5",
@@ -161,7 +161,7 @@
           "source": {
             "system": "spark",
             "adapter": "spark-history-rest",
-            "observed_at": "2026-10-18T06:09:53.629Z",
+            "observed_at": "2026-10-18T06:23:46.594Z",
             "endpoint": "spark/demo-spark",
             "method": "GET /api/v1/applications/local-1792300311012",
             "version": "3.5.5",
@@ -178,7 +178,7 @@
           "source": {
             "system": "local-filesystem",
             "adapter": "file-catalog",
-            "observed_at": "2026-10-18T06:09:53.660Z",
+            "observed_at": "2026-10-18T06:23:46.621Z",
             "endpoint": "catalog/demo:warehouse_root",
             "method": "stat+readdir analytics/daily_orders/dt=2026-10-16",
             "relation": "derived"
@@ -239,7 +239,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-18T06:09:53.325Z",
+        "observed_at": "2026-10-18T06:23:46.308Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition",
         "version": "2.10.5",
@@ -248,7 +248,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-18T06:09:53.325Z",
+        "observed_at": "2026-10-18T06:23:46.308Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET /api/v1/dags/demo-daily-orders/dagRuns/demo__2026-10-16__wrong_partition/taskInstances",
         "version": "2.10.5",
@@ -257,7 +257,7 @@
       {
         "system": "airflow",
         "adapter": "airflow-rest-v1",
-        "observed_at": "2026-10-18T06:09:53.603Z",
+        "observed_at": "2026-10-18T06:23:46.576Z",
         "endpoint": "airflow/demo-airflow",
         "method": "GET .../taskInstances/{task}/xcomEntries/return_value | logs",
         "version": "2.10.5",
@@ -266,7 +266,7 @@
       {
         "system": "spark",
         "adapter": "spark-history-rest",
-        "observed_at": "2026-10-18T06:09:53.629Z",
+        "observed_at": "2026-10-18T06:23:46.594Z",
         "endpoint": "spark/demo-spark",
         "method": "GET /api/v1/applications/local-1792300311012",
         "version": "3.5.5",
@@ -275,7 +275,7 @@
       {
         "system": "catalog",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T06:09:53.642Z",
+        "observed_at": "2026-10-18T06:23:46.603Z",
         "endpoint": "catalog/demo",
         "method": "tables/*.yaml produced_by.workflow=demo-daily-orders",
         "relation": "explicit"
@@ -283,7 +283,7 @@
       {
         "system": "local-filesystem",
         "adapter": "file-catalog",
-        "observed_at": "2026-10-18T06:09:53.660Z",
+        "observed_at": "2026-10-18T06:23:46.621Z",
         "endpoint": "catalog/demo:warehouse_root",
         "method": "stat+readdir analytics/daily_orders/dt=2026-10-16",
         "relation": "derived"
@@ -303,7 +303,7 @@
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfehh9-a988ff",
+    "request_id": "req-mvdfwc7p-3d6565",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -311,7 +311,7 @@
     "adapter": "airflow-rest-v1|v2",
     "operation": "diagnose",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:09:52.893Z",
-    "duration_ms": 772
+    "started_at": "2026-10-18T06:23:45.877Z",
+    "duration_ms": 756
   }
 }

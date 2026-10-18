@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { homedir } from 'node:os';
 import { isAbsolute, join, resolve } from 'node:path';
 import type { LoadedConfig, Profile } from './config';
@@ -6,7 +7,7 @@ import { WorkError } from './output';
 import type { CapabilityDef } from './registry';
 import type { Registry } from './registry';
 import { ResourceStore } from './resources';
-import { PlanStore } from './operations';
+import { canonical, PlanStore } from './operations';
 
 export class Endpoint {
   constructor(
@@ -190,8 +191,20 @@ export class Ctx {
     return this.resourceStore;
   }
 
+  /**
+   * Identity of the resolved configuration a plan is made against: profile endpoints + defaults +
+   * resources file + config directory (relative endpoint paths resolve against it). Two configs that
+   * share state_dir and profile name but point at different systems get different identities.
+   * Credential refs are part of the endpoint config but only as references, and only the hash is kept.
+   */
+  get configIdentity(): string {
+    const p = this.profile;
+    const material = { base_dir: this.loaded.baseDir, endpoints: p?.endpoints ?? {}, defaults: p?.defaults ?? {}, resources_file: p?.resources_file ?? null };
+    return `sha256:${createHash('sha256').update(JSON.stringify(canonical(JSON.parse(JSON.stringify(material))))).digest('hex')}`;
+  }
+
   plans(): PlanStore {
-    if (!this.planStore) this.planStore = new PlanStore(join(this.stateDir, 'operations'));
+    if (!this.planStore) this.planStore = new PlanStore(join(this.stateDir, 'operations'), this.configIdentity);
     return this.planStore;
   }
 

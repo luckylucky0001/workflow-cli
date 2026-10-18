@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PassThrough } from 'node:stream';
+import YAML from 'yaml';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { invoke } from '../../src/core/engine';
 import { PlanStore, isLegacyPlan } from '../../src/core/operations';
@@ -99,6 +100,24 @@ describe('plan file integrity', () => {
     expect(() => store.get(id)).toThrow(/older workctl version/);
   });
 
+  it('operation get/list show a legacy plan read-only with a warning; execute/cancel still refuse', async () => {
+    const plan = await invoke(testRegistry(), 'operation.plan', { action: 'fake.restart', param: ['target=a'] }, { configPath });
+    const id = (plan.data as any).id as string;
+    const doc = JSON.parse(readFileSync(planFile(id), 'utf8'));
+    delete doc.digest;
+    writeFileSync(planFile(id), JSON.stringify(doc, null, 2));
+    const got = await invoke(testRegistry(), 'operation.get', { id }, { configPath });
+    expect(got.status).toBe('success');
+    expect((got.data as any).id).toBe(id);
+    expect(got.meta.warnings.join('\n')).toMatch(/older workctl version/);
+    const list = await invoke(testRegistry(), 'operation.list', {}, { configPath });
+    expect((list.data as any).operations.map((o: any) => o.id)).toContain(id);
+    expect(list.meta.warnings.join('\n')).toContain(id);
+    expect((await invoke(testRegistry(), 'operation.execute', { id, confirm: id }, { configPath })).error?.message).toMatch(/older workctl version/);
+    expect((await invoke(testRegistry(), 'operation.cancel', { id }, { configPath })).error?.code).toBe('PRECONDITION_FAILED');
+    expect(JSON.parse(readFileSync(planFile(id), 'utf8')).digest).toBeUndefined();
+  });
+
   it('legitimate status/history updates are re-sealed (execute, then get)', async () => {
     const plan = await invoke(testRegistry(), 'operation.plan', { action: 'fake.restart', param: ['target=a'] }, { configPath });
     const id = (plan.data as any).id as string;
@@ -109,6 +128,30 @@ describe('plan file integrity', () => {
     const got = await invoke(testRegistry(), 'operation.get', { id }, { configPath });
     expect((got.data as any).status).toBe('succeeded');
     expect((got.data as any).history.map((h: any) => h.status)).toEqual(['planned', 'running', 'running', 'succeeded']);
+  });
+});
+
+describe('plans are bound to the config identity', () => {
+  it('a plan made under one config is refused (PRECONDITION_FAILED) under another sharing state_dir + profile name but with other endpoints', async () => {
+    const dir = tempDir();
+    const configA = writeConfig(dir, { allow_execute: true });
+    const doc = YAML.parse(readFileSync(configA, 'utf8'));
+    doc.profiles.test.endpoints.mysql['db-a'].port = 2;
+    const configB = join(dir, 'workctl.other.yaml');
+    writeFileSync(configB, YAML.stringify(doc));
+    const plan = await invoke(testRegistry(), 'operation.plan', { action: 'fake.restart', param: ['target=a'] }, { configPath: configA });
+    const id = (plan.data as any).id as string;
+    expect((plan.data as any).config_identity).toMatch(/^sha256:[0-9a-f]{64}$/);
+    // visible (same plan store) but not executable under B
+    expect((await invoke(testRegistry(), 'operation.get', { id }, { configPath: configB })).status).toBe('success');
+    const ex = await invoke(testRegistry(), 'operation.execute', { id, confirm: id }, { configPath: configB });
+    expect(ex.error?.code).toBe('PRECONDITION_FAILED');
+    expect(ex.error?.message).toMatch(/配置/);
+    expect((await invoke(testRegistry(), 'operation.get', { id }, { configPath: configA })).data).toMatchObject({ status: 'planned' });
+    // an identical copy of the config under another file name is the same identity
+    const configC = join(dir, 'workctl.copy.yaml');
+    writeFileSync(configC, readFileSync(configA, 'utf8'));
+    expect((await invoke(testRegistry(), 'operation.execute', { id, confirm: id }, { configPath: configC })).status).toBe('success');
   });
 });
 

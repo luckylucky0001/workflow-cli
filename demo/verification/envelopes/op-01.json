@@ -3,7 +3,7 @@
   "status": "success",
   "capability": "operation.plan",
   "data": {
-    "id": "op-20261018-012047",
+    "id": "op-20261018-f30a4c",
     "kind": "container.restart",
     "title": "重启服务 demo-order（sandbox）的 1 个容器",
     "params": {
@@ -17,7 +17,7 @@
         "image": "workctl-demo/demo-order:local",
         "state": "running",
         "health": "none",
-        "started_at": "2026-10-18T06:09:44.920872652Z",
+        "started_at": "2026-10-18T06:10:12.119304964Z",
         "restart_policy": "no",
         "selector": "workctl.service=demo-order",
         "selector_kind": "label",
@@ -93,19 +93,20 @@
     "idempotent": true,
     "cancellable": false,
     "status": "planned",
-    "created_at": "2026-10-18T06:10:09.864Z",
-    "expires_at": "2026-10-18T06:40:09.864Z",
+    "created_at": "2026-10-18T06:23:58.539Z",
+    "expires_at": "2026-10-18T06:53:58.539Z",
     "profile": "demo",
     "env": "sandbox",
     "executable": true,
+    "config_identity": "sha256:6e827e7c8071f7f6f727057bfcf84f617b9b45596d246475de39290a05d43109",
     "history": [
       {
-        "at": "2026-10-18T06:10:09.864Z",
+        "at": "2026-10-18T06:23:58.539Z",
         "status": "planned",
         "note": "计划已生成，未执行"
       }
     ],
-    "digest": "sha256:919f337ac0c9be7b9bc9e5ce3f569f57fd7e1ad3ae0ffb89972d957d7b66a052"
+    "digest": "sha256:67496f90ee82fcd8bb42cd99469023c6a4595b6455f819a489a7910e4418c694"
   },
   "error": null,
   "meta": {
@@ -113,19 +114,19 @@
       {
         "system": "workctl",
         "adapter": "plan-store",
-        "observed_at": "2026-10-18T06:10:09.865Z",
+        "observed_at": "2026-10-18T06:23:58.539Z",
         "endpoint": "/home/user/workflow-cli/demo/environment/.runtime/state/operations",
         "relation": "derived"
       }
     ],
     "coverage": {
       "complete": true,
-      "scope": "计划 op-20261018-012047（仅预览，未执行）"
+      "scope": "计划 op-20261018-f30a4c（仅预览，未执行）"
     },
     "warnings": []
   },
   "context": {
-    "request_id": "req-mvdfeuil-254688",
+    "request_id": "req-mvdfwlxj-1b1019",
     "profile": "demo",
     "env": "sandbox",
     "data_mode": "live",
@@ -133,7 +134,7 @@
     "adapter": "plan-store",
     "operation": "plan",
     "cli_version": "0.1.0",
-    "started_at": "2026-10-18T06:10:09.789Z",
-    "duration_ms": 81
+    "started_at": "2026-10-18T06:23:58.471Z",
+    "duration_ms": 69
   }
 }

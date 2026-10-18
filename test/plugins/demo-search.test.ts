@@ -7,7 +7,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { invoke } from '../../src/core/engine';
 import { installPlugin, loadPlugins, PluginManifestSchema } from '../../src/core/plugins';
 import { builtinRegistry } from '../../src/domains';
-import { countMappingFields, HANDLERS, readDslFile, shapeClusterGet, shapeIndexGet, shapeSearchResponse, shapeShards } from '../../plugins/demo-search/src/capabilities';
+import { countMappingFields, HANDLERS, topBucketAggregations, readDslFile, shapeClusterGet, shapeIndexGet, shapeSearchResponse, shapeShards } from '../../plugins/demo-search/src/capabilities';
 import { aggBucketBound, buildSearchBody, hasQueryStringRegex, MAX_AGG_OUTPUT_BYTES, MAX_HITS_CAP, parseDsl, scanDsl, TRACK_TOTAL_HITS_LIMIT, truncateSource } from '../../plugins/demo-search/src/dsl';
 import { buildManifest, CAPABILITIES } from '../../plugins/demo-search/src/manifest';
 import { mapOsError, OsClient, OsHttpError, requireIndexName, requireSearchTarget, resolveEndpoint } from '../../plugins/demo-search/src/opensearch';
@@ -124,6 +124,24 @@ describe('demo-search expensive query guards', () => {
     expect(s.data.aggregations).toBeNull();
     expect(s.warnings.join(' ')).toContain('聚合结果');
     expect(OUTPUT_SCHEMAS['search.query'].safeParse(s.data).success).toBe(true);
+  });
+});
+
+describe('demo-search terms top buckets', () => {
+  it('names terms aggregations with sum_other_doc_count > 0 in a coverage note, without marking the result partial', () => {
+    const guarded = buildSearchBody({ dsl: { size: 0, aggs: { by_status: { terms: { field: 'status', size: 2 } } } }, maxHits: 2, timeoutMs: 1000 });
+    const aggregations = {
+      by_status: { doc_count_error_upper_bound: 0, sum_other_doc_count: 7, buckets: [{ key: 'paid', doc_count: 10, by_city: { sum_other_doc_count: 3, buckets: [{ key: 'x', doc_count: 4 }] } }, { key: 'new', doc_count: 5 }] },
+      all_status: { doc_count_error_upper_bound: 0, sum_other_doc_count: 0, buckets: [{ key: 'paid', doc_count: 10 }] },
+    };
+    const res = { took: 1, timed_out: false, _shards: { total: 1, successful: 1, skipped: 0, failed: 0 }, hits: { total: { value: 22, relation: 'eq' }, hits: [] }, aggregations };
+    expect(topBucketAggregations(aggregations)).toEqual([{ name: 'by_status', other_docs: 7 }, { name: 'by_status > by_city', other_docs: 3 }]);
+    const s = shapeSearchResponse({ cluster: 'c', index: 'i', guarded, maxHits: 2, res, observedAt: 't' });
+    expect(s.status).toBe('success');
+    const note = s.notes.join('\n');
+    expect(note).toMatch(/terms 聚合 by_status .*sum_other_doc_count=7/);
+    expect(note).toMatch(/by_status > by_city/);
+    expect(note).not.toMatch(/all_status/);
   });
 });
 
